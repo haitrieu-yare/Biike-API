@@ -1,3 +1,4 @@
+using Application.Routes;
 using Application.Stations;
 using AutoMapper;
 using Domain;
@@ -8,14 +9,12 @@ namespace Application.Core
 	{
 		public MappingProfiles()
 		{
-			// CreateMap<Station, Station>()
-			// 	.ForMember(s => s.Id, opt => opt.Ignore())
-			// 	.ForMember(s => s.Area, opt => opt.Ignore())
-			// 	.ForMember(s => s.DepartureRoutes, opt => opt.Ignore())
-			// 	.ForMember(s => s.DestinationRoutes, opt => opt.Ignore());
 			CreateMap<Station, StationDTO>();
 			CreateMap<StationDTO, Station>()
 				.ForMember(s => s.Id, opt => opt.Ignore());
+			CreateMap<Route, RouteDTO>();
+			CreateMap<RouteDTO, Route>()
+				.ForMember(r => r.Id, opt => opt.Ignore());
 		}
 	}
 }

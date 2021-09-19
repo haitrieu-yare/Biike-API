@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -51,6 +52,11 @@ namespace Application.Stations
 				{
 					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled");
+				}
+				catch (System.Exception ex) when (ex is DbUpdateException)
+				{
+					_logger.LogInformation(ex.Message);
+					return Result<Unit>.Failure(ex.Message);
 				}
 			}
 		}

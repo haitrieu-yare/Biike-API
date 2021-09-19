@@ -8,24 +8,24 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Stations
+namespace Application.Routes
 {
 	public class Create
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public StationDTO StationDto { get; set; }
+			public RouteDTO RouteDto { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Create> _logger;
 			private readonly IMapper _mapper;
+			private readonly ILogger<Create> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
 			{
-				_mapper = mapper;
 				_logger = logger;
+				_mapper = mapper;
 				_context = context;
 			}
 
@@ -35,11 +35,11 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newStation = new Station();
-					_mapper.Map(request.StationDto, newStation);
+					var newRoute = new Route();
+					_mapper.Map(request.RouteDto, newRoute);
 
-					await _context.Station.AddAsync(newStation, cancellationToken);
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					await _context.Route.AddAsync(newRoute);
+					var result = await _context.SaveChangesAsync() > 0;
 
 					if (!result)
 					{
@@ -48,7 +48,7 @@ namespace Application.Stations
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created station");
+						_logger.LogInformation("Successfully created route");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

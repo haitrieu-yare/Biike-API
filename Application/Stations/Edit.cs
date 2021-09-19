@@ -2,8 +2,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using AutoMapper;
-using Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -35,16 +35,6 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					#region Check related data
-					var area = await _context.Area.FindAsync(request.newStationDto.AreaId);
-
-					if (area == null)
-					{
-						_logger.LogInformation("Failed to update station");
-						return Result<Unit>.Failure("Failed to update station");
-					}
-					#endregion
-
 					var oldStation = await _context.Station.FindAsync(request.Id);
 					if (oldStation == null) return null;
 
@@ -66,6 +56,11 @@ namespace Application.Stations
 				{
 					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled");
+				}
+				catch (System.Exception ex) when (ex is DbUpdateException)
+				{
+					_logger.LogInformation(ex.Message);
+					return Result<Unit>.Failure(ex.Message);
 				}
 			}
 		}

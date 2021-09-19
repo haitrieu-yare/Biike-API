@@ -2,31 +2,31 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using AutoMapper;
-using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Stations
+namespace Application.Routes
 {
-	public class Create
+	public class Delete
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public StationDTO StationDto { get; set; }
+			public int Id { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Create> _logger;
 			private readonly IMapper _mapper;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly ILogger<Delete> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Delete> logger)
 			{
-				_mapper = mapper;
 				_logger = logger;
+				_mapper = mapper;
 				_context = context;
+
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -35,20 +35,20 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newStation = new Station();
-					_mapper.Map(request.StationDto, newStation);
+					var route = await _context.Route.FindAsync(request.Id);
+					if (route == null) return null;
 
-					await _context.Station.AddAsync(newStation, cancellationToken);
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					route.IsDeleted = true;
+					var result = await _context.SaveChangesAsync() > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new station");
-						return Result<Unit>.Failure("Failed to create new station");
+						_logger.LogInformation("Failed to delete route");
+						return Result<Unit>.Failure("Failed to delete route");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created station");
+						_logger.LogInformation("Successfully deleted route");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

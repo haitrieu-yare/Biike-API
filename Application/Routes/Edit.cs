@@ -2,30 +2,30 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using AutoMapper;
-using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Stations
+namespace Application.Routes
 {
-	public class Create
+	public class Edit
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public StationDTO StationDto { get; set; }
+			public int Id { get; set; }
+			public RouteDTO RouteDto { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Create> _logger;
 			private readonly IMapper _mapper;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly ILogger<Edit> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Edit> logger)
 			{
-				_mapper = mapper;
 				_logger = logger;
+				_mapper = mapper;
 				_context = context;
 			}
 
@@ -35,20 +35,20 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newStation = new Station();
-					_mapper.Map(request.StationDto, newStation);
+					var oldRoute = await _context.Route.FindAsync(request.Id);
+					if (oldRoute == null) return null;
 
-					await _context.Station.AddAsync(newStation, cancellationToken);
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					_mapper.Map(request.RouteDto, oldRoute);
+					var result = await _context.SaveChangesAsync() > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new station");
-						return Result<Unit>.Failure("Failed to create new station");
+						_logger.LogInformation("Failed to update route");
+						return Result<Unit>.Failure("Failed to update route");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created station");
+						_logger.LogInformation("Successfully updated route");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}
