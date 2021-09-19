@@ -1,7 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Stations;
-using Domain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -21,15 +20,15 @@ namespace API.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateStation(Station station, CancellationToken ct)
+		public async Task<IActionResult> CreateStation(StationDTO stationDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Create.Command { Station = station }, ct));
+			return HandleResult(await Mediator.Send(new Create.Command { StationDto = stationDto }, ct));
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> EditStation(int id, Station station, CancellationToken ct)
+		public async Task<IActionResult> EditStation(int id, StationDTO stationDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Edit.Command { Id = id, newStation = station }, ct));
+			return HandleResult(await Mediator.Send(new Edit.Command { Id = id, newStationDto = stationDto }, ct));
 		}
 
 		[HttpDelete("{id}")]

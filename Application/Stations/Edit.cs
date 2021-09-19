@@ -14,7 +14,7 @@ namespace Application.Stations
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public Station newStation { get; set; }
+			public StationDTO newStationDto { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -36,7 +36,7 @@ namespace Application.Stations
 					cancellationToken.ThrowIfCancellationRequested();
 
 					#region Check related data
-					var area = await _context.Area.FindAsync(request.newStation.AreaId);
+					var area = await _context.Area.FindAsync(request.newStationDto.AreaId);
 
 					if (area == null)
 					{
@@ -48,7 +48,7 @@ namespace Application.Stations
 					var oldStation = await _context.Station.FindAsync(request.Id);
 					if (oldStation == null) return null;
 
-					_mapper.Map(request.newStation, oldStation);
+					_mapper.Map(request.newStationDto, oldStation);
 					var result = await _context.SaveChangesAsync() > 0;
 
 					if (!result)

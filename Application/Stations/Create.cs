@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using AutoMapper;
 using Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -12,15 +13,17 @@ namespace Application.Stations
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public Station Station { get; set; }
+			public StationDTO StationDto { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
 			private readonly ILogger<Create> _logger;
-			public Handler(DataContext context, ILogger<Create> logger)
+			private readonly IMapper _mapper;
+			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
 			{
+				_mapper = mapper;
 				_logger = logger;
 				_context = context;
 			}
@@ -32,7 +35,7 @@ namespace Application.Stations
 					cancellationToken.ThrowIfCancellationRequested();
 
 					#region Check related data
-					var area = await _context.Area.FindAsync(request.Station.AreaId);
+					var area = await _context.Area.FindAsync(request.StationDto.AreaId);
 
 					if (area == null)
 					{
@@ -41,7 +44,10 @@ namespace Application.Stations
 					}
 					#endregion
 
-					await _context.Station.AddAsync(request.Station, cancellationToken);
+					var newStation = new Station();
+					_mapper.Map(request.StationDto, newStation);
+
+					await _context.Station.AddAsync(newStation, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
