@@ -31,11 +31,12 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var station = await _context.Station.FindAsync(request.Id);
+					var station = await _context.Station
+						.FindAsync(new object[] { request.Id }, cancellationToken);
 					if (station == null) return null;
 
 					station.IsDeleted = true;
-					var result = await _context.SaveChangesAsync() > 0;
+					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{

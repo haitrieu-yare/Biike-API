@@ -28,7 +28,7 @@ namespace API.Controllers
 		[HttpPut("{id}")]
 		public async Task<IActionResult> EditStation(int id, StationDTO stationDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Edit.Command { Id = id, newStationDto = stationDto }, ct));
+			return HandleResult(await Mediator.Send(new Edit.Command { Id = id, NewStationDto = stationDto }, ct));
 		}
 
 		[HttpDelete("{id}")]

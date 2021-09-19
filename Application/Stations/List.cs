@@ -35,9 +35,9 @@ namespace Application.Stations
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var stations = await _context.Station
-					.Where(s => s.IsDeleted != true)
-					.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
-					.ToListAsync(cancellationToken);
+						.Where(s => s.IsDeleted != true)
+						.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
+						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all station");
 					return Result<List<StationDTO>>.Success(stations);

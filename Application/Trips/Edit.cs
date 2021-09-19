@@ -1,29 +1,32 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Routes
+namespace Application.Trips
 {
-	public class Delete
+	public class Edit
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
+			public TripDTO NewTripDto { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Delete> _logger;
-			public Handler(DataContext context, ILogger<Delete> logger)
+			private readonly IMapper _mapper;
+			private readonly ILogger<Edit> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Edit> logger)
 			{
 				_logger = logger;
+				_mapper = mapper;
 				_context = context;
-
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -32,21 +35,21 @@ namespace Application.Routes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var route = await _context.Route
+					var oldTrip = await _context.Trip
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (route == null) return null;
+					if (oldTrip == null) return null;
 
-					route.IsDeleted = true;
+					_mapper.Map(request.NewTripDto, oldTrip);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to delete route");
-						return Result<Unit>.Failure("Failed to delete route");
+						_logger.LogInformation("Failed to update trip");
+						return Result<Unit>.Failure("Failed to update trip");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully deleted route");
+						_logger.LogInformation("Successfully updated trip");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

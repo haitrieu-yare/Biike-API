@@ -38,8 +38,8 @@ namespace Application.Routes
 					var newRoute = new Route();
 					_mapper.Map(request.RouteDto, newRoute);
 
-					await _context.Route.AddAsync(newRoute);
-					var result = await _context.SaveChangesAsync() > 0;
+					await _context.Route.AddAsync(newRoute, cancellationToken);
+					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{

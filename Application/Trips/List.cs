@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -10,13 +9,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Routes
+namespace Application.Trips
 {
 	public class List
 	{
-		public class Query : IRequest<Result<List<RouteDTO>>> { }
+		public class Query : IRequest<Result<List<TripDTO>>> { }
 
-		public class Handler : IRequestHandler<Query, Result<List<RouteDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<TripDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -28,24 +27,23 @@ namespace Application.Routes
 				_context = context;
 			}
 
-			public async Task<Result<List<RouteDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<TripDTO>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var routes = await _context.Route
-						.Where(r => r.IsDeleted != true)
-						.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
+					var trips = await _context.Trip
+						.ProjectTo<TripDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all route");
-					return Result<List<RouteDTO>>.Success(routes);
+					_logger.LogInformation("Successfully retrieved list of all trip");
+					return Result<List<TripDTO>>.Success(trips);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<RouteDTO>>.Failure("Request was cancelled");
+					return Result<List<TripDTO>>.Failure("Request was cancelled");
 				}
 			}
 		}

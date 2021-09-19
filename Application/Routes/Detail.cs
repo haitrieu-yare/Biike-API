@@ -39,7 +39,7 @@ namespace Application.Routes
 					var route = await _context.Route
 						.Where(r => r.IsDeleted != true)
 						.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
-						.FirstOrDefaultAsync(r => r.Id == request.Id);
+						.FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved route");
 					return Result<RouteDTO>.Success(route);
