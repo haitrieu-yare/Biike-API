@@ -2,9 +2,10 @@ namespace Domain.Enums
 {
 	public enum TripStatus
 	{
-		Scheduled,
+		Finding,
 		Waiting,
-		Ongoing,
-		Completed,
+		Started,
+		Finished,
+		Cancelled,
 	}
 }

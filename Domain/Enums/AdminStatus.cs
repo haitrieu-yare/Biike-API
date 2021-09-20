@@ -1,9 +1,8 @@
 namespace Domain.Enums
 {
-	public enum AppUserStatus
+	public enum AdminStatus
 	{
 		Active,
 		Deactive,
-		Deleted,
 	}
 }

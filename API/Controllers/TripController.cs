@@ -7,10 +7,10 @@ namespace API.Controllers
 {
 	public class TripController : BaseApiController
 	{
-		[HttpGet]
-		public async Task<IActionResult> GetTrips(CancellationToken ct)
+		[HttpGet("{userId}/{role}")]
+		public async Task<IActionResult> GetHistoryTrips(int userId, int role, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new List.Query(), ct));
+			return HandleResult(await Mediator.Send(new List.Query { UserId = userId, Role = role }, ct));
 		}
 
 		[HttpGet("{id}")]

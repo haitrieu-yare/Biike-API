@@ -37,7 +37,7 @@ namespace Application.Trips
 
 					var trip = await _context.Trip
 						.ProjectTo<TripDTO>(_mapper.ConfigurationProvider)
-						.FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
+						.FirstOrDefaultAsync(t => t.TripId == request.Id, cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved trip");
 					return Result<TripDTO>.Success(trip);
