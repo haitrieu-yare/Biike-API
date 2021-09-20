@@ -8,13 +8,13 @@ namespace API.Controllers
 {
 	public class TripController : BaseApiController
 	{
-		[HttpGet("history/user={userId}&role={role}")]
+		[HttpGet("history?user={userId}&role={role}")]
 		public async Task<IActionResult> GetHistoryTrips(int userId, int role, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new HistoryList.Query { UserId = userId, Role = role }, ct));
 		}
 
-		[HttpGet("upcoming/user={userId}&role={role}")]
+		[HttpGet("upcoming?user={userId}&role={role}")]
 		public async Task<IActionResult> GetUpcomingTrips(int userId, int role, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new UpcomingList.Query { UserId = userId, Role = role }, ct));
@@ -27,15 +27,15 @@ namespace API.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateTrip(TripHistoryDTO tripDto, CancellationToken ct)
+		public async Task<IActionResult> CreateTrip(TripCreateDTO tripCreateDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Create.Command { TripDto = tripDto }, ct));
+			return HandleResult(await Mediator.Send(new Create.Command { TripCreateDto = tripCreateDto }, ct));
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> EditTrip(int id, TripHistoryDTO tripDto, CancellationToken ct)
+		public async Task<IActionResult> EditTrip(int id, TripEditDTO tripEditDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Edit.Command { Id = id, NewTripDto = tripDto }, ct));
+			return HandleResult(await Mediator.Send(new Edit.Command { Id = id, TripEditDto = tripEditDto }, ct));
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace Application.Trips
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public TripHistoryDTO NewTripDto { get; set; }
+			public TripEditDTO TripEditDto { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -40,7 +40,7 @@ namespace Application.Trips
 						.FindAsync(new object[] { request.Id }, cancellationToken);
 					if (oldTrip == null) return null;
 
-					_mapper.Map(request.NewTripDto, oldTrip);
+					_mapper.Map(request.TripEditDto, oldTrip);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)

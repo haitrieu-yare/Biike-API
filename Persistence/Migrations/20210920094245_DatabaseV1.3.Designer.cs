@@ -10,7 +10,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20210920073934_DatabaseV1.3")]
+    [Migration("20210920094245_DatabaseV1.3")]
     partial class DatabaseV13
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -279,7 +279,6 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PlateNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RouteId")

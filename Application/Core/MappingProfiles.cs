@@ -81,9 +81,8 @@ namespace Application.Core
 				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.DepartureName));
 			#endregion
 
-			CreateMap<Trip, TripHistoryDTO>();
-			CreateMap<TripHistoryDTO, Trip>()
-				.ForMember(t => t.Id, opt => opt.Ignore());
+			CreateMap<TripCreateDTO, Trip>();
+			CreateMap<Trip, TripDetailDTO>();
 		}
 	}
 }

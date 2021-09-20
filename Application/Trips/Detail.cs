@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -13,12 +14,12 @@ namespace Application.Trips
 {
 	public class Detail
 	{
-		public class Query : IRequest<Result<TripHistoryDTO>>
+		public class Query : IRequest<Result<TripDetailDTO>>
 		{
 			public int Id { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<TripHistoryDTO>>
+		public class Handler : IRequestHandler<Query, Result<TripDetailDTO>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -30,23 +31,24 @@ namespace Application.Trips
 				_context = context;
 			}
 
-			public async Task<Result<TripHistoryDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<TripDetailDTO>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var trip = await _context.Trip
-						.ProjectTo<TripHistoryDTO>(_mapper.ConfigurationProvider)
-						.FirstOrDefaultAsync(t => t.TripId == request.Id, cancellationToken);
+						.Where(t => t.Id == request.Id)
+						.ProjectTo<TripDetailDTO>(_mapper.ConfigurationProvider)
+						.SingleAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved trip");
-					return Result<TripHistoryDTO>.Success(trip);
+					return Result<TripDetailDTO>.Success(trip);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<TripHistoryDTO>.Failure("Request was cancelled");
+					return Result<TripDetailDTO>.Failure("Request was cancelled");
 				}
 			}
 		}
