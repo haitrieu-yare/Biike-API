@@ -9,7 +9,7 @@ namespace Domain
 		public int Id { get; set; }
 		public int KeerId { get; set; }
 		public AppUser Keer { get; set; }
-		public int BikerId { get; set; }
+		public int? BikerId { get; set; }
 		public AppUser Biker { get; set; }
 		public int RouteId { get; set; }
 		public Route Route { get; set; }

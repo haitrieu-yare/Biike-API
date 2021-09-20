@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Trips.DTOs;
 using AutoMapper;
 using Domain;
 using MediatR;
@@ -14,7 +15,7 @@ namespace Application.Trips
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public TripDTO TripDto { get; set; }
+			public TripHistoryDTO TripDto { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

@@ -1,11 +1,12 @@
 using System;
 
-namespace Application.Trips
+namespace Application.Trips.DTOs
 {
-	public class BikerTripDTO
+	public class BikerUpcomingTripDTO
 	{
 		public int Id { get; set; }
 		public int KeerId { get; set; }
+		public string PhoneNumber { get; set; }
 		public string Avatar { get; set; }
 		public string UserFullname { get; set; }
 		public DateTime BookTime { get; set; }

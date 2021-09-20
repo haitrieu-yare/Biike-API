@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Trips.DTOs;
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ namespace Application.Trips
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public TripDTO NewTripDto { get; set; }
+			public TripHistoryDTO NewTripDto { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

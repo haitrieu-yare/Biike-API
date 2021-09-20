@@ -33,6 +33,16 @@ namespace API
 			{
 				opt.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
 			});
+			services.AddCors(opt =>
+			{
+				opt.AddPolicy("CorsPolicy", policy =>
+				{
+					policy
+						.AllowAnyMethod()
+						.AllowAnyHeader()
+						.AllowAnyOrigin();
+				});
+			});
 			services.AddMediatR(typeof(List.Handler).Assembly);
 			services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 		}
@@ -50,6 +60,8 @@ namespace API
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
+
+			app.UseCors("CorsPolicy");
 
 			app.UseAuthorization();
 

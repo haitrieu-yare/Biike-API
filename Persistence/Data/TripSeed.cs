@@ -63,6 +63,36 @@ namespace Persistence.Data
 					PlateNumber = "7001",
 					IsScheduled = true,
 				},
+				new Trip
+				{
+					KeerId = 1,
+					BikerId = 6,
+					RouteId = 1,
+					BookTime = DateTime.Now.AddDays(1),
+					Status = (int) TripStatus.Finding,
+					PlateNumber = "7001",
+					IsScheduled = true,
+				},
+				new Trip
+				{
+					KeerId = 1,
+					BikerId = null,
+					RouteId = 1,
+					BookTime = DateTime.Now.AddDays(2),
+					Status = (int) TripStatus.Finding,
+					PlateNumber = "7002",
+					IsScheduled = true,
+				},
+				new Trip
+				{
+					KeerId = 1,
+					BikerId = 7,
+					RouteId = 1,
+					BookTime = DateTime.Now.AddDays(2),
+					Status = (int) TripStatus.Waiting,
+					PlateNumber = "7003",
+					IsScheduled = true,
+				},
 			};
 
 			// Save change for each item because EF doesn't insert like the order

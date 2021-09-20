@@ -1,11 +1,11 @@
 using System;
 
-namespace Application.Trips
+namespace Application.Trips.DTOs
 {
-	public class TripDTO
+	public class TripHistoryDTO
 	{
 		public int TripId { get; set; }
-		public int UserId { get; set; }
+		public int? UserId { get; set; }
 		public string Avatar { get; set; }
 		public string UserFullname { get; set; }
 		public DateTime TimeBook { get; set; }
