@@ -15,7 +15,7 @@ namespace Persistence.Data
 			{
 				new Area
 				{
-					Name = "Hồ Chí Minh",
+					Name = "Đại học FPT TP.HCM",
 					IsDeleted = false,
 				},
 			};

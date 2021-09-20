@@ -2,8 +2,8 @@ namespace Domain.Enums
 {
 	public enum GenderStatus
 	{
-		Male,
 		Female,
+		Male,
 		Other,
 	}
 }

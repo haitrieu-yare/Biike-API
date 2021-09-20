@@ -66,7 +66,7 @@ namespace Persistence.Data
 				new Trip
 				{
 					KeerId = 1,
-					BikerId = 6,
+					BikerId = null,
 					RouteId = 1,
 					BookTime = DateTime.Now.AddDays(1),
 					Status = (int) TripStatus.Finding,

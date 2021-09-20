@@ -1,3 +1,4 @@
+using Application.AppUsers.DTOs;
 using Application.Routes;
 using Application.Stations;
 using Application.Trips.DTOs;
@@ -17,6 +18,14 @@ namespace Application.Core
 			CreateMap<Route, RouteDTO>();
 			CreateMap<RouteDTO, Route>()
 				.ForMember(r => r.Id, opt => opt.Ignore());
+
+			#region user profile
+			CreateMap<AppUser, AppUserProfileDTO>()
+				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))
+				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
+				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
+				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
+			#endregion
 
 			#region history trips
 			CreateMap<Trip, KeerHistoryTripDTO>()
