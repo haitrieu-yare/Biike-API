@@ -24,6 +24,7 @@ namespace Application.Core
 			CreateMap<AppUser, AppUserProfileDTO>()
 				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))
 				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
+				.ForMember(u => u.UserEmail, o => o.MapFrom(u => u.Email))
 				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
 				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
 			#endregion
@@ -87,9 +88,12 @@ namespace Application.Core
 			CreateMap<TripBikerInfoDTO, Trip>()
 				.ForMember(t => t.PlateNumber, o => o.MapFrom(t => t.NumberPlate));
 
-			CreateMap<FeedbackCreateDTO, Feedback>()
+			CreateMap<FeedbackDTO, Feedback>()
 				.ForMember(f => f.AppUserId, o => o.MapFrom(f => f.UserId))
 				.ForMember(f => f.Star, o => o.MapFrom(f => f.TripStar));
+			CreateMap<Feedback, FeedbackDTO>()
+				.ForMember(f => f.UserId, o => o.MapFrom(f => f.AppUserId))
+				.ForMember(f => f.TripStar, o => o.MapFrom(f => f.Star));
 		}
 	}
 }

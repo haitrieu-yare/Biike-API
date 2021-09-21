@@ -1,6 +1,6 @@
 namespace Application.Feedbacks.DTOs
 {
-	public class FeedbackCreateDTO
+	public class FeedbackDTO
 	{
 		public int UserId { get; set; }
 		public int TripId { get; set; }

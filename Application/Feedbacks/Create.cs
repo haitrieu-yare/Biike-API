@@ -14,7 +14,7 @@ namespace Application.Feedbacks.DTOs
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public FeedbackCreateDTO FeedbackCreateDTO { get; set; }
+			public FeedbackDTO FeedbackDTO { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -35,7 +35,7 @@ namespace Application.Feedbacks.DTOs
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var newFeedback = new Feedback();
-					_mapper.Map(request.FeedbackCreateDTO, newFeedback);
+					_mapper.Map(request.FeedbackDTO, newFeedback);
 
 					await _context.Feedback.AddAsync(newFeedback, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
