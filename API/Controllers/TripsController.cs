@@ -31,5 +31,12 @@ namespace API.Controllers
 		{
 			return HandleResult(await Mediator.Send(new Create.Command { TripCreateDto = tripCreateDto }, ct));
 		}
+
+		[HttpPut("{id}")]
+		public async Task<IActionResult> EditTripBiker(int id, TripBikerInfoDTO tripBikerInfoDTO, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new EditTripBiker.Command { Id = id, TripBikerInfoDTO = tripBikerInfoDTO }, ct));
+		}
 	}
 }

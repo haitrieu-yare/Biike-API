@@ -84,8 +84,8 @@ namespace Application.Core
 
 			CreateMap<TripCreateDTO, Trip>();
 			CreateMap<Trip, TripDetailDTO>();
-			CreateMap<TripEditDTO, Trip>()
-				.ForAllMembers(o => o.Condition((src, des, srcMember) => srcMember != null));
+			CreateMap<TripBikerInfoDTO, Trip>()
+				.ForMember(t => t.PlateNumber, o => o.MapFrom(t => t.NumberPlate));
 
 			CreateMap<FeedbackCreateDTO, Feedback>()
 				.ForMember(f => f.AppUserId, o => o.MapFrom(f => f.UserId))
