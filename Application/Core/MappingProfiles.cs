@@ -83,6 +83,8 @@ namespace Application.Core
 
 			CreateMap<TripCreateDTO, Trip>();
 			CreateMap<Trip, TripDetailDTO>();
+			CreateMap<TripEditDTO, Trip>()
+				.ForAllMembers(o => o.Condition((src, des, srcMember) => srcMember != null));
 		}
 	}
 }

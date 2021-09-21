@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-	public class RouteController : BaseApiController
+	public class RoutesController : BaseApiController
 	{
 		[HttpGet]
 		public async Task<IActionResult> GetRoutes(CancellationToken ct)

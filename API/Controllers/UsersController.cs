@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-	public class AppUserController : BaseApiController
+	public class UsersController : BaseApiController
 	{
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetUserProfile(int id, CancellationToken ct)
+		public async Task<IActionResult> GetUser(int id, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
 		}

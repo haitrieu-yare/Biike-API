@@ -18,8 +18,7 @@ namespace Persistence.Data
 					AreaId = 1,
 					Name = "Đại Học FPT",
 					Address = "Lô E2a-7, Đường D1, Khu Công Nghệ Cao, Long Thạnh Mỹ, Hồ Chí Minh",
-					Latitude = "10.8414899",
-					Longitude = "106.8078577",
+					Coordinate = "10.8414899,106.8078577",
 					IsDeleted = false,
 				},
 				new Station
@@ -27,8 +26,7 @@ namespace Persistence.Data
 					AreaId = 1,
 					Name = "Cổng Khu Công Nghệ Cao",
 					Address = "900 Xa lộ Hà Nội, Khu Phố 6, Quận 9, Hồ Chí Minh",
-					Latitude = "10.857506",
-					Longitude = "106.7872426",
+					Coordinate = "10.857506,106.7872426",
 					IsDeleted = false,
 				},
 				new Station
@@ -36,8 +34,7 @@ namespace Persistence.Data
 					AreaId = 1,
 					Name = "Chung Cư Sky 9",
 					Address = "61 Đường Số 1, Khu Phố 2, Quận 9, Hồ Chí Minh",
-					Latitude = "10.8044973",
-					Longitude = "106.7890194",
+					Coordinate = "10.8044973,106.7890194",
 					IsDeleted = false,
 				},
 				new Station
@@ -45,8 +42,7 @@ namespace Persistence.Data
 					AreaId = 1,
 					Name = "Ngã Tư Thủ Đức",
 					Address = "1A Lê Văn Việt, Hiệp Phú, Thành Phố Thủ Đức, Hồ Chí Minh",
-					Latitude = "10.8488652",
-					Longitude = "106.773979",
+					Coordinate = "10.8488652,106.773979",
 					IsDeleted = false,
 				},
 			};

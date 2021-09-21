@@ -17,10 +17,7 @@ namespace Domain
 		public string Address { get; set; }
 
 		[Required]
-		public string Latitude { get; set; }
-
-		[Required]
-		public string Longitude { get; set; }
+		public string Coordinate { get; set; }
 		public bool IsDeleted { get; set; }
 
 		[InverseProperty("Departure")]
