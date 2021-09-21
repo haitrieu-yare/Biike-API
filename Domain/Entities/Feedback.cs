@@ -4,7 +4,6 @@ namespace Domain
 {
 	public class Feedback
 	{
-		public int Id { get; set; }
 		public int AppUserId { get; set; }
 		public AppUser AppUser { get; set; }
 		public int TripId { get; set; }

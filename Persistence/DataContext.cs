@@ -84,6 +84,8 @@ namespace Persistence
 				.WithMany(u => u.FeedBackList)
 				.HasForeignKey(f => f.AppUserId)
 				.OnDelete(DeleteBehavior.NoAction);
+
+			modelBuilder.Entity<Feedback>().HasKey(i => new { i.AppUserId, i.TripId });
 			#endregion
 
 			#region TripTransaction

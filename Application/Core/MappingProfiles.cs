@@ -1,4 +1,5 @@
 using Application.AppUsers.DTOs;
+using Application.Feedbacks.DTOs;
 using Application.Routes;
 using Application.Stations;
 using Application.Trips.DTOs;
@@ -85,6 +86,10 @@ namespace Application.Core
 			CreateMap<Trip, TripDetailDTO>();
 			CreateMap<TripEditDTO, Trip>()
 				.ForAllMembers(o => o.Condition((src, des, srcMember) => srcMember != null));
+
+			CreateMap<FeedbackCreateDTO, Feedback>()
+				.ForMember(f => f.AppUserId, o => o.MapFrom(f => f.UserId))
+				.ForMember(f => f.Star, o => o.MapFrom(f => f.TripStar));
 		}
 	}
 }
