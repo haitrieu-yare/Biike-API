@@ -15,7 +15,7 @@ namespace Application.Trips
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public TripCreateDTO TripCreateDto { get; set; }
+			public TripCreateDTO TripCreateDTO { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -36,7 +36,7 @@ namespace Application.Trips
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var newTrip = new Trip();
-					_mapper.Map(request.TripCreateDto, newTrip);
+					_mapper.Map(request.TripCreateDTO, newTrip);
 
 					await _context.Trip.AddAsync(newTrip, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

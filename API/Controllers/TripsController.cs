@@ -29,7 +29,7 @@ namespace API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> CreateTrip(TripCreateDTO tripCreateDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Create.Command { TripCreateDto = tripCreateDto }, ct));
+			return HandleResult(await Mediator.Send(new Create.Command { TripCreateDTO = tripCreateDto }, ct));
 		}
 
 		[HttpPut("{id}")]

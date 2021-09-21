@@ -14,7 +14,7 @@ namespace Application.Routes
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public RouteDTO RouteDto { get; set; }
+			public RouteDTO RouteDTO { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -36,7 +36,7 @@ namespace Application.Routes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var newRoute = new Route();
-					_mapper.Map(request.RouteDto, newRoute);
+					_mapper.Map(request.RouteDTO, newRoute);
 
 					await _context.Route.AddAsync(newRoute, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

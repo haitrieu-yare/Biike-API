@@ -14,7 +14,7 @@ namespace Application.Stations
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public StationDTO NewStationDto { get; set; }
+			public StationDTO NewStationDTO { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -39,7 +39,7 @@ namespace Application.Stations
 						.FindAsync(new object[] { request.Id }, cancellationToken);
 					if (oldStation == null) return null;
 
-					_mapper.Map(request.NewStationDto, oldStation);
+					_mapper.Map(request.NewStationDTO, oldStation);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)

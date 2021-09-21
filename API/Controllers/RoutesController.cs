@@ -22,13 +22,13 @@ namespace API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> CreateRoute(RouteDTO routeDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Create.Command { RouteDto = routeDto }, ct));
+			return HandleResult(await Mediator.Send(new Create.Command { RouteDTO = routeDto }, ct));
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> EditRoute(int id, RouteDTO routeDto, CancellationToken ct)
+		public async Task<IActionResult> EditRoute(int id, RouteDTO newRouteDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Edit.Command { Id = id, NewRouteDto = routeDto }, ct));
+			return HandleResult(await Mediator.Send(new Edit.Command { Id = id, NewRouteDTO = newRouteDto }, ct));
 		}
 
 		[HttpDelete("{id}")]
