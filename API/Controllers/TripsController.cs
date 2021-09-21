@@ -8,16 +8,16 @@ namespace API.Controllers
 {
 	public class TripsController : BaseApiController
 	{
-		[HttpGet("{id}/history")]
-		public async Task<IActionResult> GetHistoryTrips(int id, int role, CancellationToken ct)
+		[HttpGet("{userId}/history")]
+		public async Task<IActionResult> GetHistoryTrips(int userId, int role, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new HistoryList.Query { UserId = id, Role = role }, ct));
+			return HandleResult(await Mediator.Send(new HistoryList.Query { UserId = userId, Role = role }, ct));
 		}
 
-		[HttpGet("{id}/upcoming")]
-		public async Task<IActionResult> GetUpcomingTrips(int id, int role, CancellationToken ct)
+		[HttpGet("{userId}/upcoming")]
+		public async Task<IActionResult> GetUpcomingTrips(int userId, int role, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new UpcomingList.Query { UserId = id, Role = role }, ct));
+			return HandleResult(await Mediator.Send(new UpcomingList.Query { UserId = userId, Role = role }, ct));
 		}
 
 		[HttpGet("{id}")]
