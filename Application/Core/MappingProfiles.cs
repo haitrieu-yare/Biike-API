@@ -20,14 +20,21 @@ namespace Application.Core
 			CreateMap<RouteDTO, Route>()
 				.ForMember(r => r.Id, opt => opt.Ignore());
 
+			#region user all info
+			CreateMap<AppUser, AppUserInfoDTO>();
+			#endregion
+
 			#region user profile
 			CreateMap<AppUser, AppUserProfileDTO>()
 				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))
 				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
 				.ForMember(u => u.UserEmail, o => o.MapFrom(u => u.Email))
-				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
-				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star))
-				.ForMember(u => u.UserStatus, o => o.MapFrom(u => u.Status));
+				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName));
+			CreateMap<AppUserProfileDTO, AppUser>()
+				.ForMember(u => u.Id, o => o.MapFrom(u => u.UserId))
+				.ForMember(u => u.PhoneNumber, o => o.MapFrom(u => u.UserPhoneNumber))
+				.ForMember(u => u.Email, o => o.MapFrom(u => u.UserEmail))
+				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname));
 			#endregion
 
 			#region history trips

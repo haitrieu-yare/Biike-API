@@ -14,9 +14,9 @@ namespace Application.AppUsers
 {
 	public class List
 	{
-		public class Query : IRequest<Result<List<AppUserProfileDTO>>> { }
+		public class Query : IRequest<Result<List<AppUserInfoDTO>>> { }
 
-		public class Handler : IRequestHandler<Query, Result<List<AppUserProfileDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<AppUserInfoDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -28,23 +28,23 @@ namespace Application.AppUsers
 				_context = context;
 			}
 
-			public async Task<Result<List<AppUserProfileDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<AppUserInfoDTO>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var users = await _context.AppUser
-						.ProjectTo<AppUserProfileDTO>(_mapper.ConfigurationProvider)
+						.ProjectTo<AppUserInfoDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all user");
-					return Result<List<AppUserProfileDTO>>.Success(users);
+					return Result<List<AppUserInfoDTO>>.Success(users);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<AppUserProfileDTO>>.Failure("Request was cancelled");
+					return Result<List<AppUserInfoDTO>>.Failure("Request was cancelled");
 				}
 			}
 		}

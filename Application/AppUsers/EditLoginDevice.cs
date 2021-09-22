@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.AppUsers.DTOs;
 using Application.Core;
-using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -24,12 +20,10 @@ namespace Application.AppUsers
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
 			private readonly ILogger<EditLoginDevice> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditLoginDevice> logger)
+			public Handler(DataContext context, ILogger<EditLoginDevice> logger)
 			{
 				_logger = logger;
-				_mapper = mapper;
 				_context = context;
 			}
 

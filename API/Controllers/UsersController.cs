@@ -20,10 +20,19 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
 		}
 
+		[HttpPut("{id}/profile")]
+		public async Task<IActionResult> EditUserProfile(int id,
+			AppUserProfileDTO appUserProfileDTO, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(new EditProfile.Command
+			{ Id = id, AppUserProfileDTO = appUserProfileDTO }, ct));
+		}
+
 		[HttpPut("{id}")]
 		public async Task<IActionResult> EditUserStatus(int id, int newStatus, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new EditStatus.Command { Id = id, NewStatus = newStatus }, ct));
+			return HandleResult(await Mediator.Send(new EditStatus.Command
+			{ Id = id, NewStatus = newStatus }, ct));
 		}
 
 		[HttpPut("{id}/login-device")]

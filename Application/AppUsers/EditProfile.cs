@@ -1,6 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Application.AppUsers.DTOs;
 using Application.Core;
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,21 +10,23 @@ using Persistence;
 
 namespace Application.AppUsers
 {
-	public class EditStatus
+	public class EditProfile
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public int NewStatus { get; set; }
+			public AppUserProfileDTO AppUserProfileDTO { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<EditStatus> _logger;
-			public Handler(DataContext context, ILogger<EditStatus> logger)
+			private readonly IMapper _mapper;
+			private readonly ILogger<EditProfile> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<EditProfile> logger)
 			{
 				_logger = logger;
+				_mapper = mapper;
 				_context = context;
 			}
 
@@ -36,18 +40,18 @@ namespace Application.AppUsers
 						.FindAsync(new object[] { request.Id }, cancellationToken);
 					if (user == null) return null;
 
-					user.Status = request.NewStatus;
+					_mapper.Map(request.AppUserProfileDTO, user);
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update user's status");
-						return Result<Unit>.Failure("Failed to update user's status");
+						_logger.LogInformation("Failed to update user's profile");
+						return Result<Unit>.Failure("Failed to update user's profile");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated user's status");
+						_logger.LogInformation("Successfully updated user's profile");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}
