@@ -14,8 +14,14 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new List.Query(), ct));
 		}
 
+		[HttpGet("{id}/profile")]
+		public async Task<IActionResult> GetUserSelfProfile(int id, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(new DetailSelf.Query { Id = id }, ct));
+		}
+
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetUser(int id, CancellationToken ct)
+		public async Task<IActionResult> GetUserProfile(int id, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
 		}

@@ -25,11 +25,19 @@ namespace Application.Core
 			#endregion
 
 			#region user profile
-			CreateMap<AppUser, AppUserProfileDTO>()
+			CreateMap<AppUser, AppUserSelfProfileDTO>()
 				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))
 				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
 				.ForMember(u => u.UserEmail, o => o.MapFrom(u => u.Email))
-				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName));
+				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
+				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star))
+				.ForMember(u => u.Point, o => o.MapFrom(u => u.Wallet.Point));
+
+			CreateMap<AppUser, AppUserProfileDTO>()
+				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))
+				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
+				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
+				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
 			#endregion
 
 			#region user profile that editable
