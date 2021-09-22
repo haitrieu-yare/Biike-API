@@ -30,10 +30,10 @@ namespace Application.Core
 				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
 				.ForMember(u => u.UserEmail, o => o.MapFrom(u => u.Email))
 				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName));
-			CreateMap<AppUserProfileDTO, AppUser>()
-				.ForMember(u => u.Id, o => o.MapFrom(u => u.UserId))
-				.ForMember(u => u.PhoneNumber, o => o.MapFrom(u => u.UserPhoneNumber))
-				.ForMember(u => u.Email, o => o.MapFrom(u => u.UserEmail))
+			#endregion
+
+			#region user profile that editable
+			CreateMap<AppUserProfileEditDTO, AppUser>()
 				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname));
 			#endregion
 

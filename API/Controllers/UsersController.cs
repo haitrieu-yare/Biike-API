@@ -22,10 +22,10 @@ namespace API.Controllers
 
 		[HttpPut("{id}/profile")]
 		public async Task<IActionResult> EditUserProfile(int id,
-			AppUserProfileDTO appUserProfileDTO, CancellationToken ct)
+			AppUserProfileEditDTO appUserProfileEditDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new EditProfile.Command
-			{ Id = id, AppUserProfileDTO = appUserProfileDTO }, ct));
+			{ Id = id, AppUserProfileEditDTO = appUserProfileEditDTO }, ct));
 		}
 
 		[HttpPut("{id}")]

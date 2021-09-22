@@ -24,6 +24,7 @@ namespace Domain
 		public string LastLoginDevice { get; set; }
 		public DateTime? LastTimeLogin { get; set; }
 		public double Star { get; set; }
+		public DateTime? BirthDate { get; set; }
 		public DateTime CreatedDate { get; set; }
 		public bool IsBikeVerified { get; set; }
 

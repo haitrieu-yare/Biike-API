@@ -15,7 +15,7 @@ namespace Application.AppUsers
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public AppUserProfileDTO AppUserProfileDTO { get; set; }
+			public AppUserProfileEditDTO AppUserProfileEditDTO { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -40,7 +40,7 @@ namespace Application.AppUsers
 						.FindAsync(new object[] { request.Id }, cancellationToken);
 					if (user == null) return null;
 
-					_mapper.Map(request.AppUserProfileDTO, user);
+					_mapper.Map(request.AppUserProfileEditDTO, user);
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

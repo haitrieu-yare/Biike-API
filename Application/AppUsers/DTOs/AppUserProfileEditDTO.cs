@@ -2,11 +2,8 @@ using System;
 
 namespace Application.AppUsers.DTOs
 {
-	public class AppUserProfileDTO
+	public class AppUserProfileEditDTO
 	{
-		public int UserId { get; set; }
-		public string UserPhoneNumber { get; set; }
-		public string UserEmail { get; set; }
 		public string UserFullname { get; set; }
 		public string Avatar { get; set; }
 		public int Gender { get; set; }
