@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Trips;
@@ -39,6 +40,13 @@ namespace API.Controllers
 		{
 			return HandleResult(await Mediator.Send(
 				new EditTripBiker.Command { Id = id, TripBikerInfoDTO = tripBikerInfoDTO }, ct));
+		}
+
+		[HttpPut("{id}/progressTime")]
+		public async Task<IActionResult> EditTripProgressTime(int id, string time, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+					new EditTripProcess.Command { Id = id, Time = DateTime.Parse(time) }, ct));
 		}
 
 		[HttpPut("{id}/cancel")]

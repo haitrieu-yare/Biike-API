@@ -1,29 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Trips.DTOs;
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Trips
+namespace Application.Trips.DTOs
 {
-	public class EditTripCancellation
+	public class EditTripProcess
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public int UserId { get; set; }
-			public TripCancellationDTO TripCancellationDTO { get; set; }
+			public DateTime? Time { get; set; }
 		}
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<EditTripCancellation> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditTripCancellation> logger)
+			private readonly ILogger<EditTripProcess> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<EditTripProcess> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;
@@ -36,12 +37,31 @@ namespace Application.Trips
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
+					if (request.Time == null)
+					{
+						_logger.LogInformation("No parameters are received");
+						return Result<Unit>.Failure("No parameters are received");
+					}
+
 					var oldTrip = await _context.Trip
 						.FindAsync(new object[] { request.Id }, cancellationToken);
 					if (oldTrip == null) return null;
 
+					if (oldTrip.BikerId == null)
+					{
+						_logger.LogInformation("Trip must has Biker before starting");
+						return Result<Unit>.Failure("Trip must has Biker before starting");
+					}
 					switch (oldTrip.Status)
 					{
+						case 1:
+							oldTrip.PickupTime = request.Time;
+							oldTrip.Status = 2;
+							break;
+						case 2:
+							oldTrip.FinishedTime = request.Time;
+							oldTrip.Status = 3;
+							break;
 						case 3:
 							_logger.LogInformation("Trip has already finished");
 							return Result<Unit>.Failure("Trip has already finished");
@@ -49,16 +69,6 @@ namespace Application.Trips
 							_logger.LogInformation("Trip has already cancelled");
 							return Result<Unit>.Failure("Trip has already cancelled");
 					}
-
-					if (request.UserId != oldTrip.KeerId && request.UserId != oldTrip.BikerId)
-					{
-						_logger.LogInformation("Cancellation request must come from Keer or Biker of the trip");
-						return Result<Unit>.Failure("Cancellation request must come from Keer or Biker of the trip");
-					}
-
-					_mapper.Map(request.TripCancellationDTO, oldTrip);
-					oldTrip.CancelPersonId = request.UserId;
-					oldTrip.Status = 4;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
