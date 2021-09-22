@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -11,19 +10,20 @@ using Persistence;
 
 namespace Application.Trips
 {
-	public class EditTripBiker
+	public class EditTripCancellation
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public TripBikerInfoDTO TripBikerInfoDTO { get; set; }
+			public int UserId { get; set; }
+			public TripCancellationDTO TripCancellationDTO { get; set; }
 		}
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<EditTripBiker> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditTripBiker> logger)
+			private readonly ILogger<EditTripCancellation> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<EditTripCancellation> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;
@@ -40,24 +40,21 @@ namespace Application.Trips
 						.FindAsync(new object[] { request.Id }, cancellationToken);
 					if (oldTrip == null) return null;
 
-					if (request.TripBikerInfoDTO.BikerId == oldTrip.KeerId)
+					if (oldTrip.Status == 3)
 					{
-						_logger.LogInformation("Biker and Keer can't be the same person");
-						return Result<Unit>.Failure("Biker and Keer can't be the same person");
+						_logger.LogInformation("Trip has already finished or cancelled");
+						return Result<Unit>.Failure("Trip has already finished or cancelled");
 					}
 
-					var biker = await _context.AppUser
-						.Where(b => b.Id == request.TripBikerInfoDTO.BikerId)
-						.SingleOrDefaultAsync(cancellationToken);
-
-					if (!biker.IsBikeVerified)
+					if (request.UserId != oldTrip.KeerId && request.UserId != oldTrip.BikerId)
 					{
-						_logger.LogInformation("Biker doesn't have verified bike yet");
-						return Result<Unit>.Failure("Biker doesn't have verified bike yet");
+						_logger.LogInformation("Cancellation request must come from Keer or Biker of the trip");
+						return Result<Unit>.Failure("Cancellation request must come from Keer or Biker of the trip");
 					}
 
-					_mapper.Map(request.TripBikerInfoDTO, oldTrip);
-					oldTrip.Status = 1;
+					_mapper.Map(request.TripCancellationDTO, oldTrip);
+					oldTrip.CancelPersonId = request.UserId;
+					oldTrip.Status = 3;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

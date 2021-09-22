@@ -11,13 +11,15 @@ namespace API.Controllers
 		[HttpGet("{userId}/history")]
 		public async Task<IActionResult> GetHistoryTrips(int userId, int role, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new HistoryList.Query { UserId = userId, Role = role }, ct));
+			return HandleResult(await Mediator.Send(new HistoryList.Query
+			{ UserId = userId, Role = role }, ct));
 		}
 
 		[HttpGet("{userId}/upcoming")]
 		public async Task<IActionResult> GetUpcomingTrips(int userId, int role, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new UpcomingList.Query { UserId = userId, Role = role }, ct));
+			return HandleResult(await Mediator.Send(new UpcomingList.Query
+			{ UserId = userId, Role = role }, ct));
 		}
 
 		[HttpGet("{id}")]
@@ -37,6 +39,19 @@ namespace API.Controllers
 		{
 			return HandleResult(await Mediator.Send(
 				new EditTripBiker.Command { Id = id, TripBikerInfoDTO = tripBikerInfoDTO }, ct));
+		}
+
+		[HttpPut("{id}/cancel")]
+		public async Task<IActionResult> EditTripCancellation(int id, int userId,
+			TripCancellationDTO tripCancellationDTO, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new EditTripCancellation.Command
+				{
+					Id = id,
+					UserId = userId,
+					TripCancellationDTO = tripCancellationDTO
+				}, ct));
 		}
 	}
 }

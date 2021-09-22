@@ -103,6 +103,8 @@ namespace Application.Core
 			CreateMap<Trip, TripDetailDTO>();
 			CreateMap<TripBikerInfoDTO, Trip>()
 				.ForMember(t => t.PlateNumber, o => o.MapFrom(t => t.NumberPlate));
+			CreateMap<TripCancellationDTO, Trip>()
+				.ForMember(t => t.FinishedTime, o => o.MapFrom(t => t.TimeFinished));
 
 			CreateMap<FeedbackDTO, Feedback>()
 				.ForMember(f => f.AppUserId, o => o.MapFrom(f => f.UserId))
