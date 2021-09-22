@@ -42,7 +42,7 @@ namespace Application.AppUsers
 						.Where(u => u.Id == request.Id)
 						.Where(u => u.Status == (int)AppUserStatus.Active)
 						.ProjectTo<AppUserProfileDTO>(_mapper.ConfigurationProvider)
-						.SingleAsync(cancellationToken);
+						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved user profile");
 					return Result<AppUserProfileDTO>.Success(AppUserProfile);

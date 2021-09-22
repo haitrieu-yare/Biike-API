@@ -40,7 +40,7 @@ namespace Application.Trips
 					var trip = await _context.Trip
 						.Where(t => t.Id == request.Id)
 						.ProjectTo<TripDetailDTO>(_mapper.ConfigurationProvider)
-						.SingleAsync(cancellationToken);
+						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved trip");
 					return Result<TripDetailDTO>.Success(trip);
