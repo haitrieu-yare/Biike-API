@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -52,6 +50,7 @@ namespace Application.Trips.DTOs
 						_logger.LogInformation("Trip must has Biker before starting");
 						return Result<Unit>.Failure("Trip must has Biker before starting");
 					}
+
 					switch (oldTrip.Status)
 					{
 						case 1:

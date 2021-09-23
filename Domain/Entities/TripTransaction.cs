@@ -9,7 +9,6 @@ namespace Domain
 		public Trip Trip { get; set; }
 		public int WalletId { get; set; }
 		public Wallet Wallet { get; set; }
-		public bool isBiker { get; set; }
 		public int AmountOfPoint { get; set; }
 		public DateTime TransactionDate { get; set; }
 	}

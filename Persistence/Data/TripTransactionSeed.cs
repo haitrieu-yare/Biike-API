@@ -18,7 +18,6 @@ namespace Persistence.Data
 				{
 					TripId = 1,
 					WalletId = 1,
-					isBiker = false,
 					AmountOfPoint = 1,
 					TransactionDate = DateTime.Now.AddDays(-9).AddMilliseconds(1800000),
 				},
@@ -26,7 +25,6 @@ namespace Persistence.Data
 				{
 					TripId = 1,
 					WalletId = 4,
-					isBiker = true,
 					AmountOfPoint = 10,
 					TransactionDate = DateTime.Now.AddDays(-9).AddMilliseconds(1800000),
 				},
@@ -34,7 +32,6 @@ namespace Persistence.Data
 				{
 					TripId = 2,
 					WalletId = 2,
-					isBiker = false,
 					AmountOfPoint = 1,
 					TransactionDate = DateTime.Now.AddDays(-5).AddMilliseconds(1200000),
 				},
@@ -42,7 +39,6 @@ namespace Persistence.Data
 				{
 					TripId = 2,
 					WalletId = 5,
-					isBiker = true,
 					AmountOfPoint = 15,
 					TransactionDate = DateTime.Now.AddDays(-5).AddMilliseconds(1200000),
 				},
@@ -50,7 +46,6 @@ namespace Persistence.Data
 				{
 					TripId = 3,
 					WalletId = 6,
-					isBiker = false,
 					AmountOfPoint = 1,
 					TransactionDate = DateTime.Now.AddDays(-2).AddMilliseconds(900000),
 				},
@@ -58,7 +53,6 @@ namespace Persistence.Data
 				{
 					TripId = 3,
 					WalletId = 7,
-					isBiker = true,
 					AmountOfPoint = 12,
 					TransactionDate = DateTime.Now.AddDays(-2).AddMilliseconds(900000),
 				},

@@ -4,6 +4,7 @@ using Application.Feedbacks.DTOs;
 using Application.Routes;
 using Application.Stations;
 using Application.Trips.DTOs;
+using Application.TripTransactions;
 using AutoMapper;
 using Domain;
 
@@ -84,6 +85,10 @@ namespace Application.Core
 				.ForMember(b => b.Id, o => o.Ignore())
 				.ForMember(b => b.AppUserId, o => o.MapFrom(b => b.UserId))
 				.ForMember(b => b.PlateNumber, o => o.MapFrom(b => b.NumberPlate));
+
+			CreateMap<TripTransaction, TripTransactionDTO>()
+				.ForMember(t => t.TransactionId, o => o.MapFrom(t => t.Id))
+				.ForMember(t => t.AmountPoint, o => o.MapFrom(t => t.AmountOfPoint));
 		}
 	}
 }
