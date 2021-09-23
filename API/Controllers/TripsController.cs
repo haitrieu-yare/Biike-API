@@ -36,10 +36,9 @@ namespace API.Controllers
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> EditTripBiker(int id, TripBikerInfoDTO tripBikerInfoDTO, CancellationToken ct)
+		public async Task<IActionResult> EditTripBiker(int id, int bikerId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(
-				new EditTripBiker.Command { Id = id, TripBikerInfoDTO = tripBikerInfoDTO }, ct));
+			return HandleResult(await Mediator.Send(new EditTripBiker.Command { Id = id, BikerId = bikerId }, ct));
 		}
 
 		[HttpPut("{id}/progressTime")]

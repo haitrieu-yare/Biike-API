@@ -16,13 +16,13 @@ namespace Application.Trips
 {
 	public class UpcomingList
 	{
-		public class Query : IRequest<Result<List<TripUpcomingDTO>>>
+		public class Query : IRequest<Result<List<TripDTO>>>
 		{
 			public int UserId { get; set; }
 			public int Role { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<TripUpcomingDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<TripDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -34,43 +34,35 @@ namespace Application.Trips
 				_context = context;
 			}
 
-			public async Task<Result<List<TripUpcomingDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<TripDTO>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var tripUpcomingDTO = new List<TripUpcomingDTO>();
-
-					if (request.Role == (int)RoleStatus.Keer)
+					if (request.Role != (int)RoleStatus.Keer && request.Role != (int)RoleStatus.Biker)
 					{
-						var tripUpcomingKeerDTO = await _context.Trip
-							.Where(t => t.KeerId == request.UserId)
-							.Where(t => t.Status == (int)TripStatus.Finding
-								|| t.Status == (int)TripStatus.Waiting)
-							.ProjectTo<KeerUpcomingTripDTO>(_mapper.ConfigurationProvider)
-							.ToListAsync(cancellationToken);
-
-						_mapper.Map(tripUpcomingKeerDTO, tripUpcomingDTO);
+						_logger.LogInformation("Role must be 0 (Keer) or 1 (Biker)");
+						return Result<List<TripDTO>>.Failure("Role must be 0 (Keer) or 1 (Biker)");
 					}
-					else if (request.Role == (int)RoleStatus.Biker)
-					{
-						var tripUpcomingBikerDTO = await _context.Trip
-							.Where(t => t.BikerId == request.UserId)
-							.Where(t => t.Status == (int)TripStatus.Waiting)
-							.ProjectTo<BikerUpcomingTripDTO>(_mapper.ConfigurationProvider)
-							.ToListAsync(cancellationToken);
 
-						_mapper.Map(tripUpcomingBikerDTO, tripUpcomingDTO);
-					}
+					var tripDTO = await _context.Trip
+						.Where(t => (request.Role == (int)RoleStatus.Keer) ?
+							t.KeerId == request.UserId :
+							t.BikerId == request.UserId)
+						.Where(t => t.Status == (int)TripStatus.Finding
+							|| t.Status == (int)TripStatus.Waiting)
+						.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
+							new { role = request.Role.ToString() })
+						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all upcoming trip");
-					return Result<List<TripUpcomingDTO>>.Success(tripUpcomingDTO);
+					return Result<List<TripDTO>>.Success(tripDTO);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripUpcomingDTO>>.Failure("Request was cancelled");
+					return Result<List<TripDTO>>.Failure("Request was cancelled");
 				}
 			}
 		}

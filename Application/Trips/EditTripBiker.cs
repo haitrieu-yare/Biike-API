@@ -16,7 +16,7 @@ namespace Application.Trips
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public TripBikerInfoDTO TripBikerInfoDTO { get; set; }
+			public int BikerId { get; set; }
 		}
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
@@ -40,15 +40,14 @@ namespace Application.Trips
 						.FindAsync(new object[] { request.Id }, cancellationToken);
 					if (oldTrip == null) return null;
 
-					if (request.TripBikerInfoDTO.BikerId == oldTrip.KeerId)
+					if (request.BikerId == oldTrip.KeerId)
 					{
 						_logger.LogInformation("Biker and Keer can't be the same person");
 						return Result<Unit>.Failure("Biker and Keer can't be the same person");
 					}
 
 					var biker = await _context.AppUser
-						.Where(b => b.Id == request.TripBikerInfoDTO.BikerId)
-						.SingleOrDefaultAsync(cancellationToken);
+						.FindAsync(new object[] { request.BikerId }, cancellationToken);
 
 					if (!biker.IsBikeVerified)
 					{
@@ -56,7 +55,13 @@ namespace Application.Trips
 						return Result<Unit>.Failure("Biker doesn't have verified bike yet");
 					}
 
-					_mapper.Map(request.TripBikerInfoDTO, oldTrip);
+					var bike = await _context.Bike
+						.Where(b => b.AppUserId == biker.Id)
+						.Where(b => b.IsDeleted == false)
+						.FirstOrDefaultAsync(cancellationToken);
+
+					oldTrip.BikerId = biker.Id;
+					oldTrip.PlateNumber = bike.PlateNumber;
 					oldTrip.Status = 1;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

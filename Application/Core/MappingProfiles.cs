@@ -45,58 +45,20 @@ namespace Application.Core
 				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname));
 			#endregion
 
-			#region history trips
-			CreateMap<Trip, KeerHistoryTripDTO>()
-				.ForMember(t => t.Avatar, o => o.MapFrom(t => t.Biker.Avatar))
-				.ForMember(t => t.UserFullname, o => o.MapFrom(t => t.Biker.FullName))
-				.ForMember(t => t.DepartureName, o => o.MapFrom(t => t.Route.Departure.Name))
-				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
-			CreateMap<Trip, BikerHistoryTripDTO>()
-				.ForMember(t => t.Avatar, o => o.MapFrom(t => t.Keer.Avatar))
-				.ForMember(t => t.UserFullname, o => o.MapFrom(t => t.Keer.FullName))
-				.ForMember(t => t.DepartureName, o => o.MapFrom(t => t.Route.Departure.Name))
-				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
-			CreateMap<KeerHistoryTripDTO, TripHistoryDTO>()
+			#region history/upcoming trips
+			string role = null;
+			CreateMap<Trip, TripDTO>()
 				.ForMember(t => t.TripId, o => o.MapFrom(t => t.Id))
-				.ForMember(t => t.UserId, o => o.MapFrom(t => t.BikerId))
+				.ForMember(t => t.UserId, o =>
+					o.MapFrom(t => (role.Equals("0")) ? t.BikerId : t.KeerId))
+				.ForMember(t => t.Avatar, o =>
+					o.MapFrom(t => (role.Equals("0")) ? t.Biker.Avatar : t.Keer.Avatar))
+				.ForMember(t => t.UserFullname,
+					o => o.MapFrom(t => (role.Equals("0")) ? t.Biker.FullName : t.Keer.FullName))
 				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
 				.ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
-				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.DepartureName));
-			CreateMap<BikerHistoryTripDTO, TripHistoryDTO>()
-				.ForMember(t => t.TripId, o => o.MapFrom(t => t.Id))
-				.ForMember(t => t.UserId, o => o.MapFrom(t => t.KeerId))
-				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
-				.ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
-				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.DepartureName));
-			#endregion
-
-			#region upcoming trips
-			CreateMap<Trip, KeerUpcomingTripDTO>()
-				.ForMember(t => t.PhoneNumber, o => o.MapFrom(t => t.Biker.PhoneNumber))
-				.ForMember(t => t.Avatar, o => o.MapFrom(t => t.Biker.Avatar))
-				.ForMember(t => t.UserFullname, o => o.MapFrom(t => t.Biker.FullName))
-				.ForMember(t => t.DepartureName, o => o.MapFrom(t => t.Route.Departure.Name))
+				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))
 				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
-			CreateMap<Trip, BikerUpcomingTripDTO>()
-				.ForMember(t => t.PhoneNumber, o => o.MapFrom(t => t.Keer.PhoneNumber))
-				.ForMember(t => t.Avatar, o => o.MapFrom(t => t.Keer.Avatar))
-				.ForMember(t => t.UserFullname, o => o.MapFrom(t => t.Keer.FullName))
-				.ForMember(t => t.DepartureName, o => o.MapFrom(t => t.Route.Departure.Name))
-				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
-			CreateMap<KeerUpcomingTripDTO, TripUpcomingDTO>()
-				.ForMember(t => t.TripId, o => o.MapFrom(t => t.Id))
-				.ForMember(t => t.UserId, o => o.MapFrom(t => t.BikerId))
-				.ForMember(t => t.UserPhoneNumber, o => o.MapFrom(t => t.PhoneNumber))
-				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
-				.ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
-				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.DepartureName));
-			CreateMap<BikerUpcomingTripDTO, TripUpcomingDTO>()
-				.ForMember(t => t.TripId, o => o.MapFrom(t => t.Id))
-				.ForMember(t => t.UserId, o => o.MapFrom(t => t.KeerId))
-				.ForMember(t => t.UserPhoneNumber, o => o.MapFrom(t => t.PhoneNumber))
-				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
-				.ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
-				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.DepartureName));
 			#endregion
 
 			CreateMap<TripCreateDTO, Trip>();

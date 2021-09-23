@@ -16,13 +16,13 @@ namespace Application.Trips
 {
 	public class HistoryList
 	{
-		public class Query : IRequest<Result<List<TripHistoryDTO>>>
+		public class Query : IRequest<Result<List<TripDTO>>>
 		{
 			public int UserId { get; set; }
 			public int Role { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<TripHistoryDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<TripDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -34,44 +34,35 @@ namespace Application.Trips
 				_context = context;
 			}
 
-			public async Task<Result<List<TripHistoryDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<TripDTO>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var tripHistoryDTO = new List<TripHistoryDTO>();
-
-					if (request.Role == (int)RoleStatus.Keer)
+					if (request.Role != (int)RoleStatus.Keer && request.Role != (int)RoleStatus.Biker)
 					{
-						var tripHistoryKeerDTO = await _context.Trip
-							.Where(t => t.KeerId == request.UserId)
-							.Where(t => t.Status == (int)TripStatus.Finished
-								|| t.Status == (int)TripStatus.Cancelled)
-							.ProjectTo<KeerHistoryTripDTO>(_mapper.ConfigurationProvider)
-							.ToListAsync(cancellationToken);
-
-						_mapper.Map(tripHistoryKeerDTO, tripHistoryDTO);
+						_logger.LogInformation("Role must be 0 (Keer) or 1 (Biker)");
+						return Result<List<TripDTO>>.Failure("Role must be 0 (Keer) or 1 (Biker)");
 					}
-					else if (request.Role == (int)RoleStatus.Biker)
-					{
-						var tripHistoryBikerDTO = await _context.Trip
-							.Where(t => t.BikerId == request.UserId)
-							.Where(t => t.Status == (int)TripStatus.Finished
-								|| t.Status == (int)TripStatus.Cancelled)
-							.ProjectTo<BikerHistoryTripDTO>(_mapper.ConfigurationProvider)
-							.ToListAsync(cancellationToken);
 
-						_mapper.Map(tripHistoryBikerDTO, tripHistoryDTO);
-					}
+					var tripDTO = await _context.Trip
+						.Where(t => (request.Role == (int)RoleStatus.Keer) ?
+							t.KeerId == request.UserId :
+							t.BikerId == request.UserId)
+						.Where(t => t.Status == (int)TripStatus.Finished
+							|| t.Status == (int)TripStatus.Cancelled)
+						.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
+							new { role = request.Role.ToString() })
+						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all history trip");
-					return Result<List<TripHistoryDTO>>.Success(tripHistoryDTO);
+					return Result<List<TripDTO>>.Success(tripDTO);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripHistoryDTO>>.Failure("Request was cancelled");
+					return Result<List<TripDTO>>.Failure("Request was cancelled");
 				}
 			}
 		}
