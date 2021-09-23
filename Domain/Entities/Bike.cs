@@ -11,6 +11,5 @@ namespace Domain
 		public string PlateNumber { get; set; }
 		public string Color { get; set; }
 		public string Brand { get; set; }
-		public bool IsDeleted { get; set; }
 	}
 }

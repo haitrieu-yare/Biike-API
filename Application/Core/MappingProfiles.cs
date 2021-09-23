@@ -1,4 +1,5 @@
 using Application.AppUsers.DTOs;
+using Application.Bikes;
 using Application.Feedbacks.DTOs;
 using Application.Routes;
 using Application.Stations;
@@ -74,6 +75,15 @@ namespace Application.Core
 			CreateMap<Feedback, FeedbackDTO>()
 				.ForMember(f => f.UserId, o => o.MapFrom(f => f.AppUserId))
 				.ForMember(f => f.TripStar, o => o.MapFrom(f => f.Star));
+
+			CreateMap<Bike, BikeDTO>()
+				.ForMember(b => b.BikeId, o => o.MapFrom(b => b.Id))
+				.ForMember(b => b.UserId, o => o.MapFrom(b => b.AppUserId))
+				.ForMember(b => b.NumberPlate, o => o.MapFrom(b => b.PlateNumber));
+			CreateMap<BikeDTO, Bike>()
+				.ForMember(b => b.Id, o => o.Ignore())
+				.ForMember(b => b.AppUserId, o => o.MapFrom(b => b.UserId))
+				.ForMember(b => b.PlateNumber, o => o.MapFrom(b => b.NumberPlate));
 		}
 	}
 }

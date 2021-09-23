@@ -1,31 +1,28 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using AutoMapper;
-using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Routes
+namespace Application.Bikes
 {
-	public class Create
+	public class Delete
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public RouteDTO RouteDTO { get; set; }
+			public int UserId { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<Create> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly ILogger<Delete> _logger;
+			public Handler(DataContext context, ILogger<Delete> logger)
 			{
 				_logger = logger;
-				_mapper = mapper;
 				_context = context;
 			}
 
@@ -35,20 +32,22 @@ namespace Application.Routes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newRoute = new Route();
-					_mapper.Map(request.RouteDTO, newRoute);
+					var bike = await _context.Bike
+						.Where(b => b.AppUserId == request.UserId)
+						.SingleOrDefaultAsync(cancellationToken);
+					if (bike == null) return null;
 
-					await _context.Route.AddAsync(newRoute, cancellationToken);
+					_context.Bike.Remove(bike);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new route");
-						return Result<Unit>.Failure("Failed to create new route");
+						_logger.LogInformation("Failed to delete bike");
+						return Result<Unit>.Failure("Failed to delete bike");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created route");
+						_logger.LogInformation("Successfully deleted bike");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

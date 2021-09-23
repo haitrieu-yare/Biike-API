@@ -57,7 +57,6 @@ namespace Application.Trips
 
 					var bike = await _context.Bike
 						.Where(b => b.AppUserId == biker.Id)
-						.Where(b => b.IsDeleted == false)
 						.FirstOrDefaultAsync(cancellationToken);
 
 					oldTrip.BikerId = biker.Id;

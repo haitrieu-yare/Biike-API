@@ -19,7 +19,6 @@ namespace Persistence.Data
 					PlateNumber = "7000",
 					Color = "Gold",
 					Brand = "Honda",
-					IsDeleted = false,
 				},
 				new Bike
 				{
@@ -27,7 +26,6 @@ namespace Persistence.Data
 					PlateNumber = "7001",
 					Color = "Blue",
 					Brand = "Yamaha",
-					IsDeleted = false,
 				},
 				new Bike
 				{
@@ -35,7 +33,6 @@ namespace Persistence.Data
 					PlateNumber = "7002",
 					Color = "Red",
 					Brand = "Honda",
-					IsDeleted = false,
 				},
 				new Bike
 				{
@@ -43,7 +40,6 @@ namespace Persistence.Data
 					PlateNumber = "7004",
 					Color = "Green",
 					Brand = "Suzuki",
-					IsDeleted = false,
 				},
 				new Bike
 				{
@@ -51,7 +47,6 @@ namespace Persistence.Data
 					PlateNumber = "7005",
 					Color = "Black",
 					Brand = "Yamaha",
-					IsDeleted = false,
 				},
 			};
 
