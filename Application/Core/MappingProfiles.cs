@@ -64,6 +64,22 @@ namespace Application.Core
 				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
 			#endregion
 
+			#region trip history pair
+			int userTwoId = 0;
+			CreateMap<Trip, TripPairDTO>()
+				.ForMember(t => t.TripId, o => o.MapFrom(t => t.Id))
+				.ForMember(t => t.UserId, o =>
+					o.MapFrom(t => userTwoId == t.BikerId ? t.BikerId : t.KeerId))
+				.ForMember(t => t.Avatar, o =>
+					o.MapFrom(t => userTwoId == t.BikerId ? t.Biker.Avatar : t.Keer.Avatar))
+				.ForMember(t => t.UserFullname, o =>
+					o.MapFrom(t => userTwoId == t.BikerId ? t.Biker.FullName : t.Keer.FullName))
+				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
+				.ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
+				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))
+				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
+			#endregion
+
 			CreateMap<TripCreateDTO, Trip>();
 			CreateMap<Trip, TripDetailDTO>();
 			CreateMap<TripBikerInfoDTO, Trip>()

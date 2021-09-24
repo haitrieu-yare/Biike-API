@@ -29,6 +29,14 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
 		}
 
+		[HttpGet("historyPair")]
+		public async Task<IActionResult> GetHistoryPairTrips(int userOneId, int userTwoId,
+			CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(new HistoryPairList.Query
+			{ UserOneId = userOneId, UserTwoId = userTwoId }, ct));
+		}
+
 		[HttpPost]
 		public async Task<IActionResult> CreateTrip(TripCreateDTO tripCreateDto, CancellationToken ct)
 		{
