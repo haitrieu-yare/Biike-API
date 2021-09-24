@@ -1,4 +1,4 @@
-using Domain;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Persistence
@@ -108,6 +108,18 @@ namespace Persistence
 				.HasForeignKey(w => w.AppUserId)
 				.OnDelete(DeleteBehavior.NoAction);
 
+			modelBuilder.Entity<Voucher>()
+				.HasOne(v => v.VoucherCategory)
+				.WithMany(vc => vc.Vouchers)
+				.HasForeignKey(v => v.VoucherCategoryId)
+				.OnDelete(DeleteBehavior.NoAction);
+
+			modelBuilder.Entity<Redemption>()
+				.HasOne(r => r.Voucher)
+				.WithMany(v => v.Redemptions)
+				.HasForeignKey(r => r.VoucherId)
+				.OnDelete(DeleteBehavior.NoAction);
+
 			base.OnModelCreating(modelBuilder);
 		}
 
@@ -121,5 +133,8 @@ namespace Persistence
 		public DbSet<TripTransaction> TripTransaction { get; set; }
 		public DbSet<Intimacy> Intimacy { get; set; }
 		public DbSet<Bike> Bike { get; set; }
+		public DbSet<Voucher> Voucher { get; set; }
+		public DbSet<VoucherCategory> VoucherCategory { get; set; }
+		public DbSet<Redemption> Redemption { get; set; }
 	}
 }

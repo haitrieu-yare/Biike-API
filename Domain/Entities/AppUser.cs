@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Domain
+namespace Domain.Entities
 {
 	[Index(nameof(PhoneNumber), IsUnique = true)]
 	[Index(nameof(Email), IsUnique = true)]

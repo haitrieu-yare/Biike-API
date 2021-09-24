@@ -7,7 +7,7 @@ using Application.Stations;
 using Application.Trips.DTOs;
 using Application.TripTransactions;
 using AutoMapper;
-using Domain;
+using Domain.Entities;
 
 namespace Application.Core
 {

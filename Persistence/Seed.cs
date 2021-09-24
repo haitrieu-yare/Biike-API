@@ -19,6 +19,10 @@ namespace Persistence
 			await TripSeed.SeedData(context);
 			await FeedbackSeed.SeedData(context);
 			await TripTransactionSeed.SeedData(context);
+
+			await VoucherCategorySeed.SeedData(context);
+			await VoucherSeed.SeedData(context);
+			await RedemptionSeed.SeedData(context);
 		}
 	}
 }
