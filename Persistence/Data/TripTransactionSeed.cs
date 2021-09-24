@@ -17,13 +17,6 @@ namespace Persistence.Data
 				new TripTransaction
 				{
 					TripId = 1,
-					WalletId = 1,
-					AmountOfPoint = 1,
-					TransactionDate = DateTime.Now.AddDays(-9).AddMilliseconds(1800000),
-				},
-				new TripTransaction
-				{
-					TripId = 1,
 					WalletId = 4,
 					AmountOfPoint = 10,
 					TransactionDate = DateTime.Now.AddDays(-9).AddMilliseconds(1800000),
@@ -31,23 +24,9 @@ namespace Persistence.Data
 				new TripTransaction
 				{
 					TripId = 2,
-					WalletId = 2,
-					AmountOfPoint = 1,
-					TransactionDate = DateTime.Now.AddDays(-5).AddMilliseconds(1200000),
-				},
-				new TripTransaction
-				{
-					TripId = 2,
 					WalletId = 5,
 					AmountOfPoint = 15,
 					TransactionDate = DateTime.Now.AddDays(-5).AddMilliseconds(1200000),
-				},
-				new TripTransaction
-				{
-					TripId = 3,
-					WalletId = 6,
-					AmountOfPoint = 1,
-					TransactionDate = DateTime.Now.AddDays(-2).AddMilliseconds(900000),
 				},
 				new TripTransaction
 				{

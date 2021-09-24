@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.TripTransactions;
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -22,11 +23,14 @@ namespace Application.Trips.DTOs
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
 			private readonly ILogger<EditTripProcess> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditTripProcess> logger)
+			private readonly AutoCreate _autoCreate;
+			public Handler(DataContext context, IMapper mapper, ILogger<EditTripProcess> logger,
+				AutoCreate autoCreate)
 			{
 				_logger = logger;
 				_mapper = mapper;
 				_context = context;
+				_autoCreate = autoCreate;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -79,6 +83,10 @@ namespace Application.Trips.DTOs
 					else
 					{
 						_logger.LogInformation("Successfully updated trip");
+
+						if (oldTrip.Status == 3)
+							return await _autoCreate.Run(oldTrip, cancellationToken);
+
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

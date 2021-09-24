@@ -104,8 +104,8 @@ namespace Persistence
 
 			modelBuilder.Entity<Wallet>()
 				.HasOne(w => w.AppUser)
-				.WithOne(u => u.Wallet)
-				.HasForeignKey<Wallet>(w => w.AppUserId).IsRequired()
+				.WithMany(u => u.Wallets)
+				.HasForeignKey(w => w.AppUserId)
 				.OnDelete(DeleteBehavior.NoAction);
 
 			base.OnModelCreating(modelBuilder);

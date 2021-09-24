@@ -32,8 +32,7 @@ namespace Application.Core
 				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
 				.ForMember(u => u.UserEmail, o => o.MapFrom(u => u.Email))
 				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
-				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star))
-				.ForMember(u => u.Point, o => o.MapFrom(u => u.Wallet.Point));
+				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
 
 			CreateMap<AppUser, AppUserProfileDTO>()
 				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))

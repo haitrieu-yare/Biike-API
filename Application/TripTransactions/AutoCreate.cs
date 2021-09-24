@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using AutoMapper;
 using Domain;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,10 +39,20 @@ namespace Application.TripTransactions
 
 				var wallet = await _context.Wallet
 					.Where(w => w.AppUserId == trip.BikerId)
+					.Where(w => w.Status == (int)WalletStatus.Current)
 					.SingleOrDefaultAsync(cancellationToken);
 				tripTransaction.WalletId = wallet.Id;
 
 				//TODO: Xử lý cách tính điểm dựa trên feedback và số Km đi được
+				int newPoint = 10;
+
+				tripTransaction.AmountOfPoint = newPoint;
+				wallet.Point += newPoint;
+
+				var user = await _context.AppUser
+					.Where(u => u.Id == wallet.AppUserId)
+					.SingleOrDefaultAsync(cancellationToken);
+				user.TotalPoint += newPoint;
 
 				await _context.TripTransaction.AddAsync(tripTransaction, cancellationToken);
 				var result = await _context.SaveChangesAsync(cancellationToken) > 0;

@@ -14,6 +14,7 @@ namespace Application.AppUsers.DTOs
 		public string LastLoginDevice { get; set; }
 		public DateTime LastTimeLogin { get; set; }
 		public double Star { get; set; }
+		public int TotalPoint { get; set; }
 		public DateTime BirthDate { get; set; }
 		public DateTime CreatedDate { get; set; }
 		public bool IsBikeVerified { get; set; }

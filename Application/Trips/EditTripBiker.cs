@@ -2,8 +2,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Trips.DTOs;
-using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,12 +19,10 @@ namespace Application.Trips
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
 			private readonly ILogger<EditTripBiker> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditTripBiker> logger)
+			public Handler(DataContext context, ILogger<EditTripBiker> logger)
 			{
 				_logger = logger;
-				_mapper = mapper;
 				_context = context;
 			}
 

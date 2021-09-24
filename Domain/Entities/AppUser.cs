@@ -24,6 +24,7 @@ namespace Domain
 		public string LastLoginDevice { get; set; }
 		public DateTime? LastTimeLogin { get; set; }
 		public double Star { get; set; }
+		public int TotalPoint { get; set; }
 		public DateTime? BirthDate { get; set; }
 		public DateTime CreatedDate { get; set; }
 		public bool IsBikeVerified { get; set; }
@@ -41,6 +42,6 @@ namespace Domain
 		public ICollection<Intimacy> UserTwoIntimacies { get; set; }
 		public ICollection<Feedback> FeedBackList { get; set; }
 		public ICollection<Bike> Bikes { get; set; }
-		public Wallet Wallet { get; set; }
+		public ICollection<Wallet> Wallets { get; set; }
 	}
 }

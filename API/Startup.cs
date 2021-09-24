@@ -1,5 +1,6 @@
 using Application.Core;
-using Application.Stations;
+using Application.Trips;
+using Application.TripTransactions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,8 +44,9 @@ namespace API
 						.AllowAnyOrigin();
 				});
 			});
-			services.AddMediatR(typeof(List.Handler).Assembly);
+			services.AddMediatR(typeof(HistoryList.Handler).Assembly);
 			services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+			services.AddTransient(typeof(AutoCreate));
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
