@@ -34,7 +34,7 @@ namespace Persistence.Data
 					AppUserId = 2,
 					TripId = 2,
 					FeedbackContent = "Tài xế đến hơi trễ xíu.",
-					Star = 4.5,
+					Star = 4,
 					Criteria = "Cần Đến Đúng Giờ"
 				},
 				new Feedback
@@ -50,7 +50,7 @@ namespace Persistence.Data
 					AppUserId = 6,
 					TripId = 3,
 					FeedbackContent = "Bạn này chạy hơi ẩu.",
-					Star = 3.5,
+					Star = 3,
 					Criteria = "Chạy Ẩu"
 				},
 				new Feedback

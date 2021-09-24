@@ -11,7 +11,7 @@ namespace Domain
 
 		[Required]
 		public string FeedbackContent { get; set; }
-		public double Star { get; set; }
+		public int Star { get; set; }
 
 		[Required]
 		public string Criteria { get; set; }

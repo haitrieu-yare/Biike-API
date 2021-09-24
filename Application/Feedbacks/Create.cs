@@ -1,6 +1,8 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.TripTransactions;
 using AutoMapper;
 using Domain;
 using MediatR;
@@ -22,8 +24,10 @@ namespace Application.Feedbacks.DTOs
 			private readonly DataContext _context;
 			private readonly ILogger<Create> _logger;
 			private readonly IMapper _mapper;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly AutoCreate _autoCreate;
+			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger, AutoCreate autoCreate)
 			{
+				_autoCreate = autoCreate;
 				_mapper = mapper;
 				_logger = logger;
 				_context = context;
@@ -48,6 +52,22 @@ namespace Application.Feedbacks.DTOs
 					else
 					{
 						_logger.LogInformation("Successfully created feedback");
+
+						var trip = await _context.Trip
+							.Where(t => t.Id == request.FeedbackDTO.TripId)
+							.SingleOrDefaultAsync(cancellationToken);
+
+						if (request.FeedbackDTO.UserId == trip.KeerId)
+						{
+							switch (newFeedback.Star)
+							{
+								case 4:
+									return await _autoCreate.Run(trip, 5, cancellationToken);
+								case 5:
+									return await _autoCreate.Run(trip, 10, cancellationToken);
+							}
+						}
+
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}
