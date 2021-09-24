@@ -1,6 +1,7 @@
 using Application.AppUsers.DTOs;
 using Application.Bikes;
 using Application.Feedbacks.DTOs;
+using Application.Intimacies;
 using Application.Routes;
 using Application.Stations;
 using Application.Trips.DTOs;
@@ -88,6 +89,9 @@ namespace Application.Core
 			CreateMap<TripTransaction, TripTransactionDTO>()
 				.ForMember(t => t.TransactionId, o => o.MapFrom(t => t.Id))
 				.ForMember(t => t.AmountPoint, o => o.MapFrom(t => t.AmountOfPoint));
+
+			CreateMap<IntimacyDTO, Intimacy>();
+			CreateMap<Intimacy, IntimacyDTO>();
 		}
 	}
 }
