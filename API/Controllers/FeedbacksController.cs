@@ -15,9 +15,15 @@ namespace API.Controllers
 		}
 
 		[HttpGet("{tripId}")]
-		public async Task<IActionResult> GetTripFeedBacks(int tripId, CancellationToken ct)
+		public async Task<IActionResult> GetTripFeedBack(int tripId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new List.Query { TripId = tripId }, ct));
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetTripFeedBacks(CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(new ListAll.Query(), ct));
 		}
 	}
 }

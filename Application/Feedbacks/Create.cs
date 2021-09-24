@@ -5,6 +5,7 @@ using Application.Core;
 using Application.TripTransactions;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,6 +39,21 @@ namespace Application.Feedbacks.DTOs
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
+					var trip = await _context.Trip
+						.Where(t => t.Id == request.FeedbackDTO.TripId)
+						.SingleOrDefaultAsync(cancellationToken);
+
+					if (trip.Status == (int)TripStatus.Cancelled)
+					{
+						_logger.LogInformation("Trip has already been cancelled");
+						return Result<Unit>.Failure("Trip has already been cancelled");
+					}
+					else if (trip.Status != (int)TripStatus.Finished)
+					{
+						_logger.LogInformation("Can't create feedback because trip hasn't finished yet");
+						return Result<Unit>.Failure("Can't create feedback because trip hasn't finished yet");
+					}
+
 					var newFeedback = new Feedback();
 					_mapper.Map(request.FeedbackDTO, newFeedback);
 
@@ -53,9 +69,7 @@ namespace Application.Feedbacks.DTOs
 					{
 						_logger.LogInformation("Successfully created feedback");
 
-						var trip = await _context.Trip
-							.Where(t => t.Id == request.FeedbackDTO.TripId)
-							.SingleOrDefaultAsync(cancellationToken);
+
 
 						if (request.FeedbackDTO.UserId == trip.KeerId)
 						{
