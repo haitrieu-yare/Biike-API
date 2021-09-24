@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Domain.Entities
 {
+	[Index(nameof(CategoryName), IsUnique = true)]
 	public class VoucherCategory
 	{
 		public int VoucherCategoryId { get; set; }

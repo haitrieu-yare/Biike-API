@@ -6,6 +6,7 @@ using Application.Routes;
 using Application.Stations;
 using Application.Trips.DTOs;
 using Application.TripTransactions;
+using Application.VoucherCategories;
 using AutoMapper;
 using Domain.Entities;
 
@@ -92,6 +93,10 @@ namespace Application.Core
 
 			CreateMap<IntimacyDTO, Intimacy>();
 			CreateMap<Intimacy, IntimacyDTO>();
+
+			CreateMap<VoucherCategory, VoucherCategoryDTO>();
+			CreateMap<VoucherCategoryDTO, VoucherCategory>()
+				.ForMember(v => v.VoucherCategoryId, o => o.Ignore());
 		}
 	}
 }
