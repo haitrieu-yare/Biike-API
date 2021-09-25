@@ -13,7 +13,7 @@ namespace Persistence.Data
 		{
 			if (context.AppUser.Any()) return;
 
-			var appusers = new List<AppUser>
+			var appUsers = new List<AppUser>
 			{
 				new AppUser
 				{
@@ -21,7 +21,7 @@ namespace Persistence.Data
 					Email = "haitrieu.yare@gmail.com",
 					FullName = "Đinh Phan Hải Triều",
 					Avatar = "https://ui-avatars.com/api/?name=Hai+Trieu&background=random&rounded=true&size=128",
-					Gender = 1,
+					Gender = (int) GenderStatus.Male,
 					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					TotalPoint = 0,
@@ -35,8 +35,8 @@ namespace Persistence.Data
 					Email = "thanhtam@gmail.com",
 					FullName = "Nguyễn Thế Thanh Tâm",
 					Avatar = "https://ui-avatars.com/api/?name=Thanh+Tam&background=random&rounded=true&size=128",
-					Gender = 0,
-					Status = (int)AppUserStatus.Active,
+					Gender = (int) GenderStatus.Female,
+					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					TotalPoint = 0,
 					BirthDate = DateTime.Parse("2000-05-05"),
@@ -49,7 +49,7 @@ namespace Persistence.Data
 					Email = "phuonguyen@gmail.com",
 					FullName = "Nguyễn Lê Phương Uyên",
 					Avatar = "https://ui-avatars.com/api/?name=Phuong+Uyen&background=random&rounded=true&size=128",
-					Gender = 0,
+					Gender = (int) GenderStatus.Female,
 					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					TotalPoint = 0,
@@ -63,7 +63,7 @@ namespace Persistence.Data
 					Email = "huuphat@gmail.com",
 					FullName = "Đỗ Hữu Phát",
 					Avatar = "https://ui-avatars.com/api/?name=Huu+Phat&background=random&rounded=true&size=128",
-					Gender = 1,
+					Gender = (int) GenderStatus.Male,
 					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					TotalPoint = 10,
@@ -77,8 +77,8 @@ namespace Persistence.Data
 					Email = "thaovan@gmail.com",
 					FullName = "Lê Ngọc Thảo Vân",
 					Avatar = "https://ui-avatars.com/api/?name=Thao+Van&background=random&rounded=true&size=128",
-					Gender = 0,
-					Status = (int)AppUserStatus.Active,
+					Gender = (int) GenderStatus.Female,
+					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					TotalPoint = 15,
 					BirthDate = DateTime.Parse("2000-05-05"),
@@ -91,8 +91,8 @@ namespace Persistence.Data
 					Email = "dangkhoa@gmail.com",
 					FullName = "Nguyễn Đăng Khoa",
 					Avatar = "https://ui-avatars.com/api/?name=Dang+Khoa&background=random&rounded=true&size=128",
-					Gender = 1,
-					Status = (int)AppUserStatus.Active,
+					Gender = (int) GenderStatus.Male,
+					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					BirthDate = DateTime.Parse("2000-05-05"),
 					CreatedDate = DateTime.Now,
@@ -104,8 +104,8 @@ namespace Persistence.Data
 					Email = "minhphu@gmail.com",
 					FullName = "Trương Minh Phú",
 					Avatar = "https://ui-avatars.com/api/?name=Minh+Phu&background=random&rounded=true&size=128",
-					Gender = 1,
-					Status = (int)AppUserStatus.Active,
+					Gender = (int) GenderStatus.Male,
+					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					TotalPoint = 12,
 					BirthDate = DateTime.Parse("2000-05-05"),
@@ -118,8 +118,8 @@ namespace Persistence.Data
 					Email = "huonggiang@gmail.com",
 					FullName = "Nguyễn Thị Hương Giang",
 					Avatar = "https://ui-avatars.com/api/?name=Huong+Giang&background=random&rounded=true&size=128",
-					Gender = 0,
-					Status = (int)AppUserStatus.Active,
+					Gender = (int) GenderStatus.Female,
+					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					BirthDate = DateTime.Parse("2000-05-05"),
 					CreatedDate = DateTime.Now,
@@ -131,8 +131,8 @@ namespace Persistence.Data
 					Email = "lamvicon@gmail.com",
 					FullName = "Lâm Vĩ Côn",
 					Avatar = "https://ui-avatars.com/api/?name=Vi+Con&background=random&rounded=true&size=128",
-					Gender = 1,
-					Status = (int)AppUserStatus.Active,
+					Gender = (int) GenderStatus.Male,
+					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					BirthDate = DateTime.Parse("2000-05-05"),
 					CreatedDate = DateTime.Now,
@@ -144,8 +144,8 @@ namespace Persistence.Data
 					Email = "giahung@gmail.com",
 					FullName = "Giang Gia Hưng",
 					Avatar = "https://ui-avatars.com/api/?name=Gia+Hung&background=random&rounded=true&size=128",
-					Gender = 1,
-					Status = (int)AppUserStatus.Active,
+					Gender = (int) GenderStatus.Male,
+					Status = (int) AppUserStatus.Active,
 					Star = 4,
 					BirthDate = DateTime.Parse("2000-05-05"),
 					CreatedDate = DateTime.Now,
@@ -155,9 +155,9 @@ namespace Persistence.Data
 
 			// Save change for each item because EF doesn't insert like the order
 			// we define in our list.
-			foreach (var appuser in appusers)
+			foreach (var appUser in appUsers)
 			{
-				await context.AppUser.AddAsync(appuser);
+				await context.AppUser.AddAsync(appUser);
 				await context.SaveChangesAsync();
 			}
 		}

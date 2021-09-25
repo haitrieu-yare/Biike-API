@@ -45,7 +45,9 @@ namespace Application.Core
 
 			#region user profile that editable
 			CreateMap<AppUserProfileEditDTO, AppUser>()
-				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname));
+				.ForMember(u => u.Id, o => o.Ignore())
+				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname))
+				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			#endregion
 
 			#region history/upcoming trips
