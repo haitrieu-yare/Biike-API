@@ -21,7 +21,7 @@ namespace API.Controllers
 		}
 
 		[HttpGet("{walletId}")]
-		public async Task<IActionResult> GetWalletsByWalletId(int walletId, CancellationToken ct)
+		public async Task<IActionResult> GetWalletByWalletId(int walletId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new DetailWallet.Query { WalletId = walletId }, ct));
 		}

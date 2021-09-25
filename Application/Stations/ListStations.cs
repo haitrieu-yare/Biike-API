@@ -1,18 +1,19 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using MediatR;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Persistence;
+using Application.Core;
+using Application.Stations.DTOs;
 
 namespace Application.Stations
 {
-	public class List
+	public class ListStations
 	{
 		public class Query : IRequest<Result<List<StationDTO>>> { }
 
@@ -20,8 +21,8 @@ namespace Application.Stations
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<List> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<List> logger)
+			private readonly ILogger<ListStations> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<ListStations> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;
@@ -39,7 +40,7 @@ namespace Application.Stations
 						.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all station");
+					_logger.LogInformation("Successfully retrieved list of all stations");
 					return Result<List<StationDTO>>.Success(stations);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

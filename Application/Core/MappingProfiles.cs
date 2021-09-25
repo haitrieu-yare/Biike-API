@@ -6,7 +6,7 @@ using Application.Feedbacks.DTOs;
 using Application.Intimacies;
 using Application.Redemptions.DTOs;
 using Application.Routes.DTOs;
-using Application.Stations;
+using Application.Stations.DTOs;
 using Application.Trips.DTOs;
 using Application.TripTransactions;
 using Application.VoucherCategories;
@@ -55,18 +55,27 @@ namespace Application.Core
 				}
 			);
 
+			#region Station
+			// List, Detail 
 			CreateMap<Station, StationDTO>();
+			// Edit
 			CreateMap<StationDTO, Station>()
-				.ForMember(s => s.Id, opt => opt.Ignore());
+				.ForMember(s => s.StationId, opt => opt.Ignore())
+				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+			// Create
+			CreateMap<StationCreateDTO, Station>();
+			#endregion
 
-			// List, Detail Route
+			#region Route
+			// List, Detail 
 			CreateMap<Route, RouteDTO>();
-			// Edit Route
+			// Edit 
 			CreateMap<RouteDTO, Route>()
 				.ForMember(r => r.Id, opt => opt.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
-			// Create Route
+			// Create
 			CreateMap<RouteCreateDTO, Route>();
+			#endregion
 
 			#region user all info
 			CreateMap<AppUser, AppUserInfoDTO>();

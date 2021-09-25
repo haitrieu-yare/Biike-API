@@ -1,31 +1,32 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using AutoMapper;
-using Domain.Entities;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using AutoMapper;
 using Persistence;
+using Application.Core;
+using Application.Stations.DTOs;
 
 namespace Application.Stations
 {
-	public class Create
+	public class EditStation
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public StationDTO StationDTO { get; set; }
+			public int StationId { get; set; }
+			public StationDTO NewStationDTO { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Create> _logger;
 			private readonly IMapper _mapper;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly ILogger<EditStation> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<EditStation> logger)
 			{
-				_mapper = mapper;
 				_logger = logger;
+				_mapper = mapper;
 				_context = context;
 			}
 
@@ -35,20 +36,21 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newStation = new Station();
-					_mapper.Map(request.StationDTO, newStation);
+					var oldStation = await _context.Station
+						.FindAsync(new object[] { request.StationId }, cancellationToken);
+					if (oldStation == null) return null;
 
-					await _context.Station.AddAsync(newStation, cancellationToken);
+					_mapper.Map(request.NewStationDTO, oldStation);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new station");
-						return Result<Unit>.Failure("Failed to create new station");
+						_logger.LogInformation("Failed to update station by stationId: " + request.StationId);
+						return Result<Unit>.Failure("Failed to update station by stationId: " + request.StationId);
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created station");
+						_logger.LogInformation("Successfully updated station by stationId: " + request.StationId);
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

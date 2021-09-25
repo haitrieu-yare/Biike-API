@@ -10,8 +10,8 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20210922104851_DatabaseV1.6")]
-    partial class DatabaseV16
+    [Migration("20210925162556_DatabaseV2.0")]
+    partial class DatabaseV20
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace Persistence.Migrations
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Domain.AppUser", b =>
+            modelBuilder.Entity("Domain.Entities.AppUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,6 +66,9 @@ namespace Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<int>("TotalPoint")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -77,7 +80,7 @@ namespace Persistence.Migrations
                     b.ToTable("AppUser");
                 });
 
-            modelBuilder.Entity("Domain.Area", b =>
+            modelBuilder.Entity("Domain.Entities.Area", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -96,7 +99,7 @@ namespace Persistence.Migrations
                     b.ToTable("Area");
                 });
 
-            modelBuilder.Entity("Domain.Bike", b =>
+            modelBuilder.Entity("Domain.Entities.Bike", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -112,9 +115,6 @@ namespace Persistence.Migrations
                     b.Property<string>("Color")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("PlateNumber")
                         .HasColumnType("nvarchar(450)");
 
@@ -129,7 +129,7 @@ namespace Persistence.Migrations
                     b.ToTable("Bike");
                 });
 
-            modelBuilder.Entity("Domain.Feedback", b =>
+            modelBuilder.Entity("Domain.Entities.Feedback", b =>
                 {
                     b.Property<int>("AppUserId")
                         .HasColumnType("int");
@@ -145,8 +145,8 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Star")
-                        .HasColumnType("float");
+                    b.Property<int>("Star")
+                        .HasColumnType("int");
 
                     b.HasKey("AppUserId", "TripId");
 
@@ -155,7 +155,7 @@ namespace Persistence.Migrations
                     b.ToTable("Feedback");
                 });
 
-            modelBuilder.Entity("Domain.Intimacy", b =>
+            modelBuilder.Entity("Domain.Entities.Intimacy", b =>
                 {
                     b.Property<int>("UserOneId")
                         .HasColumnType("int");
@@ -179,7 +179,40 @@ namespace Persistence.Migrations
                     b.ToTable("Intimacy");
                 });
 
-            modelBuilder.Entity("Domain.Route", b =>
+            modelBuilder.Entity("Domain.Entities.Redemption", b =>
+                {
+                    b.Property<int>("RedemptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("RedemptionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VoucherCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VoucherId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VoucherPoint")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WalletId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RedemptionId");
+
+                    b.HasIndex("VoucherId");
+
+                    b.ToTable("Redemption");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Route", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,9 +240,9 @@ namespace Persistence.Migrations
                     b.ToTable("Route");
                 });
 
-            modelBuilder.Entity("Domain.Station", b =>
+            modelBuilder.Entity("Domain.Entities.Station", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("StationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -225,6 +258,9 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -232,14 +268,14 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("StationId");
 
                     b.HasIndex("AreaId");
 
                     b.ToTable("Station");
                 });
 
-            modelBuilder.Entity("Domain.Trip", b =>
+            modelBuilder.Entity("Domain.Entities.Trip", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -290,7 +326,7 @@ namespace Persistence.Migrations
                     b.ToTable("Trip");
                 });
 
-            modelBuilder.Entity("Domain.TripTransaction", b =>
+            modelBuilder.Entity("Domain.Entities.TripTransaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -309,9 +345,6 @@ namespace Persistence.Migrations
                     b.Property<int>("WalletId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isBiker")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.HasIndex("TripId");
@@ -321,7 +354,72 @@ namespace Persistence.Migrations
                     b.ToTable("TripTransaction");
                 });
 
-            modelBuilder.Entity("Domain.Wallet", b =>
+            modelBuilder.Entity("Domain.Entities.Voucher", b =>
+                {
+                    b.Property<int>("VoucherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AmountOfPoint")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Remaining")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TermsAndConditions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VoucherCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VoucherName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("VoucherId");
+
+                    b.HasIndex("VoucherCategoryId");
+
+                    b.ToTable("Voucher");
+                });
+
+            modelBuilder.Entity("Domain.Entities.VoucherCategory", b =>
+                {
+                    b.Property<int>("VoucherCategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("VoucherCategoryId");
+
+                    b.HasIndex("CategoryName")
+                        .IsUnique();
+
+                    b.ToTable("VoucherCategory");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Wallet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -331,23 +429,28 @@ namespace Persistence.Migrations
                     b.Property<int>("AppUserId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("FromDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Point")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("ToDate")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId")
-                        .IsUnique();
+                    b.HasIndex("AppUserId");
 
                     b.ToTable("Wallet");
                 });
 
-            modelBuilder.Entity("Domain.Bike", b =>
+            modelBuilder.Entity("Domain.Entities.Bike", b =>
                 {
-                    b.HasOne("Domain.AppUser", "AppUser")
+                    b.HasOne("Domain.Entities.AppUser", "AppUser")
                         .WithMany("Bikes")
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -356,15 +459,15 @@ namespace Persistence.Migrations
                     b.Navigation("AppUser");
                 });
 
-            modelBuilder.Entity("Domain.Feedback", b =>
+            modelBuilder.Entity("Domain.Entities.Feedback", b =>
                 {
-                    b.HasOne("Domain.AppUser", "AppUser")
+                    b.HasOne("Domain.Entities.AppUser", "AppUser")
                         .WithMany("FeedBackList")
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Domain.Trip", "Trip")
+                    b.HasOne("Domain.Entities.Trip", "Trip")
                         .WithMany("FeedbackList")
                         .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -375,15 +478,15 @@ namespace Persistence.Migrations
                     b.Navigation("Trip");
                 });
 
-            modelBuilder.Entity("Domain.Intimacy", b =>
+            modelBuilder.Entity("Domain.Entities.Intimacy", b =>
                 {
-                    b.HasOne("Domain.AppUser", "UserOne")
+                    b.HasOne("Domain.Entities.AppUser", "UserOne")
                         .WithMany("UserOneIntimacies")
                         .HasForeignKey("UserOneId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Domain.AppUser", "UserTwo")
+                    b.HasOne("Domain.Entities.AppUser", "UserTwo")
                         .WithMany("UserTwoIntimacies")
                         .HasForeignKey("UserTwoId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -394,15 +497,26 @@ namespace Persistence.Migrations
                     b.Navigation("UserTwo");
                 });
 
-            modelBuilder.Entity("Domain.Route", b =>
+            modelBuilder.Entity("Domain.Entities.Redemption", b =>
                 {
-                    b.HasOne("Domain.Station", "Departure")
+                    b.HasOne("Domain.Entities.Voucher", "Voucher")
+                        .WithMany("Redemptions")
+                        .HasForeignKey("VoucherId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Voucher");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Route", b =>
+                {
+                    b.HasOne("Domain.Entities.Station", "Departure")
                         .WithMany("DepartureRoutes")
                         .HasForeignKey("DepartureId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Domain.Station", "Destination")
+                    b.HasOne("Domain.Entities.Station", "Destination")
                         .WithMany("DestinationRoutes")
                         .HasForeignKey("DestinationId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -413,9 +527,9 @@ namespace Persistence.Migrations
                     b.Navigation("Destination");
                 });
 
-            modelBuilder.Entity("Domain.Station", b =>
+            modelBuilder.Entity("Domain.Entities.Station", b =>
                 {
-                    b.HasOne("Domain.Area", "Area")
+                    b.HasOne("Domain.Entities.Area", "Area")
                         .WithMany("Stations")
                         .HasForeignKey("AreaId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -424,20 +538,20 @@ namespace Persistence.Migrations
                     b.Navigation("Area");
                 });
 
-            modelBuilder.Entity("Domain.Trip", b =>
+            modelBuilder.Entity("Domain.Entities.Trip", b =>
                 {
-                    b.HasOne("Domain.AppUser", "Biker")
+                    b.HasOne("Domain.Entities.AppUser", "Biker")
                         .WithMany("BikerTrips")
                         .HasForeignKey("BikerId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("Domain.AppUser", "Keer")
+                    b.HasOne("Domain.Entities.AppUser", "Keer")
                         .WithMany("KeerTrips")
                         .HasForeignKey("KeerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Domain.Route", "Route")
+                    b.HasOne("Domain.Entities.Route", "Route")
                         .WithMany("Trips")
                         .HasForeignKey("RouteId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -450,15 +564,15 @@ namespace Persistence.Migrations
                     b.Navigation("Route");
                 });
 
-            modelBuilder.Entity("Domain.TripTransaction", b =>
+            modelBuilder.Entity("Domain.Entities.TripTransaction", b =>
                 {
-                    b.HasOne("Domain.Trip", "Trip")
+                    b.HasOne("Domain.Entities.Trip", "Trip")
                         .WithMany("TripTransactions")
                         .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Domain.Wallet", "Wallet")
+                    b.HasOne("Domain.Entities.Wallet", "Wallet")
                         .WithMany("TripTransactions")
                         .HasForeignKey("WalletId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -469,18 +583,29 @@ namespace Persistence.Migrations
                     b.Navigation("Wallet");
                 });
 
-            modelBuilder.Entity("Domain.Wallet", b =>
+            modelBuilder.Entity("Domain.Entities.Voucher", b =>
                 {
-                    b.HasOne("Domain.AppUser", "AppUser")
-                        .WithOne("Wallet")
-                        .HasForeignKey("Domain.Wallet", "AppUserId")
+                    b.HasOne("Domain.Entities.VoucherCategory", "VoucherCategory")
+                        .WithMany("Vouchers")
+                        .HasForeignKey("VoucherCategoryId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("VoucherCategory");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Wallet", b =>
+                {
+                    b.HasOne("Domain.Entities.AppUser", "AppUser")
+                        .WithMany("Wallets")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("AppUser");
                 });
 
-            modelBuilder.Entity("Domain.AppUser", b =>
+            modelBuilder.Entity("Domain.Entities.AppUser", b =>
                 {
                     b.Navigation("BikerTrips");
 
@@ -494,34 +619,44 @@ namespace Persistence.Migrations
 
                     b.Navigation("UserTwoIntimacies");
 
-                    b.Navigation("Wallet");
+                    b.Navigation("Wallets");
                 });
 
-            modelBuilder.Entity("Domain.Area", b =>
+            modelBuilder.Entity("Domain.Entities.Area", b =>
                 {
                     b.Navigation("Stations");
                 });
 
-            modelBuilder.Entity("Domain.Route", b =>
+            modelBuilder.Entity("Domain.Entities.Route", b =>
                 {
                     b.Navigation("Trips");
                 });
 
-            modelBuilder.Entity("Domain.Station", b =>
+            modelBuilder.Entity("Domain.Entities.Station", b =>
                 {
                     b.Navigation("DepartureRoutes");
 
                     b.Navigation("DestinationRoutes");
                 });
 
-            modelBuilder.Entity("Domain.Trip", b =>
+            modelBuilder.Entity("Domain.Entities.Trip", b =>
                 {
                     b.Navigation("FeedbackList");
 
                     b.Navigation("TripTransactions");
                 });
 
-            modelBuilder.Entity("Domain.Wallet", b =>
+            modelBuilder.Entity("Domain.Entities.Voucher", b =>
+                {
+                    b.Navigation("Redemptions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.VoucherCategory", b =>
+                {
+                    b.Navigation("Vouchers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Wallet", b =>
                 {
                     b.Navigation("TripTransactions");
                 });

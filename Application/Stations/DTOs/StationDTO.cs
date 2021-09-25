@@ -1,8 +1,8 @@
-namespace Application.Stations
+namespace Application.Stations.DTOs
 {
 	public class StationDTO
 	{
-		public int? Id { get; set; }
+		public int? StationId { get; set; }
 		public int? AreaId { get; set; }
 		public string Name { get; set; }
 		public string Address { get; set; }

@@ -1,31 +1,32 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using AutoMapper;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using AutoMapper;
 using Persistence;
+using Application.Core;
+using Application.Stations.DTOs;
+using Domain.Entities;
 
 namespace Application.Stations
 {
-	public class Edit
+	public class CreateStation
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int Id { get; set; }
-			public StationDTO NewStationDTO { get; set; }
+			public StationCreateDTO StationCreateDTO { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
+			private readonly ILogger<CreateStation> _logger;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Edit> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Edit> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<CreateStation> logger)
 			{
-				_logger = logger;
 				_mapper = mapper;
+				_logger = logger;
 				_context = context;
 			}
 
@@ -35,21 +36,20 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldStation = await _context.Station
-						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (oldStation == null) return null;
+					var newStation = new Station();
+					_mapper.Map(request.StationCreateDTO, newStation);
 
-					_mapper.Map(request.NewStationDTO, oldStation);
+					await _context.Station.AddAsync(newStation, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update station");
-						return Result<Unit>.Failure("Failed to update station");
+						_logger.LogInformation("Failed to create new station");
+						return Result<Unit>.Failure("Failed to create new station");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated station");
+						_logger.LogInformation("Successfully created station");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

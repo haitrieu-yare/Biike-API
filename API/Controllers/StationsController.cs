@@ -1,40 +1,43 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Stations;
 using Microsoft.AspNetCore.Mvc;
+using Application.Stations;
+using Application.Stations.DTOs;
 
 namespace API.Controllers
 {
 	public class StationsController : BaseApiController
 	{
 		[HttpGet]
-		public async Task<IActionResult> GetStations(CancellationToken ct)
+		public async Task<IActionResult> GetAllStations(CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new List.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListStations.Query(), ct));
 		}
 
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetStation(int id, CancellationToken ct)
+		[HttpGet("{stationId}")]
+		public async Task<IActionResult> GetStationByStationId(int stationId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
+			return HandleResult(await Mediator.Send(new DetailStation.Query { StationId = stationId }, ct));
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateStation(StationDTO stationDto, CancellationToken ct)
+		public async Task<IActionResult> CreateStation(StationCreateDTO stationCreateDTO, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Create.Command { StationDTO = stationDto }, ct));
+			return HandleResult(await Mediator.Send(
+				new CreateStation.Command { StationCreateDTO = stationCreateDTO }, ct));
 		}
 
-		[HttpPut("{id}")]
-		public async Task<IActionResult> EditStation(int id, StationDTO newStationDto, CancellationToken ct)
+		[HttpPut("{stationId}")]
+		public async Task<IActionResult> EditStation(int stationId, StationDTO newStationDTO, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Edit.Command { Id = id, NewStationDTO = newStationDto }, ct));
+			return HandleResult(await Mediator.Send(
+				new EditStation.Command { StationId = stationId, NewStationDTO = newStationDTO }, ct));
 		}
 
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteStation(int id, CancellationToken ct)
+		[HttpDelete("{stationId}")]
+		public async Task<IActionResult> DeleteStation(int stationId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Delete.Command { Id = id }, ct));
+			return HandleResult(await Mediator.Send(new DeleteStation.Command { StationId = stationId }, ct));
 		}
 	}
 }

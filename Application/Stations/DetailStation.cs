@@ -1,29 +1,30 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using MediatR;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Persistence;
+using Application.Core;
+using Application.Stations.DTOs;
 
 namespace Application.Stations
 {
-	public class Detail
+	public class DetailStation
 	{
 		public class Query : IRequest<Result<StationDTO>>
 		{
-			public int Id { get; set; }
+			public int StationId { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<StationDTO>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Detail> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Detail> logger)
+			private readonly ILogger<DetailStation> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<DetailStation> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;
@@ -37,11 +38,12 @@ namespace Application.Stations
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var station = await _context.Station
+						.Where(s => s.StationId == request.StationId)
 						.Where(s => s.IsDeleted != true)
 						.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
-						.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+						.SingleOrDefaultAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved station");
+					_logger.LogInformation("Successfully retrieved station by stationId: " + request.StationId);
 					return Result<StationDTO>.Success(station);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

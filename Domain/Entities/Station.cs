@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,7 +7,7 @@ namespace Domain.Entities
 {
 	public class Station
 	{
-		public int Id { get; set; }
+		public int StationId { get; set; }
 		public int AreaId { get; set; }
 		public Area Area { get; set; }
 
@@ -18,7 +19,8 @@ namespace Domain.Entities
 
 		[Required]
 		public string Coordinate { get; set; }
-		public bool IsDeleted { get; set; }
+		public DateTime CreatedDate { get; set; } = DateTime.Now;
+		public bool IsDeleted { get; set; } = false;
 
 		[InverseProperty("Departure")]
 		public ICollection<Route> DepartureRoutes { get; set; }

@@ -1,25 +1,25 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
 using Persistence;
+using Application.Core;
 
 namespace Application.Stations
 {
-	public class Delete
+	public class DeleteStation
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int Id { get; set; }
+			public int StationId { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Delete> _logger;
-			public Handler(DataContext context, ILogger<Delete> logger)
+			private readonly ILogger<DeleteStation> _logger;
+			public Handler(DataContext context, ILogger<DeleteStation> logger)
 			{
 				_logger = logger;
 				_context = context;
@@ -32,7 +32,7 @@ namespace Application.Stations
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var station = await _context.Station
-						.FindAsync(new object[] { request.Id }, cancellationToken);
+						.FindAsync(new object[] { request.StationId }, cancellationToken);
 					if (station == null) return null;
 
 					station.IsDeleted = true;
@@ -40,12 +40,12 @@ namespace Application.Stations
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to delete station");
-						return Result<Unit>.Failure("Failed to delete station");
+						_logger.LogInformation("Failed to delete station by stationId: " + request.StationId);
+						return Result<Unit>.Failure("Failed to delete station by stationId: " + request.StationId);
 					}
 					else
 					{
-						_logger.LogInformation("Successfully deleted station");
+						_logger.LogInformation("Successfully deleted station by stationId: " + request.StationId);
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}
