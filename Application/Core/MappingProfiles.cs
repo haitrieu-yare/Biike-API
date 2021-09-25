@@ -71,7 +71,7 @@ namespace Application.Core
 			CreateMap<Route, RouteDTO>();
 			// Edit 
 			CreateMap<RouteDTO, Route>()
-				.ForMember(r => r.Id, opt => opt.Ignore())
+				.ForMember(r => r.RouteId, opt => opt.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
 			CreateMap<RouteCreateDTO, Route>();

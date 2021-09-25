@@ -7,6 +7,7 @@ namespace Domain.Entities
 	{
 		public int RedemptionId { get; set; }
 		public int WalletId { get; set; }
+		public Wallet Wallet { get; set; }
 		public int VoucherId { get; set; }
 		public Voucher Voucher { get; set; }
 

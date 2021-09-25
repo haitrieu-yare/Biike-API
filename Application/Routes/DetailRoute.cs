@@ -1,14 +1,14 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using Application.Routes.DTOs;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using MediatR;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Persistence;
+using Application.Core;
+using Application.Routes.DTOs;
 
 namespace Application.Routes
 {
@@ -16,7 +16,7 @@ namespace Application.Routes
 	{
 		public class Query : IRequest<Result<RouteDTO>>
 		{
-			public int Id { get; set; }
+			public int RouteId { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<RouteDTO>>
@@ -38,11 +38,12 @@ namespace Application.Routes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var route = await _context.Route
+						.Where(r => r.RouteId == request.RouteId)
 						.Where(r => r.IsDeleted != true)
 						.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
-						.FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
+						.FirstOrDefaultAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved route");
+					_logger.LogInformation("Successfully retrieved route by routeId: " + request.RouteId);
 					return Result<RouteDTO>.Success(route);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

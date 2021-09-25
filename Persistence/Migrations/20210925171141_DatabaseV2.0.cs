@@ -181,16 +181,17 @@ namespace Persistence.Migrations
                 name: "Route",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    RouteId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DepartureId = table.Column<int>(type: "int", nullable: false),
                     DestinationId = table.Column<int>(type: "int", nullable: false),
                     DefaultPoint = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Route", x => x.Id);
+                    table.PrimaryKey("PK_Route", x => x.RouteId);
                     table.ForeignKey(
                         name: "FK_Route_Station_DepartureId",
                         column: x => x.DepartureId,
@@ -224,6 +225,11 @@ namespace Persistence.Migrations
                         column: x => x.VoucherId,
                         principalTable: "Voucher",
                         principalColumn: "VoucherId");
+                    table.ForeignKey(
+                        name: "FK_Redemption_Wallet_WalletId",
+                        column: x => x.WalletId,
+                        principalTable: "Wallet",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -261,7 +267,7 @@ namespace Persistence.Migrations
                         name: "FK_Trip_Route_RouteId",
                         column: x => x.RouteId,
                         principalTable: "Route",
-                        principalColumn: "Id");
+                        principalColumn: "RouteId");
                 });
 
             migrationBuilder.CreateTable(
@@ -353,6 +359,11 @@ namespace Persistence.Migrations
                 name: "IX_Redemption_VoucherId",
                 table: "Redemption",
                 column: "VoucherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Redemption_WalletId",
+                table: "Redemption",
+                column: "WalletId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Route_DepartureId",

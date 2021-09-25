@@ -1,12 +1,12 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using Application.Routes.DTOs;
-using AutoMapper;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using AutoMapper;
 using Persistence;
+using Application.Core;
+using Application.Routes.DTOs;
 
 namespace Application.Routes
 {
@@ -14,7 +14,7 @@ namespace Application.Routes
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int Id { get; set; }
+			public int RouteId { get; set; }
 			public RouteDTO RouteDTO { get; set; }
 		}
 
@@ -37,7 +37,7 @@ namespace Application.Routes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var oldRoute = await _context.Route
-						.FindAsync(new object[] { request.Id }, cancellationToken);
+						.FindAsync(new object[] { request.RouteId }, cancellationToken);
 					if (oldRoute == null) return null;
 
 					_mapper.Map(request.RouteDTO, oldRoute);
@@ -45,12 +45,12 @@ namespace Application.Routes
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update route");
-						return Result<Unit>.Failure("Failed to update route");
+						_logger.LogInformation("Failed to update route by routeId: " + request.RouteId);
+						return Result<Unit>.Failure("Failed to update route by routeId: " + request.RouteId);
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated route");
+						_logger.LogInformation("Successfully updated route by routeId: " + request.RouteId);
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

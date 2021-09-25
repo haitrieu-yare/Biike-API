@@ -10,7 +10,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20210925162556_DatabaseV2.0")]
+    [Migration("20210925171141_DatabaseV2.0")]
     partial class DatabaseV20
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -209,15 +209,20 @@ namespace Persistence.Migrations
 
                     b.HasIndex("VoucherId");
 
+                    b.HasIndex("WalletId");
+
                     b.ToTable("Redemption");
                 });
 
             modelBuilder.Entity("Domain.Entities.Route", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("RouteId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("DefaultPoint")
                         .HasColumnType("int");
@@ -231,7 +236,7 @@ namespace Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.HasKey("Id");
+                    b.HasKey("RouteId");
 
                     b.HasIndex("DepartureId");
 
@@ -505,7 +510,15 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.Wallet", "Wallet")
+                        .WithMany("Redemptions")
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.Navigation("Voucher");
+
+                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("Domain.Entities.Route", b =>
@@ -658,6 +671,8 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Wallet", b =>
                 {
+                    b.Navigation("Redemptions");
+
                     b.Navigation("TripTransactions");
                 });
 #pragma warning restore 612, 618

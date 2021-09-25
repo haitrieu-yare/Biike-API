@@ -12,6 +12,7 @@ namespace Domain.Entities
 		public DateTime ToDate { get; set; }
 		public int Point { get; set; }
 		public int Status { get; set; }
+		public ICollection<Redemption> Redemptions { get; set; }
 		public ICollection<TripTransaction> TripTransactions { get; set; }
 	}
 }

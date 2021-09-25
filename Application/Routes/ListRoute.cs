@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 using Application.Core;
 using Application.Routes.DTOs;
 using AutoMapper;
@@ -40,7 +40,7 @@ namespace Application.Routes
 						.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all route");
+					_logger.LogInformation("Successfully retrieved list of all routes");
 					return Result<List<RouteDTO>>.Success(routes);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

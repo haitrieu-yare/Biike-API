@@ -1,10 +1,10 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
 using Persistence;
+using Application.Core;
 
 namespace Application.Routes
 {
@@ -12,7 +12,7 @@ namespace Application.Routes
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int Id { get; set; }
+			public int RouteId { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -23,7 +23,6 @@ namespace Application.Routes
 			{
 				_logger = logger;
 				_context = context;
-
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -33,20 +32,21 @@ namespace Application.Routes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var route = await _context.Route
-						.FindAsync(new object[] { request.Id }, cancellationToken);
+						.FindAsync(new object[] { request.RouteId }, cancellationToken);
 					if (route == null) return null;
 
 					route.IsDeleted = true;
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to delete route");
-						return Result<Unit>.Failure("Failed to delete route");
+						_logger.LogInformation("Failed to delete route by routeId: " + request.RouteId);
+						return Result<Unit>.Failure("Failed to delete route by routeId: " + request.RouteId);
 					}
 					else
 					{
-						_logger.LogInformation("Successfully deleted route");
+						_logger.LogInformation("Successfully deleted route by routeId: " + request.RouteId);
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

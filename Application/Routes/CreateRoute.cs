@@ -1,13 +1,13 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using Application.Routes.DTOs;
-using AutoMapper;
-using Domain.Entities;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using AutoMapper;
 using Persistence;
+using Application.Core;
+using Application.Routes.DTOs;
+using Domain.Entities;
 
 namespace Application.Routes
 {
@@ -38,7 +38,6 @@ namespace Application.Routes
 
 					var newRoute = new Route();
 					_mapper.Map(request.RouteCreateDTO, newRoute);
-					newRoute.IsDeleted = false;
 
 					await _context.Route.AddAsync(newRoute, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
