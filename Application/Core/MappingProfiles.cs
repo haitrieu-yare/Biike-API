@@ -3,7 +3,7 @@ using Application.AppUsers.DTOs;
 using Application.Bikes;
 using Application.Feedbacks.DTOs;
 using Application.Intimacies;
-using Application.Routes;
+using Application.Routes.DTOs;
 using Application.Stations;
 using Application.Trips.DTOs;
 using Application.TripTransactions;
@@ -44,13 +44,27 @@ namespace Application.Core
 				}
 			);
 
+			// Tương tự int?, chúng ta tạo map cho bool?
+			CreateMap<bool?, bool>().ConvertUsing(
+				(src, dest) =>
+				{
+					if (src.HasValue) return src.Value;
+					return dest;
+				}
+			);
+
 			CreateMap<Station, StationDTO>();
 			CreateMap<StationDTO, Station>()
 				.ForMember(s => s.Id, opt => opt.Ignore());
 
+			// List, Detail Route
 			CreateMap<Route, RouteDTO>();
+			// Edit Route
 			CreateMap<RouteDTO, Route>()
-				.ForMember(r => r.Id, opt => opt.Ignore());
+				.ForMember(r => r.Id, opt => opt.Ignore())
+				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+			// Create Route
+			CreateMap<RouteCreateDTO, Route>();
 
 			#region user all info
 			CreateMap<AppUser, AppUserInfoDTO>();

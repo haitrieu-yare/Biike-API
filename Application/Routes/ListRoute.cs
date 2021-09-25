@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Routes.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -12,7 +13,7 @@ using Persistence;
 
 namespace Application.Routes
 {
-	public class List
+	public class ListRoute
 	{
 		public class Query : IRequest<Result<List<RouteDTO>>> { }
 
@@ -20,8 +21,8 @@ namespace Application.Routes
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<List> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<List> logger)
+			private readonly ILogger<ListRoute> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<ListRoute> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;

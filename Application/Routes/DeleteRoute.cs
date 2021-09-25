@@ -1,8 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using AutoMapper;
-using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,23 +8,22 @@ using Persistence;
 
 namespace Application.Routes
 {
-	public class Create
+	public class DeleteRoute
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public RouteDTO RouteDTO { get; set; }
+			public int Id { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<Create> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly ILogger<DeleteRoute> _logger;
+			public Handler(DataContext context, ILogger<DeleteRoute> logger)
 			{
 				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -35,20 +32,21 @@ namespace Application.Routes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newRoute = new Route();
-					_mapper.Map(request.RouteDTO, newRoute);
+					var route = await _context.Route
+						.FindAsync(new object[] { request.Id }, cancellationToken);
+					if (route == null) return null;
 
-					await _context.Route.AddAsync(newRoute, cancellationToken);
+					route.IsDeleted = true;
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new route");
-						return Result<Unit>.Failure("Failed to create new route");
+						_logger.LogInformation("Failed to delete route");
+						return Result<Unit>.Failure("Failed to delete route");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created route");
+						_logger.LogInformation("Successfully deleted route");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

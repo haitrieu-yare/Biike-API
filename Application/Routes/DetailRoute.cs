@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Routes.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -11,7 +12,7 @@ using Persistence;
 
 namespace Application.Routes
 {
-	public class Detail
+	public class DetailRoute
 	{
 		public class Query : IRequest<Result<RouteDTO>>
 		{
@@ -22,8 +23,8 @@ namespace Application.Routes
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Detail> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Detail> logger)
+			private readonly ILogger<DetailRoute> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<DetailRoute> logger)
 			{
 				_mapper = mapper;
 				_context = context;

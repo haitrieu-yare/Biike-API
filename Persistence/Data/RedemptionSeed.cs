@@ -18,7 +18,8 @@ namespace Persistence.Data
 				{
 					WalletId = 4,
 					VoucherId = 1,
-					VourcherCode = "ORANGEAUTUMN20",
+					VoucherCode = "ORANGEAUTUMN20",
+					VoucherPoint = 200,
 					IsUsed = false,
 					RedemptionDate = DateTime.Now,
 				},
@@ -26,7 +27,8 @@ namespace Persistence.Data
 				{
 					WalletId = 5,
 					VoucherId = 2,
-					VourcherCode = "BLUESKY30",
+					VoucherCode = "BLUESKY30",
+					VoucherPoint = 300,
 					IsUsed = false,
 					RedemptionDate = DateTime.Now,
 				},
@@ -34,7 +36,8 @@ namespace Persistence.Data
 				{
 					WalletId = 6,
 					VoucherId = 3,
-					VourcherCode = "GOLDMEDAL50",
+					VoucherCode = "GOLDMEDAL50",
+					VoucherPoint = 500,
 					IsUsed = true,
 					RedemptionDate = DateTime.Now,
 				},

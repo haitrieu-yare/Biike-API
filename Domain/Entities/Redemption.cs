@@ -11,7 +11,8 @@ namespace Domain.Entities
 		public Voucher Voucher { get; set; }
 
 		[Required]
-		public string VourcherCode { get; set; }
+		public string VoucherCode { get; set; }
+		public int VoucherPoint { get; set; }
 		public bool IsUsed { get; set; }
 		public DateTime RedemptionDate { get; set; }
 	}
