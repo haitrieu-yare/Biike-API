@@ -19,5 +19,12 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new Create.Command
 			{ VoucherCategoryDTO = voucherCategoryDTO }, ct));
 		}
+
+		[HttpPut("{id}")]
+		public async Task<IActionResult> EditVoucherCategory(int id, VoucherCategoryDTO newVoucherCategoryDTO, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(new Edit.Command
+			{ Id = id, NewVoucherCategoryDTO = newVoucherCategoryDTO }, ct));
+		}
 	}
 }

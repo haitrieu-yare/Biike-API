@@ -1,3 +1,4 @@
+using System;
 using Application.AppUsers.DTOs;
 using Application.Bikes;
 using Application.Feedbacks.DTOs;
@@ -7,6 +8,7 @@ using Application.Stations;
 using Application.Trips.DTOs;
 using Application.TripTransactions;
 using Application.VoucherCategories;
+using Application.Vouchers.DTOs;
 using AutoMapper;
 using Domain.Entities;
 
@@ -16,6 +18,32 @@ namespace Application.Core
 	{
 		public MappingProfiles()
 		{
+			// Mặc định khi kiểu int? có giá trị null thì 
+			// map qua kiểu int sẽ bị chuyển thành 0.
+			// Nhưng chúng ta thường sẽ muốn ignore biến int? nếu
+			// biến int? có giá trị null, và để nguyên giá trị gốc của int.
+			// Câu map ở dưới đây sinh ra nhằm tránh việc chuyển giá trị
+			// int gốc thành 0 khi truyền vào biến int? với giá trị null.
+			// Việc truyền biến int? với giá trị null thường xảy ra 
+			// khi người dùng không truyền các optional field 
+			// ở trong body request của EditDTO.
+			CreateMap<int?, int>().ConvertUsing(
+				(src, dest) =>
+				{
+					if (src.HasValue) return src.Value;
+					return dest;
+				}
+			);
+
+			// Tương tự int?, chúng ta tạo map cho DateTime?
+			CreateMap<DateTime?, DateTime>().ConvertUsing(
+				(src, dest) =>
+				{
+					if (src.HasValue) return src.Value;
+					return dest;
+				}
+			);
+
 			CreateMap<Station, StationDTO>();
 			CreateMap<StationDTO, Station>()
 				.ForMember(s => s.Id, opt => opt.Ignore());
@@ -115,6 +143,11 @@ namespace Application.Core
 			CreateMap<VoucherCategory, VoucherCategoryDTO>();
 			CreateMap<VoucherCategoryDTO, VoucherCategory>()
 				.ForMember(v => v.VoucherCategoryId, o => o.Ignore());
+
+			CreateMap<Voucher, VoucherDTO>();
+			CreateMap<VoucherCreateDTO, Voucher>();
+			CreateMap<VoucherEditDTO, Voucher>()
+				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 		}
 	}
 }
