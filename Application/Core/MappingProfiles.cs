@@ -3,6 +3,7 @@ using Application.AppUsers.DTOs;
 using Application.Bikes;
 using Application.Feedbacks.DTOs;
 using Application.Intimacies;
+using Application.Redemptions.DTOs;
 using Application.Routes.DTOs;
 using Application.Stations;
 using Application.Trips.DTOs;
@@ -162,6 +163,9 @@ namespace Application.Core
 			CreateMap<VoucherCreateDTO, Voucher>();
 			CreateMap<VoucherEditDTO, Voucher>()
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+
+			CreateMap<Redemption, RedemptionDTO>();
+			CreateMap<RedemptionCreateDTO, Redemption>();
 		}
 	}
 }
