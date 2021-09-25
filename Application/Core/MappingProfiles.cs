@@ -1,4 +1,5 @@
 using System;
+using AutoMapper;
 using Application.AppUsers.DTOs;
 using Application.Bikes;
 using Application.Feedbacks.DTOs;
@@ -10,7 +11,7 @@ using Application.Trips.DTOs;
 using Application.TripTransactions;
 using Application.VoucherCategories;
 using Application.Vouchers.DTOs;
-using AutoMapper;
+using Application.Wallets.DTOs;
 using Domain.Entities;
 
 namespace Application.Core
@@ -166,6 +167,12 @@ namespace Application.Core
 
 			CreateMap<Redemption, RedemptionDTO>();
 			CreateMap<RedemptionCreateDTO, Redemption>();
+
+			CreateMap<Wallet, WalletDTO>();
+			CreateMap<WalletDTO, Wallet>()
+				.ForMember(w => w.Id, o => o.Ignore());
+			CreateMap<WalletCreateDTO, Wallet>()
+				.ForMember(w => w.Id, o => o.Ignore());
 		}
 	}
 }
