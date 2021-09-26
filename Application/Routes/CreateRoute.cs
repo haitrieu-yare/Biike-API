@@ -15,7 +15,7 @@ namespace Application.Routes
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public RouteCreateDTO RouteCreateDTO { get; set; }
+			public RouteCreateDTO RouteCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

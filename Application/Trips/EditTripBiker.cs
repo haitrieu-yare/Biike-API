@@ -34,7 +34,7 @@ namespace Application.Trips
 
 					var oldTrip = await _context.Trip
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (oldTrip == null) return null;
+					if (oldTrip == null) return null!;
 
 					if (request.BikerId == oldTrip.KeerId)
 					{
@@ -42,7 +42,7 @@ namespace Application.Trips
 						return Result<Unit>.Failure("Biker and Keer can't be the same person");
 					}
 
-					var biker = await _context.AppUser
+					var biker = await _context.User
 						.FindAsync(new object[] { request.BikerId }, cancellationToken);
 
 					if (!biker.IsBikeVerified)
@@ -52,7 +52,7 @@ namespace Application.Trips
 					}
 
 					var bike = await _context.Bike
-						.Where(b => b.AppUserId == biker.Id)
+						.Where(b => b.UserId == biker.Id)
 						.FirstOrDefaultAsync(cancellationToken);
 
 					oldTrip.BikerId = biker.Id;

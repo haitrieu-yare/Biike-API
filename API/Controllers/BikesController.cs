@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Bikes;
+using Application.Bikes.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -14,9 +15,10 @@ namespace API.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateBike(BikeDTO bikeDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateBike(BikeCreateDTO bikeCreateDTO, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Create.Command { BikeDTO = bikeDTO }, ct));
+			return HandleResult(await Mediator.Send(
+				new Create.Command { BikeCreateDTO = bikeCreateDTO }, ct));
 		}
 
 		[HttpDelete("{userId}")]

@@ -2,7 +2,7 @@ namespace Domain.Enums
 {
 	public enum AdminStatus
 	{
-		Active,
+		Active = 1,
 		Deactive,
 	}
 }

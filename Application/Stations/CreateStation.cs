@@ -15,7 +15,7 @@ namespace Application.Stations
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public StationCreateDTO StationCreateDTO { get; set; }
+			public StationCreateDTO StationCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

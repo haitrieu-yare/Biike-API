@@ -1,4 +1,4 @@
-namespace Application.Intimacies
+namespace Application.Intimacies.DTOs
 {
 	public class IntimacyEditDTO
 	{

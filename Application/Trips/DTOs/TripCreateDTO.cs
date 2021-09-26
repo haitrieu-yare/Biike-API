@@ -1,4 +1,5 @@
 using System;
+using Domain;
 
 namespace Application.Trips.DTOs
 {
@@ -6,7 +7,7 @@ namespace Application.Trips.DTOs
 	{
 		public int KeerId { get; set; }
 		public int RouteId { get; set; }
-		public DateTime BookTime { get; set; }
-		public bool IsScheduled { get; set; }
+		public DateTime BookTime { get; set; } = CurrentTime.GetCurrentTime();
+		public bool IsScheduled { get; set; } = false;
 	}
 }

@@ -39,7 +39,7 @@ namespace Application.Wallets
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var wallets = await _context.Wallet
-						.Where(w => w.AppUserId == request.UserId)
+						.Where(w => w.UserId == request.UserId)
 						.ProjectTo<WalletDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 

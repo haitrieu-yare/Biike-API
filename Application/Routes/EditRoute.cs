@@ -15,7 +15,7 @@ namespace Application.Routes
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int RouteId { get; set; }
-			public RouteDTO RouteDTO { get; set; }
+			public RouteDTO RouteDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,7 +38,7 @@ namespace Application.Routes
 
 					var oldRoute = await _context.Route
 						.FindAsync(new object[] { request.RouteId }, cancellationToken);
-					if (oldRoute == null) return null;
+					if (oldRoute == null) return null!;
 
 					_mapper.Map(request.RouteDTO, oldRoute);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

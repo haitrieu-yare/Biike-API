@@ -1,5 +1,5 @@
 using Application.Core;
-using Application.AppUsers.DTOs;
+using Application.Users.DTOs;
 using MediatR;
 using System.Threading.Tasks;
 using System.Threading;
@@ -11,16 +11,16 @@ using Domain.Enums;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.AppUsers
+namespace Application.Users
 {
 	public class Detail
 	{
-		public class Query : IRequest<Result<AppUserProfileDTO>>
+		public class Query : IRequest<Result<UserProfileDTO>>
 		{
 			public int Id { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<AppUserProfileDTO>>
+		public class Handler : IRequestHandler<Query, Result<UserProfileDTO>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -32,25 +32,25 @@ namespace Application.AppUsers
 				_logger = logger;
 			}
 
-			public async Task<Result<AppUserProfileDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<UserProfileDTO>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var AppUserProfile = await _context.AppUser
+					var AppUserProfile = await _context.User
 						.Where(u => u.Id == request.Id)
-						.Where(u => u.Status == (int)AppUserStatus.Active)
-						.ProjectTo<AppUserProfileDTO>(_mapper.ConfigurationProvider)
+						.Where(u => u.Status == (int)UserStatus.Active)
+						.ProjectTo<UserProfileDTO>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved user profile");
-					return Result<AppUserProfileDTO>.Success(AppUserProfile);
+					return Result<UserProfileDTO>.Success(AppUserProfile);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<AppUserProfileDTO>.Failure("Request was cancelled");
+					return Result<UserProfileDTO>.Failure("Request was cancelled");
 				}
 			}
 		}

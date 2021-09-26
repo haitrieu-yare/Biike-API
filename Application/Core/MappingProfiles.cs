@@ -1,9 +1,9 @@
 using System;
 using AutoMapper;
-using Application.AppUsers.DTOs;
-using Application.Bikes;
+using Application.Users.DTOs;
+using Application.Intimacies.DTOs;
+using Application.Bikes.DTOs;
 using Application.Feedbacks.DTOs;
-using Application.Intimacies;
 using Application.Redemptions.DTOs;
 using Application.Routes.DTOs;
 using Application.Stations.DTOs;
@@ -61,6 +61,7 @@ namespace Application.Core
 			// Edit
 			CreateMap<StationDTO, Station>()
 				.ForMember(s => s.StationId, opt => opt.Ignore())
+				.ForMember(s => s.CreatedDate, opt => opt.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
 			CreateMap<StationCreateDTO, Station>();
@@ -72,24 +73,25 @@ namespace Application.Core
 			// Edit 
 			CreateMap<RouteDTO, Route>()
 				.ForMember(r => r.RouteId, opt => opt.Ignore())
+				.ForMember(r => r.CreatedDate, opt => opt.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
 			CreateMap<RouteCreateDTO, Route>();
 			#endregion
 
 			#region user all info
-			CreateMap<AppUser, AppUserInfoDTO>();
+			CreateMap<User, UserInfoDTO>();
 			#endregion
 
 			#region user profile
-			CreateMap<AppUser, AppUserSelfProfileDTO>()
+			CreateMap<User, UserSelfProfileDTO>()
 				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))
 				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
 				.ForMember(u => u.UserEmail, o => o.MapFrom(u => u.Email))
 				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
 				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
 
-			CreateMap<AppUser, AppUserProfileDTO>()
+			CreateMap<User, UserProfileDTO>()
 				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))
 				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
 				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
@@ -97,14 +99,14 @@ namespace Application.Core
 			#endregion
 
 			#region user profile that editable
-			CreateMap<AppUserProfileEditDTO, AppUser>()
+			CreateMap<UserProfileEditDTO, User>()
 				.ForMember(u => u.Id, o => o.Ignore())
 				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname))
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			#endregion
 
 			#region history/upcoming trips
-			string role = null;
+			string role = string.Empty;
 			CreateMap<Trip, TripDTO>()
 				.ForMember(t => t.TripId, o => o.MapFrom(t => t.Id))
 				.ForMember(t => t.UserId, o =>
@@ -143,19 +145,19 @@ namespace Application.Core
 				.ForMember(t => t.FinishedTime, o => o.MapFrom(t => t.TimeFinished));
 
 			CreateMap<FeedbackDTO, Feedback>()
-				.ForMember(f => f.AppUserId, o => o.MapFrom(f => f.UserId))
+				.ForMember(f => f.UserId, o => o.MapFrom(f => f.UserId))
 				.ForMember(f => f.Star, o => o.MapFrom(f => f.TripStar));
 			CreateMap<Feedback, FeedbackDTO>()
-				.ForMember(f => f.UserId, o => o.MapFrom(f => f.AppUserId))
+				.ForMember(f => f.UserId, o => o.MapFrom(f => f.UserId))
 				.ForMember(f => f.TripStar, o => o.MapFrom(f => f.Star));
 
 			CreateMap<Bike, BikeDTO>()
 				.ForMember(b => b.BikeId, o => o.MapFrom(b => b.Id))
-				.ForMember(b => b.UserId, o => o.MapFrom(b => b.AppUserId))
+				.ForMember(b => b.UserId, o => o.MapFrom(b => b.UserId))
 				.ForMember(b => b.NumberPlate, o => o.MapFrom(b => b.PlateNumber));
 			CreateMap<BikeDTO, Bike>()
 				.ForMember(b => b.Id, o => o.Ignore())
-				.ForMember(b => b.AppUserId, o => o.MapFrom(b => b.UserId))
+				.ForMember(b => b.UserId, o => o.MapFrom(b => b.UserId))
 				.ForMember(b => b.PlateNumber, o => o.MapFrom(b => b.NumberPlate));
 
 			CreateMap<TripTransaction, TripTransactionDTO>()

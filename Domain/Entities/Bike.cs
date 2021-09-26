@@ -1,15 +1,15 @@
-using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Domain.Entities
 {
-	[Index(nameof(PlateNumber), IsUnique = true)]
 	public class Bike
 	{
 		public int Id { get; set; }
-		public int AppUserId { get; set; }
-		public AppUser AppUser { get; set; }
-		public string PlateNumber { get; set; }
-		public string Color { get; set; }
-		public string Brand { get; set; }
+		public int UserId { get; set; }
+		public User User { get; set; } = null!;
+		public string PlateNumber { get; set; } = string.Empty;
+		public string Color { get; set; } = string.Empty;
+		public string Brand { get; set; } = string.Empty;
+		public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
 	}
 }

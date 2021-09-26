@@ -2,7 +2,7 @@ namespace Domain.Enums
 {
 	public enum RoleStatus
 	{
-		Keer,
+		Keer = 1,
 		Biker
 	}
 }

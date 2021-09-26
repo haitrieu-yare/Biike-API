@@ -15,35 +15,35 @@ namespace Persistence.Data
 			{
 				new Bike
 				{
-					AppUserId = 4,
+					UserId = 4,
 					PlateNumber = "7000",
 					Color = "Gold",
 					Brand = "Honda",
 				},
 				new Bike
 				{
-					AppUserId = 5,
+					UserId = 5,
 					PlateNumber = "7001",
 					Color = "Blue",
 					Brand = "Yamaha",
 				},
 				new Bike
 				{
-					AppUserId = 6,
+					UserId = 6,
 					PlateNumber = "7002",
 					Color = "Red",
 					Brand = "Honda",
 				},
 				new Bike
 				{
-					AppUserId = 7,
+					UserId = 7,
 					PlateNumber = "7004",
 					Color = "Green",
 					Brand = "Suzuki",
 				},
 				new Bike
 				{
-					AppUserId = 8,
+					UserId = 8,
 					PlateNumber = "7005",
 					Color = "Black",
 					Brand = "Yamaha",

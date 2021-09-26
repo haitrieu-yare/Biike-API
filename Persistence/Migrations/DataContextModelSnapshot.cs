@@ -19,71 +19,15 @@ namespace Persistence.Migrations
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Domain.Entities.AppUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Avatar")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("BirthDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsBikeVerified")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastLoginDevice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastTimeLogin")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<double>("Star")
-                        .HasColumnType("float");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalPoint")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("PhoneNumber")
-                        .IsUnique();
-
-                    b.ToTable("AppUser");
-                });
-
             modelBuilder.Entity("Domain.Entities.Area", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -104,36 +48,44 @@ namespace Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AppUserId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Brand")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Color")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PlateNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
-
                     b.HasIndex("PlateNumber")
-                        .IsUnique()
-                        .HasFilter("[PlateNumber] IS NOT NULL");
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Bike");
                 });
 
             modelBuilder.Entity("Domain.Entities.Feedback", b =>
                 {
-                    b.Property<int>("AppUserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.Property<int>("TripId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Criteria")
                         .IsRequired()
@@ -146,7 +98,7 @@ namespace Persistence.Migrations
                     b.Property<int>("Star")
                         .HasColumnType("int");
 
-                    b.HasKey("AppUserId", "TripId");
+                    b.HasKey("UserId", "TripId");
 
                     b.HasIndex("TripId");
 
@@ -287,6 +239,7 @@ namespace Persistence.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int?>("BikerId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("BookTime")
@@ -297,6 +250,9 @@ namespace Persistence.Migrations
 
                     b.Property<string>("CancelReason")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("FinishedTime")
                         .HasColumnType("datetime2");
@@ -311,6 +267,7 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PlateNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RouteId")
@@ -358,6 +315,67 @@ namespace Persistence.Migrations
                     b.ToTable("TripTransaction");
                 });
 
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Avatar")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsBikeVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastLoginDevice")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastTimeLogin")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("Star")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalPoint")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique();
+
+                    b.ToTable("AppUser");
+                });
+
             modelBuilder.Entity("Domain.Entities.Voucher", b =>
                 {
                     b.Property<int>("VoucherId")
@@ -372,7 +390,11 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndDate")
@@ -388,6 +410,7 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TermsAndConditions")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("VoucherCategoryId")
@@ -415,6 +438,9 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("VoucherCategoryId");
 
                     b.HasIndex("CategoryName")
@@ -430,9 +456,6 @@ namespace Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AppUserId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("FromDate")
                         .HasColumnType("datetime2");
 
@@ -445,52 +468,55 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("ToDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Wallet");
                 });
 
             modelBuilder.Entity("Domain.Entities.Bike", b =>
                 {
-                    b.HasOne("Domain.Entities.AppUser", "AppUser")
+                    b.HasOne("Domain.Entities.User", "User")
                         .WithMany("Bikes")
-                        .HasForeignKey("AppUserId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("AppUser");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Feedback", b =>
                 {
-                    b.HasOne("Domain.Entities.AppUser", "AppUser")
-                        .WithMany("FeedBackList")
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Trip", "Trip")
                         .WithMany("FeedbackList")
                         .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("AppUser");
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany("FeedBackList")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Trip");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Intimacy", b =>
                 {
-                    b.HasOne("Domain.Entities.AppUser", "UserOne")
+                    b.HasOne("Domain.Entities.User", "UserOne")
                         .WithMany("UserOneIntimacies")
                         .HasForeignKey("UserOneId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.AppUser", "UserTwo")
+                    b.HasOne("Domain.Entities.User", "UserTwo")
                         .WithMany("UserTwoIntimacies")
                         .HasForeignKey("UserTwoId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -552,12 +578,13 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Trip", b =>
                 {
-                    b.HasOne("Domain.Entities.AppUser", "Biker")
+                    b.HasOne("Domain.Entities.User", "Biker")
                         .WithMany("BikerTrips")
                         .HasForeignKey("BikerId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
-                    b.HasOne("Domain.Entities.AppUser", "Keer")
+                    b.HasOne("Domain.Entities.User", "Keer")
                         .WithMany("KeerTrips")
                         .HasForeignKey("KeerId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -608,30 +635,13 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Wallet", b =>
                 {
-                    b.HasOne("Domain.Entities.AppUser", "AppUser")
+                    b.HasOne("Domain.Entities.User", "User")
                         .WithMany("Wallets")
-                        .HasForeignKey("AppUserId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("AppUser");
-                });
-
-            modelBuilder.Entity("Domain.Entities.AppUser", b =>
-                {
-                    b.Navigation("BikerTrips");
-
-                    b.Navigation("Bikes");
-
-                    b.Navigation("FeedBackList");
-
-                    b.Navigation("KeerTrips");
-
-                    b.Navigation("UserOneIntimacies");
-
-                    b.Navigation("UserTwoIntimacies");
-
-                    b.Navigation("Wallets");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Area", b =>
@@ -656,6 +666,23 @@ namespace Persistence.Migrations
                     b.Navigation("FeedbackList");
 
                     b.Navigation("TripTransactions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.Navigation("BikerTrips");
+
+                    b.Navigation("Bikes");
+
+                    b.Navigation("FeedBackList");
+
+                    b.Navigation("KeerTrips");
+
+                    b.Navigation("UserOneIntimacies");
+
+                    b.Navigation("UserTwoIntimacies");
+
+                    b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("Domain.Entities.Voucher", b =>

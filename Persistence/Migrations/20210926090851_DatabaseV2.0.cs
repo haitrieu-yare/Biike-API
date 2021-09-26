@@ -15,8 +15,8 @@ namespace Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PhoneNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Avatar = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     LastLoginDevice = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -39,6 +39,7 @@ namespace Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -52,7 +53,8 @@ namespace Persistence.Migrations
                 {
                     VoucherCategoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CategoryName = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    CategoryName = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -65,17 +67,18 @@ namespace Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AppUserId = table.Column<int>(type: "int", nullable: false),
-                    PlateNumber = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Color = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Brand = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    PlateNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Color = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Bike", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Bike_AppUser_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_Bike_AppUser_UserId",
+                        column: x => x.UserId,
                         principalTable: "AppUser",
                         principalColumn: "Id");
                 });
@@ -111,7 +114,7 @@ namespace Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AppUserId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ToDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Point = table.Column<int>(type: "int", nullable: false),
@@ -121,8 +124,8 @@ namespace Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Wallet", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Wallet_AppUser_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_Wallet_AppUser_UserId",
+                        column: x => x.UserId,
                         principalTable: "AppUser",
                         principalColumn: "Id");
                 });
@@ -164,8 +167,9 @@ namespace Persistence.Migrations
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Remaining = table.Column<int>(type: "int", nullable: false),
                     AmountOfPoint = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TermsAndConditions = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TermsAndConditions = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -239,16 +243,17 @@ namespace Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     KeerId = table.Column<int>(type: "int", nullable: false),
-                    BikerId = table.Column<int>(type: "int", nullable: true),
+                    BikerId = table.Column<int>(type: "int", nullable: false),
                     RouteId = table.Column<int>(type: "int", nullable: false),
                     BookTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PickupTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FinishedTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    PlateNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PlateNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsScheduled = table.Column<bool>(type: "bit", nullable: false),
                     CancelPersonId = table.Column<int>(type: "int", nullable: true),
-                    CancelReason = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    CancelReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -274,18 +279,19 @@ namespace Persistence.Migrations
                 name: "Feedback",
                 columns: table => new
                 {
-                    AppUserId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     TripId = table.Column<int>(type: "int", nullable: false),
                     FeedbackContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Star = table.Column<int>(type: "int", nullable: false),
-                    Criteria = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Criteria = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Feedback", x => new { x.AppUserId, x.TripId });
+                    table.PrimaryKey("PK_Feedback", x => new { x.UserId, x.TripId });
                     table.ForeignKey(
-                        name: "FK_Feedback_AppUser_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_Feedback_AppUser_UserId",
+                        column: x => x.UserId,
                         principalTable: "AppUser",
                         principalColumn: "Id");
                     table.ForeignKey(
@@ -334,16 +340,15 @@ namespace Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bike_AppUserId",
-                table: "Bike",
-                column: "AppUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Bike_PlateNumber",
                 table: "Bike",
                 column: "PlateNumber",
-                unique: true,
-                filter: "[PlateNumber] IS NOT NULL");
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bike_UserId",
+                table: "Bike",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Feedback_TripId",
@@ -418,9 +423,9 @@ namespace Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Wallet_AppUserId",
+                name: "IX_Wallet_UserId",
                 table: "Wallet",
-                column: "AppUserId");
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

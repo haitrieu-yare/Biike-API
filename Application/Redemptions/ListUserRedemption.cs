@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +6,6 @@ using Application.Core;
 using Application.Redemptions.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +41,7 @@ namespace Application.Redemptions
 
 					// Max number of active wallets is 2 for each user
 					var wallets = await _context.Wallet
-						.Where(w => w.AppUserId == request.UserId)
+						.Where(w => w.UserId == request.UserId)
 						.Where(w => w.Status != (int)WalletStatus.Expired)
 						.ToListAsync(cancellationToken);
 					if (wallets == null)

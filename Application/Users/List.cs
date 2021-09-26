@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.AppUsers.DTOs;
+using Application.Users.DTOs;
 using Application.Core;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -10,13 +10,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.AppUsers
+namespace Application.Users
 {
 	public class List
 	{
-		public class Query : IRequest<Result<List<AppUserInfoDTO>>> { }
+		public class Query : IRequest<Result<List<UserInfoDTO>>> { }
 
-		public class Handler : IRequestHandler<Query, Result<List<AppUserInfoDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<UserInfoDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -28,23 +28,23 @@ namespace Application.AppUsers
 				_context = context;
 			}
 
-			public async Task<Result<List<AppUserInfoDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<UserInfoDTO>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var users = await _context.AppUser
-						.ProjectTo<AppUserInfoDTO>(_mapper.ConfigurationProvider)
+					var users = await _context.User
+						.ProjectTo<UserInfoDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all user");
-					return Result<List<AppUserInfoDTO>>.Success(users);
+					return Result<List<UserInfoDTO>>.Success(users);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<AppUserInfoDTO>>.Failure("Request was cancelled");
+					return Result<List<UserInfoDTO>>.Failure("Request was cancelled");
 				}
 			}
 		}

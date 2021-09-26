@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Intimacies.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;

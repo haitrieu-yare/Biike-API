@@ -17,7 +17,7 @@ namespace Application.Feedbacks.DTOs
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public FeedbackDTO FeedbackDTO { get; set; }
+			public FeedbackCreateDTO FeedbackCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -40,7 +40,7 @@ namespace Application.Feedbacks.DTOs
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var trip = await _context.Trip
-						.Where(t => t.Id == request.FeedbackDTO.TripId)
+						.Where(t => t.Id == request.FeedbackCreateDTO.TripId)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					if (trip.Status == (int)TripStatus.Cancelled)
@@ -55,7 +55,7 @@ namespace Application.Feedbacks.DTOs
 					}
 
 					var newFeedback = new Feedback();
-					_mapper.Map(request.FeedbackDTO, newFeedback);
+					_mapper.Map(request.FeedbackCreateDTO, newFeedback);
 
 					await _context.Feedback.AddAsync(newFeedback, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
@@ -71,7 +71,7 @@ namespace Application.Feedbacks.DTOs
 
 
 
-						if (request.FeedbackDTO.UserId == trip.KeerId)
+						if (request.FeedbackCreateDTO.UserId == trip.KeerId)
 						{
 							switch (newFeedback.Star)
 							{

@@ -15,7 +15,7 @@ namespace Application.Wallets
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public WalletCreateDTO WalletCreateDTO { get; set; }
+			public WalletCreateDTO WalletCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

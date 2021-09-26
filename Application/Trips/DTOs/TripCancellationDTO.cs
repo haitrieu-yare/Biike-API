@@ -1,12 +1,11 @@
 using System;
-using System.ComponentModel.DataAnnotations;
+using Domain;
 
 namespace Application.Trips.DTOs
 {
 	public class TripCancellationDTO
 	{
-		[Required]
-		public string CancelReason { get; set; }
-		public DateTime TimeFinished { get; set; }
+		public string CancelReason { get; set; } = string.Empty;
+		public DateTime TimeFinished { get; set; } = CurrentTime.GetCurrentTime();
 	}
 }

@@ -1,26 +1,26 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.AppUsers
+namespace Application.Users
 {
-	public class Delete
+	public class EditStatus
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
+			public int NewStatus { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Delete> _logger;
-			public Handler(DataContext context, ILogger<Delete> logger)
+			private readonly ILogger<EditStatus> _logger;
+			public Handler(DataContext context, ILogger<EditStatus> logger)
 			{
 				_logger = logger;
 				_context = context;
@@ -32,22 +32,22 @@ namespace Application.AppUsers
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var user = await _context.AppUser
+					var user = await _context.User
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (user == null) return null;
+					if (user == null) return null!;
 
-					user.Status = (int)AppUserStatus.Deleted;
+					user.Status = request.NewStatus;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to delete user");
-						return Result<Unit>.Failure("Failed to delete user");
+						_logger.LogInformation("Failed to update user's status");
+						return Result<Unit>.Failure("Failed to update user's status");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully deleted user");
+						_logger.LogInformation("Successfully updated user's status");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

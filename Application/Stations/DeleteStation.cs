@@ -33,7 +33,7 @@ namespace Application.Stations
 
 					var station = await _context.Station
 						.FindAsync(new object[] { request.StationId }, cancellationToken);
-					if (station == null) return null;
+					if (station == null) return null!;
 
 					station.IsDeleted = true;
 

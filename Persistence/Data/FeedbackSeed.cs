@@ -15,7 +15,7 @@ namespace Persistence.Data
 			{
 				new Feedback
 				{
-					AppUserId = 1,
+					UserId = 1,
 					TripId = 1,
 					FeedbackContent = "Chuyến đi rất là thoải mái luôn.",
 					Star = 5,
@@ -23,7 +23,7 @@ namespace Persistence.Data
 				},
 				new Feedback
 				{
-					AppUserId = 4,
+					UserId = 4,
 					TripId = 1,
 					FeedbackContent = "Mọi chuyện suôn sẻ, thuận lợi.",
 					Star = 5,
@@ -31,7 +31,7 @@ namespace Persistence.Data
 				},
 				new Feedback
 				{
-					AppUserId = 2,
+					UserId = 2,
 					TripId = 2,
 					FeedbackContent = "Tài xế đến hơi trễ xíu.",
 					Star = 4,
@@ -39,7 +39,7 @@ namespace Persistence.Data
 				},
 				new Feedback
 				{
-					AppUserId = 5,
+					UserId = 5,
 					TripId = 2,
 					FeedbackContent = "Bạn nữ dễ thương.",
 					Star = 5,
@@ -47,7 +47,7 @@ namespace Persistence.Data
 				},
 				new Feedback
 				{
-					AppUserId = 6,
+					UserId = 6,
 					TripId = 3,
 					FeedbackContent = "Bạn này chạy hơi ẩu.",
 					Star = 3,
@@ -55,7 +55,7 @@ namespace Persistence.Data
 				},
 				new Feedback
 				{
-					AppUserId = 7,
+					UserId = 7,
 					TripId = 3,
 					FeedbackContent = "Bạn này nói hơi nhiều.",
 					Star = 4,

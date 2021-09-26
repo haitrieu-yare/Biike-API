@@ -6,10 +6,10 @@ namespace Domain.Entities
 	{
 		public int Id { get; set; }
 		public int TripId { get; set; }
-		public Trip Trip { get; set; }
+		public Trip Trip { get; set; } = null!;
 		public int WalletId { get; set; }
-		public Wallet Wallet { get; set; }
+		public Wallet Wallet { get; set; } = null!;
 		public int AmountOfPoint { get; set; }
-		public DateTime TransactionDate { get; set; }
+		public DateTime TransactionDate { get; set; } = CurrentTime.GetCurrentTime();
 	}
 }

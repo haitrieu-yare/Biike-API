@@ -15,7 +15,7 @@ namespace Application.Vouchers
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public VoucherEditDTO NewVoucher { get; set; }
+			public VoucherEditDTO NewVoucher { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,7 +38,7 @@ namespace Application.Vouchers
 
 					var oldVoucher = await _context.Voucher
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (oldVoucher == null) return null;
+					if (oldVoucher == null) return null!;
 
 					_mapper.Map(request.NewVoucher, oldVoucher);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

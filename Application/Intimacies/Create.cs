@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Intimacies.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
@@ -14,7 +15,7 @@ namespace Application.Intimacies
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public IntimacyDTO IntimacyDTO { get; set; }
+			public IntimacyCreateDTO IntimacyCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -36,7 +37,7 @@ namespace Application.Intimacies
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var newIntimacy = new Intimacy();
-					_mapper.Map(request.IntimacyDTO, newIntimacy);
+					_mapper.Map(request.IntimacyCreateDTO, newIntimacy);
 
 					await _context.Intimacy.AddAsync(newIntimacy, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

@@ -1,29 +1,32 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.AppUsers.DTOs;
+using Application.Users.DTOs;
 using Application.Core;
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.AppUsers
+namespace Application.Users
 {
-	public class EditLoginDevice
+	public class EditProfile
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public AppUserLoginDeviceDTO AppUserLoginDeviceDTO { get; set; }
+			public UserProfileEditDTO UserProfileEditDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<EditLoginDevice> _logger;
-			public Handler(DataContext context, ILogger<EditLoginDevice> logger)
+			private readonly IMapper _mapper;
+			private readonly ILogger<EditProfile> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<EditProfile> logger)
 			{
 				_logger = logger;
+				_mapper = mapper;
 				_context = context;
 			}
 
@@ -33,23 +36,22 @@ namespace Application.AppUsers
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var user = await _context.AppUser
+					var user = await _context.User
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (user == null) return null;
+					if (user == null) return null!;
 
-					user.LastLoginDevice = request.AppUserLoginDeviceDTO.LastLoginDevice;
-					user.LastTimeLogin = request.AppUserLoginDeviceDTO.LastTimeLogin;
+					_mapper.Map(request.UserProfileEditDTO, user);
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update user's login device");
-						return Result<Unit>.Failure("Failed to update user's login device");
+						_logger.LogInformation("Failed to update user's profile");
+						return Result<Unit>.Failure("Failed to update user's profile");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated user's login device");
+						_logger.LogInformation("Successfully updated user's profile");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

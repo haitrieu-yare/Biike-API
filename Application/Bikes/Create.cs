@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
 using Domain.Entities;
@@ -15,7 +16,7 @@ namespace Application.Bikes
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public BikeDTO BikeDTO { get; set; }
+			public BikeCreateDTO BikeCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -37,7 +38,7 @@ namespace Application.Bikes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var oldBike = await _context.Bike
-						.Where(b => b.AppUserId == request.BikeDTO.UserId)
+						.Where(b => b.UserId == request.BikeCreateDTO.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
 					if (oldBike != null)
 					{
@@ -46,7 +47,7 @@ namespace Application.Bikes
 					}
 
 					var newBike = new Bike();
-					_mapper.Map(request.BikeDTO, newBike);
+					_mapper.Map(request.BikeCreateDTO, newBike);
 
 					await _context.Bike.AddAsync(newBike, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

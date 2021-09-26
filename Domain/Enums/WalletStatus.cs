@@ -2,7 +2,7 @@ namespace Domain.Enums
 {
 	public enum WalletStatus
 	{
-		Expired,
+		Expired = 1,
 		Old,
 		Current,
 	}

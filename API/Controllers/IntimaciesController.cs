@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Intimacies;
+using Application.Intimacies.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -21,9 +22,10 @@ namespace API.Controllers
 
 
 		[HttpPost]
-		public async Task<IActionResult> CreateIntimacies(IntimacyDTO intimacyDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateIntimacies(IntimacyCreateDTO intimacyCreateDTO, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Create.Command { IntimacyDTO = intimacyDTO }, ct));
+			return HandleResult(await Mediator.Send(
+				new Create.Command { IntimacyCreateDTO = intimacyCreateDTO }, ct));
 		}
 
 		[HttpPut]

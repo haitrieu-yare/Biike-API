@@ -1,5 +1,5 @@
 using Application.Core;
-using Application.AppUsers.DTOs;
+using Application.Users.DTOs;
 using MediatR;
 using System.Threading.Tasks;
 using System.Threading;
@@ -11,16 +11,16 @@ using Domain.Enums;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.AppUsers
+namespace Application.Users
 {
 	public class DetailSelf
 	{
-		public class Query : IRequest<Result<AppUserSelfProfileDTO>>
+		public class Query : IRequest<Result<UserSelfProfileDTO>>
 		{
 			public int Id { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<AppUserSelfProfileDTO>>
+		public class Handler : IRequestHandler<Query, Result<UserSelfProfileDTO>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -32,25 +32,25 @@ namespace Application.AppUsers
 				_logger = logger;
 			}
 
-			public async Task<Result<AppUserSelfProfileDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<UserSelfProfileDTO>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var AppUserProfile = await _context.AppUser
+					var AppUserProfile = await _context.User
 						.Where(u => u.Id == request.Id)
-						.Where(u => u.Status == (int)AppUserStatus.Active)
-						.ProjectTo<AppUserSelfProfileDTO>(_mapper.ConfigurationProvider)
+						.Where(u => u.Status == (int)UserStatus.Active)
+						.ProjectTo<UserSelfProfileDTO>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved user self profile");
-					return Result<AppUserSelfProfileDTO>.Success(AppUserProfile);
+					return Result<UserSelfProfileDTO>.Success(AppUserProfile);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<AppUserSelfProfileDTO>.Failure("Request was cancelled");
+					return Result<UserSelfProfileDTO>.Failure("Request was cancelled");
 				}
 			}
 		}

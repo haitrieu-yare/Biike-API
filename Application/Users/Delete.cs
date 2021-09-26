@@ -1,32 +1,28 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.AppUsers.DTOs;
 using Application.Core;
-using AutoMapper;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.AppUsers
+namespace Application.Users
 {
-	public class EditProfile
+	public class Delete
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public AppUserProfileEditDTO AppUserProfileEditDTO { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<EditProfile> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditProfile> logger)
+			private readonly ILogger<Delete> _logger;
+			public Handler(DataContext context, ILogger<Delete> logger)
 			{
 				_logger = logger;
-				_mapper = mapper;
 				_context = context;
 			}
 
@@ -36,22 +32,22 @@ namespace Application.AppUsers
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var user = await _context.AppUser
+					var user = await _context.User
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (user == null) return null;
+					if (user == null) return null!;
 
-					_mapper.Map(request.AppUserProfileEditDTO, user);
+					user.Status = (int)UserStatus.Deleted;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update user's profile");
-						return Result<Unit>.Failure("Failed to update user's profile");
+						_logger.LogInformation("Failed to delete user");
+						return Result<Unit>.Failure("Failed to delete user");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated user's profile");
+						_logger.LogInformation("Successfully deleted user");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

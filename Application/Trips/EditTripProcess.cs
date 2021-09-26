@@ -47,7 +47,7 @@ namespace Application.Trips.DTOs
 
 					var oldTrip = await _context.Trip
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (oldTrip == null) return null;
+					if (oldTrip == null) return null!;
 
 					if (oldTrip.BikerId == null)
 					{

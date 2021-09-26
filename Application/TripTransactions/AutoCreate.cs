@@ -38,7 +38,7 @@ namespace Application.TripTransactions
 				};
 
 				var wallet = await _context.Wallet
-					.Where(w => w.AppUserId == trip.BikerId)
+					.Where(w => w.UserId == trip.BikerId)
 					.Where(w => w.Status == (int)WalletStatus.Current)
 					.SingleOrDefaultAsync(cancellationToken);
 				tripTransaction.WalletId = wallet.Id;
@@ -46,8 +46,8 @@ namespace Application.TripTransactions
 				tripTransaction.AmountOfPoint = newPoint;
 				wallet.Point += newPoint;
 
-				var user = await _context.AppUser
-					.Where(u => u.Id == wallet.AppUserId)
+				var user = await _context.User
+					.Where(u => u.Id == wallet.UserId)
 					.SingleOrDefaultAsync(cancellationToken);
 				user.TotalPoint += newPoint;
 

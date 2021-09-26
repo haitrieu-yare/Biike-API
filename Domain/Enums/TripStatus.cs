@@ -2,7 +2,7 @@ namespace Domain.Enums
 {
 	public enum TripStatus
 	{
-		Finding,
+		Finding = 1,
 		Waiting,
 		Started,
 		Finished,

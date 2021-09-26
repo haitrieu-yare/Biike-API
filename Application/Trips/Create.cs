@@ -15,7 +15,7 @@ namespace Application.Trips
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public TripCreateDTO TripCreateDTO { get; set; }
+			public TripCreateDTO TripCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

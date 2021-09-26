@@ -9,9 +9,10 @@ namespace API.Controllers
 	public class FeedbacksController : BaseApiController
 	{
 		[HttpPost]
-		public async Task<IActionResult> CreateFeedBack(FeedbackDTO feedbackDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateFeedBack(FeedbackCreateDTO feedbackCreateDTO, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Create.Command { FeedbackDTO = feedbackDTO }, ct));
+			return HandleResult(await Mediator.Send(
+				new Create.Command { FeedbackCreateDTO = feedbackCreateDTO }, ct));
 		}
 
 		[HttpGet("{tripId}")]

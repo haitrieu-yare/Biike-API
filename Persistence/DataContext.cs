@@ -5,7 +5,7 @@ namespace Persistence
 {
 	public class DataContext : DbContext
 	{
-		public DataContext(DbContextOptions options) : base(options)
+		public DataContext(DbContextOptions<DataContext> options) : base(options)
 		{
 		}
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,6 +36,43 @@ namespace Persistence
 				.OnDelete(DeleteBehavior.NoAction);
 			#endregion
 
+			#region User
+			modelBuilder.Entity<User>().ToTable("AppUser");
+
+			modelBuilder.Entity<User>()
+				.HasIndex(u => u.Email).IsUnique();
+
+			modelBuilder.Entity<User>()
+				.HasIndex(u => u.PhoneNumber).IsUnique();
+			#endregion
+
+			#region Bike
+			modelBuilder.Entity<Bike>()
+				.HasIndex(u => u.PlateNumber).IsUnique();
+
+			modelBuilder.Entity<Bike>()
+				.HasOne(b => b.User)
+				.WithMany(u => u.Bikes)
+				.HasForeignKey(b => b.UserId)
+				.OnDelete(DeleteBehavior.NoAction);
+			#endregion
+
+			#region Intimacy
+			modelBuilder.Entity<Intimacy>().HasKey(i => new { i.UserOneId, i.UserTwoId });
+
+			modelBuilder.Entity<Intimacy>()
+				.HasOne(i => i.UserTwo)
+				.WithMany(u => u.UserTwoIntimacies)
+				.HasForeignKey(i => i.UserTwoId)
+				.OnDelete(DeleteBehavior.NoAction);
+
+			modelBuilder.Entity<Intimacy>()
+				.HasOne(i => i.UserOne)
+				.WithMany(u => u.UserOneIntimacies)
+				.HasForeignKey(i => i.UserOneId)
+				.OnDelete(DeleteBehavior.NoAction);
+			#endregion
+
 			#region Trip
 			modelBuilder.Entity<Trip>()
 				.HasOne(t => t.Route)
@@ -56,32 +93,8 @@ namespace Persistence
 				.OnDelete(DeleteBehavior.NoAction);
 			#endregion
 
-			#region Bike
-			modelBuilder.Entity<Bike>()
-				.HasOne(b => b.AppUser)
-				.WithMany(u => u.Bikes)
-				.HasForeignKey(b => b.AppUserId)
-				.OnDelete(DeleteBehavior.NoAction);
-			#endregion
-
-			#region Intimacy
-			modelBuilder.Entity<Intimacy>().HasKey(i => new { i.UserOneId, i.UserTwoId });
-
-			modelBuilder.Entity<Intimacy>()
-				.HasOne(i => i.UserTwo)
-				.WithMany(u => u.UserTwoIntimacies)
-				.HasForeignKey(i => i.UserTwoId)
-				.OnDelete(DeleteBehavior.NoAction);
-
-			modelBuilder.Entity<Intimacy>()
-				.HasOne(i => i.UserOne)
-				.WithMany(u => u.UserOneIntimacies)
-				.HasForeignKey(i => i.UserOneId)
-				.OnDelete(DeleteBehavior.NoAction);
-			#endregion
-
 			#region Feedback
-			modelBuilder.Entity<Feedback>().HasKey(i => new { i.AppUserId, i.TripId });
+			modelBuilder.Entity<Feedback>().HasKey(i => new { i.UserId, i.TripId });
 
 			modelBuilder.Entity<Feedback>()
 				.HasOne(f => f.Trip)
@@ -90,9 +103,9 @@ namespace Persistence
 				.OnDelete(DeleteBehavior.NoAction);
 
 			modelBuilder.Entity<Feedback>()
-				.HasOne(f => f.AppUser)
+				.HasOne(f => f.User)
 				.WithMany(u => u.FeedBackList)
-				.HasForeignKey(f => f.AppUserId)
+				.HasForeignKey(f => f.UserId)
 				.OnDelete(DeleteBehavior.NoAction);
 			#endregion
 
@@ -112,10 +125,16 @@ namespace Persistence
 
 			#region Wallet
 			modelBuilder.Entity<Wallet>()
-				.HasOne(w => w.AppUser)
+				.HasOne(w => w.User)
 				.WithMany(u => u.Wallets)
-				.HasForeignKey(w => w.AppUserId)
+				.HasForeignKey(w => w.UserId)
 				.OnDelete(DeleteBehavior.NoAction);
+			#endregion
+
+			#region VoucherCategory
+			modelBuilder.Entity<VoucherCategory>()
+				.HasIndex(vc => vc.CategoryName)
+				.IsUnique();
 			#endregion
 
 			#region Voucher
@@ -139,22 +158,20 @@ namespace Persistence
 				.HasForeignKey(r => r.WalletId)
 				.OnDelete(DeleteBehavior.NoAction);
 			#endregion
-
-			base.OnModelCreating(modelBuilder);
 		}
 
-		public DbSet<Area> Area { get; set; }
-		public DbSet<Station> Station { get; set; }
-		public DbSet<Route> Route { get; set; }
-		public DbSet<AppUser> AppUser { get; set; }
-		public DbSet<Intimacy> Intimacy { get; set; }
-		public DbSet<Bike> Bike { get; set; }
-		public DbSet<Wallet> Wallet { get; set; }
-		public DbSet<Trip> Trip { get; set; }
-		public DbSet<Feedback> Feedback { get; set; }
-		public DbSet<TripTransaction> TripTransaction { get; set; }
-		public DbSet<VoucherCategory> VoucherCategory { get; set; }
-		public DbSet<Voucher> Voucher { get; set; }
-		public DbSet<Redemption> Redemption { get; set; }
+		public DbSet<Area> Area => Set<Area>();
+		public DbSet<Station> Station => Set<Station>();
+		public DbSet<Route> Route => Set<Route>();
+		public DbSet<User> User => Set<User>();
+		public DbSet<Intimacy> Intimacy => Set<Intimacy>();
+		public DbSet<Bike> Bike => Set<Bike>();
+		public DbSet<Wallet> Wallet => Set<Wallet>();
+		public DbSet<Trip> Trip => Set<Trip>();
+		public DbSet<Feedback> Feedback => Set<Feedback>();
+		public DbSet<TripTransaction> TripTransaction => Set<TripTransaction>();
+		public DbSet<VoucherCategory> VoucherCategory => Set<VoucherCategory>();
+		public DbSet<Voucher> Voucher => Set<Voucher>();
+		public DbSet<Redemption> Redemption => Set<Redemption>();
 	}
 }

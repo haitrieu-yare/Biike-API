@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -37,7 +38,7 @@ namespace Application.Bikes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var bike = await _context.Bike
-						.Where(b => b.AppUserId == request.UserId)
+						.Where(b => b.UserId == request.UserId)
 						.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 

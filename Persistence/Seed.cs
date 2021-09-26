@@ -7,7 +7,7 @@ namespace Persistence
 	{
 		public static async Task SeedAllData(DataContext context)
 		{
-			await AppUserSeed.SeedData(context);
+			await UserSeed.SeedData(context);
 			await WalletSeed.SeedData(context);
 			await BikeSeed.SeedData(context);
 			await IntimacySeed.SeedData(context);

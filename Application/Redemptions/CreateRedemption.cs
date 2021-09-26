@@ -15,7 +15,7 @@ namespace Application.Redemptions
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public RedemptionCreateDTO RedemptionCreateDTO { get; set; }
+			public RedemptionCreateDTO RedemptionCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

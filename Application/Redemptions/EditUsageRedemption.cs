@@ -33,7 +33,7 @@ namespace Application.Redemptions
 
 					var redemption = await _context.Redemption
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (redemption == null) return null;
+					if (redemption == null) return null!;
 
 					redemption.IsUsed = !redemption.IsUsed;
 

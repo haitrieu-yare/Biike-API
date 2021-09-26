@@ -1,26 +1,27 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Users.DTOs;
 using Application.Core;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.AppUsers
+namespace Application.Users
 {
-	public class EditStatus
+	public class EditLoginDevice
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public int NewStatus { get; set; }
+			public UserLoginDeviceDTO UserLoginDeviceDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<EditStatus> _logger;
-			public Handler(DataContext context, ILogger<EditStatus> logger)
+			private readonly ILogger<EditLoginDevice> _logger;
+			public Handler(DataContext context, ILogger<EditLoginDevice> logger)
 			{
 				_logger = logger;
 				_context = context;
@@ -32,22 +33,23 @@ namespace Application.AppUsers
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var user = await _context.AppUser
+					var user = await _context.User
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (user == null) return null;
+					if (user == null) return null!;
 
-					user.Status = request.NewStatus;
+					user.LastLoginDevice = request.UserLoginDeviceDTO.LastLoginDevice;
+					user.LastTimeLogin = request.UserLoginDeviceDTO.LastTimeLogin;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update user's status");
-						return Result<Unit>.Failure("Failed to update user's status");
+						_logger.LogInformation("Failed to update user's login device");
+						return Result<Unit>.Failure("Failed to update user's login device");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated user's status");
+						_logger.LogInformation("Successfully updated user's login device");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

@@ -33,7 +33,7 @@ namespace Application.Routes
 
 					var route = await _context.Route
 						.FindAsync(new object[] { request.RouteId }, cancellationToken);
-					if (route == null) return null;
+					if (route == null) return null!;
 
 					route.IsDeleted = true;
 

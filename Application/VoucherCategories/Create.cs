@@ -14,7 +14,7 @@ namespace Application.VoucherCategories
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public VoucherCategoryDTO VoucherCategoryDTO { get; set; }
+			public VoucherCategoryDTO VoucherCategoryDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

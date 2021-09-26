@@ -35,7 +35,7 @@ namespace Application.Wallets
 					var wallet = await _context.Wallet
 						.Where(w => w.Id == request.WalletId)
 						.SingleOrDefaultAsync(cancellationToken);
-					if (wallet == null) return null;
+					if (wallet == null) return null!;
 
 					_context.Wallet.Remove(wallet);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

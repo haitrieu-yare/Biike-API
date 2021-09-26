@@ -16,7 +16,7 @@ namespace Persistence.Data
 			{
 				new Wallet
 				{
-					AppUserId = 1,
+					UserId = 1,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 200,
@@ -24,7 +24,7 @@ namespace Persistence.Data
 				},
 				new Wallet
 				{
-					AppUserId = 2,
+					UserId = 2,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 250,
@@ -32,7 +32,7 @@ namespace Persistence.Data
 				},
 				new Wallet
 				{
-					AppUserId = 3,
+					UserId = 3,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 150,
@@ -40,7 +40,7 @@ namespace Persistence.Data
 				},
 				new Wallet
 				{
-					AppUserId = 4,
+					UserId = 4,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 100,
@@ -48,7 +48,7 @@ namespace Persistence.Data
 				},
 				new Wallet
 				{
-					AppUserId = 5,
+					UserId = 5,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 300,
@@ -56,7 +56,7 @@ namespace Persistence.Data
 				},
 				new Wallet
 				{
-					AppUserId = 6,
+					UserId = 6,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 350,
@@ -64,7 +64,7 @@ namespace Persistence.Data
 				},
 				new Wallet
 				{
-					AppUserId = 7,
+					UserId = 7,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 400,
@@ -72,7 +72,7 @@ namespace Persistence.Data
 				},
 				new Wallet
 				{
-					AppUserId = 8,
+					UserId = 8,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 30,
@@ -80,7 +80,7 @@ namespace Persistence.Data
 				},
 				new Wallet
 				{
-					AppUserId = 9,
+					UserId = 9,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 10,
@@ -88,7 +88,7 @@ namespace Persistence.Data
 				},
 				new Wallet
 				{
-					AppUserId = 10,
+					UserId = 10,
 					FromDate = DateTime.Parse("2021/09/01 00:00:00"),
 					ToDate = DateTime.Parse("2021/12/31 23:59:59"),
 					Point = 90,

@@ -33,9 +33,9 @@ namespace Application.Bikes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var bike = await _context.Bike
-						.Where(b => b.AppUserId == request.UserId)
+						.Where(b => b.UserId == request.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
-					if (bike == null) return null;
+					if (bike == null) return null!;
 
 					_context.Bike.Remove(bike);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

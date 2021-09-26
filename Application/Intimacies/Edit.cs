@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Intimacies.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,7 @@ namespace Application.Intimacies
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public IntimacyEditDTO IntimacyEditDTO { get; set; }
+			public IntimacyEditDTO IntimacyEditDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,7 +39,7 @@ namespace Application.Intimacies
 							request.IntimacyEditDTO.UserOneId,
 							request.IntimacyEditDTO.UserTwoId
 						}, cancellationToken);
-					if (oldIntimacy == null) return null;
+					if (oldIntimacy == null) return null!;
 
 					if (request.IntimacyEditDTO.BlockAction && oldIntimacy.IsBlock)
 					{

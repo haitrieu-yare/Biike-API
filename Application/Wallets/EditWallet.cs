@@ -15,7 +15,7 @@ namespace Application.Wallets
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int WalletId { get; set; }
-			public WalletDTO NewWalletDTO { get; set; }
+			public WalletDTO NewWalletDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,7 +38,7 @@ namespace Application.Wallets
 
 					var oldWallet = await _context.Wallet
 						.FindAsync(new object[] { request.WalletId }, cancellationToken);
-					if (oldWallet == null) return null;
+					if (oldWallet == null) return null!;
 
 					_mapper.Map(request.NewWalletDTO, oldWallet);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

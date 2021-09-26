@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.AppUsers;
-using Application.AppUsers.DTOs;
+using Application.Users;
+using Application.Users.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -28,25 +28,25 @@ namespace API.Controllers
 
 		[HttpPut("{id}/profile")]
 		public async Task<IActionResult> EditUserProfile(int id,
-			AppUserProfileEditDTO appUserProfileEditDTO, CancellationToken ct)
+			UserProfileEditDTO userProfileEditDTO, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new EditProfile.Command
-			{ Id = id, AppUserProfileEditDTO = appUserProfileEditDTO }, ct));
+			return HandleResult(await Mediator.Send(
+				new EditProfile.Command { Id = id, UserProfileEditDTO = userProfileEditDTO }, ct));
 		}
 
 		[HttpPut("{id}")]
 		public async Task<IActionResult> EditUserStatus(int id, int newStatus, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new EditStatus.Command
-			{ Id = id, NewStatus = newStatus }, ct));
+			return HandleResult(await Mediator.Send(
+				new EditStatus.Command { Id = id, NewStatus = newStatus }, ct));
 		}
 
 		[HttpPut("{id}/login-device")]
 		public async Task<IActionResult> EditUserLoginDevice(int id,
-			AppUserLoginDeviceDTO appUserLoginDeviceDTO, CancellationToken ct)
+			UserLoginDeviceDTO userLoginDeviceDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new EditLoginDevice.Command
-			{ Id = id, AppUserLoginDeviceDTO = appUserLoginDeviceDTO }, ct));
+			{ Id = id, UserLoginDeviceDTO = userLoginDeviceDTO }, ct));
 		}
 
 		[HttpDelete("{id}")]

@@ -1,17 +1,12 @@
 using System;
-using System.ComponentModel.DataAnnotations;
+using Domain;
 
 namespace Application.Redemptions.DTOs
 {
 	public class RedemptionCreateDTO
 	{
-		[Required]
-		public int? WalletId { get; set; }
-
-		[Required]
-		public int? VoucherId { get; set; }
-
-		[Required]
-		public DateTime? RedemptionDate { get; set; }
+		public int WalletId { get; set; }
+		public int VoucherId { get; set; }
+		public DateTime RedemptionDate { get; set; } = CurrentTime.GetCurrentTime();
 	}
 }
