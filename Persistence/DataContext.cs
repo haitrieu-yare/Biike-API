@@ -20,6 +20,10 @@ namespace Persistence
 
 			#region Route
 			modelBuilder.Entity<Route>()
+				.HasIndex(r => new { r.DepartureId, r.DestinationId })
+				.IsUnique();
+
+			modelBuilder.Entity<Route>()
 				.HasOne(r => r.Departure)
 				.WithMany(s => s.DepartureRoutes)
 				.HasForeignKey(r => r.DepartureId)

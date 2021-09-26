@@ -10,7 +10,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20210925172600_DatabaseV2.0")]
+    [Migration("20210926043735_DatabaseV2.0")]
     partial class DatabaseV20
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -238,9 +238,10 @@ namespace Persistence.Migrations
 
                     b.HasKey("RouteId");
 
-                    b.HasIndex("DepartureId");
-
                     b.HasIndex("DestinationId");
+
+                    b.HasIndex("DepartureId", "DestinationId")
+                        .IsUnique();
 
                     b.ToTable("Route");
                 });

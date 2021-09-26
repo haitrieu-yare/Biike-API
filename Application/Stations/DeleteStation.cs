@@ -36,6 +36,7 @@ namespace Application.Stations
 					if (station == null) return null;
 
 					station.IsDeleted = true;
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)

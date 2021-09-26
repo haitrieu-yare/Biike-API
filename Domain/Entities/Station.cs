@@ -19,7 +19,7 @@ namespace Domain.Entities
 
 		[Required]
 		public string Coordinate { get; set; }
-		public DateTime CreatedDate { get; set; } = DateTime.Now;
+		public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
 		public bool IsDeleted { get; set; } = false;
 
 		[InverseProperty("Departure")]

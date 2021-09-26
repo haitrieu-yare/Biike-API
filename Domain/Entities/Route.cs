@@ -11,7 +11,7 @@ namespace Domain.Entities
 		public int DestinationId { get; set; }
 		public Station Destination { get; set; }
 		public int DefaultPoint { get; set; }
-		public DateTime CreatedDate { get; set; } = DateTime.Now;
+		public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
 		public bool IsDeleted { get; set; } = false;
 		public ICollection<Trip> Trips { get; set; }
 	}

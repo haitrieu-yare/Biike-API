@@ -236,9 +236,10 @@ namespace Persistence.Migrations
 
                     b.HasKey("RouteId");
 
-                    b.HasIndex("DepartureId");
-
                     b.HasIndex("DestinationId");
+
+                    b.HasIndex("DepartureId", "DestinationId")
+                        .IsUnique();
 
                     b.ToTable("Route");
                 });

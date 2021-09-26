@@ -366,9 +366,10 @@ namespace Persistence.Migrations
                 column: "WalletId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Route_DepartureId",
+                name: "IX_Route_DepartureId_DestinationId",
                 table: "Route",
-                column: "DepartureId");
+                columns: new[] { "DepartureId", "DestinationId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Route_DestinationId",
