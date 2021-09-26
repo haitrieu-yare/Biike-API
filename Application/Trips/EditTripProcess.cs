@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.TripTransactions;
 using AutoMapper;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -59,11 +60,11 @@ namespace Application.Trips.DTOs
 					{
 						case 1:
 							oldTrip.PickupTime = request.Time;
-							oldTrip.Status = 2;
+							oldTrip.Status = (int)TripStatus.Started;
 							break;
 						case 2:
 							oldTrip.FinishedTime = request.Time;
-							oldTrip.Status = 3;
+							oldTrip.Status = (int)TripStatus.Finished;
 							break;
 						case 3:
 							_logger.LogInformation("Trip has already finished");
@@ -84,7 +85,7 @@ namespace Application.Trips.DTOs
 					{
 						_logger.LogInformation("Successfully updated trip");
 
-						if (oldTrip.Status == 3)
+						if (oldTrip.Status == (int)TripStatus.Finished)
 							return await _autoCreate.Run(oldTrip, 10, cancellationToken);
 
 						return Result<Unit>.Success(Unit.Value);

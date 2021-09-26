@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -42,10 +43,10 @@ namespace Application.Trips
 
 					switch (oldTrip.Status)
 					{
-						case 3:
+						case (int)TripStatus.Finished:
 							_logger.LogInformation("Trip has already finished");
 							return Result<Unit>.Failure("Trip has already finished");
-						case 4:
+						case (int)TripStatus.Cancelled:
 							_logger.LogInformation("Trip has already cancelled");
 							return Result<Unit>.Failure("Trip has already cancelled");
 					}
@@ -58,7 +59,7 @@ namespace Application.Trips
 
 					_mapper.Map(request.TripCancellationDTO, oldTrip);
 					oldTrip.CancelPersonId = request.UserId;
-					oldTrip.Status = 4;
+					oldTrip.Status = (int)TripStatus.Cancelled;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

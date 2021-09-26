@@ -42,8 +42,10 @@ namespace Application.Trips
 
 					if (request.Role != (int)RoleStatus.Keer && request.Role != (int)RoleStatus.Biker)
 					{
-						_logger.LogInformation("Role must be 0 (Keer) or 1 (Biker)");
-						return Result<List<TripDTO>>.Failure("Role must be 0 (Keer) or 1 (Biker)");
+						_logger.LogInformation("Role must be " + (int)RoleStatus.Keer
+							+ " (Keer) or " + (int)RoleStatus.Biker + " (Biker)");
+						return Result<List<TripDTO>>.Failure("Role must be " + (int)RoleStatus.Keer
+							+ " (Keer) or " + (int)RoleStatus.Biker + " (Biker)");
 					}
 
 					var tripDTO = await _context.Trip

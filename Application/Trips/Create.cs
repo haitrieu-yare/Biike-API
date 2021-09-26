@@ -38,8 +38,6 @@ namespace Application.Trips
 					var newTrip = new Trip();
 					_mapper.Map(request.TripCreateDTO, newTrip);
 
-					newTrip.Status = 0;
-
 					await _context.Trip.AddAsync(newTrip, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

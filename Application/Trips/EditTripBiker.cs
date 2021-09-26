@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -57,7 +58,7 @@ namespace Application.Trips
 
 					oldTrip.BikerId = biker.Id;
 					oldTrip.PlateNumber = bike.PlateNumber;
-					oldTrip.Status = 1;
+					oldTrip.Status = (int)TripStatus.Waiting;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
