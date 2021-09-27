@@ -239,7 +239,6 @@ namespace Persistence.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int?>("BikerId")
-                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("BookTime")
@@ -267,7 +266,6 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PlateNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RouteId")
@@ -581,8 +579,7 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.User", "Biker")
                         .WithMany("BikerTrips")
                         .HasForeignKey("BikerId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Domain.Entities.User", "Keer")
                         .WithMany("KeerTrips")

@@ -8,18 +8,21 @@ namespace API.Controllers
 {
 	public class StationsController : BaseApiController
 	{
+		// User & Admin
 		[HttpGet]
 		public async Task<IActionResult> GetAllStations(CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new ListStations.Query(), ct));
 		}
 
+		// User & Admin
 		[HttpGet("{stationId}")]
 		public async Task<IActionResult> GetStationByStationId(int stationId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new DetailStation.Query { StationId = stationId }, ct));
 		}
 
+		// Admin
 		[HttpPost]
 		public async Task<IActionResult> CreateStation(StationCreateDTO stationCreateDTO, CancellationToken ct)
 		{
@@ -27,6 +30,7 @@ namespace API.Controllers
 				new CreateStation.Command { StationCreateDTO = stationCreateDTO }, ct));
 		}
 
+		// Admin
 		[HttpPut("{stationId}")]
 		public async Task<IActionResult> EditStation(int stationId, StationDTO newStationDTO, CancellationToken ct)
 		{
@@ -34,6 +38,7 @@ namespace API.Controllers
 				new EditStation.Command { StationId = stationId, NewStationDTO = newStationDTO }, ct));
 		}
 
+		// Admin
 		[HttpDelete("{stationId}")]
 		public async Task<IActionResult> DeleteStation(int stationId, CancellationToken ct)
 		{

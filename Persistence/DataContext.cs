@@ -88,7 +88,7 @@ namespace Persistence
 
 			modelBuilder.Entity<Trip>()
 				.HasOne(t => t.Biker)
-				.WithMany(u => u.BikerTrips)
+				.WithMany(u => u!.BikerTrips)
 				.HasForeignKey(t => t.BikerId)
 				.OnDelete(DeleteBehavior.NoAction);
 			#endregion

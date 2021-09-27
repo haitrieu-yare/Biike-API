@@ -55,7 +55,7 @@ namespace Application.Trips
 						.Where(t => t.Status == (int)TripStatus.Finding
 							|| t.Status == (int)TripStatus.Waiting)
 						.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
-							new { role = request.Role.ToString() })
+							new { role = request.Role })
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all upcoming trip");

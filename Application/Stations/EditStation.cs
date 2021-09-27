@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MediatR;
@@ -37,7 +38,9 @@ namespace Application.Stations
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var oldStation = await _context.Station
-						.FindAsync(new object[] { request.StationId }, cancellationToken);
+						.Where(s => s.StationId == request.StationId)
+						.Where(s => s.IsDeleted != true)
+						.SingleOrDefaultAsync(cancellationToken);
 					if (oldStation == null) return null!;
 
 					_mapper.Map(request.NewStationDTO, oldStation);

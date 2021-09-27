@@ -13,6 +13,7 @@ using Application.VoucherCategories;
 using Application.Vouchers.DTOs;
 using Application.Wallets.DTOs;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Core
 {
@@ -20,6 +21,7 @@ namespace Application.Core
 	{
 		public MappingProfiles()
 		{
+			#region Fix Type Conversion
 			// Mặc định khi kiểu int? có giá trị null thì 
 			// map qua kiểu int sẽ bị chuyển thành 0.
 			// Nhưng chúng ta thường sẽ muốn ignore biến int? nếu
@@ -54,6 +56,7 @@ namespace Application.Core
 					return dest;
 				}
 			);
+			#endregion
 
 			#region Station
 			// List, Detail 
@@ -62,6 +65,7 @@ namespace Application.Core
 			CreateMap<StationDTO, Station>()
 				.ForMember(s => s.StationId, opt => opt.Ignore())
 				.ForMember(s => s.CreatedDate, opt => opt.Ignore())
+				.ForMember(s => s.IsDeleted, opt => opt.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
 			CreateMap<StationCreateDTO, Station>();
@@ -106,15 +110,17 @@ namespace Application.Core
 			#endregion
 
 			#region history/upcoming trips
-			string role = string.Empty;
+			int role = 0;
 			CreateMap<Trip, TripDTO>()
 				.ForMember(t => t.TripId, o => o.MapFrom(t => t.Id))
 				.ForMember(t => t.UserId, o =>
-					o.MapFrom(t => (role.Equals("0")) ? t.BikerId : t.KeerId))
+					o.MapFrom(t => (role == (int)RoleStatus.Keer) ? t.BikerId : t.KeerId))
 				.ForMember(t => t.Avatar, o =>
-					o.MapFrom(t => (role.Equals("0")) ? t.Biker.Avatar : t.Keer.Avatar))
-				.ForMember(t => t.UserFullname,
-					o => o.MapFrom(t => (role.Equals("0")) ? t.Biker.FullName : t.Keer.FullName))
+					o.MapFrom(t => (t.Biker == null) ? null :
+						(role == (int)RoleStatus.Keer) ? t.Biker.Avatar : t.Keer.Avatar))
+				.ForMember(t => t.UserFullname, o =>
+					o.MapFrom(t => (t.Biker == null) ? null :
+						(role == (int)RoleStatus.Keer) ? t.Biker.FullName : t.Keer.FullName))
 				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
 				.ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
 				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))
@@ -128,9 +134,9 @@ namespace Application.Core
 				.ForMember(t => t.UserId, o =>
 					o.MapFrom(t => userTwoId == t.BikerId ? t.BikerId : t.KeerId))
 				.ForMember(t => t.Avatar, o =>
-					o.MapFrom(t => userTwoId == t.BikerId ? t.Biker.Avatar : t.Keer.Avatar))
+					o.MapFrom(t => userTwoId == t.BikerId ? t.Biker!.Avatar : t.Keer.Avatar))
 				.ForMember(t => t.UserFullname, o =>
-					o.MapFrom(t => userTwoId == t.BikerId ? t.Biker.FullName : t.Keer.FullName))
+					o.MapFrom(t => userTwoId == t.BikerId ? t.Biker!.FullName : t.Keer.FullName))
 				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
 				.ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
 				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))

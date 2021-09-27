@@ -1,7 +1,3 @@
-using Application.Core;
-using Application.Trips;
-using Application.TripTransactions;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +5,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using MediatR;
 using Persistence;
+using Application.Core;
+using Application.Trips;
+using Application.TripTransactions;
+
 
 namespace API
 {
@@ -44,6 +47,11 @@ namespace API
 						.AllowAnyOrigin();
 				});
 			});
+			// FirebaseApp.Create(new AppOptions()
+			// {
+			// 	Credential = GoogleCredential.GetApplicationDefault(),
+			// 	ProjectId = "biike-70e7d",
+			// });
 			services.AddMediatR(typeof(HistoryList.Handler).Assembly);
 			services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 			services.AddTransient(typeof(AutoCreate));

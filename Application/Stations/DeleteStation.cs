@@ -35,7 +35,7 @@ namespace Application.Stations
 						.FindAsync(new object[] { request.StationId }, cancellationToken);
 					if (station == null) return null!;
 
-					station.IsDeleted = true;
+					station.IsDeleted = !station.IsDeleted;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
