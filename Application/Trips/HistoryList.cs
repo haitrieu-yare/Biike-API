@@ -55,7 +55,7 @@ namespace Application.Trips
 						.Where(t => t.Status == (int)TripStatus.Finished
 							|| t.Status == (int)TripStatus.Cancelled)
 						.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
-							new { role = request.Role.ToString() })
+							new { role = request.Role })
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all history trip");
