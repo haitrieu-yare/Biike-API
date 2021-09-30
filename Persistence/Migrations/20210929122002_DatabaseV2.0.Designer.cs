@@ -10,7 +10,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20210927084827_DatabaseV2.0")]
+    [Migration("20210929122002_DatabaseV2.0")]
     partial class DatabaseV20
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -352,9 +352,19 @@ namespace Persistence.Migrations
                     b.Property<DateTime?>("LastTimeLogin")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("LastTimeRefresh")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
                     b.Property<double>("Star")
                         .HasColumnType("float");

@@ -9,15 +9,15 @@ namespace Persistence.Data
 {
 	public static class UserSeed
 	{
-		public static async Task SeedData(DataContext context)
+		public static async Task<int> SeedData(DataContext context)
 		{
-			if (context.User.Any()) return;
+			if (context.User.Any()) return 0;
 
 			var users = new List<User>
 			{
 				new User
 				{
-					PhoneNumber = "0983335000",
+					PhoneNumber = "+84983335000",
 					Email = "haitrieu.yare@gmail.com",
 					FullName = "Đinh Phan Hải Triều",
 					Avatar = "https://ui-avatars.com/api/?name=Hai+Trieu&background=random&rounded=true&size=128",
@@ -31,7 +31,7 @@ namespace Persistence.Data
 				},
 				new User
 				{
-					PhoneNumber = "0983335001",
+					PhoneNumber = "+84983335001",
 					Email = "thanhtam@gmail.com",
 					FullName = "Nguyễn Thế Thanh Tâm",
 					Avatar = "https://ui-avatars.com/api/?name=Thanh+Tam&background=random&rounded=true&size=128",
@@ -45,7 +45,7 @@ namespace Persistence.Data
 				},
 				new User
 				{
-					PhoneNumber = "0983335002",
+					PhoneNumber = "+84983335002",
 					Email = "phuonguyen@gmail.com",
 					FullName = "Nguyễn Lê Phương Uyên",
 					Avatar = "https://ui-avatars.com/api/?name=Phuong+Uyen&background=random&rounded=true&size=128",
@@ -59,12 +59,13 @@ namespace Persistence.Data
 				},
 				new User
 				{
-					PhoneNumber = "0983335003",
+					PhoneNumber = "+84983335003",
 					Email = "huuphat@gmail.com",
 					FullName = "Đỗ Hữu Phát",
 					Avatar = "https://ui-avatars.com/api/?name=Huu+Phat&background=random&rounded=true&size=128",
 					Gender = (int) GenderStatus.Male,
 					Status = (int) UserStatus.Active,
+					Role = (int) RoleStatus.Biker,
 					Star = 4,
 					TotalPoint = 10,
 					BirthDate = DateTime.Parse("2000-05-05"),
@@ -73,7 +74,7 @@ namespace Persistence.Data
 				},
 				new User
 				{
-					PhoneNumber = "0983335004",
+					PhoneNumber = "+84983335004",
 					Email = "thaovan@gmail.com",
 					FullName = "Lê Ngọc Thảo Vân",
 					Avatar = "https://ui-avatars.com/api/?name=Thao+Van&background=random&rounded=true&size=128",
@@ -87,12 +88,13 @@ namespace Persistence.Data
 				},
 				new User
 				{
-					PhoneNumber = "0983335005",
+					PhoneNumber = "+84983335005",
 					Email = "dangkhoa@gmail.com",
 					FullName = "Nguyễn Đăng Khoa",
 					Avatar = "https://ui-avatars.com/api/?name=Dang+Khoa&background=random&rounded=true&size=128",
 					Gender = (int) GenderStatus.Male,
 					Status = (int) UserStatus.Active,
+					Role = (int) RoleStatus.Admin,
 					Star = 4,
 					BirthDate = DateTime.Parse("2000-05-05"),
 					CreatedDate = DateTime.Now,
@@ -100,7 +102,7 @@ namespace Persistence.Data
 				},
 				new User
 				{
-					PhoneNumber = "0983335006",
+					PhoneNumber = "+84983335006",
 					Email = "minhphu@gmail.com",
 					FullName = "Trương Minh Phú",
 					Avatar = "https://ui-avatars.com/api/?name=Minh+Phu&background=random&rounded=true&size=128",
@@ -114,7 +116,7 @@ namespace Persistence.Data
 				},
 				new User
 				{
-					PhoneNumber = "0983335007",
+					PhoneNumber = "+84983335007",
 					Email = "huonggiang@gmail.com",
 					FullName = "Nguyễn Thị Hương Giang",
 					Avatar = "https://ui-avatars.com/api/?name=Huong+Giang&background=random&rounded=true&size=128",
@@ -127,7 +129,7 @@ namespace Persistence.Data
 				},
 				new User
 				{
-					PhoneNumber = "0983335008",
+					PhoneNumber = "+84983335008",
 					Email = "lamvicon@gmail.com",
 					FullName = "Lâm Vĩ Côn",
 					Avatar = "https://ui-avatars.com/api/?name=Vi+Con&background=random&rounded=true&size=128",
@@ -140,7 +142,7 @@ namespace Persistence.Data
 				},
 				new User
 				{
-					PhoneNumber = "0983335009",
+					PhoneNumber = "+84983335009",
 					Email = "giahung@gmail.com",
 					FullName = "Giang Gia Hưng",
 					Avatar = "https://ui-avatars.com/api/?name=Gia+Hung&background=random&rounded=true&size=128",
@@ -160,6 +162,7 @@ namespace Persistence.Data
 				await context.User.AddAsync(user);
 				await context.SaveChangesAsync();
 			}
+			return 1;
 		}
 	}
 }

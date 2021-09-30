@@ -3,11 +3,11 @@ using Persistence.Data;
 
 namespace Persistence
 {
-	public class Seed
+	public static class Seed
 	{
-		public static async Task SeedAllData(DataContext context)
+		public static async Task<int> SeedAllData(DataContext context)
 		{
-			await UserSeed.SeedData(context);
+			var result = await UserSeed.SeedData(context);
 			await WalletSeed.SeedData(context);
 			await BikeSeed.SeedData(context);
 			await IntimacySeed.SeedData(context);
@@ -23,6 +23,8 @@ namespace Persistence
 			await VoucherCategorySeed.SeedData(context);
 			await VoucherSeed.SeedData(context);
 			await RedemptionSeed.SeedData(context);
+
+			return result;
 		}
 	}
 }

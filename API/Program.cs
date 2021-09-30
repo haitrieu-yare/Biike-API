@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Application;
 using Persistence;
 
 namespace API
@@ -22,7 +23,16 @@ namespace API
 			{
 				var context = services.GetRequiredService<DataContext>();
 				await context.Database.MigrateAsync();
-				await Seed.SeedAllData(context);
+				bool firstTimeInsertingUsers = await Seed.SeedAllData(context) > 0;
+
+				if (firstTimeInsertingUsers)
+				{
+					var loggerHashing = services.GetRequiredService<ILogger<Hashing>>();
+					await new Hashing(context, loggerHashing).CreatePasswordForUsers();
+
+					var loggerFirebase = services.GetRequiredService<ILogger<Firebase>>();
+					await new Firebase(context, loggerFirebase).ImportUserFromDatabaseToFirebase();
+				}
 			}
 			catch (System.Exception ex)
 			{

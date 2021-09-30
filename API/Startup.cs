@@ -1,9 +1,12 @@
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
@@ -12,7 +15,7 @@ using Persistence;
 using Application.Core;
 using Application.Trips;
 using Application.TripTransactions;
-
+using Application;
 
 namespace API
 {
@@ -25,7 +28,7 @@ namespace API
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
-		public void ConfigureServices(IServiceCollection services)
+		public void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
 		{
 
 			services.AddControllers();
@@ -47,14 +50,43 @@ namespace API
 						.AllowAnyOrigin();
 				});
 			});
-			// FirebaseApp.Create(new AppOptions()
-			// {
-			// 	Credential = GoogleCredential.GetApplicationDefault(),
-			// 	ProjectId = "biike-70e7d",
-			// });
+
+			string pathToKey = string.Empty;
+			if (env.IsDevelopment())
+			{
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
+					"keys", "firebase_admin_sdk_development.json");
+			}
+			else if (env.IsProduction())
+			{
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
+					"keys", "firebase_admin_sdk.json");
+			}
+
+			FirebaseApp.Create(new AppOptions()
+			{
+				Credential = GoogleCredential.FromFile(pathToKey)
+			});
+
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			.AddJwtBearer(opt =>
+			{
+				opt.Authority = _config["Jwt:Firebase:ValidIssuer"];
+				opt.TokenValidationParameters = new TokenValidationParameters
+				{
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = _config["Jwt:Firebase:ValidIssuer"],
+					ValidAudience = _config["Jwt:Firebase:ValidAudience"]
+				};
+			});
+
 			services.AddMediatR(typeof(HistoryList.Handler).Assembly);
 			services.AddAutoMapper(typeof(MappingProfiles).Assembly);
-			services.AddTransient(typeof(AutoCreate));
+			services.AddScoped(typeof(Hashing));
+			services.AddScoped(typeof(AutoCreate));
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,6 +105,7 @@ namespace API
 
 			app.UseCors("CorsPolicy");
 
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>

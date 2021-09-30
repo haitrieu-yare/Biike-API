@@ -1,8 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Application.Users;
 using Application.Users.DTOs;
-using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
@@ -24,6 +24,13 @@ namespace API.Controllers
 		public async Task<IActionResult> GetUserProfile(int id, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> CreateUser(UserCreateDTO userCreateDTO, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new CreateUser.Command { UserCreateDTO = userCreateDTO }, ct));
 		}
 
 		[HttpPut("{id}/profile")]
@@ -53,6 +60,12 @@ namespace API.Controllers
 		public async Task<IActionResult> DeleteUser(int id, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new Delete.Command { Id = id }, ct));
+		}
+
+		[HttpDelete("deleteFirebase")]
+		public async Task<IActionResult> DeleteAllFirebaseUsers(CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(new DeleteFireBaseUser.Command(), ct));
 		}
 	}
 }

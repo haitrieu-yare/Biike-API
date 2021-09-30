@@ -83,6 +83,11 @@ namespace Application.Core
 			CreateMap<RouteCreateDTO, Route>();
 			#endregion
 
+			#region create user
+			CreateMap<UserCreateDTO, User>()
+				.ForMember(u => u.PasswordHash, o => o.MapFrom(u => u.Password));
+			#endregion
+
 			#region user all info
 			CreateMap<User, UserInfoDTO>();
 			#endregion

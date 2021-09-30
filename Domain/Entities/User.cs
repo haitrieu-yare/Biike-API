@@ -9,13 +9,16 @@ namespace Domain.Entities
 	{
 		public int Id { get; set; }
 		public string PhoneNumber { get; set; } = string.Empty;
+		public string PasswordHash { get; set; } = "092021";
 		public string Email { get; set; } = string.Empty;
+		public int Role { get; set; } = (int)RoleStatus.Keer;
 		public string FullName { get; set; } = string.Empty;
 		public string Avatar { get; set; } = string.Empty;
-		public int Gender { get; set; } = (int)GenderStatus.Male;
+		public int Gender { get; set; } = (int)GenderStatus.Other;
 		public int Status { get; set; } = (int)UserStatus.Deactive;
 		public string? LastLoginDevice { get; set; }
 		public DateTime? LastTimeLogin { get; set; }
+		public DateTime? LastTimeRefresh { get; set; }
 		public double Star { get; set; } = 4;
 		public int TotalPoint { get; set; } = 0;
 		public DateTime? BirthDate { get; set; }
