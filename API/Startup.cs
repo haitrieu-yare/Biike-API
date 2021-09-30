@@ -28,7 +28,7 @@ namespace API
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
-		public void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
+		public void ConfigureServices(IServiceCollection services)
 		{
 
 			services.AddControllers();
@@ -52,16 +52,12 @@ namespace API
 			});
 
 			string pathToKey = string.Empty;
-			if (env.IsDevelopment())
-			{
-				pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
-					"keys", "firebase_admin_sdk_development.json");
-			}
-			else if (env.IsProduction())
-			{
-				pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
-					"keys", "firebase_admin_sdk.json");
-			}
+			// DEVELOPMENT
+			// pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
+			// 	"keys", "firebase_admin_sdk_development.json");
+			// PRODUCTION
+			pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
+				"keys", "firebase_admin_sdk.json");
 
 			FirebaseApp.Create(new AppOptions()
 			{
