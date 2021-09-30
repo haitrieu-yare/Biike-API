@@ -9,6 +9,5 @@ namespace Application.Routes.DTOs
 		public int? DestinationId { get; set; }
 		public int? DefaultPoint { get; set; }
 		public DateTime? CreatedDate { get; set; }
-		public bool? IsDeleted { get; set; }
 	}
 }

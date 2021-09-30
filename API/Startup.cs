@@ -22,15 +22,16 @@ namespace API
 	public class Startup
 	{
 		private readonly IConfiguration _config;
-		public Startup(IConfiguration config)
+		private readonly IWebHostEnvironment _currentEnvironment;
+		public Startup(IConfiguration config, IWebHostEnvironment env)
 		{
+			_currentEnvironment = env;
 			_config = config;
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-
 			services.AddControllers();
 			services.AddSwaggerGen(c =>
 			{
@@ -52,12 +53,16 @@ namespace API
 			});
 
 			string pathToKey = string.Empty;
-			// DEVELOPMENT
-			// pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
-			// 	"keys", "firebase_admin_sdk_development.json");
-			// PRODUCTION
-			pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
+			if (_currentEnvironment.IsDevelopment())
+			{
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
+					"keys", "firebase_admin_sdk_development.json");
+			}
+			else if (_currentEnvironment.IsProduction())
+			{
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
 				"keys", "firebase_admin_sdk.json");
+			}
 
 			FirebaseApp.Create(new AppOptions()
 			{

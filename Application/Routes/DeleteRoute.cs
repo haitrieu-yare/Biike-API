@@ -35,7 +35,7 @@ namespace Application.Routes
 						.FindAsync(new object[] { request.RouteId }, cancellationToken);
 					if (route == null) return null!;
 
-					route.IsDeleted = true;
+					route.IsDeleted = !route.IsDeleted;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

@@ -58,18 +58,18 @@ namespace Application.Trips.DTOs
 
 					switch (oldTrip.Status)
 					{
-						case 1:
+						case (int)TripStatus.Waiting:
 							oldTrip.PickupTime = request.Time;
 							oldTrip.Status = (int)TripStatus.Started;
 							break;
-						case 2:
+						case (int)TripStatus.Started:
 							oldTrip.FinishedTime = request.Time;
 							oldTrip.Status = (int)TripStatus.Finished;
 							break;
-						case 3:
+						case (int)TripStatus.Finished:
 							_logger.LogInformation("Trip has already finished");
 							return Result<Unit>.Failure("Trip has already finished");
-						case 4:
+						case (int)TripStatus.Cancelled:
 							_logger.LogInformation("Trip has already cancelled");
 							return Result<Unit>.Failure("Trip has already cancelled");
 					}

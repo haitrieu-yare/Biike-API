@@ -54,6 +54,16 @@ namespace Application.Feedbacks.DTOs
 						return Result<Unit>.Failure("Can't create feedback because trip hasn't finished yet");
 					}
 
+					var feedbacks = await _context.Feedback
+						.Where(f => f.TripId == request.FeedbackCreateDTO.TripId)
+						.ToListAsync(cancellationToken);
+					var existed = feedbacks.Find(f => f.UserId == request.FeedbackCreateDTO.UserId);
+					if (existed != null)
+					{
+						_logger.LogInformation("Trip feedback is already existed");
+						return Result<Unit>.Failure("Trip feedback is already existed");
+					}
+
 					var newFeedback = new Feedback();
 					_mapper.Map(request.FeedbackCreateDTO, newFeedback);
 
