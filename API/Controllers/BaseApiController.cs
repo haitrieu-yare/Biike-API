@@ -17,10 +17,14 @@ namespace API.Controllers
 		{
 			if (result == null) return NotFound();
 			if (result.IsSuccess && result.Value != null)
-				return Ok(result.Value);
+				return Ok(new
+				{
+					message = result.SuccessMessage,
+					data = result.Value,
+				});
 			if (result.IsSuccess && result.Value == null)
 				return NotFound();
-			return BadRequest(result.Error);
+			return BadRequest(result.ErrorMessage);
 		}
 	}
 }

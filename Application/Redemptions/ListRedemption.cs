@@ -39,7 +39,8 @@ namespace Application.Redemptions
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all redemptions");
-					return Result<List<RedemptionDTO>>.Success(redemptions);
+					return Result<List<RedemptionDTO>>
+						.Success(redemptions, "Successfully retrieved list of all redemptions");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

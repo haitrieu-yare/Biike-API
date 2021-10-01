@@ -79,8 +79,6 @@ namespace Application.Feedbacks.DTOs
 					{
 						_logger.LogInformation("Successfully created feedback");
 
-
-
 						if (request.FeedbackCreateDTO.UserId == trip.KeerId)
 						{
 							switch (newFeedback.Star)
@@ -92,7 +90,7 @@ namespace Application.Feedbacks.DTOs
 							}
 						}
 
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully created feedback");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

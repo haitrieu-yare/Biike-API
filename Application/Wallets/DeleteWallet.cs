@@ -48,7 +48,8 @@ namespace Application.Wallets
 					else
 					{
 						_logger.LogInformation("Successfully deleted wallet by walletId: " + request.WalletId);
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>
+							.Success(Unit.Value, "Successfully deleted wallet by walletId: " + request.WalletId);
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

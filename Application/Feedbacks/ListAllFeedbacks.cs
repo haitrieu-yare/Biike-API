@@ -41,7 +41,7 @@ namespace Application.Feedbacks
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved all trip's feedbacks");
-					return Result<List<FeedbackDTO>>.Success(feedbacks);
+					return Result<List<FeedbackDTO>>.Success(feedbacks, "Successfully retrieved all trip's feedbacks");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

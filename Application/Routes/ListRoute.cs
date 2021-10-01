@@ -41,7 +41,7 @@ namespace Application.Routes
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all routes");
-					return Result<List<RouteDTO>>.Success(routes);
+					return Result<List<RouteDTO>>.Success(routes, "Successfully retrieved list of all routes");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

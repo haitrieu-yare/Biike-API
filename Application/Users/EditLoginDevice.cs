@@ -50,7 +50,8 @@ namespace Application.Users
 					else
 					{
 						_logger.LogInformation("Successfully updated user's login device");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>
+							.Success(Unit.Value, "Successfully updated user's login device");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

@@ -43,7 +43,7 @@ namespace Application.Trips
 						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved trip");
-					return Result<TripDetailDTO>.Success(trip);
+					return Result<TripDetailDTO>.Success(trip, "Successfully retrieved trip");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

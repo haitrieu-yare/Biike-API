@@ -1,25 +1,31 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Application.Stations;
 using Application.Stations.DTOs;
+using Domain.Enums;
 
 namespace API.Controllers
 {
+	[Authorize]
 	public class StationsController : BaseApiController
 	{
 		// User & Admin
 		[HttpGet]
 		public async Task<IActionResult> GetAllStations(CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new ListStations.Query(), ct));
+			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
+			return HandleResult(await Mediator.Send(new ListStations.Query { IsAdmin = isAdmin }, ct));
 		}
 
 		// User & Admin
 		[HttpGet("{stationId}")]
 		public async Task<IActionResult> GetStationByStationId(int stationId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new DetailStation.Query { StationId = stationId }, ct));
+			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
+			return HandleResult(await Mediator.Send(
+				new DetailStation.Query { IsAdmin = isAdmin, StationId = stationId }, ct));
 		}
 
 		// Admin

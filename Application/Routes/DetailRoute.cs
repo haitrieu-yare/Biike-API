@@ -44,7 +44,7 @@ namespace Application.Routes
 						.FirstOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved route by routeId: " + request.RouteId);
-					return Result<RouteDTO>.Success(route);
+					return Result<RouteDTO>.Success(route, "Successfully retrieved route by routeId: " + request.RouteId);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

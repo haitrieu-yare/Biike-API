@@ -45,7 +45,8 @@ namespace Application.Users
 						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved user self profile");
-					return Result<UserSelfProfileDTO>.Success(UserProfile);
+					return Result<UserSelfProfileDTO>
+						.Success(UserProfile, "Successfully retrieved user self profile");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

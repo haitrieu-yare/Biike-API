@@ -39,7 +39,8 @@ namespace Application.Trips
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all trips");
-					return Result<List<TripDetailDTO>>.Success(trips);
+					return Result<List<TripDetailDTO>>
+						.Success(trips, "Successfully retrieved list of all trips");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

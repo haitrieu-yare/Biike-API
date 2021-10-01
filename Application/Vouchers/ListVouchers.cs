@@ -39,7 +39,8 @@ namespace Application.Vouchers
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all vouchers");
-					return Result<List<VoucherDTO>>.Success(vouchers);
+					return Result<List<VoucherDTO>>
+						.Success(vouchers, "Successfully retrieved list of all vouchers");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

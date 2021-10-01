@@ -50,7 +50,8 @@ namespace Application.Wallets
 					else
 					{
 						_logger.LogInformation("Successfully created wallet");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>
+							.Success(Unit.Value, "Successfully created wallet");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

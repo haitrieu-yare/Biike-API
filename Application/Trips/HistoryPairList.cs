@@ -61,7 +61,8 @@ namespace Application.Trips
 					List<TripPairDTO> trips = pairTripsAsKeer.Concat(pairTripsAsBiker).ToList();
 
 					_logger.LogInformation("Successfully retrieved list of all history pair trip");
-					return Result<List<TripPairDTO>>.Success(trips);
+					return Result<List<TripPairDTO>>
+						.Success(trips, "Successfully retrieved list of all history pair trip");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

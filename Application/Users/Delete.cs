@@ -61,7 +61,7 @@ namespace Application.Users
 					else
 					{
 						_logger.LogInformation("Successfully deleted user");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully deleted user");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

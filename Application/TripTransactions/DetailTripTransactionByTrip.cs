@@ -43,7 +43,8 @@ namespace Application.TripTransactions
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved trip transaction based on tripId");
-					return Result<List<TripTransactionDTO>>.Success(tripTransaction);
+					return Result<List<TripTransactionDTO>>
+						.Success(tripTransaction, "Successfully retrieved trip transaction based on tripId");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

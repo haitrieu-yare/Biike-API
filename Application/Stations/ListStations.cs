@@ -15,7 +15,10 @@ namespace Application.Stations
 {
 	public class ListStations
 	{
-		public class Query : IRequest<Result<List<StationDTO>>> { }
+		public class Query : IRequest<Result<List<StationDTO>>>
+		{
+			public bool IsAdmin { get; set; }
+		}
 
 		public class Handler : IRequestHandler<Query, Result<List<StationDTO>>>
 		{
@@ -35,13 +38,25 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var stations = await _context.Station
-						.Where(s => s.IsDeleted != true)
-						.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
-						.ToListAsync(cancellationToken);
+					List<StationDTO> stations = new List<StationDTO>();
+					if (request.IsAdmin)
+					{
+						stations = await _context.Station
+							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
+							.ToListAsync(cancellationToken);
+					}
+					else
+					{
+						stations = await _context.Station
+							.Where(s => s.IsDeleted != true)
+							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
+							.ToListAsync(cancellationToken);
+						// Set to null to make this field excluded from response body.
+						stations.ForEach(s => s.IsDeleted = null);
+					}
 
 					_logger.LogInformation("Successfully retrieved list of all stations");
-					return Result<List<StationDTO>>.Success(stations);
+					return Result<List<StationDTO>>.Success(stations, "Successfully retrieved list of all stations");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

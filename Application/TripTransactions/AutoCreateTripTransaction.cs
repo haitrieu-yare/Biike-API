@@ -62,7 +62,8 @@ namespace Application.TripTransactions
 				else
 				{
 					_logger.LogInformation("Successfully created trip transaction");
-					return Result<Unit>.Success(Unit.Value);
+					return Result<Unit>
+						.Success(Unit.Value, "Successfully created trip transaction");
 				}
 			}
 			catch (System.Exception ex) when (ex is TaskCanceledException)

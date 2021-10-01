@@ -50,7 +50,8 @@ namespace Application.VoucherCategories
 					else
 					{
 						_logger.LogInformation("Successfully created voucher category");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>
+							.Success(Unit.Value, "Successfully created voucher category");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

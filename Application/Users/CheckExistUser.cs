@@ -49,7 +49,8 @@ namespace Application.Users
 						return Result<Unit>.Failure("User with the same email or phone number has already existed");
 					}
 
-					return Result<Unit>.Success(Unit.Value);
+					_logger.LogInformation("User doesn't exist");
+					return Result<Unit>.Success(Unit.Value, "User doesn't exist");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

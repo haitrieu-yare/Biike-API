@@ -47,7 +47,8 @@ namespace Application.Stations
 					else
 					{
 						_logger.LogInformation("Successfully deleted station by stationId: " + request.StationId);
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>
+							.Success(Unit.Value, "Successfully deleted station by stationId: " + request.StationId);
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

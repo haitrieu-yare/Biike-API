@@ -52,7 +52,8 @@ namespace Application.Users
 					else
 					{
 						_logger.LogInformation("Successfully updated user's profile");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>
+							.Success(Unit.Value, "Successfully updated user's profile");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

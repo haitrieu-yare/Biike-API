@@ -49,7 +49,7 @@ namespace Application.Trips
 					else
 					{
 						_logger.LogInformation("Successfully created trip");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully created trip");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

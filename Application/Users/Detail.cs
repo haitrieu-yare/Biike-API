@@ -45,7 +45,8 @@ namespace Application.Users
 						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved user profile");
-					return Result<UserProfileDTO>.Success(UserProfile);
+					return Result<UserProfileDTO>
+						.Success(UserProfile, "Successfully retrieved user profile");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

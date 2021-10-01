@@ -48,7 +48,8 @@ namespace Application.Users
 					else
 					{
 						_logger.LogInformation("Successfully updated user's status");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>
+							.Success(Unit.Value, "Successfully updated user's status");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

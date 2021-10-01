@@ -114,7 +114,7 @@ namespace Application.Users
 							return Result<Unit>.Failure($"Error create user: {e.Message}");
 						}
 
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully created user");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

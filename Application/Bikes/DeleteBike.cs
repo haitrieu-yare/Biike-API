@@ -48,7 +48,7 @@ namespace Application.Bikes
 					else
 					{
 						_logger.LogInformation("Successfully deleted bike");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully deleted bike");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

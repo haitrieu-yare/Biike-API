@@ -60,7 +60,8 @@ namespace Application.Trips
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all upcoming trip");
-					return Result<List<TripDTO>>.Success(tripDTO);
+					return Result<List<TripDTO>>
+						.Success(tripDTO, "Successfully retrieved list of all upcoming trip");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

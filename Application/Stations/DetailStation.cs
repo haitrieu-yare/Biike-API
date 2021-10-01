@@ -9,6 +9,7 @@ using AutoMapper.QueryableExtensions;
 using Persistence;
 using Application.Core;
 using Application.Stations.DTOs;
+using System.Collections.Generic;
 
 namespace Application.Stations
 {
@@ -17,6 +18,7 @@ namespace Application.Stations
 		public class Query : IRequest<Result<StationDTO>>
 		{
 			public int StationId { get; set; }
+			public bool IsAdmin { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<StationDTO>>
@@ -37,14 +39,28 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var station = await _context.Station
-						.Where(s => s.StationId == request.StationId)
-						.Where(s => s.IsDeleted != true)
-						.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
-						.SingleOrDefaultAsync(cancellationToken);
+					StationDTO station = new StationDTO();
+					if (request.IsAdmin)
+					{
+						station = await _context.Station
+							.Where(s => s.StationId == request.StationId)
+							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
+							.SingleOrDefaultAsync(cancellationToken);
+					}
+					else
+					{
+						station = await _context.Station
+							.Where(s => s.StationId == request.StationId)
+							.Where(s => s.IsDeleted != true)
+							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
+							.SingleOrDefaultAsync(cancellationToken);
+						// Set to null to make this field excluded from response body.
+						station.IsDeleted = null;
+					}
 
 					_logger.LogInformation("Successfully retrieved station by stationId: " + request.StationId);
-					return Result<StationDTO>.Success(station);
+					return Result<StationDTO>
+						.Success(station, "Successfully retrieved station by stationId: " + request.StationId);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

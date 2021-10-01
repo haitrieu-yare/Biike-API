@@ -39,7 +39,8 @@ namespace Application.Wallets
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all wallets");
-					return Result<List<WalletDTO>>.Success(wallets);
+					return Result<List<WalletDTO>>
+						.Success(wallets, "Successfully retrieved list of all wallets");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

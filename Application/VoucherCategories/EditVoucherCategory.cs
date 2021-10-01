@@ -51,7 +51,8 @@ namespace Application.VoucherCategories
 					else
 					{
 						_logger.LogInformation("Successfully updated voucher category");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>
+							.Success(Unit.Value, "Successfully updated voucher category");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

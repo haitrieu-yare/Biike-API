@@ -53,7 +53,8 @@ namespace Application.Users
 						return Result<Unit>.Failure($"Error delete user: {e.Message}");
 					}
 
-					return Result<Unit>.Success(Unit.Value);
+					_logger.LogInformation("Successfully deleted firebase's users");
+					return Result<Unit>.Success(Unit.Value, "Successfully deleted firebase's users");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

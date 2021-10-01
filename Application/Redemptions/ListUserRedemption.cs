@@ -60,7 +60,8 @@ namespace Application.Redemptions
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved redemptions of userId: " + request.UserId);
-					return Result<List<RedemptionDTO>>.Success(redemptions);
+					return Result<List<RedemptionDTO>>
+						.Success(redemptions, "Successfully retrieved redemptions of userId: " + request.UserId);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

@@ -47,7 +47,7 @@ namespace Application.Routes
 					else
 					{
 						_logger.LogInformation("Successfully deleted route by routeId: " + request.RouteId);
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully deleted route by routeId: " + request.RouteId);
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

@@ -39,7 +39,7 @@ namespace Application.Intimacies
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all intimacies");
-					return Result<List<IntimacyDTO>>.Success(intimacies);
+					return Result<List<IntimacyDTO>>.Success(intimacies, "Successfully retrieved list of all intimacies");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

@@ -71,7 +71,7 @@ namespace Application.Trips
 					else
 					{
 						_logger.LogInformation("Successfully updated trip");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully updated trip");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

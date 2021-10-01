@@ -39,7 +39,8 @@ namespace Application.Users
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all user");
-					return Result<List<UserInfoDTO>>.Success(users);
+					return Result<List<UserInfoDTO>>
+						.Success(users, "Successfully retrieved list of all user");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

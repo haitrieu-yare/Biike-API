@@ -54,7 +54,8 @@ namespace Application.Stations
 					else
 					{
 						_logger.LogInformation("Successfully updated station by stationId: " + request.StationId);
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>
+							.Success(Unit.Value, "Successfully updated station by stationId: " + request.StationId);
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

@@ -39,7 +39,8 @@ namespace Application.VoucherCategories
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all voucher categories");
-					return Result<List<VoucherCategoryDTO>>.Success(voucherCategories);
+					return Result<List<VoucherCategoryDTO>>
+						.Success(voucherCategories, "Successfully retrieved list of all voucher categories");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

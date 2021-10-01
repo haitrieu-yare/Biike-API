@@ -47,7 +47,7 @@ namespace Application.Redemptions
 					else
 					{
 						_logger.LogInformation("Successfully updated redemption usage");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully updated redemption usage");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

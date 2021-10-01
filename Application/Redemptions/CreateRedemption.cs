@@ -153,7 +153,7 @@ namespace Application.Redemptions
 					else
 					{
 						_logger.LogInformation("Successfully created redemption");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully created redemption");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

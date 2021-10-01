@@ -43,7 +43,7 @@ namespace Application.Bikes
 						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved bike");
-					return Result<BikeDTO>.Success(bike);
+					return Result<BikeDTO>.Success(bike, "Successfully retrieved bike");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

@@ -43,7 +43,8 @@ namespace Application.Wallets
 						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved wallet by walletId: " + request.WalletId);
-					return Result<WalletDTO>.Success(wallet);
+					return Result<WalletDTO>
+						.Success(wallet, "Successfully retrieved wallet by walletId: " + request.WalletId);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

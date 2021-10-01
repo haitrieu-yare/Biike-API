@@ -63,7 +63,7 @@ namespace Application.Intimacies
 					else
 					{
 						_logger.LogInformation("Successfully updated route");
-						return Result<Unit>.Success(Unit.Value);
+						return Result<Unit>.Success(Unit.Value, "Successfully updated route");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
