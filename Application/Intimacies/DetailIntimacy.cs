@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -12,20 +13,23 @@ using Persistence;
 
 namespace Application.Intimacies
 {
-	public class List
+	public class DetailIntimacy
 	{
-		public class Query : IRequest<Result<List<IntimacyDTO>>> { }
+		public class Query : IRequest<Result<List<IntimacyDTO>>>
+		{
+			public int UserOneId { get; set; }
+		}
 
 		public class Handler : IRequestHandler<Query, Result<List<IntimacyDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<List> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<List> logger)
+			private readonly ILogger<DetailIntimacy> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<DetailIntimacy> logger)
 			{
-				_logger = logger;
 				_mapper = mapper;
 				_context = context;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<IntimacyDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -35,10 +39,11 @@ namespace Application.Intimacies
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var intimacies = await _context.Intimacy
+						.Where(i => i.UserOneId == request.UserOneId)
 						.ProjectTo<IntimacyDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all intimacies");
+					_logger.LogInformation("Successfully retrieved list of user intimacies");
 					return Result<List<IntimacyDTO>>.Success(intimacies);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

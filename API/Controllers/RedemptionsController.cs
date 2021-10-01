@@ -35,10 +35,10 @@ namespace API.Controllers
 				new CreateRedemption.Command { RedemptionCreateDTO = redemptionCreateDTO }, ct));
 		}
 
-		[HttpPut("{id}")]
-		public async Task<IActionResult> EditUsageRedemption(int id, CancellationToken ct)
+		[HttpPut("{walletId}")]
+		public async Task<IActionResult> EditUsageRedemption(int walletId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new EditUsageRedemption.Command { Id = id }, ct));
+			return HandleResult(await Mediator.Send(new EditUsageRedemption.Command { WalletId = walletId }, ct));
 		}
 	}
 }

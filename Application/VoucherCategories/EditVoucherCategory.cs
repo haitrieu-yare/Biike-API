@@ -1,8 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.VoucherCategories.DTOs;
 using AutoMapper;
-using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,19 +10,20 @@ using Persistence;
 
 namespace Application.VoucherCategories
 {
-	public class Create
+	public class EditVoucherCategory
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public VoucherCategoryDTO VoucherCategoryDTO { get; set; } = null!;
+			public int VoucherCategoryId { get; set; }
+			public VoucherCategoryDTO NewVoucherCategoryDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Create> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly ILogger<EditVoucherCategory> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<EditVoucherCategory> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;
@@ -35,20 +36,21 @@ namespace Application.VoucherCategories
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newVoucherCategory = new VoucherCategory();
-					_mapper.Map(request.VoucherCategoryDTO, newVoucherCategory);
+					var oldVoucherCategory = await _context.VoucherCategory
+						.FindAsync(new object[] { request.VoucherCategoryId }, cancellationToken);
+					if (oldVoucherCategory == null) return null!;
 
-					await _context.VoucherCategory.AddAsync(newVoucherCategory, cancellationToken);
+					_mapper.Map(request.NewVoucherCategoryDTO, oldVoucherCategory);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new voucher category");
-						return Result<Unit>.Failure("Failed to create new voucher category");
+						_logger.LogInformation("Failed to update voucher category");
+						return Result<Unit>.Failure("Failed to update voucher category");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created voucher category");
+						_logger.LogInformation("Successfully updated voucher category");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

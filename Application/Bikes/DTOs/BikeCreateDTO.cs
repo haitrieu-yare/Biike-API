@@ -1,14 +1,19 @@
-using System;
-using Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Bikes.DTOs
 {
 	public class BikeCreateDTO
 	{
-		public int UserId { get; set; }
-		public string NumberPlate { get; set; } = string.Empty;
-		public string Color { get; set; } = string.Empty;
-		public string Brand { get; set; } = string.Empty;
-		public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
+		[Required]
+		public int? UserId { get; set; }
+
+		[Required]
+		public string? NumberPlate { get; set; } = string.Empty;
+
+		[Required]
+		public string? Color { get; set; } = string.Empty;
+
+		[Required]
+		public string? Brand { get; set; } = string.Empty;
 	}
 }

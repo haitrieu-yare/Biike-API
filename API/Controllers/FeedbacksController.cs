@@ -12,19 +12,19 @@ namespace API.Controllers
 		public async Task<IActionResult> CreateFeedBack(FeedbackCreateDTO feedbackCreateDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new Create.Command { FeedbackCreateDTO = feedbackCreateDTO }, ct));
+				new CreateFeedback.Command { FeedbackCreateDTO = feedbackCreateDTO }, ct));
 		}
 
 		[HttpGet("{tripId}")]
 		public async Task<IActionResult> GetTripFeedBack(int tripId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new List.Query { TripId = tripId }, ct));
+			return HandleResult(await Mediator.Send(new ListFeedbacksByTrip.Query { TripId = tripId }, ct));
 		}
 
 		[HttpGet]
 		public async Task<IActionResult> GetTripFeedBacks(CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new ListAll.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListAllFeedbacks.Query(), ct));
 		}
 	}
 }

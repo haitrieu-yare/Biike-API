@@ -33,7 +33,7 @@ namespace Application.Wallets
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var wallet = await _context.Wallet
-						.Where(w => w.Id == request.WalletId)
+						.Where(w => w.WalletId == request.WalletId)
 						.SingleOrDefaultAsync(cancellationToken);
 					if (wallet == null) return null!;
 

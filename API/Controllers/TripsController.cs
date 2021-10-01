@@ -29,10 +29,10 @@ namespace API.Controllers
 			{ UserId = userId, Role = role }, ct));
 		}
 
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetTrip(int id, CancellationToken ct)
+		[HttpGet("{tripId}")]
+		public async Task<IActionResult> GetTrip(int tripId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
+			return HandleResult(await Mediator.Send(new DetailTrip.Query { TripId = tripId }, ct));
 		}
 
 		[HttpGet("historyPair")]
@@ -46,30 +46,31 @@ namespace API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> CreateTrip(TripCreateDTO tripCreateDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Create.Command { TripCreateDTO = tripCreateDto }, ct));
+			return HandleResult(await Mediator.Send(new CreateTrip.Command { TripCreateDTO = tripCreateDto }, ct));
 		}
 
-		[HttpPut("{id}")]
-		public async Task<IActionResult> EditTripBiker(int id, int bikerId, CancellationToken ct)
-		{
-			return HandleResult(await Mediator.Send(new EditTripBiker.Command { Id = id, BikerId = bikerId }, ct));
-		}
-
-		[HttpPut("{id}/progressTime")]
-		public async Task<IActionResult> EditTripProgressTime(int id, string time, CancellationToken ct)
+		[HttpPut("{tripId}")]
+		public async Task<IActionResult> EditTripBiker(int tripId, int bikerId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-					new EditTripProcess.Command { Id = id, Time = DateTime.Parse(time) }, ct));
+				new EditTripBiker.Command { TripId = tripId, BikerId = bikerId }, ct));
 		}
 
-		[HttpPut("{id}/cancel")]
-		public async Task<IActionResult> EditTripCancellation(int id, int userId,
+		[HttpPut("{tripId}/progressTime")]
+		public async Task<IActionResult> EditTripProgressTime(int tripId, string time, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+					new EditTripProcess.Command { TripId = tripId, Time = DateTime.Parse(time) }, ct));
+		}
+
+		[HttpPut("{tripId}/cancel")]
+		public async Task<IActionResult> EditTripCancellation(int tripId, int userId,
 			TripCancellationDTO tripCancellationDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
 				new EditTripCancellation.Command
 				{
-					Id = id,
+					TripId = tripId,
 					UserId = userId,
 					TripCancellationDTO = tripCancellationDTO
 				}, ct));

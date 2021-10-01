@@ -11,7 +11,7 @@ using Persistence;
 
 namespace Application.Vouchers
 {
-	public class Create
+	public class CreateVoucher
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
@@ -22,8 +22,8 @@ namespace Application.Vouchers
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Create> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly ILogger<CreateVoucher> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<CreateVoucher> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;

@@ -12,7 +12,7 @@ using Persistence;
 
 namespace Application.Vouchers
 {
-	public class List
+	public class ListVouchers
 	{
 		public class Query : IRequest<Result<List<VoucherDTO>>> { }
 
@@ -20,8 +20,8 @@ namespace Application.Vouchers
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<List> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<List> logger)
+			private readonly ILogger<ListVouchers> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<ListVouchers> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;

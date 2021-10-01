@@ -11,19 +11,19 @@ using Persistence;
 
 namespace Application.TripTransactions
 {
-	public class Detail
+	public class DetailTripTransaction
 	{
 		public class Query : IRequest<Result<TripTransactionDTO>>
 		{
-			public int Id { get; set; }
+			public int TripTransactionId { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<TripTransactionDTO>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Detail> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Detail> logger)
+			private readonly ILogger<DetailTripTransaction> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<DetailTripTransaction> logger)
 			{
 				_mapper = mapper;
 				_context = context;
@@ -37,7 +37,7 @@ namespace Application.TripTransactions
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var TripTransaction = await _context.TripTransaction
-						.Where(t => t.Id == request.Id)
+						.Where(t => t.TripTransactionId == request.TripTransactionId)
 						.ProjectTo<TripTransactionDTO>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 

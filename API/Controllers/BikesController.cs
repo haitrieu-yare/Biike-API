@@ -11,20 +11,20 @@ namespace API.Controllers
 		[HttpGet("{userId}")]
 		public async Task<IActionResult> GetBike(int userId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Detail.Query { UserId = userId }, ct));
+			return HandleResult(await Mediator.Send(new DetailBike.Query { UserId = userId }, ct));
 		}
 
 		[HttpPost]
 		public async Task<IActionResult> CreateBike(BikeCreateDTO bikeCreateDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new Create.Command { BikeCreateDTO = bikeCreateDTO }, ct));
+				new CreateBike.Command { BikeCreateDTO = bikeCreateDTO }, ct));
 		}
 
 		[HttpDelete("{userId}")]
 		public async Task<IActionResult> DeleteBike(int userId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Delete.Command { UserId = userId }, ct));
+			return HandleResult(await Mediator.Send(new DeleteBike.Command { UserId = userId }, ct));
 		}
 	}
 }

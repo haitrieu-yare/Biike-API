@@ -12,7 +12,7 @@ using Persistence;
 
 namespace Application.Bikes
 {
-	public class Detail
+	public class DetailBike
 	{
 		public class Query : IRequest<Result<BikeDTO>>
 		{
@@ -23,8 +23,8 @@ namespace Application.Bikes
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Detail> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Detail> logger)
+			private readonly ILogger<DetailBike> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<DetailBike> logger)
 			{
 				_mapper = mapper;
 				_context = context;

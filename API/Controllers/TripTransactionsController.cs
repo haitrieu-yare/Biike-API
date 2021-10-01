@@ -10,19 +10,21 @@ namespace API.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetTripTransactions(int userId, int role, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new List.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListTripTransactions.Query(), ct));
 		}
 
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetSingleTripTransaction(int id, int role, CancellationToken ct)
+		[HttpGet("{tripTransactionId}")]
+		public async Task<IActionResult> GetSingleTripTransaction(int tripTransactionId, int role, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
+			return HandleResult(await Mediator.Send(
+				new DetailTripTransaction.Query { TripTransactionId = tripTransactionId }, ct));
 		}
 
 		[HttpGet("trips/{tripId}")]
 		public async Task<IActionResult> GetTripTransaction(int tripId, int role, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new DetailTrip.Query { TripId = tripId }, ct));
+			return HandleResult(await Mediator.Send(
+				new DetailTripTransactionByTrip.Query { TripId = tripId }, ct));
 		}
 	}
 }

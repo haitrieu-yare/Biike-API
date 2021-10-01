@@ -15,7 +15,7 @@ namespace Application.Trips
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int Id { get; set; }
+			public int TripId { get; set; }
 			public int UserId { get; set; }
 			public TripCancellationDTO TripCancellationDTO { get; set; } = null!;
 		}
@@ -38,7 +38,7 @@ namespace Application.Trips
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var oldTrip = await _context.Trip
-						.FindAsync(new object[] { request.Id }, cancellationToken);
+						.FindAsync(new object[] { request.TripId }, cancellationToken);
 					if (oldTrip == null) return null!;
 
 					switch (oldTrip.Status)

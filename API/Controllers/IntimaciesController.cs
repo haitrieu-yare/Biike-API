@@ -11,29 +11,29 @@ namespace API.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetIntimacies(CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new List.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListIntimacies.Query(), ct));
 		}
 
 		[HttpGet("{userOneId}")]
 		public async Task<IActionResult> GetIntimacy(int userOneId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Detail.Query { UserOneId = userOneId }, ct));
+			return HandleResult(await Mediator.Send(new DetailIntimacy.Query { UserOneId = userOneId }, ct));
 		}
 
 
 		[HttpPost]
-		public async Task<IActionResult> CreateIntimacies(IntimacyCreateDTO intimacyCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateIntimacies(IntimacyCreateEditDTO intimacyCreateEditDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new Create.Command { IntimacyCreateDTO = intimacyCreateDTO }, ct));
+				new CreateIntimacy.Command { IntimacyCreateEditDTO = intimacyCreateEditDTO }, ct));
 		}
 
 		[HttpPut]
-		public async Task<IActionResult> EditIntimacies(IntimacyEditDTO intimacyEditDTO,
+		public async Task<IActionResult> EditIntimacies(IntimacyCreateEditDTO intimacyCreateEditDTO,
 			CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Edit.Command
-			{ IntimacyEditDTO = intimacyEditDTO }, ct));
+			return HandleResult(await Mediator.Send(
+				new EditIntimacy.Command { IntimacyCreateEditDTO = intimacyCreateEditDTO }, ct));
 		}
 	}
 }

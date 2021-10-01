@@ -1,8 +1,8 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Trips.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -10,45 +10,45 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.TripTransactions
+namespace Application.Trips
 {
 	public class DetailTrip
 	{
-		public class Query : IRequest<Result<List<TripTransactionDTO>>>
+		public class Query : IRequest<Result<TripDetailDTO>>
 		{
 			public int TripId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<TripTransactionDTO>>>
+		public class Handler : IRequestHandler<Query, Result<TripDetailDTO>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
 			private readonly ILogger<DetailTrip> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<DetailTrip> logger)
 			{
+				_logger = logger;
 				_mapper = mapper;
 				_context = context;
-				_logger = logger;
 			}
 
-			public async Task<Result<List<TripTransactionDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<TripDetailDTO>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var tripTransaction = await _context.TripTransaction
+					var trip = await _context.Trip
 						.Where(t => t.TripId == request.TripId)
-						.ProjectTo<TripTransactionDTO>(_mapper.ConfigurationProvider)
-						.ToListAsync(cancellationToken);
+						.ProjectTo<TripDetailDTO>(_mapper.ConfigurationProvider)
+						.SingleOrDefaultAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved trip transaction based on tripId");
-					return Result<List<TripTransactionDTO>>.Success(tripTransaction);
+					_logger.LogInformation("Successfully retrieved trip");
+					return Result<TripDetailDTO>.Success(trip);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripTransactionDTO>>.Failure("Request was cancelled");
+					return Result<TripDetailDTO>.Failure("Request was cancelled");
 				}
 			}
 		}

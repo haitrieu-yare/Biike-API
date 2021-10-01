@@ -6,7 +6,7 @@ namespace Domain.Entities
 {
 	public class Trip
 	{
-		public int Id { get; set; }
+		public int TripId { get; set; }
 		public int KeerId { get; set; }
 		public User Keer { get; set; } = null!;
 		public int? BikerId { get; set; }

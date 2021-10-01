@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.TripTransactions;
-using AutoMapper;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -16,20 +15,18 @@ namespace Application.Trips.DTOs
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int Id { get; set; }
+			public int TripId { get; set; }
 			public DateTime? Time { get; set; }
 		}
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
 			private readonly ILogger<EditTripProcess> _logger;
-			private readonly AutoCreate _autoCreate;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditTripProcess> logger,
-				AutoCreate autoCreate)
+			private readonly AutoCreateTripTransaction _autoCreate;
+			public Handler(DataContext context, ILogger<EditTripProcess> logger,
+				AutoCreateTripTransaction autoCreate)
 			{
 				_logger = logger;
-				_mapper = mapper;
 				_context = context;
 				_autoCreate = autoCreate;
 			}
@@ -47,7 +44,7 @@ namespace Application.Trips.DTOs
 					}
 
 					var oldTrip = await _context.Trip
-						.FindAsync(new object[] { request.Id }, cancellationToken);
+						.FindAsync(new object[] { request.TripId }, cancellationToken);
 					if (oldTrip == null) return null!;
 
 					if (oldTrip.BikerId == null)

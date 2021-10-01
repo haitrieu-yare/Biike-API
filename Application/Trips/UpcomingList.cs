@@ -56,6 +56,7 @@ namespace Application.Trips
 							|| t.Status == (int)TripStatus.Waiting)
 						.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
 							new { role = request.Role })
+						.OrderBy(t => t.TimeBook)
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved list of all upcoming trip");

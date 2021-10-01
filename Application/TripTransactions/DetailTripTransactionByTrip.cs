@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -11,20 +12,23 @@ using Persistence;
 
 namespace Application.TripTransactions
 {
-	public class List
+	public class DetailTripTransactionByTrip
 	{
-		public class Query : IRequest<Result<List<TripTransactionDTO>>> { }
+		public class Query : IRequest<Result<List<TripTransactionDTO>>>
+		{
+			public int TripId { get; set; }
+		}
 
 		public class Handler : IRequestHandler<Query, Result<List<TripTransactionDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<List> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<List> logger)
+			private readonly ILogger<DetailTripTransactionByTrip> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<DetailTripTransactionByTrip> logger)
 			{
-				_logger = logger;
 				_mapper = mapper;
 				_context = context;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<TripTransactionDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -33,12 +37,13 @@ namespace Application.TripTransactions
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var tripTransactions = await _context.TripTransaction
+					var tripTransaction = await _context.TripTransaction
+						.Where(t => t.TripId == request.TripId)
 						.ProjectTo<TripTransactionDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all trip transaction");
-					return Result<List<TripTransactionDTO>>.Success(tripTransactions);
+					_logger.LogInformation("Successfully retrieved trip transaction based on tripId");
+					return Result<List<TripTransactionDTO>>.Success(tripTransaction);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

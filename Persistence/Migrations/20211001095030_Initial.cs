@@ -68,7 +68,7 @@ namespace Persistence.Migrations
                 name: "Bike",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    BikeId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     PlateNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -78,7 +78,7 @@ namespace Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Bike", x => x.Id);
+                    table.PrimaryKey("PK_Bike", x => x.BikeId);
                     table.ForeignKey(
                         name: "FK_Bike_AppUser_UserId",
                         column: x => x.UserId,
@@ -115,7 +115,7 @@ namespace Persistence.Migrations
                 name: "Wallet",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    WalletId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -125,7 +125,7 @@ namespace Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Wallet", x => x.Id);
+                    table.PrimaryKey("PK_Wallet", x => x.WalletId);
                     table.ForeignKey(
                         name: "FK_Wallet_AppUser_UserId",
                         column: x => x.UserId,
@@ -236,14 +236,14 @@ namespace Persistence.Migrations
                         name: "FK_Redemption_Wallet_WalletId",
                         column: x => x.WalletId,
                         principalTable: "Wallet",
-                        principalColumn: "Id");
+                        principalColumn: "WalletId");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Trip",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    TripId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     KeerId = table.Column<int>(type: "int", nullable: false),
                     BikerId = table.Column<int>(type: "int", nullable: true),
@@ -260,7 +260,7 @@ namespace Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Trip", x => x.Id);
+                    table.PrimaryKey("PK_Trip", x => x.TripId);
                     table.ForeignKey(
                         name: "FK_Trip_AppUser_BikerId",
                         column: x => x.BikerId,
@@ -301,14 +301,14 @@ namespace Persistence.Migrations
                         name: "FK_Feedback_Trip_TripId",
                         column: x => x.TripId,
                         principalTable: "Trip",
-                        principalColumn: "Id");
+                        principalColumn: "TripId");
                 });
 
             migrationBuilder.CreateTable(
                 name: "TripTransaction",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    TripTransactionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TripId = table.Column<int>(type: "int", nullable: false),
                     WalletId = table.Column<int>(type: "int", nullable: false),
@@ -317,17 +317,17 @@ namespace Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TripTransaction", x => x.Id);
+                    table.PrimaryKey("PK_TripTransaction", x => x.TripTransactionId);
                     table.ForeignKey(
                         name: "FK_TripTransaction_Trip_TripId",
                         column: x => x.TripId,
                         principalTable: "Trip",
-                        principalColumn: "Id");
+                        principalColumn: "TripId");
                     table.ForeignKey(
                         name: "FK_TripTransaction_Wallet_WalletId",
                         column: x => x.WalletId,
                         principalTable: "Wallet",
-                        principalColumn: "Id");
+                        principalColumn: "WalletId");
                 });
 
             migrationBuilder.CreateIndex(

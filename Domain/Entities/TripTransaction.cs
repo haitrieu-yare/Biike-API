@@ -4,7 +4,7 @@ namespace Domain.Entities
 {
 	public class TripTransaction
 	{
-		public int Id { get; set; }
+		public int TripTransactionId { get; set; }
 		public int TripId { get; set; }
 		public Trip Trip { get; set; } = null!;
 		public int WalletId { get; set; }

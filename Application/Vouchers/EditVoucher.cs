@@ -1,28 +1,29 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Vouchers.DTOs;
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.VoucherCategories
+namespace Application.Vouchers
 {
-    public class Edit
-    {
-        public class Command : IRequest<Result<Unit>>
+	public class EditVoucher
+	{
+		public class Command : IRequest<Result<Unit>>
 		{
 			public int Id { get; set; }
-			public VoucherCategoryDTO NewVoucherCategoryDTO { get; set; } = null!;
+			public VoucherEditDTO NewVoucher { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Edit> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Edit> logger)
+			private readonly ILogger<EditVoucher> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<EditVoucher> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;
@@ -35,21 +36,21 @@ namespace Application.VoucherCategories
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldVoucherCategory = await _context.VoucherCategory
+					var oldVoucher = await _context.Voucher
 						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (oldVoucherCategory == null) return null!;
+					if (oldVoucher == null) return null!;
 
-					_mapper.Map(request.NewVoucherCategoryDTO, oldVoucherCategory);
+					_mapper.Map(request.NewVoucher, oldVoucher);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update voucher category");
-						return Result<Unit>.Failure("Failed to update voucher category");
+						_logger.LogInformation("Failed to update voucher");
+						return Result<Unit>.Failure("Failed to update voucher");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated voucher category");
+						_logger.LogInformation("Successfully updated voucher");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}
@@ -65,5 +66,5 @@ namespace Application.VoucherCategories
 				}
 			}
 		}
-    }
+	}
 }

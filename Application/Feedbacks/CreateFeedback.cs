@@ -13,7 +13,7 @@ using Persistence;
 
 namespace Application.Feedbacks.DTOs
 {
-	public class Create
+	public class CreateFeedback
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
@@ -23,10 +23,10 @@ namespace Application.Feedbacks.DTOs
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Create> _logger;
+			private readonly ILogger<CreateFeedback> _logger;
 			private readonly IMapper _mapper;
-			private readonly AutoCreate _autoCreate;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger, AutoCreate autoCreate)
+			private readonly AutoCreateTripTransaction _autoCreate;
+			public Handler(DataContext context, IMapper mapper, ILogger<CreateFeedback> logger, AutoCreateTripTransaction autoCreate)
 			{
 				_autoCreate = autoCreate;
 				_mapper = mapper;
@@ -40,7 +40,7 @@ namespace Application.Feedbacks.DTOs
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var trip = await _context.Trip
-						.Where(t => t.Id == request.FeedbackCreateDTO.TripId)
+						.Where(t => t.TripId == request.FeedbackCreateDTO.TripId)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					if (trip.Status == (int)TripStatus.Cancelled)

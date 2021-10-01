@@ -1,13 +1,23 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Wallets.DTOs
 {
 	public class WalletCreateDTO
 	{
-		public int UserId { get; set; }
-		public DateTime FromDate { get; set; }
-		public DateTime ToDate { get; set; }
-		public int Point { get; set; }
-		public int Status { get; set; }
+		[Required]
+		public int? UserId { get; set; }
+
+		[Required]
+		public DateTime? FromDate { get; set; }
+
+		[Required]
+		public DateTime? ToDate { get; set; }
+
+		[Required]
+		public int? Point { get; set; }
+
+		[Required]
+		public int? Status { get; set; }
 	}
 }

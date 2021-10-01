@@ -13,7 +13,7 @@ using Persistence;
 
 namespace Application.Feedbacks
 {
-	public class List
+	public class ListFeedbacksByTrip
 	{
 		public class Query : IRequest<Result<List<FeedbackDTO>>>
 		{
@@ -24,8 +24,8 @@ namespace Application.Feedbacks
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<List> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<List> logger)
+			private readonly ILogger<ListFeedbacksByTrip> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<ListFeedbacksByTrip> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;

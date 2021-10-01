@@ -50,11 +50,11 @@ namespace Application.Redemptions
 						return Result<List<RedemptionAndVoucherDTO>>.Failure("User doesn't have wallet");
 					}
 
-					// Nếu user có 2 wallet thì query == wallets[0].Id | wallets[1].Id
-					// Nếu user có 1 wallet thì query == wallets[0].Id | wallets[0].Id
+					// Nếu user có 2 wallet thì query == wallets[0].Id || wallets[1].Id
+					// Nếu user có 1 wallet thì query == wallets[0].Id || wallets[0].Id
 					var redemptions = await _context.Redemption
-						.Where(r => r.WalletId == wallets[0].Id ||
-							r.WalletId == (wallets.Count == 2 ? wallets[1].Id : wallets[0].Id)
+						.Where(r => r.WalletId == wallets[0].WalletId ||
+							r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId)
 						)
 						.ProjectTo<RedemptionAndVoucherDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);

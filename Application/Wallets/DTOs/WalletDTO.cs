@@ -4,7 +4,7 @@ namespace Application.Wallets.DTOs
 {
 	public class WalletDTO
 	{
-		public int? Id { get; set; }
+		public int? WalletId { get; set; }
 		public int? UserId { get; set; }
 		public DateTime? FromDate { get; set; }
 		public DateTime? ToDate { get; set; }

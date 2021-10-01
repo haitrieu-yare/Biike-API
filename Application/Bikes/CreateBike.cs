@@ -1,7 +1,10 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Bikes.DTOs;
 using Application.Core;
+using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,20 +12,22 @@ using Persistence;
 
 namespace Application.Bikes
 {
-	public class Delete
+	public class CreateBike
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int UserId { get; set; }
+			public BikeCreateDTO BikeCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Delete> _logger;
-			public Handler(DataContext context, ILogger<Delete> logger)
+			private readonly IMapper _mapper;
+			private readonly ILogger<CreateBike> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<CreateBike> logger)
 			{
 				_logger = logger;
+				_mapper = mapper;
 				_context = context;
 			}
 
@@ -32,22 +37,29 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var bike = await _context.Bike
-						.Where(b => b.UserId == request.UserId)
+					var oldBike = await _context.Bike
+						.Where(b => b.UserId == request.BikeCreateDTO.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
-					if (bike == null) return null!;
+					if (oldBike != null)
+					{
+						_logger.LogInformation("Biker already has bike");
+						return Result<Unit>.Failure("Biker already has bike");
+					}
 
-					_context.Bike.Remove(bike);
+					var newBike = new Bike();
+					_mapper.Map(request.BikeCreateDTO, newBike);
+
+					await _context.Bike.AddAsync(newBike, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to delete bike");
-						return Result<Unit>.Failure("Failed to delete bike");
+						_logger.LogInformation("Failed to create new bike");
+						return Result<Unit>.Failure("Failed to create new bike");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully deleted bike");
+						_logger.LogInformation("Successfully created Bike");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

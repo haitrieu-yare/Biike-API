@@ -87,7 +87,7 @@ namespace API
 			services.AddMediatR(typeof(HistoryList.Handler).Assembly);
 			services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 			services.AddScoped(typeof(Hashing));
-			services.AddScoped(typeof(AutoCreate));
+			services.AddScoped(typeof(AutoCreateTripTransaction));
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

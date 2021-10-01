@@ -43,7 +43,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Bike", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("BikeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -66,7 +66,7 @@ namespace Persistence.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("BikeId");
 
                     b.HasIndex("PlateNumber")
                         .IsUnique();
@@ -233,7 +233,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Trip", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("TripId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -274,7 +274,7 @@ namespace Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("TripId");
 
                     b.HasIndex("BikerId");
 
@@ -287,7 +287,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.TripTransaction", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("TripTransactionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -304,7 +304,7 @@ namespace Persistence.Migrations
                     b.Property<int>("WalletId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("TripTransactionId");
 
                     b.HasIndex("TripId");
 
@@ -459,7 +459,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Wallet", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("WalletId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -479,7 +479,7 @@ namespace Persistence.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("WalletId");
 
                     b.HasIndex("UserId");
 

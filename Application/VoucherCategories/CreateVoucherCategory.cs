@@ -1,8 +1,7 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Bikes.DTOs;
 using Application.Core;
+using Application.VoucherCategories.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
@@ -10,21 +9,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Bikes
+namespace Application.VoucherCategories
 {
-	public class Create
+	public class CreateVoucherCategory
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public BikeCreateDTO BikeCreateDTO { get; set; } = null!;
+			public VoucherCategoryCreateDTO VoucherCategoryCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Create> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly ILogger<CreateVoucherCategory> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<CreateVoucherCategory> logger)
 			{
 				_logger = logger;
 				_mapper = mapper;
@@ -37,29 +36,20 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldBike = await _context.Bike
-						.Where(b => b.UserId == request.BikeCreateDTO.UserId)
-						.SingleOrDefaultAsync(cancellationToken);
-					if (oldBike != null)
-					{
-						_logger.LogInformation("Biker already has bike");
-						return Result<Unit>.Failure("Biker already has bike");
-					}
+					var newVoucherCategory = new VoucherCategory();
+					_mapper.Map(request.VoucherCategoryCreateDTO, newVoucherCategory);
 
-					var newBike = new Bike();
-					_mapper.Map(request.BikeCreateDTO, newBike);
-
-					await _context.Bike.AddAsync(newBike, cancellationToken);
+					await _context.VoucherCategory.AddAsync(newVoucherCategory, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new bike");
-						return Result<Unit>.Failure("Failed to create new bike");
+						_logger.LogInformation("Failed to create new voucher category");
+						return Result<Unit>.Failure("Failed to create new voucher category");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created Bike");
+						_logger.LogInformation("Successfully created voucher category");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

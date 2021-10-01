@@ -4,7 +4,7 @@ namespace Domain.Entities
 {
 	public class Bike
 	{
-		public int Id { get; set; }
+		public int BikeId { get; set; }
 		public int UserId { get; set; }
 		public User User { get; set; } = null!;
 		public string PlateNumber { get; set; } = string.Empty;

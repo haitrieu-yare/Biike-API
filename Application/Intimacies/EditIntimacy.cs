@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Intimacies.DTOs;
+using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,18 +11,18 @@ using Persistence;
 
 namespace Application.Intimacies
 {
-	public class Edit
+	public class EditIntimacy
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public IntimacyEditDTO IntimacyEditDTO { get; set; } = null!;
+			public IntimacyCreateEditDTO IntimacyCreateEditDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Edit> _logger;
-			public Handler(DataContext context, ILogger<Edit> logger)
+			private readonly ILogger<EditIntimacy> _logger;
+			public Handler(DataContext context, ILogger<EditIntimacy> logger)
 			{
 				_logger = logger;
 				_context = context;
@@ -36,30 +37,20 @@ namespace Application.Intimacies
 					var oldIntimacy = await _context.Intimacy
 						.FindAsync(new object[]
 						{
-							request.IntimacyEditDTO.UserOneId,
-							request.IntimacyEditDTO.UserTwoId
+							request.IntimacyCreateEditDTO.UserOneId!,
+							request.IntimacyCreateEditDTO.UserTwoId!
 						}, cancellationToken);
 					if (oldIntimacy == null) return null!;
 
-					if (request.IntimacyEditDTO.BlockAction && oldIntimacy.IsBlock)
+					if (oldIntimacy.IsBlock)
 					{
-						_logger.LogInformation("User one has already blocked user two");
-						return Result<Unit>.Failure("User one has already blocked user two");
+						oldIntimacy.IsBlock = !oldIntimacy.IsBlock;
+						oldIntimacy.UnblockTime = CurrentTime.GetCurrentTime();
 					}
-					else if (request.IntimacyEditDTO.BlockAction && !oldIntimacy.IsBlock)
+					else if (!oldIntimacy.IsBlock)
 					{
-						oldIntimacy.IsBlock = true;
-						oldIntimacy.BlockTime = DateTime.Now;
-					}
-					else if (!request.IntimacyEditDTO.BlockAction && oldIntimacy.IsBlock)
-					{
-						oldIntimacy.IsBlock = false;
-						oldIntimacy.UnblockTime = DateTime.Now;
-					}
-					else if (!request.IntimacyEditDTO.BlockAction && !oldIntimacy.IsBlock)
-					{
-						_logger.LogInformation("User one hasn't blocked user two");
-						return Result<Unit>.Failure("User one hasn't blocked user two");
+						oldIntimacy.IsBlock = !oldIntimacy.IsBlock;
+						oldIntimacy.BlockTime = CurrentTime.GetCurrentTime();
 					}
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;

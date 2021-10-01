@@ -13,12 +13,12 @@ using Persistence;
 
 namespace Application.TripTransactions
 {
-	public class AutoCreate
+	public class AutoCreateTripTransaction
 	{
 		private readonly DataContext _context;
 		private readonly IMapper _mapper;
-		private readonly ILogger<AutoCreate> _logger;
-		public AutoCreate(DataContext context, IMapper mapper, ILogger<AutoCreate> logger)
+		private readonly ILogger<AutoCreateTripTransaction> _logger;
+		public AutoCreateTripTransaction(DataContext context, IMapper mapper, ILogger<AutoCreateTripTransaction> logger)
 		{
 			_logger = logger;
 			_mapper = mapper;
@@ -33,7 +33,7 @@ namespace Application.TripTransactions
 
 				var tripTransaction = new TripTransaction
 				{
-					TripId = trip.Id,
+					TripId = trip.TripId,
 					TransactionDate = DateTime.Now,
 				};
 
@@ -41,7 +41,7 @@ namespace Application.TripTransactions
 					.Where(w => w.UserId == trip.BikerId)
 					.Where(w => w.Status == (int)WalletStatus.Current)
 					.SingleOrDefaultAsync(cancellationToken);
-				tripTransaction.WalletId = wallet.Id;
+				tripTransaction.WalletId = wallet.WalletId;
 
 				tripTransaction.AmountOfPoint = newPoint;
 				wallet.Point += newPoint;

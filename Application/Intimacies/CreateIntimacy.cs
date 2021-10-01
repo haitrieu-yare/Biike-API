@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Trips.DTOs;
+using Application.Intimacies.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
@@ -9,46 +9,47 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Trips
+namespace Application.Intimacies
 {
-	public class Create
+	public class CreateIntimacy
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public TripCreateDTO TripCreateDTO { get; set; } = null!;
+			public IntimacyCreateEditDTO IntimacyCreateEditDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Create> _logger;
 			private readonly IMapper _mapper;
-			public Handler(DataContext context, IMapper mapper, ILogger<Create> logger)
+			private readonly ILogger<CreateIntimacy> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<CreateIntimacy> logger)
 			{
-				_mapper = mapper;
 				_logger = logger;
+				_mapper = mapper;
 				_context = context;
 			}
+
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newTrip = new Trip();
-					_mapper.Map(request.TripCreateDTO, newTrip);
+					var newIntimacy = new Intimacy();
+					_mapper.Map(request.IntimacyCreateEditDTO, newIntimacy);
 
-					await _context.Trip.AddAsync(newTrip, cancellationToken);
+					await _context.Intimacy.AddAsync(newIntimacy, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new trip");
-						return Result<Unit>.Failure("Failed to create new trip");
+						_logger.LogInformation("Failed to create new intimacy");
+						return Result<Unit>.Failure("Failed to create new intimacy");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created trip");
+						_logger.LogInformation("Successfully created intimacy");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}

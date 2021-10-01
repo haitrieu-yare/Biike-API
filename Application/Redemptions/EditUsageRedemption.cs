@@ -12,7 +12,7 @@ namespace Application.Redemptions
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int Id { get; set; }
+			public int WalletId { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -32,7 +32,7 @@ namespace Application.Redemptions
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var redemption = await _context.Redemption
-						.FindAsync(new object[] { request.Id }, cancellationToken);
+						.FindAsync(new object[] { request.WalletId }, cancellationToken);
 					if (redemption == null) return null!;
 
 					redemption.IsUsed = !redemption.IsUsed;

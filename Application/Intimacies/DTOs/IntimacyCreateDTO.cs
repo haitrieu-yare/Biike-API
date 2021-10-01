@@ -1,13 +1,13 @@
-using System;
-using Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Intimacies.DTOs
 {
-	public class IntimacyCreateDTO
+	public class IntimacyCreateEditDTO
 	{
-		public int UserOneId { get; set; }
-		public int UserTwoId { get; set; }
-		public bool IsBlock { get; set; } = true;
-		public DateTime BlockTime { get; set; } = CurrentTime.GetCurrentTime();
+		[Required]
+		public int? UserOneId { get; set; }
+
+		[Required]
+		public int? UserTwoId { get; set; }
 	}
 }

@@ -108,13 +108,13 @@ namespace Application.Redemptions
 						if (voucher.AmountOfPoint - oldWallet.Point >= 0)
 						{
 							// Set the old walletId
-							newRedemption.WalletId = oldWallet.Id;
+							newRedemption.WalletId = oldWallet.WalletId;
 							oldWallet.Point -= voucher.AmountOfPoint;
 						}
 						else
 						{
 							// Set the current walletId
-							newRedemption.WalletId = currentWallet.Id;
+							newRedemption.WalletId = currentWallet.WalletId;
 							int oldWalletPoint = oldWallet.Point;
 							oldWalletPoint -= voucher.AmountOfPoint;
 
@@ -136,7 +136,7 @@ namespace Application.Redemptions
 						}
 
 						// Set the current walletId
-						newRedemption.WalletId = currentWallet.Id;
+						newRedemption.WalletId = currentWallet.WalletId;
 
 						// Minus point of user wallet
 						currentWallet.Point -= voucher.AmountOfPoint;

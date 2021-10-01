@@ -14,7 +14,7 @@ namespace Application.Trips
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int Id { get; set; }
+			public int TripId { get; set; }
 			public int BikerId { get; set; }
 		}
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -34,7 +34,7 @@ namespace Application.Trips
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var oldTrip = await _context.Trip
-						.FindAsync(new object[] { request.Id }, cancellationToken);
+						.FindAsync(new object[] { request.TripId }, cancellationToken);
 					if (oldTrip == null) return null!;
 
 					if (request.BikerId == oldTrip.KeerId)

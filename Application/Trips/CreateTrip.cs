@@ -1,56 +1,54 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Vouchers.DTOs;
+using Application.Trips.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Vouchers
+namespace Application.Trips
 {
-	public class Edit
+	public class CreateTrip
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int Id { get; set; }
-			public VoucherEditDTO NewVoucher { get; set; } = null!;
+			public TripCreateDTO TripCreateDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
+			private readonly ILogger<CreateTrip> _logger;
 			private readonly IMapper _mapper;
-			private readonly ILogger<Edit> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Edit> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<CreateTrip> logger)
 			{
-				_logger = logger;
 				_mapper = mapper;
+				_logger = logger;
 				_context = context;
 			}
-
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldVoucher = await _context.Voucher
-						.FindAsync(new object[] { request.Id }, cancellationToken);
-					if (oldVoucher == null) return null!;
+					var newTrip = new Trip();
+					_mapper.Map(request.TripCreateDTO, newTrip);
 
-					_mapper.Map(request.NewVoucher, oldVoucher);
+					await _context.Trip.AddAsync(newTrip, cancellationToken);
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update voucher");
-						return Result<Unit>.Failure("Failed to update voucher");
+						_logger.LogInformation("Failed to create new trip");
+						return Result<Unit>.Failure("Failed to create new trip");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated voucher");
+						_logger.LogInformation("Successfully created trip");
 						return Result<Unit>.Success(Unit.Value);
 					}
 				}
