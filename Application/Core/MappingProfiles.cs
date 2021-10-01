@@ -184,8 +184,18 @@ namespace Application.Core
 			CreateMap<VoucherEditDTO, Voucher>()
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 
+			#region Redemption
 			CreateMap<Redemption, RedemptionDTO>();
+			CreateMap<Redemption, RedemptionAndVoucherDTO>()
+				.ForMember(r => r.VoucherCategoryId, o => o.MapFrom(u => u.Voucher.VoucherCategoryId))
+				.ForMember(r => r.VoucherName, o => o.MapFrom(u => u.Voucher.VoucherName))
+				.ForMember(r => r.Brand, o => o.MapFrom(u => u.Voucher.Brand))
+				.ForMember(r => r.StartDate, o => o.MapFrom(u => u.Voucher.StartDate))
+				.ForMember(r => r.EndDate, o => o.MapFrom(u => u.Voucher.EndDate))
+				.ForMember(r => r.Description, o => o.MapFrom(u => u.Voucher.Description))
+				.ForMember(r => r.TermsAndConditions, o => o.MapFrom(u => u.Voucher.TermsAndConditions));
 			CreateMap<RedemptionCreateDTO, Redemption>();
+			#endregion
 
 			CreateMap<Wallet, WalletDTO>();
 			CreateMap<WalletDTO, Wallet>()

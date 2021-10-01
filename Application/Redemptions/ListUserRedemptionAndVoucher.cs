@@ -14,14 +14,14 @@ using Domain.Enums;
 
 namespace Application.Redemptions
 {
-	public class ListUserRedemption
+	public class ListUserRedemptionAndVoucher
 	{
-		public class Query : IRequest<Result<List<RedemptionDTO>>>
+		public class Query : IRequest<Result<List<RedemptionAndVoucherDTO>>>
 		{
 			public int UserId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<RedemptionDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<RedemptionAndVoucherDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -33,7 +33,7 @@ namespace Application.Redemptions
 				_logger = logger;
 			}
 
-			public async Task<Result<List<RedemptionDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<RedemptionAndVoucherDTO>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -47,7 +47,7 @@ namespace Application.Redemptions
 					if (wallets == null)
 					{
 						_logger.LogInformation("User doesn't have wallet");
-						return Result<List<RedemptionDTO>>.Failure("User doesn't have wallet");
+						return Result<List<RedemptionAndVoucherDTO>>.Failure("User doesn't have wallet");
 					}
 
 					// Nếu user có 2 wallet thì query == wallets[0].Id | wallets[1].Id
@@ -56,16 +56,16 @@ namespace Application.Redemptions
 						.Where(r => r.WalletId == wallets[0].Id ||
 							r.WalletId == (wallets.Count == 2 ? wallets[1].Id : wallets[0].Id)
 						)
-						.ProjectTo<RedemptionDTO>(_mapper.ConfigurationProvider)
+						.ProjectTo<RedemptionAndVoucherDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved redemptions of userId: " + request.UserId);
-					return Result<List<RedemptionDTO>>.Success(redemptions);
+					_logger.LogInformation("Successfully retrieved redemptions and vouchers of userId: " + request.UserId);
+					return Result<List<RedemptionAndVoucherDTO>>.Success(redemptions);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<RedemptionDTO>>.Failure("Request was cancelled");
+					return Result<List<RedemptionAndVoucherDTO>>.Failure("Request was cancelled");
 				}
 			}
 		}

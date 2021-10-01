@@ -26,8 +26,15 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
 		}
 
+		[HttpPost("checkExist")]
+		public async Task<IActionResult> CheckExistUser(UserExistDTO userExistDTO, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new CheckExistUser.Command { UserExistDTO = userExistDTO }, ct));
+		}
+
 		[HttpPost]
-		public async Task<IActionResult> CreateUser(UserCreateDTO userCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> SignUp(UserCreateDTO userCreateDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
 				new CreateUser.Command { UserCreateDTO = userCreateDTO }, ct));

@@ -38,14 +38,14 @@ namespace Application.Users
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var AppUserProfile = await _context.User
+					var UserProfile = await _context.User
 						.Where(u => u.Id == request.Id)
 						.Where(u => u.Status == (int)UserStatus.Active)
 						.ProjectTo<UserSelfProfileDTO>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved user self profile");
-					return Result<UserSelfProfileDTO>.Success(AppUserProfile);
+					return Result<UserSelfProfileDTO>.Success(UserProfile);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

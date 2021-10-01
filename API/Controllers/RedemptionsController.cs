@@ -20,12 +20,19 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new ListUserRedemption.Query { UserId = userId }, ct));
 		}
 
+		[HttpGet("{userId}/full")]
+		public async Task<IActionResult> GetAllRedemptionsAndVouchers(int userId, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new ListUserRedemptionAndVoucher.Query { UserId = userId }, ct));
+		}
+
 		[HttpPost]
 		public async Task<IActionResult> CreateRedemption(RedemptionCreateDTO redemptionCreateDTO,
 			CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new CreateRedemption.Command
-			{ RedemptionCreateDTO = redemptionCreateDTO }, ct));
+			return HandleResult(await Mediator.Send(
+				new CreateRedemption.Command { RedemptionCreateDTO = redemptionCreateDTO }, ct));
 		}
 
 		[HttpPut("{id}")]
