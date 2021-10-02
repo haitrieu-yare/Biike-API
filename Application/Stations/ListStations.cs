@@ -39,6 +39,7 @@ namespace Application.Stations
 					cancellationToken.ThrowIfCancellationRequested();
 
 					List<StationDTO> stations = new List<StationDTO>();
+
 					if (request.IsAdmin)
 					{
 						stations = await _context.Station
@@ -51,17 +52,21 @@ namespace Application.Stations
 							.Where(s => s.IsDeleted != true)
 							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
-						// Set to null to make this field excluded from response body.
-						stations.ForEach(s => s.IsDeleted = null);
+						// Set to null to make unnecessary fields excluded from response body.
+						stations.ForEach(s =>
+						{
+							s.CreatedDate = null;
+							s.IsDeleted = null;
+						});
 					}
 
-					_logger.LogInformation("Successfully retrieved list of all stations");
-					return Result<List<StationDTO>>.Success(stations, "Successfully retrieved list of all stations");
+					_logger.LogInformation("Successfully retrieved list of all stations.");
+					return Result<List<StationDTO>>.Success(stations, "Successfully retrieved list of all stations.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<StationDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<StationDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}

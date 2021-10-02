@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MediatR;
@@ -26,9 +25,9 @@ namespace Application.Stations
 			private readonly ILogger<EditStation> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<EditStation> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -38,30 +37,38 @@ namespace Application.Stations
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var oldStation = await _context.Station
-						.Where(s => s.StationId == request.StationId)
-						.Where(s => s.IsDeleted != true)
-						.SingleOrDefaultAsync(cancellationToken);
+						.FindAsync(new object[] { request.StationId }, cancellationToken);
+
 					if (oldStation == null) return null!;
 
+					if (oldStation.IsDeleted)
+					{
+						_logger.LogInformation($"Station with StationId {request.StationId} has been deleted. " +
+							"Please reactivate it if you want to edit it.");
+						return Result<Unit>.Failure($"Station with StationId {request.StationId} has been deleted. " +
+							"Please reactivate it if you want to edit it.");
+					}
+
 					_mapper.Map(request.NewStationDTO, oldStation);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update station by stationId: " + request.StationId);
-						return Result<Unit>.Failure("Failed to update station by stationId: " + request.StationId);
+						_logger.LogInformation($"Failed to update station by stationId {request.StationId}.");
+						return Result<Unit>.Failure($"Failed to update station by stationId {request.StationId}.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated station by stationId: " + request.StationId);
+						_logger.LogInformation($"Successfully updated station by stationId {request.StationId}.");
 						return Result<Unit>
-							.Success(Unit.Value, "Successfully updated station by stationId: " + request.StationId);
+							.Success(Unit.Value, $"Successfully updated station by stationId {request.StationId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
