@@ -53,6 +53,7 @@ namespace API
 			});
 
 			string pathToKey = string.Empty;
+
 			if (_currentEnvironment.IsDevelopment())
 			{
 				pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
@@ -70,19 +71,19 @@ namespace API
 			});
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-			.AddJwtBearer(opt =>
-			{
-				opt.Authority = _config["Jwt:Firebase:ValidIssuer"];
-				opt.TokenValidationParameters = new TokenValidationParameters
+				.AddJwtBearer(opt =>
 				{
-					ValidateIssuer = true,
-					ValidateAudience = true,
-					ValidateLifetime = true,
-					ValidateIssuerSigningKey = true,
-					ValidIssuer = _config["Jwt:Firebase:ValidIssuer"],
-					ValidAudience = _config["Jwt:Firebase:ValidAudience"]
-				};
-			});
+					opt.Authority = _config["Jwt:Firebase:ValidIssuer"];
+					opt.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						ValidIssuer = _config["Jwt:Firebase:ValidIssuer"],
+						ValidAudience = _config["Jwt:Firebase:ValidAudience"]
+					};
+				});
 
 			services.AddMediatR(typeof(HistoryList.Handler).Assembly);
 			services.AddAutoMapper(typeof(MappingProfiles).Assembly);

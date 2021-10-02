@@ -17,6 +17,7 @@ namespace Application.Routes
 		public class Query : IRequest<Result<RouteDTO>>
 		{
 			public int RouteId { get; set; }
+			public bool IsAdmin { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<RouteDTO>>
@@ -37,19 +38,35 @@ namespace Application.Routes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var route = await _context.Route
-						.Where(r => r.RouteId == request.RouteId)
-						.Where(r => r.IsDeleted != true)
-						.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
-						.FirstOrDefaultAsync(cancellationToken);
+					RouteDTO route = new RouteDTO();
 
-					_logger.LogInformation("Successfully retrieved route by routeId: " + request.RouteId);
-					return Result<RouteDTO>.Success(route, "Successfully retrieved route by routeId: " + request.RouteId);
+					if (request.IsAdmin)
+					{
+						route = await _context.Route
+							.Where(r => r.RouteId == request.RouteId)
+							.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
+							.FirstOrDefaultAsync(cancellationToken);
+					}
+					else
+					{
+						route = await _context.Route
+							.Where(r => r.RouteId == request.RouteId)
+							.Where(r => r.IsDeleted != true)
+							.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
+							.FirstOrDefaultAsync(cancellationToken);
+						// Set to null to make unnecessary fields excluded from response body.
+						route.CreatedDate = null;
+						route.IsDeleted = null;
+					}
+
+					_logger.LogInformation($"Successfully retrieved route by routeId {request.RouteId}.");
+					return Result<RouteDTO>.Success(
+						route, $"Successfully retrieved route by routeId {request.RouteId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<RouteDTO>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<RouteDTO>.Failure("Request was cancelled.");
 				}
 			}
 		}

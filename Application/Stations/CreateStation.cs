@@ -62,8 +62,8 @@ namespace Application.Stations
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

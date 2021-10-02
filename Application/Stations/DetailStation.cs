@@ -60,8 +60,8 @@ namespace Application.Stations
 					}
 
 					_logger.LogInformation($"Successfully retrieved station by stationId {request.StationId}.");
-					return Result<StationDTO>
-						.Success(station, $"Successfully retrieved station by stationId {request.StationId}.");
+					return Result<StationDTO>.Success(
+						station, $"Successfully retrieved station by stationId {request.StationId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

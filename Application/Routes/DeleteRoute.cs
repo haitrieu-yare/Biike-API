@@ -21,8 +21,8 @@ namespace Application.Routes
 			private readonly ILogger<DeleteRoute> _logger;
 			public Handler(DataContext context, ILogger<DeleteRoute> logger)
 			{
-				_logger = logger;
 				_context = context;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -33,6 +33,7 @@ namespace Application.Routes
 
 					var route = await _context.Route
 						.FindAsync(new object[] { request.RouteId }, cancellationToken);
+
 					if (route == null) return null!;
 
 					route.IsDeleted = !route.IsDeleted;
@@ -41,24 +42,25 @@ namespace Application.Routes
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to delete route by routeId: " + request.RouteId);
-						return Result<Unit>.Failure("Failed to delete route by routeId: " + request.RouteId);
+						_logger.LogInformation($"Failed to delete route by routeId {request.RouteId}.");
+						return Result<Unit>.Failure($"Failed to delete route by routeId {request.RouteId}.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully deleted route by routeId: " + request.RouteId);
-						return Result<Unit>.Success(Unit.Value, "Successfully deleted route by routeId: " + request.RouteId);
+						_logger.LogInformation($"Successfully deleted route by routeId {request.RouteId}.");
+						return Result<Unit>.Success(
+							Unit.Value, $"Successfully deleted route by routeId {request.RouteId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

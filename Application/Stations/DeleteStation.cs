@@ -48,8 +48,8 @@ namespace Application.Stations
 					else
 					{
 						_logger.LogInformation($"Successfully deleted station by stationId {request.StationId}.");
-						return Result<Unit>
-							.Success(Unit.Value, $"Successfully deleted station by stationId {request.StationId}.");
+						return Result<Unit>.Success(
+							Unit.Value, $"Successfully deleted station by stationId {request.StationId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
@@ -59,8 +59,8 @@ namespace Application.Stations
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

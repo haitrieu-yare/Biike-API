@@ -2,20 +2,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using Application.Core;
-using Application.Routes.DTOs;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Persistence;
+using Application.Core;
+using Application.Routes.DTOs;
 
 namespace Application.Routes
 {
 	public class ListRoute
 	{
-		public class Query : IRequest<Result<List<RouteDTO>>> { }
+		public class Query : IRequest<Result<List<RouteDTO>>>
+		{
+			public bool IsAdmin { get; set; }
+		}
 
 		public class Handler : IRequestHandler<Query, Result<List<RouteDTO>>>
 		{
@@ -24,9 +27,9 @@ namespace Application.Routes
 			private readonly ILogger<ListRoute> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<ListRoute> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<RouteDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -35,18 +38,35 @@ namespace Application.Routes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var routes = await _context.Route
-						.Where(r => r.IsDeleted != true)
-						.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
-						.ToListAsync(cancellationToken);
+					List<RouteDTO> routes = new List<RouteDTO>();
 
-					_logger.LogInformation("Successfully retrieved list of all routes");
-					return Result<List<RouteDTO>>.Success(routes, "Successfully retrieved list of all routes");
+					if (request.IsAdmin)
+					{
+						routes = await _context.Route
+							.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
+							.ToListAsync(cancellationToken);
+					}
+					else
+					{
+						routes = await _context.Route
+							.Where(r => r.IsDeleted != true)
+							.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
+							.ToListAsync(cancellationToken);
+						// Set to null to make unnecessary fields excluded from response body.
+						routes.ForEach(r =>
+						{
+							r.CreatedDate = null;
+							r.IsDeleted = null;
+						});
+					}
+
+					_logger.LogInformation("Successfully retrieved list of all routes.");
+					return Result<List<RouteDTO>>.Success(routes, "Successfully retrieved list of all routes.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<RouteDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<RouteDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}

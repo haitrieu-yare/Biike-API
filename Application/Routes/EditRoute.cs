@@ -38,31 +38,42 @@ namespace Application.Routes
 
 					var oldRoute = await _context.Route
 						.FindAsync(new object[] { request.RouteId }, cancellationToken);
+
 					if (oldRoute == null) return null!;
 
+					if (oldRoute.IsDeleted)
+					{
+						_logger.LogInformation($"Station with RouteId {request.RouteId} has been deleted. " +
+							"Please reactivate it if you want to edit it.");
+						return Result<Unit>.Failure($"Station with RouteId {request.RouteId} has been deleted. " +
+							"Please reactivate it if you want to edit it.");
+					}
+
 					_mapper.Map(request.RouteDTO, oldRoute);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update route by routeId: " + request.RouteId);
-						return Result<Unit>.Failure("Failed to update route by routeId: " + request.RouteId);
+						_logger.LogInformation($"Failed to update route by routeId {request.RouteId}.");
+						return Result<Unit>.Failure($"Failed to update route by routeId {request.RouteId}.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated route by routeId: " + request.RouteId);
-						return Result<Unit>.Success(Unit.Value, "Successfully updated route by routeId: " + request.RouteId);
+						_logger.LogInformation($"Successfully updated route by routeId {request.RouteId}.");
+						return Result<Unit>.Success(
+							Unit.Value, $"Successfully updated route by routeId {request.RouteId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}
