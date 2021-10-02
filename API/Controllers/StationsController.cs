@@ -8,7 +8,7 @@ using Domain.Enums;
 
 namespace API.Controllers
 {
-	[Authorize]
+	// [Authorize]
 	public class StationsController : BaseApiController
 	{
 		// User & Admin
