@@ -9,6 +9,7 @@ using AutoMapper.QueryableExtensions;
 using Persistence;
 using Application.Core;
 using Application.Routes.DTOs;
+using Domain.Entities;
 
 namespace Application.Routes
 {
@@ -42,10 +43,10 @@ namespace Application.Routes
 
 					if (request.IsAdmin)
 					{
-						route = await _context.Route
-							.Where(r => r.RouteId == request.RouteId)
-							.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
-							.FirstOrDefaultAsync(cancellationToken);
+						Route routeDB = await _context.Route
+							.FindAsync(new object[] { request.RouteId }, cancellationToken);
+
+						_mapper.Map(routeDB, route);
 					}
 					else
 					{

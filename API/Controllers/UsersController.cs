@@ -1,29 +1,50 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Application.Users;
 using Application.Users.DTOs;
+using Domain.Enums;
 
 namespace API.Controllers
 {
+	// [Authorize]
 	public class UsersController : BaseApiController
 	{
+		// [Authorized(RoleStatus.Admin)]
 		[HttpGet]
 		public async Task<IActionResult> GetAllUser(CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new List.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListAllUsers.Query(), ct));
 		}
 
-		[HttpGet("{id}/profile")]
-		public async Task<IActionResult> GetUserSelfProfile(int id, CancellationToken ct)
+		// [Authorized(RoleStatus.Keer, RoleStatus.Biker)]
+		[HttpGet("{userId}/profile")]
+		public async Task<IActionResult> GetUserSelfProfile(int userId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new DetailSelf.Query { Id = id }, ct));
+			var user = HttpContext.User;
+			var userRequestIdClaim = user.FindFirst(c => c.Type.Equals("user_id"));
+			string? userRequestId = userRequestIdClaim?.Value;
+
+			if (string.IsNullOrEmpty(userRequestId))
+			{
+				return BadRequest("Can't get userId who send the request.");
+			}
+
+			if (!userRequestId.Equals(userId.ToString()))
+			{
+				return BadRequest("User sent request must have the same Id with user get requested.");
+			}
+
+			return HandleResult(await Mediator.Send(new DetailSelfUser.Query { UserId = userId }, ct));
 		}
 
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetUserProfile(int id, CancellationToken ct)
+		[HttpGet("{userId}")]
+		public async Task<IActionResult> GetUserProfile(int userId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Detail.Query { Id = id }, ct));
+			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
+			return HandleResult(await Mediator.Send(
+				new DetailUser.Query { IsAdmin = isAdmin, UserId = userId }, ct));
 		}
 
 		[HttpPost("checkExist")]
@@ -40,35 +61,37 @@ namespace API.Controllers
 				new CreateUser.Command { UserCreateDTO = userCreateDTO }, ct));
 		}
 
-		[HttpPut("{id}/profile")]
-		public async Task<IActionResult> EditUserProfile(int id,
+		[HttpPut("{userId}/profile")]
+		public async Task<IActionResult> EditUserProfile(int userId,
 			UserProfileEditDTO userProfileEditDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new EditProfile.Command { Id = id, UserProfileEditDTO = userProfileEditDTO }, ct));
+				new EditProfile.Command { UserId = userId, UserProfileEditDTO = userProfileEditDTO }, ct));
 		}
 
-		[HttpPut("{id}")]
-		public async Task<IActionResult> EditUserStatus(int id, int newStatus, CancellationToken ct)
+		// [Authorized(RoleStatus.Admin)]
+		[HttpPut("{userId}")]
+		public async Task<IActionResult> EditUserStatus(int userId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(
-				new EditStatus.Command { Id = id, NewStatus = newStatus }, ct));
+			return HandleResult(await Mediator.Send(new EditStatus.Command { UserId = userId }, ct));
 		}
 
-		[HttpPut("{id}/login-device")]
-		public async Task<IActionResult> EditUserLoginDevice(int id,
+		[HttpPut("{userId}/login-device")]
+		public async Task<IActionResult> EditUserLoginDevice(int userId,
 			UserLoginDeviceDTO userLoginDeviceDTO, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new EditLoginDevice.Command
-			{ Id = id, UserLoginDeviceDTO = userLoginDeviceDTO }, ct));
+			return HandleResult(await Mediator.Send(
+				new EditLoginDevice.Command { UserId = userId, UserLoginDeviceDTO = userLoginDeviceDTO }, ct));
 		}
 
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteUser(int id, CancellationToken ct)
+		// [Authorized(RoleStatus.Admin)]
+		[HttpDelete("{userId}")]
+		public async Task<IActionResult> DeleteUser(int userId, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new Delete.Command { Id = id }, ct));
+			return HandleResult(await Mediator.Send(new DeleteUser.Command { UserId = userId }, ct));
 		}
 
+		// [Authorized(RoleStatus.Admin)]
 		[HttpDelete("deleteFirebase")]
 		public async Task<IActionResult> DeleteAllFirebaseUsers(CancellationToken ct)
 		{

@@ -8,14 +8,14 @@ using Domain.Enums;
 
 namespace API.Controllers
 {
-	[Authorize]
+	// [Authorize]
 	public class RoutesController : BaseApiController
 	{
 		[HttpGet]
 		public async Task<IActionResult> GetAllRoutes(CancellationToken ct)
 		{
 			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
-			return HandleResult(await Mediator.Send(new ListRoute.Query { IsAdmin = isAdmin }, ct));
+			return HandleResult(await Mediator.Send(new ListRoutes.Query { IsAdmin = isAdmin }, ct));
 		}
 
 		[HttpGet("{routeId}")]
@@ -26,14 +26,14 @@ namespace API.Controllers
 				new DetailRoute.Query { IsAdmin = isAdmin, RouteId = routeId }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// [Authorized(RoleStatus.Admin)]
 		[HttpPost]
 		public async Task<IActionResult> CreateRoute(RouteCreateDTO routeCreateDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new CreateRoute.Command { RouteCreateDTO = routeCreateDTO }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// [Authorized(RoleStatus.Admin)]
 		[HttpPut("{routeId}")]
 		public async Task<IActionResult> EditRoute(int routeId, RouteDTO routeDTO, CancellationToken ct)
 		{
@@ -41,7 +41,7 @@ namespace API.Controllers
 				new EditRoute.Command { RouteId = routeId, RouteDTO = routeDTO }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// [Authorized(RoleStatus.Admin)]
 		[HttpDelete("{routeId}")]
 		public async Task<IActionResult> DeleteRoute(int routeId, CancellationToken ct)
 		{

@@ -1,32 +1,28 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Core;
+using FirebaseAdmin.Auth;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MediatR;
-using AutoMapper;
-using Application.Core;
-using Application.Users.DTOs;
 using Persistence;
 
 namespace Application.Users
 {
-	public class EditProfile
+	public class DeleteUser
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int UserId { get; set; }
-			public UserProfileEditDTO UserProfileEditDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<EditProfile> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditProfile> logger)
+			private readonly ILogger<DeleteUser> _logger;
+			public Handler(DataContext context, ILogger<DeleteUser> logger)
 			{
 				_context = context;
-				_mapper = mapper;
 				_logger = logger;
 			}
 
@@ -41,29 +37,38 @@ namespace Application.Users
 
 					if (user == null) return null!;
 
-					if (user.IsDeleted)
+					UserRecordArgs userRecordArgs = new UserRecordArgs()
 					{
-						_logger.LogInformation($"User with UserId {request.UserId} has been deleted. " +
-							"Please reactivate it if you want to edit it.");
-						return Result<Unit>.Failure($"User with UserId {request.UserId} has been deleted. " +
-							"Please reactivate it if you want to edit it.");
+						Uid = request.UserId.ToString(),
+						Disabled = !user.IsDeleted
+					};
+
+					// Delete on Firebase
+					try
+					{
+						await FirebaseAuth.DefaultInstance.UpdateUserAsync(userRecordArgs, cancellationToken);
+					}
+					catch (FirebaseAuthException e)
+					{
+						_logger.LogError($"Error delete user on Firebase. {e.InnerException?.Message ?? e.Message}");
+						return Result<Unit>.Failure(
+							$"Error delete user on Firebase. {e.InnerException?.Message ?? e.Message}");
 					}
 
-					_mapper.Map(request.UserProfileEditDTO, user);
+					user.IsDeleted = !user.IsDeleted;
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation($"Failed to update user's profile by userId {request.UserId}.");
-						return Result<Unit>.Failure(
-							$"Failed to update user's profile by userId {request.UserId}.");
+						_logger.LogInformation($"Failed to delete user with userId {request.UserId}.");
+						return Result<Unit>.Failure($"Failed to delete user with userId {request.UserId}.");
 					}
 					else
 					{
-						_logger.LogInformation($"Successfully updated user's profile by userId {request.UserId}.");
+						_logger.LogInformation($"Successfully deleted user with userId {request.UserId}.");
 						return Result<Unit>.Success(
-							Unit.Value, $"Successfully updated user's profile by userId {request.UserId}.");
+							Unit.Value, $"Successfully deleted user with userId {request.UserId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

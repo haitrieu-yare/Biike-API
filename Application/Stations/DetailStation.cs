@@ -9,6 +9,7 @@ using AutoMapper.QueryableExtensions;
 using Persistence;
 using Application.Core;
 using Application.Stations.DTOs;
+using Domain.Entities;
 
 namespace Application.Stations
 {
@@ -42,10 +43,10 @@ namespace Application.Stations
 
 					if (request.IsAdmin)
 					{
-						station = await _context.Station
-							.Where(s => s.StationId == request.StationId)
-							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
-							.SingleOrDefaultAsync(cancellationToken);
+						Station stationDB = await _context.Station
+							.FindAsync(new object[] { request.StationId }, cancellationToken);
+
+						_mapper.Map(stationDB, station);
 					}
 					else
 					{

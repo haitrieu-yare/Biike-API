@@ -1,17 +1,17 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using Application.Users.DTOs;
-using AutoMapper;
-using Domain.Entities;
-using Domain.Enums;
-using FirebaseAdmin.Auth;
-using MediatR;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using AutoMapper;
+using FirebaseAdmin.Auth;
 using Persistence;
+using Application.Core;
+using Application.Users.DTOs;
+using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Users
 {
@@ -28,13 +28,12 @@ namespace Application.Users
 			private readonly IMapper _mapper;
 			private readonly ILogger<CreateUser> _logger;
 			private readonly Hashing _hashing;
-			public Handler(DataContext context, IMapper mapper, ILogger<CreateUser> logger,
-				Hashing hashing)
+			public Handler(DataContext context, IMapper mapper, ILogger<CreateUser> logger, Hashing hashing)
 			{
+				_context = context;
+				_mapper = mapper;
 				_hashing = hashing;
 				_logger = logger;
-				_mapper = mapper;
-				_context = context;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -43,53 +42,53 @@ namespace Application.Users
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldUser = await _context.User
+					var userDB = await _context.User
 						.Where(u => u.Email == request.UserCreateDTO.Email ||
 							u.PhoneNumber == request.UserCreateDTO.PhoneNumber)
 						.SingleOrDefaultAsync(cancellationToken);
-					if (oldUser != null)
+
+					if (userDB != null)
 					{
-						_logger.LogInformation("User with the same email or phone number has already existed");
-						return Result<Unit>.Failure("User with the same email or phone number has already existed");
+						_logger.LogInformation("User with the same email or phone number has already existed.");
+						return Result<Unit>.Failure("User with the same email or phone number has already existed.");
 					}
 
-					var newUser = new User();
+					User newUser = new User();
+
 					_mapper.Map(request.UserCreateDTO, newUser);
 
-					#region Setup email, avatar
+					// Setup email, avatar
 					newUser.Email = newUser.Email.ToLower();
-					var fullName = newUser.FullName.Split(" ");
+					string[] fullName = newUser.FullName.Split(" ");
 					fullName = fullName.TakeLast(2).ToArray();
-					var fullNameString = string.Join("+", fullName);
-					newUser.Avatar = $"https://ui-avatars.com/api/?name={fullNameString}&background=random&rounded=true&size=128";
-					#endregion
+					string fullNameString = string.Join("+", fullName);
+					newUser.Avatar = $"https://ui-avatars.com/api/?name={fullNameString} " +
+						"&background=random&rounded=true&size=128";
 
-					#region Hash Password
+					// Hash password
 					newUser.PasswordHash = _hashing.HashPassword(newUser.PasswordHash);
-					#endregion
 
 					// FOR DEV ONLY
 					newUser.Status = (int)UserStatus.Active;
-					//
+					// FOR DEV ONLY
 
 					await _context.User.AddAsync(newUser, cancellationToken);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new user");
-						return Result<Unit>.Failure("Failed to create new user");
+						_logger.LogInformation("Failed to create new user.");
+						return Result<Unit>.Failure("Failed to create new user.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created user");
-
 						try
 						{
 							#region Create user on Firebase
 							var userToCreate = new UserRecordArgs()
 							{
-								Uid = newUser.Id.ToString(),
+								Uid = newUser.UserId.ToString(),
 								Email = newUser.Email,
 								Password = request.UserCreateDTO.Password,
 								PhoneNumber = newUser.PhoneNumber,
@@ -97,35 +96,40 @@ namespace Application.Users
 								PhotoUrl = newUser.Avatar,
 								Disabled = newUser.Status != (int)UserStatus.Active,
 							};
+
 							await FirebaseAuth.DefaultInstance.CreateUserAsync(userToCreate);
 							#endregion
 
 							#region Import user's role to Firebase
 							var claims = new Dictionary<string, object>()
 							{
-								{ "admin", true },
+								{"role", (int)RoleStatus.Keer}
 							};
+
 							await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(userToCreate.Uid, claims);
 							#endregion
 						}
 						catch (FirebaseAuthException e)
 						{
-							_logger.LogError($"Error create user: {e.Message}");
-							return Result<Unit>.Failure($"Error create user: {e.Message}");
+							_logger.LogError("Error create user on Firebase. " +
+								$"{e.InnerException?.Message ?? e.Message}");
+							return Result<Unit>.Failure("Error create user on Firebase. " +
+								$"{e.InnerException?.Message ?? e.Message}");
 						}
 
-						return Result<Unit>.Success(Unit.Value, "Successfully created user");
+						_logger.LogInformation("Successfully created user.");
+						return Result<Unit>.Success(Unit.Value, "Successfully created user.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

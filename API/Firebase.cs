@@ -34,7 +34,7 @@ namespace API
 						usersToFireBase.Add(
 							new ImportUserRecordArgs()
 							{
-								Uid = user.Id.ToString(),
+								Uid = user.UserId.ToString(),
 								Email = user.Email,
 								PhoneNumber = user.PhoneNumber,
 								DisplayName = user.FullName,

@@ -47,7 +47,7 @@ namespace Application.TripTransactions
 				wallet.Point += newPoint;
 
 				var user = await _context.User
-					.Where(u => u.Id == wallet.UserId)
+					.Where(u => u.UserId == wallet.UserId)
 					.SingleOrDefaultAsync(cancellationToken);
 				user.TotalPoint += newPoint;
 

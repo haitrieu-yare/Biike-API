@@ -53,10 +53,10 @@ namespace Application.Trips
 					}
 
 					var bike = await _context.Bike
-						.Where(b => b.UserId == biker.Id)
+						.Where(b => b.UserId == biker.UserId)
 						.FirstOrDefaultAsync(cancellationToken);
 
-					oldTrip.BikerId = biker.Id;
+					oldTrip.BikerId = biker.UserId;
 					oldTrip.PlateNumber = bike.PlateNumber;
 					oldTrip.Status = (int)TripStatus.Waiting;
 

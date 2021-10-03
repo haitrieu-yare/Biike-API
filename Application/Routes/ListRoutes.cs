@@ -13,7 +13,7 @@ using Application.Routes.DTOs;
 
 namespace Application.Routes
 {
-	public class ListRoute
+	public class ListRoutes
 	{
 		public class Query : IRequest<Result<List<RouteDTO>>>
 		{
@@ -24,8 +24,8 @@ namespace Application.Routes
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<ListRoute> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<ListRoute> logger)
+			private readonly ILogger<ListRoutes> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<ListRoutes> logger)
 			{
 				_context = context;
 				_mapper = mapper;

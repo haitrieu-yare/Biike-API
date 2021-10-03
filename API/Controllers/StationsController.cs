@@ -8,7 +8,7 @@ using Domain.Enums;
 
 namespace API.Controllers
 {
-	[Authorize]
+	// [Authorize]
 	public class StationsController : BaseApiController
 	{
 		[HttpGet]
@@ -26,7 +26,7 @@ namespace API.Controllers
 				new DetailStation.Query { IsAdmin = isAdmin, StationId = stationId }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// [Authorized(RoleStatus.Admin)]
 		[HttpPost]
 		public async Task<IActionResult> CreateStation(StationCreateDTO stationCreateDTO, CancellationToken ct)
 		{
@@ -34,7 +34,7 @@ namespace API.Controllers
 				new CreateStation.Command { StationCreateDTO = stationCreateDTO }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// [Authorized(RoleStatus.Admin)]
 		[HttpPut("{stationId}")]
 		public async Task<IActionResult> EditStation(int stationId, StationDTO newStationDTO, CancellationToken ct)
 		{
@@ -42,7 +42,7 @@ namespace API.Controllers
 				new EditStation.Command { StationId = stationId, NewStationDTO = newStationDTO }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// [Authorized(RoleStatus.Admin)]
 		[HttpDelete("{stationId}")]
 		public async Task<IActionResult> DeleteStation(int stationId, CancellationToken ct)
 		{
