@@ -34,32 +34,42 @@ namespace Application.Users
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var users = await _context.User.ToListAsync();
-					if (users == null) return null!;
+
+					if (users.Count == 0)
+					{
+						_logger.LogInformation("Can't get user's uid to delete on Firerbase " +
+							"because there are no user in database.");
+						return Result<Unit>.Failure("Can't get user's uid to delete on Firerbase " +
+							"because there are no user in database.");
+					}
 
 					var listUserId = new List<string>();
+
 					foreach (var user in users)
 					{
-						listUserId.Add(user.Id.ToString());
+						listUserId.Add(user.UserId.ToString());
 					}
 
 					try
 					{
 						DeleteUsersResult result = await FirebaseAuth.DefaultInstance
-							.DeleteUsersAsync(listUserId);
+							.DeleteUsersAsync(listUserId, cancellationToken);
 					}
 					catch (FirebaseAuthException e)
 					{
-						_logger.LogError($"Error delete user: {e.Message}");
-						return Result<Unit>.Failure($"Error delete user: {e.Message}");
+						_logger.LogError("Error delete all users on Firebase. " +
+							$"{e.InnerException?.Message ?? e.Message}");
+						return Result<Unit>.Failure("Error delete all users on Firebase. " +
+							$"{e.InnerException?.Message ?? e.Message}");
 					}
 
-					_logger.LogInformation("Successfully deleted firebase's users");
-					return Result<Unit>.Success(Unit.Value, "Successfully deleted firebase's users");
+					_logger.LogInformation("Successfully deleted firebase's users.");
+					return Result<Unit>.Success(Unit.Value, "Successfully deleted firebase's users.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 			}
 		}

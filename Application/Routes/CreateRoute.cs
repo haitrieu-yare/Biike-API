@@ -25,9 +25,9 @@ namespace Application.Routes
 			private readonly ILogger<CreateRoute> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<CreateRoute> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -37,9 +37,11 @@ namespace Application.Routes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var newRoute = new Route();
+
 					_mapper.Map(request.RouteCreateDTO, newRoute);
 
 					await _context.Route.AddAsync(newRoute, cancellationToken);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
@@ -60,8 +62,8 @@ namespace Application.Routes
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

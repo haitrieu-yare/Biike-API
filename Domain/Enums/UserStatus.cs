@@ -4,6 +4,5 @@ namespace Domain.Enums
 	{
 		Deactive = 1,
 		Active,
-		Deleted,
 	}
 }

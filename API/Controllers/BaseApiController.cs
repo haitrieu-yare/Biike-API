@@ -1,7 +1,7 @@
-using Application.Core;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using MediatR;
+using Application.Core;
 
 namespace API.Controllers
 {
@@ -13,17 +13,23 @@ namespace API.Controllers
 		protected IMediator Mediator => _mediator ??= HttpContext.RequestServices
 			.GetService<IMediator>()!;
 
+		private string NotFoundMessage = "No records found.";
+
 		protected ActionResult HandleResult<T>(Result<T> result)
 		{
-			if (result == null) return NotFound();
+			if (result == null)
+				return NotFound(NotFoundMessage);
+
 			if (result.IsSuccess && result.Value != null)
 				return Ok(new
 				{
 					message = result.SuccessMessage,
 					data = result.Value,
 				});
+
 			if (result.IsSuccess && result.Value == null)
-				return NotFound();
+				return NotFound(NotFoundMessage);
+
 			return BadRequest(result.ErrorMessage);
 		}
 	}

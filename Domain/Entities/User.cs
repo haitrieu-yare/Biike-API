@@ -7,7 +7,7 @@ namespace Domain.Entities
 {
 	public class User
 	{
-		public int Id { get; set; }
+		public int UserId { get; set; }
 		public string PhoneNumber { get; set; } = string.Empty;
 		public string PasswordHash { get; set; } = "092021";
 		public string Email { get; set; } = string.Empty;
@@ -21,9 +21,10 @@ namespace Domain.Entities
 		public DateTime? LastTimeRefresh { get; set; }
 		public double Star { get; set; } = 4;
 		public int TotalPoint { get; set; } = 0;
+		public bool IsBikeVerified { get; set; } = false;
 		public DateTime? BirthDate { get; set; }
 		public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
-		public bool IsBikeVerified { get; set; } = false;
+		public bool IsDeleted { get; set; } = false;
 
 		[InverseProperty("Keer")]
 		public ICollection<Trip> KeerTrips { get; set; } = new List<Trip>();

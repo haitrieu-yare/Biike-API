@@ -11,7 +11,7 @@ namespace Persistence.Migrations
                 name: "AppUser",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PhoneNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -26,13 +26,14 @@ namespace Persistence.Migrations
                     LastTimeRefresh = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Star = table.Column<double>(type: "float", nullable: false),
                     TotalPoint = table.Column<int>(type: "int", nullable: false),
+                    IsBikeVerified = table.Column<bool>(type: "bit", nullable: false),
                     BirthDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsBikeVerified = table.Column<bool>(type: "bit", nullable: false)
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AppUser", x => x.Id);
+                    table.PrimaryKey("PK_AppUser", x => x.UserId);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,7 +84,7 @@ namespace Persistence.Migrations
                         name: "FK_Bike_AppUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AppUser",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -103,12 +104,12 @@ namespace Persistence.Migrations
                         name: "FK_Intimacy_AppUser_UserOneId",
                         column: x => x.UserOneId,
                         principalTable: "AppUser",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Intimacy_AppUser_UserTwoId",
                         column: x => x.UserTwoId,
                         principalTable: "AppUser",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -130,7 +131,7 @@ namespace Persistence.Migrations
                         name: "FK_Wallet_AppUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AppUser",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -265,12 +266,12 @@ namespace Persistence.Migrations
                         name: "FK_Trip_AppUser_BikerId",
                         column: x => x.BikerId,
                         principalTable: "AppUser",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Trip_AppUser_KeerId",
                         column: x => x.KeerId,
                         principalTable: "AppUser",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Trip_Route_RouteId",
                         column: x => x.RouteId,
@@ -296,7 +297,7 @@ namespace Persistence.Migrations
                         name: "FK_Feedback_AppUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AppUser",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Feedback_Trip_TripId",
                         column: x => x.TripId,

@@ -9,7 +9,7 @@ using AutoMapper.QueryableExtensions;
 using Persistence;
 using Application.Core;
 using Application.Stations.DTOs;
-using System.Collections.Generic;
+using Domain.Entities;
 
 namespace Application.Stations
 {
@@ -28,9 +28,9 @@ namespace Application.Stations
 			private readonly ILogger<DetailStation> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<DetailStation> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<StationDTO>> Handle(Query request, CancellationToken cancellationToken)
@@ -40,12 +40,13 @@ namespace Application.Stations
 					cancellationToken.ThrowIfCancellationRequested();
 
 					StationDTO station = new StationDTO();
+
 					if (request.IsAdmin)
 					{
-						station = await _context.Station
-							.Where(s => s.StationId == request.StationId)
-							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
-							.SingleOrDefaultAsync(cancellationToken);
+						Station stationDB = await _context.Station
+							.FindAsync(new object[] { request.StationId }, cancellationToken);
+
+						_mapper.Map(stationDB, station);
 					}
 					else
 					{
@@ -54,18 +55,19 @@ namespace Application.Stations
 							.Where(s => s.IsDeleted != true)
 							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
 							.SingleOrDefaultAsync(cancellationToken);
-						// Set to null to make this field excluded from response body.
+						// Set to null to make unnecessary fields excluded from response body.
+						station.CreatedDate = null;
 						station.IsDeleted = null;
 					}
 
-					_logger.LogInformation("Successfully retrieved station by stationId: " + request.StationId);
-					return Result<StationDTO>
-						.Success(station, "Successfully retrieved station by stationId: " + request.StationId);
+					_logger.LogInformation($"Successfully retrieved station by stationId {request.StationId}.");
+					return Result<StationDTO>.Success(
+						station, $"Successfully retrieved station by stationId {request.StationId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<StationDTO>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<StationDTO>.Failure("Request was cancelled.");
 				}
 			}
 		}

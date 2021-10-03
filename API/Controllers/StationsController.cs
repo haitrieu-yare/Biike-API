@@ -11,7 +11,6 @@ namespace API.Controllers
 	// [Authorize]
 	public class StationsController : BaseApiController
 	{
-		// User & Admin
 		[HttpGet]
 		public async Task<IActionResult> GetAllStations(CancellationToken ct)
 		{
@@ -19,7 +18,6 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new ListStations.Query { IsAdmin = isAdmin }, ct));
 		}
 
-		// User & Admin
 		[HttpGet("{stationId}")]
 		public async Task<IActionResult> GetStationByStationId(int stationId, CancellationToken ct)
 		{
@@ -28,7 +26,7 @@ namespace API.Controllers
 				new DetailStation.Query { IsAdmin = isAdmin, StationId = stationId }, ct));
 		}
 
-		// Admin
+		// [Authorized(RoleStatus.Admin)]
 		[HttpPost]
 		public async Task<IActionResult> CreateStation(StationCreateDTO stationCreateDTO, CancellationToken ct)
 		{
@@ -36,7 +34,7 @@ namespace API.Controllers
 				new CreateStation.Command { StationCreateDTO = stationCreateDTO }, ct));
 		}
 
-		// Admin
+		// [Authorized(RoleStatus.Admin)]
 		[HttpPut("{stationId}")]
 		public async Task<IActionResult> EditStation(int stationId, StationDTO newStationDTO, CancellationToken ct)
 		{
@@ -44,7 +42,7 @@ namespace API.Controllers
 				new EditStation.Command { StationId = stationId, NewStationDTO = newStationDTO }, ct));
 		}
 
-		// Admin
+		// [Authorized(RoleStatus.Admin)]
 		[HttpDelete("{stationId}")]
 		public async Task<IActionResult> DeleteStation(int stationId, CancellationToken ct)
 		{

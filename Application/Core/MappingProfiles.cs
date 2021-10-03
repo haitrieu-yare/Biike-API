@@ -86,27 +86,17 @@ namespace Application.Core
 
 			#region User
 			// List, Detail
-			CreateMap<User, UserInfoDTO>();
+			CreateMap<User, UserDTO>()
+				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
 			// Create
 			CreateMap<UserCreateDTO, User>()
 				.ForMember(u => u.PasswordHash, o => o.MapFrom(u => u.Password));
-			// Self Profile
-			CreateMap<User, UserSelfProfileDTO>()
-				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))
-				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
-				.ForMember(u => u.UserEmail, o => o.MapFrom(u => u.Email))
-				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
-				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
-			// Other user's profile
-			CreateMap<User, UserProfileDTO>()
-				.ForMember(u => u.UserId, o => o.MapFrom(u => u.Id))
-				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
-				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
-				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
-			// Edit
+			// Edit Profile
 			CreateMap<UserProfileEditDTO, User>()
-				.ForMember(u => u.Id, o => o.Ignore())
 				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname))
+				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+			// Edit LoginDevice
+			CreateMap<UserLoginDeviceDTO, User>()
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			#endregion
 
