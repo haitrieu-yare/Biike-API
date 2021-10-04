@@ -156,7 +156,7 @@ namespace Application.Core
 			#endregion
 
 			#region Bike
-			// Detail
+			// List, Detail
 			CreateMap<Bike, BikeDTO>()
 				.ForMember(b => b.NumberPlate, o => o.MapFrom(b => b.PlateNumber));
 			// Create
@@ -189,7 +189,7 @@ namespace Application.Core
 			#endregion
 
 			#region Voucher
-			// List
+			// List, Detail
 			CreateMap<Voucher, VoucherDTO>();
 			// Edit
 			CreateMap<VoucherEditDTO, Voucher>()

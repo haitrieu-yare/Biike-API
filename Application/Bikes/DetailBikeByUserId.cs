@@ -1,33 +1,34 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Bikes
 {
-	public class DetailBike
+	public class DetailBikeByUserId
 	{
 		public class Query : IRequest<Result<BikeDTO>>
 		{
 			public int UserId { get; set; }
+			public bool IsAdmin { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<BikeDTO>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<DetailBike> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<DetailBike> logger)
+			private readonly ILogger<DetailBikeByUserId> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<DetailBikeByUserId> logger)
 			{
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
 				_logger = logger;
 			}
 
@@ -42,13 +43,19 @@ namespace Application.Bikes
 						.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved bike");
-					return Result<BikeDTO>.Success(bike, "Successfully retrieved bike");
+					if (!request.IsAdmin)
+					{
+						// Set to null to make unnecessary fields excluded from response body.
+						bike.CreatedDate = null;
+					}
+
+					_logger.LogInformation($"Successfully retrieved bike by UserId {request.UserId}.");
+					return Result<BikeDTO>.Success(bike, $"Successfully retrieved bike by UserId {request.UserId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<BikeDTO>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<BikeDTO>.Failure("Request was cancelled.");
 				}
 			}
 		}

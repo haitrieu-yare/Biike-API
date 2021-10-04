@@ -1,13 +1,13 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Bikes
@@ -26,9 +26,9 @@ namespace Application.Bikes
 			private readonly ILogger<CreateBike> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<CreateBike> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -40,38 +40,41 @@ namespace Application.Bikes
 					var oldBike = await _context.Bike
 						.Where(b => b.UserId == request.BikeCreateDTO.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
+
 					if (oldBike != null)
 					{
-						_logger.LogInformation("Biker already has bike");
-						return Result<Unit>.Failure("Biker already has bike");
+						_logger.LogInformation("Biker already has bike.");
+						return Result<Unit>.Failure("Biker already has bike.");
 					}
 
-					var newBike = new Bike();
+					Bike newBike = new Bike();
+
 					_mapper.Map(request.BikeCreateDTO, newBike);
 
 					await _context.Bike.AddAsync(newBike, cancellationToken);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new bike");
-						return Result<Unit>.Failure("Failed to create new bike");
+						_logger.LogInformation("Failed to create new bike.");
+						return Result<Unit>.Failure("Failed to create new bike.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created Bike");
-						return Result<Unit>.Success(Unit.Value, "Successfully created Bike");
+						_logger.LogInformation("Successfully created new bike.");
+						return Result<Unit>.Success(Unit.Value, "Successfully created new bike.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

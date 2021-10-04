@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace Application.Bikes.DTOs
 {
@@ -9,6 +10,8 @@ namespace Application.Bikes.DTOs
 		public string? NumberPlate { get; set; }
 		public string? Color { get; set; }
 		public string? Brand { get; set; }
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public DateTime? CreatedDate { get; set; }
 	}
 }
