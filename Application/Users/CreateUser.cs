@@ -62,7 +62,7 @@ namespace Application.Users
 					string[] fullName = newUser.FullName.Split(" ");
 					fullName = fullName.TakeLast(2).ToArray();
 					string fullNameString = string.Join("+", fullName);
-					newUser.Avatar = $"https://ui-avatars.com/api/?name={fullNameString} " +
+					newUser.Avatar = $"https://ui-avatars.com/api/?name={fullNameString}" +
 						"&background=random&rounded=true&size=128";
 
 					// Hash password
