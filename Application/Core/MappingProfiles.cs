@@ -193,6 +193,7 @@ namespace Application.Core
 			CreateMap<Voucher, VoucherDTO>();
 			// Edit
 			CreateMap<VoucherEditDTO, Voucher>()
+				.ForMember(v => v.VoucherId, o => o.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
 			CreateMap<VoucherCreateDTO, Voucher>();

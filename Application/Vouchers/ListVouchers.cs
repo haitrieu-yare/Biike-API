@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Vouchers.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Vouchers
@@ -23,9 +23,9 @@ namespace Application.Vouchers
 			private readonly ILogger<ListVouchers> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<ListVouchers> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<VoucherDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -38,14 +38,13 @@ namespace Application.Vouchers
 						.ProjectTo<VoucherDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all vouchers");
-					return Result<List<VoucherDTO>>
-						.Success(vouchers, "Successfully retrieved list of all vouchers");
+					_logger.LogInformation("Successfully retrieved list of all vouchers.");
+					return Result<List<VoucherDTO>>.Success(vouchers, "Successfully retrieved list of all vouchers.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<VoucherDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<VoucherDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}
