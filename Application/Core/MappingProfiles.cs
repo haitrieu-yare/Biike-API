@@ -182,7 +182,8 @@ namespace Application.Core
 			CreateMap<VoucherCategory, VoucherCategoryDTO>();
 			// Edit
 			CreateMap<VoucherCategoryDTO, VoucherCategory>()
-				.ForMember(v => v.VoucherCategoryId, o => o.Ignore());
+				.ForMember(v => v.VoucherCategoryId, o => o.Ignore())
+				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
 			CreateMap<VoucherCategoryCreateDTO, VoucherCategory>();
 			#endregion
