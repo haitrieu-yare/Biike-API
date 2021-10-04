@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Persistence.Migrations
 {
-    public partial class Initial : Migration
+    public partial class DatabaseV20 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -282,6 +282,8 @@ namespace Persistence.Migrations
                 name: "Feedback",
                 columns: table => new
                 {
+                    FeedbackId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     TripId = table.Column<int>(type: "int", nullable: false),
                     FeedbackContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -291,7 +293,7 @@ namespace Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Feedback", x => new { x.UserId, x.TripId });
+                    table.PrimaryKey("PK_Feedback", x => x.FeedbackId);
                     table.ForeignKey(
                         name: "FK_Feedback_AppUser_UserId",
                         column: x => x.UserId,
@@ -357,6 +359,12 @@ namespace Persistence.Migrations
                 name: "IX_Feedback_TripId",
                 table: "Feedback",
                 column: "TripId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Feedback_UserId_TripId",
+                table: "Feedback",
+                columns: new[] { "UserId", "TripId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Intimacy_UserTwoId",

@@ -10,8 +10,8 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20211004080723_Initial")]
-    partial class Initial
+    [Migration("20211004141506_DatabaseV2.0")]
+    partial class DatabaseV20
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -80,11 +80,10 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Feedback", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TripId")
-                        .HasColumnType("int");
+                    b.Property<int>("FeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -100,9 +99,18 @@ namespace Persistence.Migrations
                     b.Property<int>("Star")
                         .HasColumnType("int");
 
-                    b.HasKey("UserId", "TripId");
+                    b.Property<int>("TripId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FeedbackId");
 
                     b.HasIndex("TripId");
+
+                    b.HasIndex("UserId", "TripId")
+                        .IsUnique();
 
                     b.ToTable("Feedback");
                 });

@@ -4,7 +4,7 @@ namespace Application.Trips.DTOs
 {
 	public class TripDetailDTO
 	{
-		public int? Id { get; set; }
+		public int? TripId { get; set; }
 		public int? KeerId { get; set; }
 		public int? BikerId { get; set; }
 		public int? RouteId { get; set; }

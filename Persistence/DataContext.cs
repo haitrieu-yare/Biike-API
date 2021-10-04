@@ -94,7 +94,10 @@ namespace Persistence
 			#endregion
 
 			#region Feedback
-			modelBuilder.Entity<Feedback>().HasKey(i => new { i.UserId, i.TripId });
+			modelBuilder.Entity<Feedback>().HasKey(i => i.FeedbackId);
+
+			modelBuilder.Entity<Feedback>()
+				.HasIndex(i => new { i.UserId, i.TripId }).IsUnique(); ;
 
 			modelBuilder.Entity<Feedback>()
 				.HasOne(f => f.Trip)

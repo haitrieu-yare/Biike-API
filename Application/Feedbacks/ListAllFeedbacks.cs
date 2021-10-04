@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Feedbacks.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Feedbacks
@@ -16,6 +16,7 @@ namespace Application.Feedbacks
 	{
 		public class Query : IRequest<Result<List<FeedbackDTO>>>
 		{
+			public bool IsAdmin { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<FeedbackDTO>>>
@@ -25,9 +26,9 @@ namespace Application.Feedbacks
 			private readonly ILogger<ListAllFeedbacks> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<ListAllFeedbacks> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<FeedbackDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -40,13 +41,19 @@ namespace Application.Feedbacks
 						.ProjectTo<FeedbackDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved all trip's feedbacks");
-					return Result<List<FeedbackDTO>>.Success(feedbacks, "Successfully retrieved all trip's feedbacks");
+					if (!request.IsAdmin)
+					{
+						// Set to null to make unnecessary fields excluded from response body.
+						feedbacks.ForEach(f => f.CreatedDate = null);
+					}
+
+					_logger.LogInformation("Successfully retrieved all trip's feedbacks.");
+					return Result<List<FeedbackDTO>>.Success(feedbacks, "Successfully retrieved all trip's feedbacks.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<FeedbackDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<FeedbackDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}

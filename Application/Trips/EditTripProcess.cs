@@ -83,7 +83,7 @@ namespace Application.Trips.DTOs
 						_logger.LogInformation("Successfully updated trip");
 
 						if (oldTrip.Status == (int)TripStatus.Finished)
-							return await _autoCreate.Run(oldTrip, 10, cancellationToken);
+							await _autoCreate.Run(oldTrip, 10, cancellationToken);
 
 						return Result<Unit>.Success(Unit.Value, "Successfully updated trip");
 					}

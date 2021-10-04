@@ -1,15 +1,22 @@
-using System;
-using Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Feedbacks.DTOs
 {
 	public class FeedbackCreateDTO
 	{
-		public int UserId { get; set; }
-		public int TripId { get; set; }
-		public string FeedbackContent { get; set; } = string.Empty;
-		public int TripStar { get; set; }
-		public string Criteria { get; set; } = string.Empty;
-		public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
+		[Required]
+		public int? UserId { get; set; }
+
+		[Required]
+		public int? TripId { get; set; }
+
+		[Required]
+		public string? FeedbackContent { get; set; } = string.Empty;
+
+		[Required]
+		public int? TripStar { get; set; }
+
+		[Required]
+		public string? Criteria { get; set; } = string.Empty;
 	}
 }
