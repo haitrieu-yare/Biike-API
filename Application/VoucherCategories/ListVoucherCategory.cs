@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.VoucherCategories.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.VoucherCategories
@@ -23,12 +23,13 @@ namespace Application.VoucherCategories
 			private readonly ILogger<ListVoucherCategory> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<ListVoucherCategory> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
-			public async Task<Result<List<VoucherCategoryDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<VoucherCategoryDTO>>> Handle(Query request,
+				CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -38,14 +39,14 @@ namespace Application.VoucherCategories
 						.ProjectTo<VoucherCategoryDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all voucher categories");
+					_logger.LogInformation("Successfully retrieved list of all voucher categories.");
 					return Result<List<VoucherCategoryDTO>>
-						.Success(voucherCategories, "Successfully retrieved list of all voucher categories");
+						.Success(voucherCategories, "Successfully retrieved list of all voucher categories.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<VoucherCategoryDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<VoucherCategoryDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}

@@ -1,11 +1,14 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.VoucherCategories;
 using Application.VoucherCategories.DTOs;
+using Domain.Enums;
 
 namespace API.Controllers
 {
+	[Authorize]
 	public class VoucherCategoriesController : BaseApiController
 	{
 		[HttpGet]
@@ -14,18 +17,41 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new ListVoucherCategory.Query(), ct));
 		}
 
+		[HttpGet("{voucherCategoryId}")]
+		public async Task<IActionResult> GetVoucherCategory(int voucherCategoryId, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new DetailVoucherCategory.Query { VoucherCategoryId = voucherCategoryId }, ct));
+		}
+
+		[Authorized(RoleStatus.Admin)]
 		[HttpPost]
-		public async Task<IActionResult> CreateVoucherCategory(VoucherCategoryCreateDTO voucherCategoryCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateVoucherCategory(
+			VoucherCategoryCreateDTO voucherCategoryCreateDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
 				new CreateVoucherCategory.Command { VoucherCategoryCreateDTO = voucherCategoryCreateDTO }, ct));
 		}
 
+		[Authorized(RoleStatus.Admin)]
 		[HttpPut("{voucherCategoryId}")]
-		public async Task<IActionResult> EditVoucherCategory(int voucherCategoryId, VoucherCategoryDTO newVoucherCategoryDTO, CancellationToken ct)
+		public async Task<IActionResult> EditVoucherCategory(
+			int voucherCategoryId, VoucherCategoryDTO newVoucherCategoryDTO, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new EditVoucherCategory.Command
-			{ VoucherCategoryId = voucherCategoryId, NewVoucherCategoryDTO = newVoucherCategoryDTO }, ct));
+			return HandleResult(await Mediator.Send(
+				new EditVoucherCategory.Command
+				{
+					VoucherCategoryId = voucherCategoryId,
+					NewVoucherCategoryDTO = newVoucherCategoryDTO
+				}, ct));
+		}
+
+		[Authorized(RoleStatus.Admin)]
+		[HttpDelete("{voucherCategoryId}")]
+		public async Task<IActionResult> DeleteVoucherCategory(int voucherCategoryId, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new DeleteVoucherCategory.Command { VoucherCategoryId = voucherCategoryId }, ct));
 		}
 	}
 }

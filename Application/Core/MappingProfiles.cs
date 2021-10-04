@@ -1,17 +1,17 @@
 using System;
-using AutoMapper;
+using Application.Bikes.DTOs;
+using Application.Feedbacks.DTOs;
+using Application.Intimacies.DTOs;
+using Application.Redemptions.DTOs;
 using Application.Routes.DTOs;
 using Application.Stations.DTOs;
-using Application.Users.DTOs;
-using Application.Intimacies.DTOs;
-using Application.Bikes.DTOs;
-using Application.Wallets.DTOs;
 using Application.Trips.DTOs;
 using Application.TripTransactions;
-using Application.Feedbacks.DTOs;
-using Application.Vouchers.DTOs;
+using Application.Users.DTOs;
 using Application.VoucherCategories.DTOs;
-using Application.Redemptions.DTOs;
+using Application.Vouchers.DTOs;
+using Application.Wallets.DTOs;
+using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
 
@@ -177,8 +177,8 @@ namespace Application.Core
 			CreateMap<IntimacyCreateEditDTO, Intimacy>();
 			#endregion
 
-			#region Voucher Category
-			// List
+			#region Voucher's Category
+			// List, Detail
 			CreateMap<VoucherCategory, VoucherCategoryDTO>();
 			// Edit
 			CreateMap<VoucherCategoryDTO, VoucherCategory>()

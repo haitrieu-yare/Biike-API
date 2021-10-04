@@ -1,21 +1,21 @@
 using System.IO;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Application;
+using Application.Core;
+using Application.Trips;
+using Application.TripTransactions;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using MediatR;
 using Persistence;
-using Application.Core;
-using Application.Trips;
-using Application.TripTransactions;
-using Application;
 
 namespace API
 {
@@ -108,7 +108,7 @@ namespace API
 
 			app.UseCors("CorsPolicy");
 
-			// app.UseAuthentication();
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
