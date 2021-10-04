@@ -23,9 +23,9 @@ namespace Application.Redemptions
 			private readonly ILogger<ListRedemption> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<ListRedemption> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<RedemptionDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -38,14 +38,14 @@ namespace Application.Redemptions
 						.ProjectTo<RedemptionDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all redemptions");
-					return Result<List<RedemptionDTO>>
-						.Success(redemptions, "Successfully retrieved list of all redemptions");
+					_logger.LogInformation("Successfully retrieved list of all redemptions.");
+					return Result<List<RedemptionDTO>>.Success(
+						redemptions, "Successfully retrieved list of all redemptions.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<RedemptionDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<RedemptionDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}

@@ -12,7 +12,7 @@ namespace Application.Redemptions
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int WalletId { get; set; }
+			public int RedemptionId { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -21,8 +21,8 @@ namespace Application.Redemptions
 			private readonly ILogger<EditUsageRedemption> _logger;
 			public Handler(DataContext context, ILogger<EditUsageRedemption> logger)
 			{
-				_logger = logger;
 				_context = context;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -32,7 +32,8 @@ namespace Application.Redemptions
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var redemption = await _context.Redemption
-						.FindAsync(new object[] { request.WalletId }, cancellationToken);
+						.FindAsync(new object[] { request.RedemptionId }, cancellationToken);
+
 					if (redemption == null) return null!;
 
 					redemption.IsUsed = !redemption.IsUsed;
@@ -41,24 +42,28 @@ namespace Application.Redemptions
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update redemption usage");
-						return Result<Unit>.Failure("Failed to update redemption usage");
+						_logger.LogInformation("Failed to update redemption usage " +
+							$"with RedemptionId {request.RedemptionId}.");
+						return Result<Unit>.Failure("Failed to update redemption usage " +
+							$"with RedemptionId {request.RedemptionId}.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated redemption usage");
-						return Result<Unit>.Success(Unit.Value, "Successfully updated redemption usage");
+						_logger.LogInformation("Successfully updated redemption usage " +
+							$"with RedemptionId {request.RedemptionId}.");
+						return Result<Unit>.Success(Unit.Value, "Successfully updated redemption usage " +
+							$"with RedemptionId {request.RedemptionId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

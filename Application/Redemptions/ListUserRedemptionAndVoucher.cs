@@ -28,8 +28,8 @@ namespace Application.Redemptions
 			private readonly ILogger<ListUserRedemption> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<ListUserRedemption> logger)
 			{
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
 				_logger = logger;
 			}
 
@@ -44,10 +44,11 @@ namespace Application.Redemptions
 						.Where(w => w.UserId == request.UserId)
 						.Where(w => w.Status != (int)WalletStatus.Expired)
 						.ToListAsync(cancellationToken);
+
 					if (wallets == null)
 					{
-						_logger.LogInformation("User doesn't have wallet");
-						return Result<List<RedemptionAndVoucherDTO>>.Failure("User doesn't have wallet");
+						_logger.LogInformation("User doesn't have wallet.");
+						return Result<List<RedemptionAndVoucherDTO>>.Failure("User doesn't have wallet.");
 					}
 
 					// Nếu user có 2 wallet thì query == wallets[0].Id || wallets[1].Id
@@ -59,14 +60,16 @@ namespace Application.Redemptions
 						.ProjectTo<RedemptionAndVoucherDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved redemptions and vouchers of userId: " + request.UserId);
-					return Result<List<RedemptionAndVoucherDTO>>
-						.Success(redemptions, "Successfully retrieved redemptions and vouchers of userId: " + request.UserId);
+					_logger.LogInformation("Successfully retrieved redemptions and " +
+						$"vouchers of userId {request.UserId}.");
+					return Result<List<RedemptionAndVoucherDTO>>.Success
+						(redemptions, "Successfully retrieved redemptions and " +
+						$"vouchers of userId {request.UserId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<RedemptionAndVoucherDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<RedemptionAndVoucherDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}
