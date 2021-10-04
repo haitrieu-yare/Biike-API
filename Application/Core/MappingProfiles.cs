@@ -6,7 +6,7 @@ using Application.Redemptions.DTOs;
 using Application.Routes.DTOs;
 using Application.Stations.DTOs;
 using Application.Trips.DTOs;
-using Application.TripTransactions;
+using Application.TripTransactions.DTOs;
 using Application.Users.DTOs;
 using Application.VoucherCategories.DTOs;
 using Application.Vouchers.DTOs;

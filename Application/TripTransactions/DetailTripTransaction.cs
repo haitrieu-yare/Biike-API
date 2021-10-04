@@ -1,9 +1,8 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Application.Core;
+using Application.TripTransactions.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -25,8 +24,8 @@ namespace Application.TripTransactions
 			private readonly ILogger<DetailTripTransaction> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<DetailTripTransaction> logger)
 			{
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
 				_logger = logger;
 			}
 
@@ -36,19 +35,23 @@ namespace Application.TripTransactions
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var TripTransaction = await _context.TripTransaction
-						.Where(t => t.TripTransactionId == request.TripTransactionId)
-						.ProjectTo<TripTransactionDTO>(_mapper.ConfigurationProvider)
-						.SingleOrDefaultAsync(cancellationToken);
+					var tripTransactionDB = await _context.TripTransaction
+						.FindAsync(new object[] { request.TripTransactionId }, cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved trip transaction based on transactionId");
-					return Result<TripTransactionDTO>
-						.Success(TripTransaction, "Successfully retrieved trip transaction based on transactionId");
+					TripTransactionDTO tripTransaction = new TripTransactionDTO();
+
+					_mapper.Map(tripTransactionDB, tripTransaction);
+
+					_logger.LogInformation("Successfully retrieved trip transaction " +
+						$"based on transactionId {request.TripTransactionId}.");
+					return Result<TripTransactionDTO>.Success(
+						tripTransaction, "Successfully retrieved trip transaction " +
+						$"based on transactionId {request.TripTransactionId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<TripTransactionDTO>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<TripTransactionDTO>.Failure("Request was cancelled.");
 				}
 			}
 		}

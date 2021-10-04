@@ -1,10 +1,12 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.TripTransactions;
 
 namespace API.Controllers
 {
+	[Authorize]
 	public class TripTransactionsController : BaseApiController
 	{
 		[HttpGet]

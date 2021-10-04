@@ -1,6 +1,6 @@
 using System;
 
-namespace Application.TripTransactions
+namespace Application.TripTransactions.DTOs
 {
 	public class TripTransactionDTO
 	{

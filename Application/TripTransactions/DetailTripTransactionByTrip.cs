@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Application.Core;
+using Application.TripTransactions.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -26,8 +27,8 @@ namespace Application.TripTransactions
 			private readonly ILogger<DetailTripTransactionByTrip> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<DetailTripTransactionByTrip> logger)
 			{
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
 				_logger = logger;
 			}
 
@@ -42,14 +43,16 @@ namespace Application.TripTransactions
 						.ProjectTo<TripTransactionDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved trip transaction based on tripId");
-					return Result<List<TripTransactionDTO>>
-						.Success(tripTransaction, "Successfully retrieved trip transaction based on tripId");
+					_logger.LogInformation("Successfully retrieved trip transaction " +
+						$"based on tripId {request.TripId}.");
+					return Result<List<TripTransactionDTO>>.Success(
+						tripTransaction, "Successfully retrieved trip transaction " +
+						$"based on tripId {request.TripId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripTransactionDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<TripTransactionDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}
