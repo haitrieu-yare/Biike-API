@@ -29,9 +29,9 @@ namespace Application.Trips
 			private readonly ILogger<HistoryPairList> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<HistoryPairList> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<TripPairDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -60,14 +60,14 @@ namespace Application.Trips
 
 					List<TripPairDTO> trips = pairTripsAsKeer.Concat(pairTripsAsBiker).ToList();
 
-					_logger.LogInformation("Successfully retrieved list of all history pair trip");
-					return Result<List<TripPairDTO>>
-						.Success(trips, "Successfully retrieved list of all history pair trip");
+					_logger.LogInformation("Successfully retrieved list of all history pair trip.");
+					return Result<List<TripPairDTO>>.Success(
+						trips, "Successfully retrieved list of all history pair trip.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripPairDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<TripPairDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}

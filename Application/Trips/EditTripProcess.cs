@@ -26,9 +26,9 @@ namespace Application.Trips.DTOs
 			public Handler(DataContext context, ILogger<EditTripProcess> logger,
 				AutoCreateTripTransaction autoCreate)
 			{
-				_logger = logger;
 				_context = context;
 				_autoCreate = autoCreate;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -39,18 +39,19 @@ namespace Application.Trips.DTOs
 
 					if (request.Time == null)
 					{
-						_logger.LogInformation("No parameters are received");
-						return Result<Unit>.Failure("No parameters are received");
+						_logger.LogInformation("No parameters Time received.");
+						return Result<Unit>.Failure("No parameters Time received.");
 					}
 
 					var oldTrip = await _context.Trip
 						.FindAsync(new object[] { request.TripId }, cancellationToken);
+
 					if (oldTrip == null) return null!;
 
 					if (oldTrip.BikerId == null)
 					{
-						_logger.LogInformation("Trip must has Biker before starting");
-						return Result<Unit>.Failure("Trip must has Biker before starting");
+						_logger.LogInformation("Trip must has Biker before starting.");
+						return Result<Unit>.Failure("Trip must has Biker before starting.");
 					}
 
 					switch (oldTrip.Status)
@@ -64,39 +65,39 @@ namespace Application.Trips.DTOs
 							oldTrip.Status = (int)TripStatus.Finished;
 							break;
 						case (int)TripStatus.Finished:
-							_logger.LogInformation("Trip has already finished");
-							return Result<Unit>.Failure("Trip has already finished");
+							_logger.LogInformation("Trip has already finished.");
+							return Result<Unit>.Failure("Trip has already finished.");
 						case (int)TripStatus.Cancelled:
-							_logger.LogInformation("Trip has already cancelled");
-							return Result<Unit>.Failure("Trip has already cancelled");
+							_logger.LogInformation("Trip has already cancelled.");
+							return Result<Unit>.Failure("Trip has already cancelled.");
 					}
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-					if (!result)
+					try
 					{
-						_logger.LogInformation("Failed to update trip");
-						return Result<Unit>.Failure("Failed to update trip");
-					}
-					else
-					{
-						_logger.LogInformation("Successfully updated trip");
-
 						if (oldTrip.Status == (int)TripStatus.Finished)
 							await _autoCreate.Run(oldTrip, 10, cancellationToken);
-
-						return Result<Unit>.Success(Unit.Value, "Successfully updated trip");
+						
+						_logger.LogInformation($"Successfully updated trip with TripId {request.TripId}.");
+						return Result<Unit>.Success(
+							Unit.Value, $"Successfully updated trip with TripId {request.TripId}.");
+					}
+					catch (System.Exception ex)
+					{
+						_logger.LogInformation($"Failed to update trip with TripId {request.TripId}." +
+							ex.InnerException?.Message ?? ex.Message);
+						return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}. " +
+							ex.InnerException?.Message ?? ex.Message);
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

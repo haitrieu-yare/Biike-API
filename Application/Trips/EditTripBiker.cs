@@ -23,8 +23,8 @@ namespace Application.Trips
 			private readonly ILogger<EditTripBiker> _logger;
 			public Handler(DataContext context, ILogger<EditTripBiker> logger)
 			{
-				_logger = logger;
 				_context = context;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -35,12 +35,13 @@ namespace Application.Trips
 
 					var oldTrip = await _context.Trip
 						.FindAsync(new object[] { request.TripId }, cancellationToken);
+
 					if (oldTrip == null) return null!;
 
 					if (request.BikerId == oldTrip.KeerId)
 					{
-						_logger.LogInformation("Biker and Keer can't be the same person");
-						return Result<Unit>.Failure("Biker and Keer can't be the same person");
+						_logger.LogInformation("Biker and Keer can't be the same person.");
+						return Result<Unit>.Failure("Biker and Keer can't be the same person.");
 					}
 
 					var biker = await _context.User
@@ -48,8 +49,8 @@ namespace Application.Trips
 
 					if (!biker.IsBikeVerified)
 					{
-						_logger.LogInformation("Biker doesn't have verified bike yet");
-						return Result<Unit>.Failure("Biker doesn't have verified bike yet");
+						_logger.LogInformation("Biker doesn't have verified bike yet.");
+						return Result<Unit>.Failure("Biker doesn't have verified bike yet.");
 					}
 
 					var bike = await _context.Bike
@@ -64,24 +65,25 @@ namespace Application.Trips
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update trip");
-						return Result<Unit>.Failure("Failed to update trip");
+						_logger.LogInformation($"Failed to update trip with TripId {request.TripId}.");
+						return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated trip");
-						return Result<Unit>.Success(Unit.Value, "Successfully updated trip");
+						_logger.LogInformation($"Successfully updated trip with TripId {request.TripId}.");
+						return Result<Unit>.Success(
+							Unit.Value, $"Successfully updated trip with TripId {request.TripId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

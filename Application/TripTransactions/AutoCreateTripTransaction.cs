@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,7 +59,7 @@ namespace Application.TripTransactions
 				if (!result)
 				{
 					_logger.LogInformation("Failed to create new trip transaction.");
-					return;
+					throw new Exception("Failed to create new trip transaction.");
 				}
 				else
 				{
@@ -68,12 +69,12 @@ namespace Application.TripTransactions
 			catch (System.Exception ex) when (ex is TaskCanceledException)
 			{
 				_logger.LogInformation("Request was cancelled.");
-				return;
+				throw ex;
 			}
 			catch (System.Exception ex) when (ex is DbUpdateException)
 			{
 				_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
-				return;
+				throw ex;
 			}
 		}
 	}

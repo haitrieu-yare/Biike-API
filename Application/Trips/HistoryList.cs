@@ -29,9 +29,9 @@ namespace Application.Trips
 			private readonly ILogger<HistoryList> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<HistoryList> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<TripDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -59,14 +59,13 @@ namespace Application.Trips
 						.OrderByDescending(t => t.TimeBook)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all history trip");
-					return Result<List<TripDTO>>
-						.Success(tripDTO, "Successfully retrieved list of all history trip");
+					_logger.LogInformation("Successfully retrieved list of all history trip.");
+					return Result<List<TripDTO>>.Success(tripDTO, "Successfully retrieved list of all history trip.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<TripDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}

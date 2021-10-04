@@ -25,9 +25,9 @@ namespace Application.Trips
 			private readonly IMapper _mapper;
 			public Handler(DataContext context, IMapper mapper, ILogger<CreateTrip> logger)
 			{
+				_context = context;
 				_mapper = mapper;
 				_logger = logger;
-				_context = context;
 			}
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
 			{
@@ -35,32 +35,35 @@ namespace Application.Trips
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newTrip = new Trip();
+					Trip newTrip = new Trip();
+
 					_mapper.Map(request.TripCreateDTO, newTrip);
 
 					await _context.Trip.AddAsync(newTrip, cancellationToken);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new trip");
-						return Result<Unit>.Failure("Failed to create new trip");
+						_logger.LogInformation("Failed to create new trip.");
+						return Result<Unit>.Failure("Failed to create new trip.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created trip");
-						return Result<Unit>.Success(Unit.Value, "Successfully created trip");
+						_logger.LogInformation("Successfully created trip.");
+						return Result<Unit>.Success(
+							Unit.Value, "Successfully created trip.", newTrip.TripId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

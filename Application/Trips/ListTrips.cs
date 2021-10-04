@@ -23,9 +23,9 @@ namespace Application.Trips
 			private readonly ILogger<ListTrips> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<ListTrips> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<TripDetailDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -38,14 +38,13 @@ namespace Application.Trips
 						.ProjectTo<TripDetailDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all trips");
-					return Result<List<TripDetailDTO>>
-						.Success(trips, "Successfully retrieved list of all trips");
+					_logger.LogInformation("Successfully retrieved list of all trips.");
+					return Result<List<TripDetailDTO>>.Success(trips, "Successfully retrieved list of all trips.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripDetailDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<TripDetailDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}
