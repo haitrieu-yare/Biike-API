@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Enums;
 
@@ -8,9 +9,14 @@ namespace Domain.Entities
 	public class User
 	{
 		public int UserId { get; set; }
+
+		[RegularExpression(@"^(\+84)([0-9]{9})$", ErrorMessage = "Invalid phone number.")]
 		public string PhoneNumber { get; set; } = string.Empty;
+
+		[EmailAddress]
+		public string Email { get; set; } = "thisisadefaultmail@gmail.com";
+
 		public string PasswordHash { get; set; } = "092021";
-		public string Email { get; set; } = string.Empty;
 		public int Role { get; set; } = (int)RoleStatus.Keer;
 		public string FullName { get; set; } = string.Empty;
 		public string Avatar { get; set; } = string.Empty;
