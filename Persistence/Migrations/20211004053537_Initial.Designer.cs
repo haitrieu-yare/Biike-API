@@ -10,7 +10,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20211002170632_Initial")]
+    [Migration("20211004053537_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -353,9 +353,6 @@ namespace Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("LastTimeLogin")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LastTimeRefresh")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")

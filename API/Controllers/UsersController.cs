@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -76,10 +77,26 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new EditStatus.Command { UserId = userId }, ct));
 		}
 
+		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpPut("{userId}/login-device")]
 		public async Task<IActionResult> EditUserLoginDevice(int userId,
 			UserLoginDeviceDTO userLoginDeviceDTO, CancellationToken ct)
 		{
+			var user = HttpContext.User;
+			var userAuthTimeClaim = user.FindFirst(c => c.Type.Equals("auth_time"));
+			string? authTimeString = userAuthTimeClaim?.Value;
+
+			if (string.IsNullOrEmpty(authTimeString))
+			{
+				return BadRequest("Can't get authentication time of the who send the request.");
+			}
+
+			int authTime = int.Parse(authTimeString);
+			DateTime BeginningTime = DateTime.UnixEpoch;
+			var currentTimeUTC7 = BeginningTime.AddSeconds(authTime).AddHours(7);
+
+			userLoginDeviceDTO.LastTimeLogin = currentTimeUTC7;
+
 			return HandleResult(await Mediator.Send(
 				new EditLoginDevice.Command { UserId = userId, UserLoginDeviceDTO = userLoginDeviceDTO }, ct));
 		}

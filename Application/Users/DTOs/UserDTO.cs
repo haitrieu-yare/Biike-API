@@ -23,9 +23,6 @@ namespace Application.Users.DTOs
 
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public DateTime? LastTimeLogin { get; set; }
-
-		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-		public DateTime? LastTimeRefresh { get; set; }
 		public double? UserStar { get; set; }
 
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

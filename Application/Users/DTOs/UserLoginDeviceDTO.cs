@@ -9,9 +9,6 @@ namespace Application.Users.DTOs
 	{
 		[Required]
 		public string? LastLoginDevice { get; set; }
-
-		[Required]
 		public DateTime? LastTimeLogin { get; set; }
-		public DateTime? LastTimeRefresh { get; set; }
 	}
 }

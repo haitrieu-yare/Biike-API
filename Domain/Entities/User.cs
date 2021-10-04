@@ -18,7 +18,6 @@ namespace Domain.Entities
 		public int Status { get; set; } = (int)UserStatus.Deactive;
 		public string? LastLoginDevice { get; set; }
 		public DateTime? LastTimeLogin { get; set; }
-		public DateTime? LastTimeRefresh { get; set; }
 		public double Star { get; set; } = 4;
 		public int TotalPoint { get; set; } = 0;
 		public bool IsBikeVerified { get; set; } = false;

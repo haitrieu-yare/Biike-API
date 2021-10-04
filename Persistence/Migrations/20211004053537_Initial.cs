@@ -23,7 +23,6 @@ namespace Persistence.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     LastLoginDevice = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastTimeLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastTimeRefresh = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Star = table.Column<double>(type: "float", nullable: false),
                     TotalPoint = table.Column<int>(type: "int", nullable: false),
                     IsBikeVerified = table.Column<bool>(type: "bit", nullable: false),

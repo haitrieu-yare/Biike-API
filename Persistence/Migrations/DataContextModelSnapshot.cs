@@ -353,9 +353,6 @@ namespace Persistence.Migrations
                     b.Property<DateTime?>("LastTimeLogin")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("LastTimeRefresh")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
