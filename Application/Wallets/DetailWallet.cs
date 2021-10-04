@@ -26,8 +26,8 @@ namespace Application.Wallets
 			private readonly ILogger<DetailWallet> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<DetailWallet> logger)
 			{
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
 				_logger = logger;
 			}
 
@@ -37,19 +37,21 @@ namespace Application.Wallets
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var wallet = await _context.Wallet
-						.Where(w => w.WalletId == request.WalletId)
-						.ProjectTo<WalletDTO>(_mapper.ConfigurationProvider)
-						.SingleOrDefaultAsync(cancellationToken);
+					var walletDB = await _context.Wallet
+						.FindAsync(new object[] { request.WalletId }, cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved wallet by walletId: " + request.WalletId);
-					return Result<WalletDTO>
-						.Success(wallet, "Successfully retrieved wallet by walletId: " + request.WalletId);
+					WalletDTO wallet = new WalletDTO();
+
+					_mapper.Map(walletDB, wallet);
+
+					_logger.LogInformation($"Successfully retrieved wallet by walletId {request.WalletId}.");
+					return Result<WalletDTO>.Success(
+						wallet, $"Successfully retrieved wallet by walletId {request.WalletId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<WalletDTO>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<WalletDTO>.Failure("Request was cancelled.");
 				}
 			}
 		}

@@ -23,9 +23,9 @@ namespace Application.Wallets
 			private readonly ILogger<ListWallets> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<ListWallets> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<WalletDTO>>> Handle(Query request, CancellationToken cancellationToken)
@@ -38,14 +38,13 @@ namespace Application.Wallets
 						.ProjectTo<WalletDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all wallets");
-					return Result<List<WalletDTO>>
-						.Success(wallets, "Successfully retrieved list of all wallets");
+					_logger.LogInformation("Successfully retrieved list of all wallets.");
+					return Result<List<WalletDTO>>.Success(wallets, "Successfully retrieved list of all wallets.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<WalletDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<WalletDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}

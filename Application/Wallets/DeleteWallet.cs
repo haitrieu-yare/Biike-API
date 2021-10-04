@@ -22,8 +22,8 @@ namespace Application.Wallets
 			private readonly ILogger<DeleteWallet> _logger;
 			public Handler(DataContext context, ILogger<DeleteWallet> logger)
 			{
-				_logger = logger;
 				_context = context;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -33,34 +33,35 @@ namespace Application.Wallets
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var wallet = await _context.Wallet
-						.Where(w => w.WalletId == request.WalletId)
-						.SingleOrDefaultAsync(cancellationToken);
+						.FindAsync(new object[] { request.WalletId }, cancellationToken);
+
 					if (wallet == null) return null!;
 
 					_context.Wallet.Remove(wallet);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to delete wallet by walletId: " + request.WalletId);
-						return Result<Unit>.Failure("Failed to delete wallet by walletId: " + request.WalletId);
+						_logger.LogInformation($"Failed to delete wallet by walletId {request.WalletId}.");
+						return Result<Unit>.Failure($"Failed to delete wallet by walletId {request.WalletId}.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully deleted wallet by walletId: " + request.WalletId);
-						return Result<Unit>
-							.Success(Unit.Value, "Successfully deleted wallet by walletId: " + request.WalletId);
+						_logger.LogInformation($"Successfully deleted wallet by walletId {request.WalletId}.");
+						return Result<Unit>.Success(
+							Unit.Value, $"Successfully deleted wallet by walletId {request.WalletId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

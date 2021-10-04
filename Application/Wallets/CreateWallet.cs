@@ -25,9 +25,9 @@ namespace Application.Wallets
 			private readonly ILogger<CreateWallet> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<CreateWallet> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -36,33 +36,35 @@ namespace Application.Wallets
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newWallet = new Wallet();
+					Wallet newWallet = new Wallet();
+
 					_mapper.Map(request.WalletCreateDTO, newWallet);
 
 					await _context.Wallet.AddAsync(newWallet, cancellationToken);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new wallet");
-						return Result<Unit>.Failure("Failed to create new wallet");
+						_logger.LogInformation("Failed to create new wallet.");
+						return Result<Unit>.Failure("Failed to create new wallet.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created wallet");
-						return Result<Unit>
-							.Success(Unit.Value, "Successfully created wallet");
+						_logger.LogInformation("Successfully created wallet.");
+						return Result<Unit>.Success(
+							Unit.Value, "Successfully created wallet.", newWallet.WalletId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

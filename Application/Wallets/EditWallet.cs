@@ -25,9 +25,9 @@ namespace Application.Wallets
 			private readonly ILogger<EditWallet> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<EditWallet> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -38,32 +38,34 @@ namespace Application.Wallets
 
 					var oldWallet = await _context.Wallet
 						.FindAsync(new object[] { request.WalletId }, cancellationToken);
+
 					if (oldWallet == null) return null!;
 
 					_mapper.Map(request.NewWalletDTO, oldWallet);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update wallet by walletId: " + request.WalletId);
-						return Result<Unit>.Failure("Failed to update wallet by walletId: " + request.WalletId);
+						_logger.LogInformation($"Failed to update wallet by walletId {request.WalletId}.");
+						return Result<Unit>.Failure($"Failed to update wallet by walletId {request.WalletId}.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated wallet by walletId: " + request.WalletId);
-						return Result<Unit>
-							.Success(Unit.Value, "Successfully updated wallet by walletId: " + request.WalletId);
+						_logger.LogInformation($"Successfully updated wallet by walletId {request.WalletId}.");
+						return Result<Unit>.Success(
+							Unit.Value, $"Successfully updated wallet by walletId {request.WalletId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}
