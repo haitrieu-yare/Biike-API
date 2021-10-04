@@ -25,9 +25,9 @@ namespace Application.Intimacies
 			private readonly ILogger<CreateIntimacy> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<CreateIntimacy> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -36,21 +36,37 @@ namespace Application.Intimacies
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var newIntimacy = new Intimacy();
+					var oldIntimacy = await _context.Intimacy
+						.FindAsync(new object[]
+						{
+							request.IntimacyCreateEditDTO.UserOneId!,
+							request.IntimacyCreateEditDTO.UserTwoId!
+						}, cancellationToken);
+
+					if (oldIntimacy != null)
+					{
+						_logger.LogInformation("Intimacy has already existed.");
+						return Result<Unit>.Failure("Intimacy has already existed.");
+					}
+
+					Intimacy newIntimacy = new Intimacy();
+
 					_mapper.Map(request.IntimacyCreateEditDTO, newIntimacy);
 
 					await _context.Intimacy.AddAsync(newIntimacy, cancellationToken);
+
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new intimacy");
-						return Result<Unit>.Failure("Failed to create new intimacy");
+						_logger.LogInformation("Failed to create new intimacy.");
+						return Result<Unit>.Failure("Failed to create new intimacy.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created intimacy");
-						return Result<Unit>.Success(Unit.Value, "Successfully created intimacy");
+						_logger.LogInformation("Successfully created intimacy.");
+						return Result<Unit>.Success(
+							Unit.Value, "Successfully created intimacy.", newIntimacy.UserOneId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
@@ -60,8 +76,8 @@ namespace Application.Intimacies
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

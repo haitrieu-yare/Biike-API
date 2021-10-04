@@ -23,8 +23,8 @@ namespace Application.Intimacies
 			private readonly ILogger<EditIntimacy> _logger;
 			public Handler(DataContext context, ILogger<EditIntimacy> logger)
 			{
-				_logger = logger;
 				_context = context;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -39,6 +39,7 @@ namespace Application.Intimacies
 							request.IntimacyCreateEditDTO.UserOneId!,
 							request.IntimacyCreateEditDTO.UserTwoId!
 						}, cancellationToken);
+
 					if (oldIntimacy == null) return null!;
 
 					if (oldIntimacy.IsBlock)
@@ -56,24 +57,32 @@ namespace Application.Intimacies
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update route");
-						return Result<Unit>.Failure("Failed to update route");
+						_logger.LogInformation("Failed to update intimacy of " +
+							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
+							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
+						return Result<Unit>.Failure("Failed to update intimacy of " +
+							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
+							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated route");
-						return Result<Unit>.Success(Unit.Value, "Successfully updated route");
+						_logger.LogInformation("Successfully updated intimacy of " +
+							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
+							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
+						return Result<Unit>.Success(Unit.Value, "Successfully updated intimacy of " +
+							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
+							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.Message);
-					return Result<Unit>.Failure(ex.Message);
+					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
 		}

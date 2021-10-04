@@ -63,7 +63,8 @@ namespace Application.Bikes
 					else
 					{
 						_logger.LogInformation("Successfully created new bike.");
-						return Result<Unit>.Success(Unit.Value, "Successfully created new bike.", newBike.BikeId.ToString());
+						return Result<Unit>.Success(
+							Unit.Value, "Successfully created new bike.", newBike.BikeId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

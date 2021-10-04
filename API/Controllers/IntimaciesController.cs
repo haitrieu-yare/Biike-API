@@ -1,11 +1,13 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Intimacies;
 using Application.Intimacies.DTOs;
 
 namespace API.Controllers
 {
+	[Authorize]
 	public class IntimaciesController : BaseApiController
 	{
 		[HttpGet]

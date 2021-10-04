@@ -27,8 +27,8 @@ namespace Application.Intimacies
 			private readonly ILogger<DetailIntimacy> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<DetailIntimacy> logger)
 			{
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
 				_logger = logger;
 			}
 
@@ -43,13 +43,15 @@ namespace Application.Intimacies
 						.ProjectTo<IntimacyDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of user intimacies");
-					return Result<List<IntimacyDTO>>.Success(intimacies, "Successfully retrieved list of user intimacies");
+					_logger.LogInformation("Successfully retrieved list of user intimacies " +
+						$"by UserId {request.UserOneId}.");
+					return Result<List<IntimacyDTO>>.Success(intimacies, "Successfully retrieved list of " +
+						$"user intimacies by UserId {request.UserOneId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<IntimacyDTO>>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<IntimacyDTO>>.Failure("Request was cancelled.");
 				}
 			}
 		}
