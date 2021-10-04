@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.TripTransactions;
 using Microsoft.AspNetCore.Mvc;
+using Application.TripTransactions;
 
 namespace API.Controllers
 {

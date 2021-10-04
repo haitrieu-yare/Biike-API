@@ -2,11 +2,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MediatR;
-using AutoMapper;
-using Persistence;
 using Application.Core;
 using Application.Routes.DTOs;
+using AutoMapper;
+using MediatR;
+using Persistence;
 
 namespace Application.Routes
 {

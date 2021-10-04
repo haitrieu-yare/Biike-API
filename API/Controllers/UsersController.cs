@@ -1,25 +1,25 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Application.Users;
 using Application.Users.DTOs;
 using Domain.Enums;
 
 namespace API.Controllers
 {
-	// [Authorize]
+	[Authorize]
 	public class UsersController : BaseApiController
 	{
-		// [Authorized(RoleStatus.Admin)]
+		[Authorized(RoleStatus.Admin)]
 		[HttpGet]
 		public async Task<IActionResult> GetAllUser(CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new ListAllUsers.Query(), ct));
 		}
 
-		// [Authorized(RoleStatus.Keer, RoleStatus.Biker)]
+		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpGet("{userId}/profile")]
 		public async Task<IActionResult> GetUserSelfProfile(int userId, CancellationToken ct)
 		{
@@ -70,7 +70,7 @@ namespace API.Controllers
 				new EditProfile.Command { UserId = userId, UserProfileEditDTO = userProfileEditDTO }, ct));
 		}
 
-		// [Authorized(RoleStatus.Admin)]
+		[Authorized(RoleStatus.Admin)]
 		[HttpPut("{userId}")]
 		public async Task<IActionResult> EditUserStatus(int userId, CancellationToken ct)
 		{
@@ -101,14 +101,14 @@ namespace API.Controllers
 				new EditLoginDevice.Command { UserId = userId, UserLoginDeviceDTO = userLoginDeviceDTO }, ct));
 		}
 
-		// [Authorized(RoleStatus.Admin)]
+		[Authorized(RoleStatus.Admin)]
 		[HttpDelete("{userId}")]
 		public async Task<IActionResult> DeleteUser(int userId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new DeleteUser.Command { UserId = userId }, ct));
 		}
 
-		// [Authorized(RoleStatus.Admin)]
+		[Authorized(RoleStatus.Admin)]
 		[HttpDelete("deleteFirebase")]
 		public async Task<IActionResult> DeleteAllFirebaseUsers(CancellationToken ct)
 		{

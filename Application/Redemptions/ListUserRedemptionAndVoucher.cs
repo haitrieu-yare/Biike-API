@@ -1,16 +1,16 @@
-using System.Threading;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using MediatR;
 using Application.Core;
 using Application.Redemptions.DTOs;
-using Persistence;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Domain.Enums;
+using MediatR;
+using Persistence;
 
 namespace Application.Redemptions
 {

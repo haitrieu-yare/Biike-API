@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Application.Trips;
 using Application.Trips.DTOs;
-using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {

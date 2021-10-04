@@ -1,16 +1,16 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MediatR;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Persistence;
 using Application.Core;
 using Application.Users.DTOs;
-using Domain.Enums;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Domain.Entities;
+using Domain.Enums;
+using MediatR;
+using Persistence;
 
 namespace Application.Users
 {

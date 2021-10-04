@@ -1,12 +1,12 @@
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Domain.Enums;
 using FirebaseAdmin.Auth;
 using FirebaseAdmin.Auth.Hash;
 using Persistence;
-using Domain.Enums;
 
 namespace API
 {

@@ -2,11 +2,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Application.Core;
+using Domain.Enums;
 using FirebaseAdmin.Auth;
 using MediatR;
 using Persistence;
-using Application.Core;
-using Domain.Enums;
 
 namespace Application.Users
 {

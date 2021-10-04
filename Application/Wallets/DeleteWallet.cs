@@ -1,11 +1,11 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Application.Core;
 using MediatR;
 using Persistence;
-using Application.Core;
 
 namespace Application.Wallets
 {

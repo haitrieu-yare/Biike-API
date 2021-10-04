@@ -12,8 +12,8 @@ namespace Application
 		private readonly ILogger<Hashing> _logger;
 		public Hashing(DataContext context, ILogger<Hashing> logger)
 		{
-			_logger = logger;
 			_context = context;
+			_logger = logger;
 		}
 
 		public async Task CreatePasswordForUsers()
@@ -21,6 +21,7 @@ namespace Application
 			try
 			{
 				var usersFromDB = await _context.User.ToListAsync();
+
 				if (usersFromDB.Count == 0) return;
 
 				foreach (var user in usersFromDB)
@@ -30,14 +31,15 @@ namespace Application
 				}
 
 				var result = await _context.SaveChangesAsync() > 0;
+
 				if (!result)
 				{
-					throw new Exception("Failed to create hashed password for users");
+					throw new Exception("Failed to create hashed password for users.");
 				}
 			}
 			catch (System.Exception ex)
 			{
-				_logger.LogError(ex.Message);
+				_logger.LogError(ex.InnerException?.Message ?? ex.Message);
 			}
 		}
 

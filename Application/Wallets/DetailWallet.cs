@@ -1,14 +1,14 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MediatR;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Persistence;
 using Application.Core;
 using Application.Wallets.DTOs;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using MediatR;
+using Persistence;
 
 namespace Application.Wallets
 {

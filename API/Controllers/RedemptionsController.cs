@@ -1,8 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Application.Redemptions;
 using Application.Redemptions.DTOs;
-using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {

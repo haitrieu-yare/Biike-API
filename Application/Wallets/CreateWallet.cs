@@ -2,12 +2,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MediatR;
-using AutoMapper;
-using Persistence;
 using Application.Core;
 using Application.Wallets.DTOs;
+using AutoMapper;
 using Domain.Entities;
+using MediatR;
+using Persistence;
 
 namespace Application.Wallets
 {

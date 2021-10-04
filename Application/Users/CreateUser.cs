@@ -1,17 +1,17 @@
-using System.Threading;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MediatR;
-using AutoMapper;
-using FirebaseAdmin.Auth;
-using Persistence;
 using Application.Core;
 using Application.Users.DTOs;
+using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
+using FirebaseAdmin.Auth;
+using MediatR;
+using Persistence;
 
 namespace Application.Users
 {

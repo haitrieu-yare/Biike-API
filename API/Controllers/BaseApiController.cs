@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using MediatR;
 using Application.Core;
+using MediatR;
 
 namespace API.Controllers
 {

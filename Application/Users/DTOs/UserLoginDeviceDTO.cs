@@ -1,7 +1,5 @@
-
 using System;
 using System.ComponentModel.DataAnnotations;
-using Domain;
 
 namespace Application.Users.DTOs
 {

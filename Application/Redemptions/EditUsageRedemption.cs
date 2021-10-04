@@ -1,9 +1,9 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Core;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Application.Core;
+using MediatR;
 using Persistence;
 
 namespace Application.Redemptions
