@@ -26,55 +26,42 @@ namespace Application.TripTransactions
 
 		public async Task Run(Trip trip, int newPoint, CancellationToken cancellationToken)
 		{
-			try
+			cancellationToken.ThrowIfCancellationRequested();
+
+			var tripTransaction = new TripTransaction
 			{
-				cancellationToken.ThrowIfCancellationRequested();
+				TripId = trip.TripId,
+				TransactionDate = CurrentTime.GetCurrentTime(),
+			};
 
-				var tripTransaction = new TripTransaction
-				{
-					TripId = trip.TripId,
-					TransactionDate = CurrentTime.GetCurrentTime(),
-				};
+			var wallet = await _context.Wallet
+				.Where(w => w.UserId == trip.BikerId)
+				.Where(w => w.Status == (int)WalletStatus.Current)
+				.SingleOrDefaultAsync(cancellationToken);
 
-				var wallet = await _context.Wallet
-					.Where(w => w.UserId == trip.BikerId)
-					.Where(w => w.Status == (int)WalletStatus.Current)
-					.SingleOrDefaultAsync(cancellationToken);
+			tripTransaction.WalletId = wallet.WalletId;
+			tripTransaction.AmountOfPoint = newPoint;
+			wallet.Point += newPoint;
 
-				tripTransaction.WalletId = wallet.WalletId;
-				tripTransaction.AmountOfPoint = newPoint;
-				wallet.Point += newPoint;
+			var user = await _context.User
+				.Where(u => u.UserId == wallet.UserId)
+				.SingleOrDefaultAsync(cancellationToken);
 
-				var user = await _context.User
-					.Where(u => u.UserId == wallet.UserId)
-					.SingleOrDefaultAsync(cancellationToken);
+			user.TotalPoint += newPoint;
 
-				user.TotalPoint += newPoint;
+			await _context.TripTransaction.AddAsync(tripTransaction, cancellationToken);
 
-				await _context.TripTransaction.AddAsync(tripTransaction, cancellationToken);
+			// Save change to feedback, tripTransaction, wallet, user table
+			var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
-				// Save change to feedback, tripTransaction, wallet, user table
-				var result = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-				if (!result)
-				{
-					_logger.LogInformation("Failed to create new trip transaction.");
-					throw new Exception("Failed to create new trip transaction.");
-				}
-				else
-				{
-					_logger.LogInformation("Successfully created trip transaction.");
-				}
+			if (!result)
+			{
+				_logger.LogInformation("Failed to create new trip transaction.");
+				throw new Exception("Failed to create new trip transaction.");
 			}
-			catch (System.Exception ex) when (ex is TaskCanceledException)
+			else
 			{
-				_logger.LogInformation("Request was cancelled.");
-				throw ex;
-			}
-			catch (System.Exception ex) when (ex is DbUpdateException)
-			{
-				_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
-				throw ex;
+				_logger.LogInformation("Successfully created trip transaction.");
 			}
 		}
 	}
