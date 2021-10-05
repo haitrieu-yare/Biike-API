@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,8 @@ namespace Application.Bikes
 		public class Query : IRequest<Result<List<BikeDTO>>>
 		{
 			public bool IsAdmin { get; set; }
+			public int Page { get; set; }
+			public int Limit { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<BikeDTO>>>
@@ -38,8 +41,13 @@ namespace Application.Bikes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var bikes = await _context.Bike
+						.OrderBy(b => b.BikeId)
+						.Skip((request.Page - 1) * request.Limit)
+						.Take(request.Limit)
 						.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
+
+					var totalRecord = await _context.Bike.CountAsync();
 
 					if (!request.IsAdmin)
 					{
@@ -47,8 +55,13 @@ namespace Application.Bikes
 						bikes.ForEach(b => b.CreatedDate = null);
 					}
 
+					PaginationDTO paginationDTO = new PaginationDTO(
+						request.Page, request.Limit, bikes.Count, totalRecord
+					);
+
 					_logger.LogInformation("Successfully retrieved list of all bikes.");
-					return Result<List<BikeDTO>>.Success(bikes, "Successfully retrieved list of all bikes.");
+					return Result<List<BikeDTO>>.Success(
+						bikes, "Successfully retrieved list of all bikes.", paginationDTO);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
