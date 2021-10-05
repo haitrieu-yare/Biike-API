@@ -52,7 +52,8 @@ namespace Application.Stations
 					else
 					{
 						_logger.LogInformation("Successfully created new station.");
-						return Result<Unit>.Success(Unit.Value, "Successfully created new station.");
+						return Result<Unit>.Success(
+							Unit.Value, "Successfully created new station.", newStation.StationId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

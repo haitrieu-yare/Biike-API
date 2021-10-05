@@ -46,19 +46,20 @@ namespace Application.Routes
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new route");
-						return Result<Unit>.Failure("Failed to create new route");
+						_logger.LogInformation("Failed to create new route.");
+						return Result<Unit>.Failure("Failed to create new route.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created route");
-						return Result<Unit>.Success(Unit.Value, "Successfully created route");
+						_logger.LogInformation("Successfully created route.");
+						return Result<Unit>.Success(
+							Unit.Value, "Successfully created route.", newRoute.RouteId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					_logger.LogInformation("Request was cancelled.");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{

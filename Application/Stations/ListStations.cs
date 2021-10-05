@@ -27,9 +27,9 @@ namespace Application.Stations
 			private readonly ILogger<ListStations> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<ListStations> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<List<StationDTO>>> Handle(Query request, CancellationToken cancellationToken)

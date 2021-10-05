@@ -25,9 +25,9 @@ namespace Application.Vouchers
 			private readonly ILogger<EditVoucher> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<EditVoucher> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)

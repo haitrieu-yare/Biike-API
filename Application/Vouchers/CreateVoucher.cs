@@ -60,7 +60,8 @@ namespace Application.Vouchers
 					else
 					{
 						_logger.LogInformation("Successfully created new voucher.");
-						return Result<Unit>.Success(Unit.Value, "Successfully created new voucher.");
+						return Result<Unit>.Success(
+							Unit.Value, "Successfully created new voucher.", newVoucher.VoucherId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

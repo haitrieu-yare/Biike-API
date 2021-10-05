@@ -52,7 +52,9 @@ namespace Application.VoucherCategories
 					else
 					{
 						_logger.LogInformation("Successfully created voucher's category.");
-						return Result<Unit>.Success(Unit.Value, "Successfully created voucher's category.");
+						return Result<Unit>.Success(
+							Unit.Value, "Successfully created voucher's category.", 
+							newVoucherCategory.VoucherCategoryId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

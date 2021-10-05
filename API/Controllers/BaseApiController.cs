@@ -10,11 +10,8 @@ namespace API.Controllers
 	public class BaseApiController : ControllerBase
 	{
 		private IMediator? _mediator;
-		protected IMediator Mediator => _mediator ??= HttpContext.RequestServices
-			.GetService<IMediator>()!;
+		protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetService<IMediator>()!;
 		private const string NotFoundMessage = "No records found.";
-		// private string baseURL = $"{context.Request.Scheme}://{context.Request.Host}{context.Request.Path}";
-
 		protected ActionResult HandleResult<T>(Result<T> result)
 		{
 			string baseURL = $"{Request.Scheme}://{Request.Host}{Request.Path}";

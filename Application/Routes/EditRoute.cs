@@ -25,9 +25,9 @@ namespace Application.Routes
 			private readonly ILogger<EditRoute> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<EditRoute> logger)
 			{
-				_logger = logger;
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
+				_logger = logger;
 			}
 
 			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)

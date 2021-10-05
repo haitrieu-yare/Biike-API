@@ -118,7 +118,8 @@ namespace Application.Users
 						}
 
 						_logger.LogInformation("Successfully created user.");
-						return Result<Unit>.Success(Unit.Value, "Successfully created user.");
+						return Result<Unit>.Success(
+							Unit.Value, "Successfully created user.", newUser.UserId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

@@ -28,8 +28,8 @@ namespace Application.Routes
 			private readonly ILogger<DetailRoute> _logger;
 			public Handler(DataContext context, IMapper mapper, ILogger<DetailRoute> logger)
 			{
-				_mapper = mapper;
 				_context = context;
+				_mapper = mapper;
 				_logger = logger;
 			}
 
