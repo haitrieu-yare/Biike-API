@@ -40,23 +40,38 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var bikes = await _context.Bike
-						.OrderBy(b => b.BikeId)
-						.Skip((request.Page - 1) * request.Limit)
-						.Take(request.Limit)
-						.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
-						.ToListAsync(cancellationToken);
+					if (request.Page <= 0)
+					{
+						_logger.LogInformation("Page must larger than 0.");
+						return Result<List<BikeDTO>>.Failure("Page must larger than 0.");
+					}
 
 					var totalRecord = await _context.Bike.CountAsync();
 
-					if (!request.IsAdmin)
+					#region Calculate last page
+					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+					#endregion
+
+					List<BikeDTO> bikes = new List<BikeDTO>();
+
+					if (request.Page <= lastPage)
 					{
-						// Set to null to make unnecessary fields excluded from response body.
-						bikes.ForEach(b => b.CreatedDate = null);
+						bikes = await _context.Bike
+							.OrderBy(b => b.BikeId)
+							.Skip((request.Page - 1) * request.Limit)
+							.Take(request.Limit)
+							.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
+							.ToListAsync(cancellationToken);
+
+						if (!request.IsAdmin)
+						{
+							// Set to null to make unnecessary fields excluded from response body.
+							bikes.ForEach(b => b.CreatedDate = null);
+						}
 					}
 
 					PaginationDTO paginationDTO = new PaginationDTO(
-						request.Page, request.Limit, bikes.Count, totalRecord
+						request.Page, request.Limit, bikes.Count, lastPage, totalRecord
 					);
 
 					_logger.LogInformation("Successfully retrieved list of all bikes.");

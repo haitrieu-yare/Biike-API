@@ -38,11 +38,6 @@ namespace API.Controllers
 				}
 				else if (result.PaginationDTO != null)
 				{
-					int remain = result.PaginationDTO.TotalRecord % result.PaginationDTO.Limit;
-					int lastPage = (result.PaginationDTO.TotalRecord - remain) / result.PaginationDTO.Limit;
-
-					if (remain > 0) lastPage++;
-
 					List<object> link = new List<object>
 					{
 						new
@@ -56,12 +51,13 @@ namespace API.Controllers
 							rel = "first",
 						},
 						new {
-							href = $"/{controllerName}?page={lastPage}&limit={result.PaginationDTO.Limit}",
+							href = $"/{controllerName}?page={result.PaginationDTO.LastPage}" +
+								$"&limit={result.PaginationDTO.Limit}",
 							rel = "last",
 						}
 					};
 
-					if (result.PaginationDTO.Page > 1)
+					if (result.PaginationDTO.Page > 1 && result.PaginationDTO.Page <= result.PaginationDTO.LastPage)
 					{
 						link.Add(new
 						{
@@ -71,7 +67,7 @@ namespace API.Controllers
 						});
 					}
 
-					if (result.PaginationDTO.Page < lastPage)
+					if (result.PaginationDTO.Page >= 1 && result.PaginationDTO.Page < result.PaginationDTO.LastPage)
 					{
 						link.Add(new
 						{
