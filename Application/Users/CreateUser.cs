@@ -68,10 +68,6 @@ namespace Application.Users
 					// Hash password
 					newUser.PasswordHash = _hashing.HashPassword(newUser.PasswordHash);
 
-					// FOR DEV ONLY
-					newUser.Status = (int)UserStatus.Active;
-					// FOR DEV ONLY
-
 					await _context.User.AddAsync(newUser, cancellationToken);
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
@@ -97,7 +93,7 @@ namespace Application.Users
 								Disabled = newUser.Status != (int)UserStatus.Active,
 							};
 
-							await FirebaseAuth.DefaultInstance.CreateUserAsync(userToCreate);
+							await FirebaseAuth.DefaultInstance.CreateUserAsync(userToCreate, cancellationToken);
 							#endregion
 
 							#region Import user's role to Firebase
@@ -106,7 +102,8 @@ namespace Application.Users
 								{"role", (int)RoleStatus.Keer}
 							};
 
-							await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(userToCreate.Uid, claims);
+							await FirebaseAuth.DefaultInstance
+								.SetCustomUserClaimsAsync(userToCreate.Uid, claims, cancellationToken);
 							#endregion
 						}
 						catch (FirebaseAuthException e)

@@ -10,8 +10,8 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20211004141506_DatabaseV2.0")]
-    partial class DatabaseV20
+    [Migration("20211005114258_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -355,6 +355,12 @@ namespace Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPhoneVerified")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastLoginDevice")

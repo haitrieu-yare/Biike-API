@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Persistence.Migrations
 {
-    public partial class DatabaseV20 : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -25,6 +25,8 @@ namespace Persistence.Migrations
                     LastTimeLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Star = table.Column<double>(type: "float", nullable: false),
                     TotalPoint = table.Column<int>(type: "int", nullable: false),
+                    IsEmailVerified = table.Column<bool>(type: "bit", nullable: false),
+                    IsPhoneVerified = table.Column<bool>(type: "bit", nullable: false),
                     IsBikeVerified = table.Column<bool>(type: "bit", nullable: false),
                     BirthDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),

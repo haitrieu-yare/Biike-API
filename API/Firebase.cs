@@ -16,8 +16,8 @@ namespace API
 		private readonly ILogger<Firebase> _logger;
 		public Firebase(DataContext context, ILogger<Firebase> logger)
 		{
-			_logger = logger;
 			_context = context;
+			_logger = logger;
 		}
 
 		public async Task ImportUserFromDatabaseToFirebase()

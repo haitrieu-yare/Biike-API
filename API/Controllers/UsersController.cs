@@ -63,6 +63,23 @@ namespace API.Controllers
 				new CreateUser.Command { UserCreateDTO = userCreateDTO }, ct));
 		}
 
+		[AllowAnonymous]
+		[HttpPut("{userId}/activation")]
+		public async Task<IActionResult> VerifyUser(
+			int userId, UserActivationDTO userActivationDTO, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new ModifyAccountActivation.Command { UserId = userId, UserActivationDTO = userActivationDTO }, ct));
+		}
+
+		[AllowAnonymous]
+		[HttpGet("{userId}/activation")]
+		public async Task<IActionResult> GetUserActivation(int userId, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new CheckAccountActivation.Query { UserId = userId }, ct));
+		}
+
 		[HttpPut("{userId}/profile")]
 		public async Task<IActionResult> EditUserProfile(int userId,
 			UserProfileEditDTO userProfileEditDTO, CancellationToken ct)

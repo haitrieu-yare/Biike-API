@@ -355,6 +355,12 @@ namespace Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPhoneVerified")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastLoginDevice")
                         .HasColumnType("nvarchar(max)");
 

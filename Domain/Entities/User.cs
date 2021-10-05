@@ -26,6 +26,8 @@ namespace Domain.Entities
 		public DateTime? LastTimeLogin { get; set; }
 		public double Star { get; set; } = 4;
 		public int TotalPoint { get; set; } = 0;
+		public bool IsEmailVerified { get; set; } = false;
+		public bool IsPhoneVerified { get; set; } = false;
 		public bool IsBikeVerified { get; set; } = false;
 		public DateTime? BirthDate { get; set; }
 		public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
