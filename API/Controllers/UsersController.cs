@@ -55,6 +55,7 @@ namespace API.Controllers
 				new CheckExistUser.Command { UserExistDTO = userExistDTO }, ct));
 		}
 
+		[AllowAnonymous]
 		[HttpPost]
 		public async Task<IActionResult> SignUp(UserCreateDTO userCreateDTO, CancellationToken ct)
 		{
