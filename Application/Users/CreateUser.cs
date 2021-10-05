@@ -90,7 +90,6 @@ namespace Application.Users
 								PhoneNumber = newUser.PhoneNumber,
 								DisplayName = newUser.FullName,
 								PhotoUrl = newUser.Avatar,
-								Disabled = newUser.Status != (int)UserStatus.Active,
 							};
 
 							await FirebaseAuth.DefaultInstance.CreateUserAsync(userToCreate, cancellationToken);

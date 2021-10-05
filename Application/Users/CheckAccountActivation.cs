@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
+using Domain.Enums;
 using MediatR;
 using Persistence;
 
@@ -39,7 +40,7 @@ namespace Application.Users
 
 					UserActivationDTO result = new UserActivationDTO();
 
-					if (user.IsEmailVerified && user.IsPhoneVerified)
+					if (user.Status == (int)UserStatus.Active)
 					{
 						result.IsVerified = true;
 					}

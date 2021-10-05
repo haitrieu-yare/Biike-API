@@ -39,7 +39,7 @@ namespace API
 								PhoneNumber = user.PhoneNumber,
 								DisplayName = user.FullName,
 								PhotoUrl = user.Avatar,
-								Disabled = user.Status != (int)UserStatus.Active,
+								Disabled = false,
 								CustomClaims = new Dictionary<string, object>()
 								{
 									{"role", user.Role}

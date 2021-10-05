@@ -46,34 +46,34 @@ namespace Application.Users
 							"Please reactivate it if you want to edit it.");
 					}
 
-					UserRecordArgs userRecordArgs = new UserRecordArgs()
-					{
-						Uid = request.UserId.ToString(),
-					};
+					// UserRecordArgs userRecordArgs = new UserRecordArgs()
+					// {
+					// 	Uid = request.UserId.ToString(),
+					// };
 
 					if (user.Status == (int)UserStatus.Active)
 					{
 						user.Status = (int)UserStatus.Deactive;
-						userRecordArgs.Disabled = true;
+						// userRecordArgs.Disabled = true;
 					}
 					else
 					{
 						user.Status = (int)UserStatus.Active;
-						userRecordArgs.Disabled = false;
+						// userRecordArgs.Disabled = false;
 					}
 
 					// Disable or Enable user on Firebase
-					try
-					{
-						await FirebaseAuth.DefaultInstance.UpdateUserAsync(userRecordArgs, cancellationToken);
-					}
-					catch (FirebaseAuthException e)
-					{
-						_logger.LogError("Error delete user on Firebase. " +
-							$"{e.InnerException?.Message ?? e.Message}");
-						return Result<Unit>.Failure(
-							$"Error delete user on Firebase. {e.InnerException?.Message ?? e.Message}");
-					}
+					// try
+					// {
+					// 	await FirebaseAuth.DefaultInstance.UpdateUserAsync(userRecordArgs, cancellationToken);
+					// }
+					// catch (FirebaseAuthException e)
+					// {
+					// 	_logger.LogError("Error delete user on Firebase. " +
+					// 		$"{e.InnerException?.Message ?? e.Message}");
+					// 	return Result<Unit>.Failure(
+					// 		$"Error delete user on Firebase. {e.InnerException?.Message ?? e.Message}");
+					// }
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
