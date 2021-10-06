@@ -12,21 +12,22 @@ namespace API.Controllers
 	public class WalletsController : BaseApiController
 	{
 		[HttpGet]
-		public async Task<IActionResult> GetAllWallets(CancellationToken ct)
+		public async Task<IActionResult> GetAllWallets(int page, int limit, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new ListWallets.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListWallets.Query { Page = page, Limit = limit }, ct));
+		}
+
+		[HttpGet("users/{userId}")]
+		public async Task<IActionResult> GetAllWalletsByUserId(int page, int limit, int userId, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new ListWalletsByUserId.Query { Page = page, Limit = limit, UserId = userId }, ct));
 		}
 
 		[HttpGet("{walletId}")]
 		public async Task<IActionResult> GetWalletByWalletId(int walletId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new DetailWallet.Query { WalletId = walletId }, ct));
-		}
-
-		[HttpGet("users/{userId}")]
-		public async Task<IActionResult> GetAllWalletsByUserId(int userId, CancellationToken ct)
-		{
-			return HandleResult(await Mediator.Send(new ListWalletsByUserId.Query { UserId = userId }, ct));
 		}
 
 		[Authorized(RoleStatus.Admin)]

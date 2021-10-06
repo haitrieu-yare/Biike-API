@@ -14,9 +14,9 @@ namespace API.Controllers
 	{
 		[Authorized(RoleStatus.Admin)]
 		[HttpGet]
-		public async Task<IActionResult> GetAllUser(CancellationToken ct)
+		public async Task<IActionResult> GetAllUser(int page, int limit, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new ListAllUsers.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListAllUsers.Query{Page = page, Limit = limit}, ct));
 		}
 
 		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]

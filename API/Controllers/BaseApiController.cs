@@ -18,24 +18,6 @@ namespace API.Controllers
 		{
 			string baseURL = $"{Request.Scheme}://{Request.Host}{Request.Path}";
 			string controllerName = Request.Path.ToString().Split("v1/").Last();
-			List<string> queryString = Request.QueryString.ToString().Split("&").ToList();
-
-			string firstElement = queryString[0].Remove(0, 1);
-			queryString[0] = firstElement;
-
-			List<string> newQueryString = new List<string>();
-
-			for (int i = 0; i < queryString.Count; i++)
-			{
-				if (!queryString[i].Contains("page") && !queryString[i].Contains("limit"))
-				{
-					newQueryString.Add(queryString[i]);
-				}
-			}
-
-			newQueryString.Add("");
-
-			string completeQueryString = string.Join("&", newQueryString.ToArray());
 
 			if (result == null)
 				return NotFound(NotFoundMessage);
@@ -56,6 +38,27 @@ namespace API.Controllers
 				}
 				else if (result.PaginationDTO != null)
 				{
+					#region Reconstruct a query string
+					List<string> queryString = Request.QueryString.ToString().Split("&").ToList();
+
+					string firstElement = queryString[0].Remove(0, 1);
+					queryString[0] = firstElement;
+
+					List<string> newQueryString = new List<string>();
+
+					for (int i = 0; i < queryString.Count; i++)
+					{
+						if (!queryString[i].Contains("page") && !queryString[i].Contains("limit"))
+						{
+							newQueryString.Add(queryString[i]);
+						}
+					}
+
+					newQueryString.Add("");
+
+					string completeQueryString = string.Join("&", newQueryString.ToArray());
+					#endregion
+
 					List<object> link = new List<object>
 					{
 						new

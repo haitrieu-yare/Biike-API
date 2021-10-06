@@ -18,14 +18,16 @@ namespace Application.Wallets
 		public class Query : IRequest<Result<List<WalletDTO>>>
 		{
 			public int UserId { get; set; }
+			public int Page { get; set; }
+			public int Limit { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<WalletDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<ListWalletsByUserId> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<ListWalletsByUserId> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -38,18 +40,49 @@ namespace Application.Wallets
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var wallets = await _context.Wallet
-						.Where(w => w.UserId == request.UserId)
-						.ProjectTo<WalletDTO>(_mapper.ConfigurationProvider)
-						.ToListAsync(cancellationToken);
+					if (request.Page <= 0)
+					{
+						_logger.LogInformation("Page must larger than 0");
+						return Result<List<WalletDTO>>.Failure("Page must larger than 0.");
+					}
+					else if (request.Limit <= 0)
+					{
+						_logger.LogInformation("Limit must larger than 0");
+						return Result<List<WalletDTO>>.Failure("Limit must larger than 0.");
+					}
 
-					_logger.LogInformation("Successfully retrieved list of all user's wallets.");
-					return Result<List<WalletDTO>>
-						.Success(wallets, "Successfully retrieved list of all user's wallets.");
+					int totalRecord = await _context.Wallet
+						.Where(w => w.UserId == request.UserId)
+						.CountAsync(cancellationToken);
+
+					#region Calculate last page
+					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+					#endregion
+
+					List<WalletDTO> wallets = new List<WalletDTO>();
+
+					if (request.Page <= lastPage)
+					{
+						wallets = await _context.Wallet
+							.Where(w => w.UserId == request.UserId)
+							.OrderBy(w => w.WalletId)
+							.Skip((request.Page - 1) * request.Limit)
+							.Take(request.Limit)
+							.ProjectTo<WalletDTO>(_mapper.ConfigurationProvider)
+							.ToListAsync(cancellationToken);
+					}
+
+					PaginationDTO paginationDto = new PaginationDTO(
+						request.Page, request.Limit, wallets.Count, lastPage, totalRecord
+					);
+
+					_logger.LogInformation("Successfully retrieved list of all user's wallets");
+					return Result<List<WalletDTO>>.Success(
+						wallets, "Successfully retrieved list of all user's wallets.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<List<WalletDTO>>.Failure("Request was cancelled.");
 				}
 			}

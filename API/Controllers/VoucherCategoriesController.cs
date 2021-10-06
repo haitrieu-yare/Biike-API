@@ -12,9 +12,9 @@ namespace API.Controllers
 	public class VoucherCategoriesController : BaseApiController
 	{
 		[HttpGet]
-		public async Task<IActionResult> GetVoucherCategories(CancellationToken ct)
+		public async Task<IActionResult> GetVoucherCategories(int page, int limit, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new ListVoucherCategory.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListVoucherCategory.Query { Page = page, Limit = limit }, ct));
 		}
 
 		[HttpGet("{voucherCategoryId}")]
