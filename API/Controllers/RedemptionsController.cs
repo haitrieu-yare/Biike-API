@@ -11,9 +11,9 @@ namespace API.Controllers
 	public class RedemptionsController : BaseApiController
 	{
 		[HttpGet]
-		public async Task<IActionResult> GetAllRedemptions(CancellationToken ct)
+		public async Task<IActionResult> GetAllRedemptions(int page, int limit, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new ListRedemption.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListRedemption.Query { Page = page, Limit = limit }, ct));
 		}
 
 		[HttpGet("{redemptionId}")]
@@ -23,16 +23,19 @@ namespace API.Controllers
 		}
 
 		[HttpGet("users/{userId}")]
-		public async Task<IActionResult> GetUserRedemptions(int userId, CancellationToken ct)
+		public async Task<IActionResult> GetUserRedemptions(
+			int userId, int page, int limit, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new ListUserRedemption.Query { UserId = userId }, ct));
+			return HandleResult(await Mediator.Send(
+				new ListUserRedemption.Query { Page = page, Limit = limit, UserId = userId }, ct));
 		}
 
 		[HttpGet("users/{userId}/full")]
-		public async Task<IActionResult> GetAllRedemptionsAndVouchers(int userId, CancellationToken ct)
+		public async Task<IActionResult> GetAllRedemptionsAndVouchers(
+			int userId, int page, int limit, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new ListUserRedemptionAndVoucher.Query { UserId = userId }, ct));
+				new ListUserRedemptionAndVoucher.Query { Page = page, Limit = limit, UserId = userId }, ct));
 		}
 
 		[HttpPost]

@@ -12,10 +12,11 @@ namespace API.Controllers
 	public class RoutesController : BaseApiController
 	{
 		[HttpGet]
-		public async Task<IActionResult> GetAllRoutes(CancellationToken ct)
+		public async Task<IActionResult> GetAllRoutes(int page, int limit, CancellationToken ct)
 		{
 			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
-			return HandleResult(await Mediator.Send(new ListRoutes.Query { IsAdmin = isAdmin }, ct));
+			return HandleResult(await Mediator.Send(
+				new ListRoutes.Query { Page = page, Limit = limit, IsAdmin = isAdmin }, ct));
 		}
 
 		[HttpGet("{routeId}")]

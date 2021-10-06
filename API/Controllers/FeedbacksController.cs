@@ -12,14 +12,14 @@ namespace API.Controllers
 	public class FeedbacksController : BaseApiController
 	{
 		[HttpGet]
-		public async Task<IActionResult> GetTripAllFeedBacks(CancellationToken ct)
+		public async Task<IActionResult> GetTripAllFeedBacks(int page, int limit, CancellationToken ct)
 		{
 			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
 			return HandleResult(await Mediator.Send(
-				new ListAllFeedbacks.Query { IsAdmin = isAdmin }, ct));
+				new ListAllFeedbacks.Query { Page = page, Limit = limit, IsAdmin = isAdmin }, ct));
 		}
 
-		[HttpGet("{feedbackId}")]
+		[HttpGet("{feedbackId:int}")]
 		public async Task<IActionResult> GetTripFeedBackById(int feedbackId, CancellationToken ct)
 		{
 			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
@@ -27,7 +27,7 @@ namespace API.Controllers
 				new DetailFeedback.Query { IsAdmin = isAdmin, FeedbackId = feedbackId }, ct));
 		}
 
-		[HttpGet("trips/{tripId}")]
+		[HttpGet("trips/{tripId:int}")]
 		public async Task<IActionResult> GetTripFeedBacks(int tripId, CancellationToken ct)
 		{
 			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
@@ -36,10 +36,10 @@ namespace API.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateFeedBack(FeedbackCreateDTO feedbackCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateFeedBack(FeedbackCreateDTO feedbackCreateDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new CreateFeedback.Command { FeedbackCreateDTO = feedbackCreateDTO }, ct));
+				new CreateFeedback.Command { FeedbackCreateDTO = feedbackCreateDto }, ct));
 		}
 	}
 }

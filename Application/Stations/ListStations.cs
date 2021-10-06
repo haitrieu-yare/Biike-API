@@ -18,6 +18,8 @@ namespace Application.Stations
 		public class Query : IRequest<Result<List<StationDTO>>>
 		{
 			public bool IsAdmin { get; set; }
+			public int Page { get; set; }
+			public int Limit { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<StationDTO>>>
@@ -38,34 +40,60 @@ namespace Application.Stations
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
+					if (request.Page <= 0)
+					{
+						_logger.LogInformation("Page must larger than 0");
+						return Result<List<StationDTO>>.Failure("Page must larger than 0.");
+					}
+
+					int totalRecord = await _context.Station.CountAsync(cancellationToken);
+
+					#region Calculate last page
+					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+					#endregion
+
 					List<StationDTO> stations = new List<StationDTO>();
 
-					if (request.IsAdmin)
+					if (request.Page <= lastPage)
 					{
-						stations = await _context.Station
-							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
-							.ToListAsync(cancellationToken);
-					}
-					else
-					{
-						stations = await _context.Station
-							.Where(s => s.IsDeleted != true)
-							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
-							.ToListAsync(cancellationToken);
-						// Set to null to make unnecessary fields excluded from response body.
-						stations.ForEach(s =>
+						if (request.IsAdmin)
 						{
-							s.CreatedDate = null;
-							s.IsDeleted = null;
-						});
+							stations = await _context.Station
+								.OrderBy(s => s.StationId)
+								.Skip((request.Page - 1) * request.Limit)
+								.Take(request.Limit)
+								.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
+								.ToListAsync(cancellationToken);
+						}
+						else
+						{
+							stations = await _context.Station
+								.Where(s => s.IsDeleted != true)
+								.OrderBy(s => s.StationId)
+								.Skip((request.Page - 1) * request.Limit)
+								.Take(request.Limit)
+								.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
+								.ToListAsync(cancellationToken);
+							// Set to null to make unnecessary fields excluded from response body.
+							stations.ForEach(s =>
+							{
+								s.CreatedDate = null;
+								s.IsDeleted = null;
+							});
+						}
 					}
 
-					_logger.LogInformation("Successfully retrieved list of all stations.");
-					return Result<List<StationDTO>>.Success(stations, "Successfully retrieved list of all stations.");
+					PaginationDTO paginationDto = new PaginationDTO(
+						request.Page, request.Limit, stations.Count, lastPage, totalRecord
+					);
+
+					_logger.LogInformation("Successfully retrieved list of all stations");
+					return Result<List<StationDTO>>.Success(
+						stations, "Successfully retrieved list of all stations.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<List<StationDTO>>.Failure("Request was cancelled.");
 				}
 			}

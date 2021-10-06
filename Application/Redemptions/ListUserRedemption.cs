@@ -19,14 +19,16 @@ namespace Application.Redemptions
 		public class Query : IRequest<Result<List<RedemptionDTO>>>
 		{
 			public int UserId { get; set; }
+			public int Page { get; set; }
+			public int Limit { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<RedemptionDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<ListUserRedemption> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<ListUserRedemption> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -39,6 +41,12 @@ namespace Application.Redemptions
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
+					if (request.Page <= 0)
+					{
+						_logger.LogInformation("Page must larger than 0");
+						return Result<List<RedemptionDTO>>.Failure("Page must larger than 0.");
+					}
+
 					// Max number of active wallets is 2 for each user
 					var wallets = await _context.Wallet
 						.Where(w => w.UserId == request.UserId)
@@ -47,26 +55,47 @@ namespace Application.Redemptions
 
 					if (wallets == null)
 					{
-						_logger.LogInformation("User doesn't have wallet.");
+						_logger.LogInformation("User doesn't have wallet");
 						return Result<List<RedemptionDTO>>.Failure("User doesn't have wallet.");
 					}
 
-					// Nếu user có 2 wallet thì query == wallets[0].Id || wallets[1].Id
-					// Nếu user có 1 wallet thì query == wallets[0].Id || wallets[0].Id
-					var redemptions = await _context.Redemption
+					int totalRecord = await _context.Redemption
 						.Where(r => r.WalletId == wallets[0].WalletId ||
 							r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId)
-						)
-						.ProjectTo<RedemptionDTO>(_mapper.ConfigurationProvider)
-						.ToListAsync(cancellationToken);
+						).CountAsync(cancellationToken);
 
-					_logger.LogInformation($"Successfully retrieved redemptions of userId {request.UserId}.");
+					#region Calculate last page
+					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+					#endregion
+
+					List<RedemptionDTO> redemptions = new List<RedemptionDTO>();
+
+					if (request.Page <= lastPage)
+					{
+						// Nếu user có 2 wallet thì query == wallets[0].Id || wallets[1].Id
+						// Nếu user có 1 wallet thì query == wallets[0].Id || wallets[0].Id
+						redemptions = await _context.Redemption
+							.Where(r => r.WalletId == wallets[0].WalletId ||
+								r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId)
+							)
+							.OrderBy(r => r.RedemptionId)
+							.Skip((request.Page - 1) * request.Limit)
+							.Take(request.Limit)
+							.ProjectTo<RedemptionDTO>(_mapper.ConfigurationProvider)
+							.ToListAsync(cancellationToken);
+					}
+
+					PaginationDTO paginationDto = new PaginationDTO(
+						request.Page, request.Limit, redemptions.Count, lastPage, totalRecord
+					);
+
+					_logger.LogInformation($"Successfully retrieved redemptions of userId {request.UserId}");
 					return Result<List<RedemptionDTO>>.Success(
-						redemptions, $"Successfully retrieved redemptions of userId {request.UserId}.");
+						redemptions, $"Successfully retrieved redemptions of userId {request.UserId}.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<List<RedemptionDTO>>.Failure("Request was cancelled.");
 				}
 			}

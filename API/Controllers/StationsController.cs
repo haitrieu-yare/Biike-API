@@ -12,10 +12,11 @@ namespace API.Controllers
 	public class StationsController : BaseApiController
 	{
 		[HttpGet]
-		public async Task<IActionResult> GetAllStations(CancellationToken ct)
+		public async Task<IActionResult> GetAllStations(int page, int limit, CancellationToken ct)
 		{
 			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
-			return HandleResult(await Mediator.Send(new ListStations.Query { IsAdmin = isAdmin }, ct));
+			return HandleResult(await Mediator.Send(
+				new ListStations.Query { Page = page, Limit = limit, IsAdmin = isAdmin }, ct));
 		}
 
 		[HttpGet("{stationId}")]

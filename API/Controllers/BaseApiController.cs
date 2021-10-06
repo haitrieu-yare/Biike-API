@@ -17,7 +17,7 @@ namespace API.Controllers
 		protected ActionResult HandleResult<T>(Result<T> result)
 		{
 			string baseURL = $"{Request.Scheme}://{Request.Host}{Request.Path}";
-			string controllerName = Request.Path.ToString().Split("/").Last();
+			string controllerName = Request.Path.ToString().Split("v1/")[1];
 
 			if (result == null)
 				return NotFound(NotFoundMessage);

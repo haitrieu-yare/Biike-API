@@ -26,8 +26,8 @@ namespace Application.Bikes
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<ListBikes> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<ListBikes> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -42,11 +42,11 @@ namespace Application.Bikes
 
 					if (request.Page <= 0)
 					{
-						_logger.LogInformation("Page must larger than 0.");
+						_logger.LogInformation("Page must larger than 0");
 						return Result<List<BikeDTO>>.Failure("Page must larger than 0.");
 					}
 
-					var totalRecord = await _context.Bike.CountAsync();
+					var totalRecord = await _context.Bike.CountAsync(cancellationToken);
 
 					#region Calculate last page
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
@@ -74,13 +74,13 @@ namespace Application.Bikes
 						request.Page, request.Limit, bikes.Count, lastPage, totalRecord
 					);
 
-					_logger.LogInformation("Successfully retrieved list of all bikes.");
+					_logger.LogInformation("Successfully retrieved list of all bikes");
 					return Result<List<BikeDTO>>.Success(
 						bikes, "Successfully retrieved list of all bikes.", paginationDTO);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<List<BikeDTO>>.Failure("Request was cancelled.");
 				}
 			}

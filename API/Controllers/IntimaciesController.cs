@@ -11,9 +11,9 @@ namespace API.Controllers
 	public class IntimaciesController : BaseApiController
 	{
 		[HttpGet]
-		public async Task<IActionResult> GetIntimacies(CancellationToken ct)
+		public async Task<IActionResult> GetIntimacies(int page, int limit, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new ListIntimacies.Query(), ct));
+			return HandleResult(await Mediator.Send(new ListIntimacies.Query { Page = page, Limit = limit }, ct));
 		}
 
 		[HttpGet("{userOneId}")]
@@ -24,7 +24,8 @@ namespace API.Controllers
 
 
 		[HttpPost]
-		public async Task<IActionResult> CreateIntimacies(IntimacyCreateEditDTO intimacyCreateEditDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateIntimacies(
+			IntimacyCreateEditDTO intimacyCreateEditDTO, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
 				new CreateIntimacy.Command { IntimacyCreateEditDTO = intimacyCreateEditDTO }, ct));

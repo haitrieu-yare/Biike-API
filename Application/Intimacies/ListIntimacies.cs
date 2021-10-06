@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -14,14 +15,18 @@ namespace Application.Intimacies
 {
 	public class ListIntimacies
 	{
-		public class Query : IRequest<Result<List<IntimacyDTO>>> { }
+		public class Query : IRequest<Result<List<IntimacyDTO>>>
+		{
+			public int Page { get; set; }
+			public int Limit { get; set; }
+		}
 
 		public class Handler : IRequestHandler<Query, Result<List<IntimacyDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<ListIntimacies> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<ListIntimacies> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -34,17 +39,41 @@ namespace Application.Intimacies
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var intimacies = await _context.Intimacy
-						.ProjectTo<IntimacyDTO>(_mapper.ConfigurationProvider)
-						.ToListAsync(cancellationToken);
+					if (request.Page <= 0)
+					{
+						_logger.LogInformation("Page must larger than 0");
+						return Result<List<IntimacyDTO>>.Failure("Page must larger than 0.");
+					}
 
-					_logger.LogInformation("Successfully retrieved list of all intimacies.");
+					int totalRecord = await _context.Intimacy.CountAsync(cancellationToken);
+
+					#region Calculate last page
+					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+					#endregion
+
+					List<IntimacyDTO> intimacies = new List<IntimacyDTO>();
+
+					if (request.Page <= lastPage)
+					{
+						intimacies = await _context.Intimacy
+							.OrderBy(i => i.UserOneId)
+							.Skip((request.Page - 1) * request.Limit)
+							.Take(request.Limit)
+							.ProjectTo<IntimacyDTO>(_mapper.ConfigurationProvider)
+							.ToListAsync(cancellationToken);
+					}
+
+					PaginationDTO paginationDto = new PaginationDTO(
+						request.Page, request.Limit, intimacies.Count, lastPage, totalRecord
+					);
+
+					_logger.LogInformation("Successfully retrieved list of all intimacies");
 					return Result<List<IntimacyDTO>>.Success(
-						intimacies, "Successfully retrieved list of all intimacies.");
+						intimacies, "Successfully retrieved list of all intimacies.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<List<IntimacyDTO>>.Failure("Request was cancelled.");
 				}
 			}
