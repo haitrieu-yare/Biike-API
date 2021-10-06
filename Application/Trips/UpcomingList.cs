@@ -20,14 +20,16 @@ namespace Application.Trips
 		{
 			public int UserId { get; set; }
 			public int Role { get; set; }
+			public int Page { get; set; }
+			public int Limit { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<TripDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<UpcomingList> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<UpcomingList> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -40,31 +42,61 @@ namespace Application.Trips
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
+					if (request.Page <= 0)
+					{
+						_logger.LogInformation("Page must larger than 0");
+						return Result<List<TripDTO>>.Failure("Page must larger than 0.");
+					}
+
 					if (request.Role != (int)RoleStatus.Keer && request.Role != (int)RoleStatus.Biker)
 					{
 						_logger.LogInformation("Role must be " + (int)RoleStatus.Keer
 							+ " (Keer) or " + (int)RoleStatus.Biker + " (Biker)");
 						return Result<List<TripDTO>>.Failure("Role must be " + (int)RoleStatus.Keer
-							+ " (Keer) or " + (int)RoleStatus.Biker + " (Biker)");
+							+ " (Keer) or " + (int)RoleStatus.Biker + " (Biker).");
 					}
 
-					var tripDTO = await _context.Trip
+					int totalRecord = await _context.Trip
 						.Where(t => (request.Role == (int)RoleStatus.Keer) ?
 							t.KeerId == request.UserId :
 							t.BikerId == request.UserId)
-						.Where(t => t.Status == (int)TripStatus.Finding
-							|| t.Status == (int)TripStatus.Waiting)
-						.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
-							new { role = request.Role })
-						.OrderBy(t => t.TimeBook)
-						.ToListAsync(cancellationToken);
+						.Where(t => t.Status == (int)TripStatus.Finished
+							|| t.Status == (int)TripStatus.Cancelled)
+						.CountAsync(cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved list of all upcoming trip.");
-					return Result<List<TripDTO>>.Success(tripDTO, "Successfully retrieved list of all upcoming trip.");
+					#region Calculate last page
+					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+					#endregion
+
+					List<TripDTO> trips = new List<TripDTO>();
+
+					if (request.Page <= lastPage)
+					{
+						trips = await _context.Trip
+							.Where(t => (request.Role == (int)RoleStatus.Keer) ?
+								t.KeerId == request.UserId :
+								t.BikerId == request.UserId)
+							.Where(t => t.Status == (int)TripStatus.Finding
+								|| t.Status == (int)TripStatus.Waiting)
+							.OrderBy(t => t.BookTime)
+							.Skip((request.Page - 1) * request.Limit)
+							.Take(request.Limit)
+							.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
+								new { role = request.Role })
+							.ToListAsync(cancellationToken);
+					}
+
+					PaginationDTO paginationDto = new PaginationDTO(
+						request.Page, request.Limit, trips.Count, lastPage, totalRecord
+					);
+
+					_logger.LogInformation("Successfully retrieved list of all upcoming trip");
+					return Result<List<TripDTO>>.Success(
+						trips, "Successfully retrieved list of all upcoming trip.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<List<TripDTO>>.Failure("Request was cancelled.");
 				}
 			}

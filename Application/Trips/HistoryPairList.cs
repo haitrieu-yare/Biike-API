@@ -20,14 +20,16 @@ namespace Application.Trips
 		{
 			public int UserOneId { get; set; }
 			public int UserTwoId { get; set; }
+			public int Page { get; set; }
+			public int Limit { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<TripPairDTO>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<HistoryPairList> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<HistoryPairList> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -40,33 +42,74 @@ namespace Application.Trips
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var pairTripsAsKeer = await _context.Trip
+					if (request.Page <= 0)
+					{
+						_logger.LogInformation("Page must larger than 0");
+						return Result<List<TripPairDTO>>.Failure("Page must larger than 0.");
+					}
+
+					int totalRecordAsKeer = await _context.Trip
 						.Where(t => t.KeerId == request.UserOneId)
 						.Where(t => t.BikerId == request.UserTwoId)
 						.Where(t => t.Status == (int)TripStatus.Finished
 							|| t.Status == (int)TripStatus.Cancelled)
-						.ProjectTo<TripPairDTO>(_mapper.ConfigurationProvider,
-							new { userTwoId = request.UserTwoId })
-						.ToListAsync(cancellationToken);
+						.CountAsync(cancellationToken);
 
-					var pairTripsAsBiker = await _context.Trip
+					int totalRecordAsBiker = await _context.Trip
 						.Where(t => t.KeerId == request.UserTwoId)
 						.Where(t => t.BikerId == request.UserOneId)
 						.Where(t => t.Status == (int)TripStatus.Finished
 							|| t.Status == (int)TripStatus.Cancelled)
-						.ProjectTo<TripPairDTO>(_mapper.ConfigurationProvider,
-							new { userTwoId = request.UserTwoId })
-						.ToListAsync(cancellationToken);
+						.CountAsync(cancellationToken);
 
-					List<TripPairDTO> trips = pairTripsAsKeer.Concat(pairTripsAsBiker).ToList();
+					int totalRecord = totalRecordAsKeer + totalRecordAsBiker;
 
-					_logger.LogInformation("Successfully retrieved list of all history pair trip.");
+					#region Calculate last page
+					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+					#endregion
+
+					List<TripPairDTO> trips = new List<TripPairDTO>();
+
+					if (request.Page <= lastPage)
+					{
+						var pairTripsAsKeer = await _context.Trip
+							.Where(t => t.KeerId == request.UserOneId)
+							.Where(t => t.BikerId == request.UserTwoId)
+							.Where(t => t.Status == (int)TripStatus.Finished
+								|| t.Status == (int)TripStatus.Cancelled)
+							.OrderByDescending(t => t.BookTime)
+							.ProjectTo<TripPairDTO>(_mapper.ConfigurationProvider,
+								new { userTwoId = request.UserTwoId })
+							.ToListAsync(cancellationToken);
+
+						var pairTripsAsBiker = await _context.Trip
+							.Where(t => t.KeerId == request.UserTwoId)
+							.Where(t => t.BikerId == request.UserOneId)
+							.Where(t => t.Status == (int)TripStatus.Finished
+								|| t.Status == (int)TripStatus.Cancelled)
+							.OrderByDescending(t => t.BookTime)
+							.ProjectTo<TripPairDTO>(_mapper.ConfigurationProvider,
+								new { userTwoId = request.UserTwoId })
+							.ToListAsync(cancellationToken);
+
+						trips = pairTripsAsKeer.Concat(pairTripsAsBiker)
+							.OrderByDescending(t => t.TimeBook)
+							.Skip((request.Page - 1) * request.Limit)
+							.Take(request.Limit)
+							.ToList();
+					}
+
+					PaginationDTO paginationDto = new PaginationDTO(
+						request.Page, request.Limit, trips.Count, lastPage, totalRecord
+					);
+
+					_logger.LogInformation("Successfully retrieved list of all history pair trip");
 					return Result<List<TripPairDTO>>.Success(
-						trips, "Successfully retrieved list of all history pair trip.");
+						trips, "Successfully retrieved list of all history pair trip.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<List<TripPairDTO>>.Failure("Request was cancelled.");
 				}
 			}

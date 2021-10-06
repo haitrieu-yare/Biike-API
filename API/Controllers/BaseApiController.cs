@@ -17,7 +17,25 @@ namespace API.Controllers
 		protected ActionResult HandleResult<T>(Result<T> result)
 		{
 			string baseURL = $"{Request.Scheme}://{Request.Host}{Request.Path}";
-			string controllerName = Request.Path.ToString().Split("v1/")[1];
+			string controllerName = Request.Path.ToString().Split("v1/").Last();
+			List<string> queryString = Request.QueryString.ToString().Split("&").ToList();
+
+			string firstElement = queryString[0].Remove(0, 1);
+			queryString[0] = firstElement;
+
+			List<string> newQueryString = new List<string>();
+
+			for (int i = 0; i < queryString.Count; i++)
+			{
+				if (!queryString[i].Contains("page") && !queryString[i].Contains("limit"))
+				{
+					newQueryString.Add(queryString[i]);
+				}
+			}
+
+			newQueryString.Add("");
+
+			string completeQueryString = string.Join("&", newQueryString.ToArray());
 
 			if (result == null)
 				return NotFound(NotFoundMessage);
@@ -42,16 +60,16 @@ namespace API.Controllers
 					{
 						new
 						{
-							href = $"/{controllerName}?page={result.PaginationDTO.Page}" +
+							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDTO.Page}" +
 								$"&limit={result.PaginationDTO.Limit}",
 							rel = "self",
 						},
 						new {
-							href = $"/{controllerName}?page=1&limit={result.PaginationDTO.Limit}",
+							href = $"/{controllerName}?{completeQueryString}page=1&limit={result.PaginationDTO.Limit}",
 							rel = "first",
 						},
 						new {
-							href = $"/{controllerName}?page={result.PaginationDTO.LastPage}" +
+							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDTO.LastPage}" +
 								$"&limit={result.PaginationDTO.Limit}",
 							rel = "last",
 						}
@@ -61,7 +79,7 @@ namespace API.Controllers
 					{
 						link.Add(new
 						{
-							href = $"/{controllerName}?page={result.PaginationDTO.Page - 1}" +
+							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDTO.Page - 1}" +
 								$"&limit={result.PaginationDTO.Limit}",
 							rel = "prev",
 						});
@@ -71,7 +89,7 @@ namespace API.Controllers
 					{
 						link.Add(new
 						{
-							href = $"/{controllerName}?page={result.PaginationDTO.Page + 1}" +
+							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDTO.Page + 1}" +
 								$"&limit={result.PaginationDTO.Limit}",
 							rel = "next",
 						});

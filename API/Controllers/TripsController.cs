@@ -12,37 +12,46 @@ namespace API.Controllers
 	public class TripsController : BaseApiController
 	{
 		[HttpGet]
-		public async Task<IActionResult> GetAllTrips(CancellationToken ct)
+		public async Task<IActionResult> GetAllTrips(int page, int limit, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new ListTrips.Query(), ct));
+			return HandleResult(await Mediator.Send(
+				new ListTrips.Query { Page = page, Limit = limit }, ct));
 		}
 
 		[HttpGet("{userId}/history")]
-		public async Task<IActionResult> GetHistoryTrips(int userId, int role, CancellationToken ct)
+		public async Task<IActionResult> GetHistoryTrips(
+			int userId, int role, int page, int limit, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new HistoryList.Query { UserId = userId, Role = role }, ct));
+				new HistoryList.Query { Page = page, Limit = limit, UserId = userId, Role = role }, ct));
 		}
 
 		[HttpGet("{userId}/upcoming")]
-		public async Task<IActionResult> GetUpcomingTrips(int userId, int role, CancellationToken ct)
+		public async Task<IActionResult> GetUpcomingTrips(
+			int userId, int role, int page, int limit, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new UpcomingList.Query { UserId = userId, Role = role }, ct));
+				new UpcomingList.Query { Page = page, Limit = limit, UserId = userId, Role = role }, ct));
+		}
+
+		[HttpGet("historyPair")]
+		public async Task<IActionResult> GetHistoryPairTrips(
+			int userOneId, int userTwoId, int page, int limit, CancellationToken ct)
+		{
+			return HandleResult(await Mediator.Send(
+				new HistoryPairList.Query
+				{
+					Page = page,
+					Limit = limit,
+					UserOneId = userOneId,
+					UserTwoId = userTwoId
+				}, ct));
 		}
 
 		[HttpGet("{tripId}")]
 		public async Task<IActionResult> GetTrip(int tripId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new DetailTrip.Query { TripId = tripId }, ct));
-		}
-
-		[HttpGet("historyPair")]
-		public async Task<IActionResult> GetHistoryPairTrips(int userOneId, int userTwoId,
-			CancellationToken ct)
-		{
-			return HandleResult(await Mediator.Send(
-				new HistoryPairList.Query { UserOneId = userOneId, UserTwoId = userTwoId }, ct));
 		}
 
 		[HttpPost]
