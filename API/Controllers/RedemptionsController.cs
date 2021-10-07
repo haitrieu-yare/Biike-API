@@ -34,7 +34,7 @@ namespace API.Controllers
 				return BadRequest("Can't get userId who send the request.");
 
 			if (!validationDto.IsAuthorized)
-				return BadRequest("UserId of requester isn't the same with userId of intimacy.");
+				return BadRequest("UserId of requester isn't the same with userId of redemption.");
 
 			return HandleResult(await Mediator.Send(
 				new ListUserRedemption.Query { Page = page, Limit = limit, UserId = userId }, ct));
@@ -50,7 +50,7 @@ namespace API.Controllers
 				return BadRequest("Can't get userId who send the request.");
 
 			if (!validationDto.IsAuthorized)
-				return BadRequest("UserId of requester isn't the same with userId of intimacy.");
+				return BadRequest("UserId of requester isn't the same with userId of redemption.");
 
 			return HandleResult(await Mediator.Send(
 				new ListUserRedemptionAndVoucher.Query { Page = page, Limit = limit, UserId = userId }, ct));
@@ -66,7 +66,7 @@ namespace API.Controllers
 				return BadRequest("Can't get userId who send the request.");
 
 			if (!validationDto.IsAuthorized)
-				return BadRequest("UserId of requester isn't the same with userId of intimacy.");
+				return BadRequest("UserId of requester isn't the same with userId of redemption.");
 
 			return HandleResult(await Mediator.Send(
 				new CreateRedemption.Command { RedemptionCreateDTO = redemptionCreateDTO }, ct));

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Http;
 using Domain.Enums;
 
@@ -5,6 +6,18 @@ namespace API
 {
 	public static class ControllerUtils
 	{
+		public static int GetRole(HttpContext httpContext)
+		{
+			int role = 0;
+			foreach (RoleStatus roleStatus in Enum.GetValues(typeof(RoleStatus)))
+			{
+				if (httpContext.User.IsInRole(((int)roleStatus).ToString()))
+				{
+					role = (int)roleStatus;
+				}
+			}
+			return role;
+		}
 		public static ValidationDTO Validate(HttpContext httpContext)
 		{
 			// Mục đích sử dụng

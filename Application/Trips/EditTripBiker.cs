@@ -36,9 +36,9 @@ namespace Application.Trips
 					var oldTrip = await _context.Trip
 						.FindAsync(new object[] { request.TripId }, cancellationToken);
 
-					if (oldTrip == null) return null!;
+					if (oldTrip == null) return Result<Unit>.NotFound("Trip doesn't exist.");
 
-					if (request.BikerId == oldTrip.KeerId)
+					if (oldTrip.KeerId == request.BikerId)
 					{
 						_logger.LogInformation("Biker and Keer can't be the same person.");
 						return Result<Unit>.Failure("Biker and Keer can't be the same person.");

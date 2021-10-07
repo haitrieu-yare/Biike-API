@@ -16,14 +16,15 @@ namespace Application.Trips.DTOs
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int TripId { get; set; }
+			public int BikerId { get; set; }
 			public DateTime? Time { get; set; }
 		}
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<EditTripProcess> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly AutoCreateTripTransaction _autoCreate;
-			public Handler(DataContext context, ILogger<EditTripProcess> logger,
+			public Handler(DataContext context, ILogger<Handler> logger,
 				AutoCreateTripTransaction autoCreate)
 			{
 				_context = context;
@@ -39,7 +40,7 @@ namespace Application.Trips.DTOs
 
 					if (request.Time == null)
 					{
-						_logger.LogInformation("No parameters Time received.");
+						_logger.LogInformation("No parameters Time received");
 						return Result<Unit>.Failure("No parameters Time received.");
 					}
 
@@ -50,8 +51,18 @@ namespace Application.Trips.DTOs
 
 					if (oldTrip.BikerId == null)
 					{
-						_logger.LogInformation("Trip must has Biker before starting.");
+						_logger.LogInformation("Trip must has Biker before starting");
 						return Result<Unit>.Failure("Trip must has Biker before starting.");
+					}
+					else if (oldTrip.KeerId == request.BikerId)
+					{
+						_logger.LogInformation("Biker and Keer can't be the same person");
+						return Result<Unit>.Failure("Biker and Keer can't be the same person.");
+					}
+					else if (oldTrip.BikerId != request.BikerId)
+					{
+						_logger.LogInformation("BikerId of trip doesn't match bikerId in request");
+						return Result<Unit>.Failure("BikerId of trip doesn't match bikerId in request.");
 					}
 
 					switch (oldTrip.Status)
@@ -65,10 +76,10 @@ namespace Application.Trips.DTOs
 							oldTrip.Status = (int)TripStatus.Finished;
 							break;
 						case (int)TripStatus.Finished:
-							_logger.LogInformation("Trip has already finished.");
+							_logger.LogInformation("Trip has already finished");
 							return Result<Unit>.Failure("Trip has already finished.");
 						case (int)TripStatus.Cancelled:
-							_logger.LogInformation("Trip has already cancelled.");
+							_logger.LogInformation("Trip has already cancelled");
 							return Result<Unit>.Failure("Trip has already cancelled.");
 					}
 
@@ -76,14 +87,14 @@ namespace Application.Trips.DTOs
 					{
 						if (oldTrip.Status == (int)TripStatus.Finished)
 							await _autoCreate.Run(oldTrip, 10, cancellationToken);
-						
-						_logger.LogInformation($"Successfully updated trip with TripId {request.TripId}.");
+
+						_logger.LogInformation($"Successfully updated trip with TripId {request.TripId}");
 						return Result<Unit>.Success(
 							Unit.Value, $"Successfully updated trip with TripId {request.TripId}.");
 					}
 					catch (System.Exception ex)
 					{
-						_logger.LogInformation($"Failed to update trip with TripId {request.TripId}." +
+						_logger.LogInformation($"Failed to update trip with TripId {request.TripId}" +
 							ex.InnerException?.Message ?? ex.Message);
 						return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}. " +
 							ex.InnerException?.Message ?? ex.Message);
@@ -91,7 +102,7 @@ namespace Application.Trips.DTOs
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)

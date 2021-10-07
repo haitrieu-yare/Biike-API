@@ -17,14 +17,15 @@ namespace Application.Trips
 		{
 			public int TripId { get; set; }
 			public int UserId { get; set; }
+			public bool IsAdmin { get; set; }
 			public TripCancellationDTO TripCancellationDTO { get; set; } = null!;
 		}
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<EditTripCancellation> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditTripCancellation> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -42,6 +43,28 @@ namespace Application.Trips
 
 					if (oldTrip == null) return null!;
 
+					if (!request.IsAdmin)
+					{
+						bool isUserInTrip = true;
+
+						if (oldTrip.BikerId == null && request.UserId != oldTrip.KeerId)
+						{
+							isUserInTrip = false;
+						}
+
+						if (request.UserId != oldTrip.KeerId && request.UserId != oldTrip.BikerId)
+						{
+							isUserInTrip = false;
+						}
+
+						if (!isUserInTrip)
+						{
+							_logger.LogInformation("Cancellation request must come from Keer or Biker of the trip");
+							return Result<Unit>.Failure(
+								"Cancellation request must come from Keer or Biker of the trip.");
+						}
+					}
+
 					switch (oldTrip.Status)
 					{
 						case (int)TripStatus.Finished:
@@ -50,12 +73,6 @@ namespace Application.Trips
 						case (int)TripStatus.Cancelled:
 							_logger.LogInformation("Trip has already cancelled.");
 							return Result<Unit>.Failure("Trip has already cancelled.");
-					}
-
-					if (request.UserId != oldTrip.KeerId && request.UserId != oldTrip.BikerId)
-					{
-						_logger.LogInformation("Cancellation request must come from Keer or Biker of the trip.");
-						return Result<Unit>.Failure("Cancellation request must come from Keer or Biker of the trip.");
 					}
 
 					_mapper.Map(request.TripCancellationDTO, oldTrip);
@@ -67,19 +84,19 @@ namespace Application.Trips
 
 					if (!result)
 					{
-						_logger.LogInformation($"Failed to update trip with TripId {request.TripId}.");
+						_logger.LogInformation($"Failed to update trip with TripId {request.TripId}");
 						return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully updated trip with TripId {request.TripId}.");
+						_logger.LogInformation("Successfully updated trip with TripId {request.TripId}");
 						return Result<Unit>.Success(
 							Unit.Value, "Successfully updated trip with TripId {request.TripId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)

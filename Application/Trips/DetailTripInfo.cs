@@ -43,7 +43,20 @@ namespace Application.Trips
 					var tripDB = await _context.Trip
 						.FindAsync(new object[] { request.TripId }, cancellationToken);
 
-					if (request.UserRequestId != tripDB.KeerId && request.UserRequestId != tripDB.BikerId)
+					if (tripDB == null) return Result<TripDetailInfoDTO>.NotFound("Trip doens't exist.");
+
+					bool isRequestUserInTrip = true;
+
+					if (tripDB.BikerId == null && request.UserRequestId != tripDB.KeerId)
+					{
+						isRequestUserInTrip = false;
+					}
+					else if (request.UserRequestId != tripDB.KeerId && request.UserRequestId != tripDB.BikerId)
+					{
+						isRequestUserInTrip = false;
+					}
+
+					if (!isRequestUserInTrip)
 					{
 						_logger.LogInformation($"User with UserId {request.UserRequestId} " +
 							$"request an unauthorized content of trip with TripId {request.TripId}");
