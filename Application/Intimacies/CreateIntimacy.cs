@@ -22,8 +22,8 @@ namespace Application.Intimacies
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<CreateIntimacy> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<CreateIntimacy> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -45,7 +45,7 @@ namespace Application.Intimacies
 
 					if (oldIntimacy != null)
 					{
-						_logger.LogInformation("Intimacy has already existed.");
+						_logger.LogInformation("Intimacy has already existed");
 						return Result<Unit>.Failure("Intimacy has already existed.");
 					}
 
@@ -59,12 +59,12 @@ namespace Application.Intimacies
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new intimacy.");
+						_logger.LogInformation("Failed to create new intimacy");
 						return Result<Unit>.Failure("Failed to create new intimacy.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created intimacy.");
+						_logger.LogInformation("Successfully created intimacy");
 						return Result<Unit>.Success(
 							Unit.Value, "Successfully created intimacy.", newIntimacy.UserOneId.ToString());
 					}
@@ -72,7 +72,7 @@ namespace Application.Intimacies
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled");
+					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
 				{

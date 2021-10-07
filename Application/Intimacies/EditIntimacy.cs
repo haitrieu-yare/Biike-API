@@ -20,8 +20,8 @@ namespace Application.Intimacies
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<EditIntimacy> _logger;
-			public Handler(DataContext context, ILogger<EditIntimacy> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, ILogger<Handler> logger)
 			{
 				_context = context;
 				_logger = logger;
@@ -59,7 +59,7 @@ namespace Application.Intimacies
 					{
 						_logger.LogInformation("Failed to update intimacy of " +
 							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
-							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
+							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}");
 						return Result<Unit>.Failure("Failed to update intimacy of " +
 							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
 							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
@@ -68,7 +68,7 @@ namespace Application.Intimacies
 					{
 						_logger.LogInformation("Successfully updated intimacy of " +
 							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
-							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
+							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}");
 						return Result<Unit>.Success(Unit.Value, "Successfully updated intimacy of " +
 							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
 							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
@@ -76,7 +76,7 @@ namespace Application.Intimacies
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)
