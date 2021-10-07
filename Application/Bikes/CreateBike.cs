@@ -23,8 +23,8 @@ namespace Application.Bikes
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<CreateBike> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<CreateBike> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;

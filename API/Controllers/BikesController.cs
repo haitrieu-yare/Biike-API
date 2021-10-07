@@ -18,7 +18,7 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new ListBikes.Query { Page = page, Limit = limit }, ct));
 		}
 
-		[HttpGet("users/{userId}")]
+		[HttpGet("users/{userId:int}")]
 		public async Task<IActionResult> GetBikeByUserId(int userId, CancellationToken ct)
 		{
 			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
@@ -39,7 +39,7 @@ namespace API.Controllers
 		}
 
 		[Authorized(RoleStatus.Admin)]
-		[HttpGet("{bikeId}")]
+		[HttpGet("{bikeId:int}")]
 		public async Task<IActionResult> GetBikeByBikeId(int bikeId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new DetailBikeByBikeId.Query { BikeId = bikeId }, ct));
@@ -60,7 +60,7 @@ namespace API.Controllers
 				new CreateBike.Command { BikeCreateDTO = bikeCreateDTO }, ct));
 		}
 
-		[HttpDelete("{userId}")]
+		[HttpDelete("{userId}:int")]
 		public async Task<IActionResult> DeleteBike(int userId, CancellationToken ct)
 		{
 			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);

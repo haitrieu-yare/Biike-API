@@ -19,8 +19,8 @@ namespace Application.Bikes
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<DeleteBike> _logger;
-			public Handler(DataContext context, ILogger<DeleteBike> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, ILogger<Handler> logger)
 			{
 				_context = context;
 				_logger = logger;
