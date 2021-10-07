@@ -23,10 +23,11 @@ namespace Application.Feedbacks.DTOs
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<CreateFeedback> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 			private readonly AutoCreateTripTransaction _autoCreate;
-			public Handler(DataContext context, IMapper mapper, ILogger<CreateFeedback> logger, AutoCreateTripTransaction autoCreate)
+			public Handler(DataContext context, IMapper mapper,
+				ILogger<Handler> logger, AutoCreateTripTransaction autoCreate)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -42,16 +43,23 @@ namespace Application.Feedbacks.DTOs
 					var trip = await _context.Trip
 						.FindAsync(new object[] { request.FeedbackCreateDTO.TripId! }, cancellationToken);
 
-					if (trip == null) return null!;
+					if (trip == null) return Result<Unit>.NotFound("Trip doesn't exist.");
 
-					if (trip.Status == (int)TripStatus.Cancelled)
+					if (request.FeedbackCreateDTO.UserId != trip.KeerId &&
+					  	request.FeedbackCreateDTO.UserId != trip.BikerId)
 					{
-						_logger.LogInformation("Trip has already been cancelled.");
+						_logger.LogInformation($"User send feedback must be in the trip with tripId {trip.TripId}");
+						return Result<Unit>.Failure(
+							$"User send feedback must be in the trip with tripId {trip.TripId}.");
+					}
+					else if (trip.Status == (int)TripStatus.Cancelled)
+					{
+						_logger.LogInformation("Trip has already been cancelled");
 						return Result<Unit>.Failure("Trip has already been cancelled.");
 					}
 					else if (trip.Status != (int)TripStatus.Finished)
 					{
-						_logger.LogInformation("Can't create feedback because trip hasn't finished yet.");
+						_logger.LogInformation("Can't create feedback because trip hasn't finished yet");
 						return Result<Unit>.Failure("Can't create feedback because trip hasn't finished yet.");
 					}
 
@@ -63,7 +71,7 @@ namespace Application.Feedbacks.DTOs
 
 					if (existedFeedback != null)
 					{
-						_logger.LogInformation("Trip feedback is already existed.");
+						_logger.LogInformation("Trip feedback is already existed");
 						return Result<Unit>.Failure("Trip feedback is already existed.");
 					}
 
@@ -89,13 +97,13 @@ namespace Application.Feedbacks.DTOs
 							}
 						}
 
-						_logger.LogInformation("Successfully created feedback.");
+						_logger.LogInformation("Successfully created feedback");
 						return Result<Unit>.Success(Unit.Value,
 							"Successfully created feedback.", newFeedback.FeedbackId.ToString());
 					}
 					catch (System.Exception ex)
 					{
-						_logger.LogInformation("Failed to create new feedback.");
+						_logger.LogInformation("Failed to create new feedback");
 						_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
 
 						return Result<Unit>.Failure(

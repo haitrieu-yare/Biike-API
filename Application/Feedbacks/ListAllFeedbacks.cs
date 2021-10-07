@@ -17,7 +17,6 @@ namespace Application.Feedbacks
 	{
 		public class Query : IRequest<Result<List<FeedbackDTO>>>
 		{
-			public bool IsAdmin { get; init; }
 			public int Page { get; init; }
 			public int Limit { get; init; }
 		}
@@ -62,12 +61,6 @@ namespace Application.Feedbacks
 							.Take(request.Limit)
 							.ProjectTo<FeedbackDTO>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
-
-						if (!request.IsAdmin)
-						{
-							// Set to null to make unnecessary fields excluded from response body.
-							feedbacks.ForEach(f => f.CreatedDate = null);
-						}
 					}
 
 					PaginationDTO paginationDto = new PaginationDTO(

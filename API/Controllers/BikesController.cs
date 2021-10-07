@@ -21,7 +21,7 @@ namespace API.Controllers
 		[HttpGet("users/{userId}")]
 		public async Task<IActionResult> GetBikeByUserId(int userId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.CheckRequestUserId(HttpContext, userId);
+			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -48,7 +48,7 @@ namespace API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> CreateBike(BikeCreateDTO bikeCreateDTO, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.CheckRequestUserId(HttpContext, bikeCreateDTO.UserId);
+			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, bikeCreateDTO.UserId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -63,7 +63,7 @@ namespace API.Controllers
 		[HttpDelete("{userId}")]
 		public async Task<IActionResult> DeleteBike(int userId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.CheckRequestUserId(HttpContext, userId);
+			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");

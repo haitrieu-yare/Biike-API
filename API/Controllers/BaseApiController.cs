@@ -25,6 +25,11 @@ namespace API.Controllers
 			if (result.IsSuccess && result.Value == null)
 				return NotFound(NotFoundMessage);
 
+			if (!result.IsSuccess && !string.IsNullOrEmpty(result.NotFoundMessage))
+			{
+				return NotFound(result.NotFoundMessage);
+			}
+
 			if (result.IsSuccess && result.Value != null)
 			{
 				if (!string.IsNullOrEmpty(result.NewResourceId)) // CREATE - 201

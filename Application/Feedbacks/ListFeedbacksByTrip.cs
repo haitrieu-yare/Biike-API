@@ -10,6 +10,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
 using Persistence;
+using Domain.Enums;
 
 namespace Application.Feedbacks
 {
@@ -18,6 +19,7 @@ namespace Application.Feedbacks
 		public class Query : IRequest<Result<List<FeedbackDTO>>>
 		{
 			public int TripId { get; set; }
+			public int UserRequestId { get; set; }
 			public bool IsAdmin { get; set; }
 		}
 
@@ -38,6 +40,36 @@ namespace Application.Feedbacks
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
+
+					var trip = await _context.Trip
+						.FindAsync(new object[] { request.TripId }, cancellationToken);
+
+					if (trip == null) return Result<List<FeedbackDTO>>.NotFound("Trip doesn't exist.");
+
+					bool isRequestUserInTrip = true;
+
+					if (trip.BikerId == null && request.UserRequestId != trip.KeerId && !request.IsAdmin)
+					{
+						isRequestUserInTrip = false;
+					}
+					else if (trip.BikerId != null && request.UserRequestId != trip.BikerId &&
+						request.UserRequestId != trip.KeerId && !request.IsAdmin)
+					{
+						isRequestUserInTrip = false;
+					}
+
+					if (!isRequestUserInTrip)
+					{
+						_logger.LogInformation($"User send request must be in the trip with tripId {trip.TripId}");
+						return Result<List<FeedbackDTO>>.Failure(
+							$"User send request must be in the trip with tripId {trip.TripId}.");
+					}
+					else if (trip.Status != (int)TripStatus.Finished)
+					{
+						_logger.LogInformation($"Trip with tripId {trip.TripId} hasn't finished");
+						return Result<List<FeedbackDTO>>.Failure(
+							$"Trip with tripId {trip.TripId} hasn't finished.");
+					}
 
 					var feedbacks = await _context.Feedback
 						.Where(s => s.TripId == request.TripId)

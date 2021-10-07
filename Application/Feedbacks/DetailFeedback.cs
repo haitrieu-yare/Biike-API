@@ -14,7 +14,6 @@ namespace Application.Feedbacks
 		public class Query : IRequest<Result<FeedbackDTO>>
 		{
 			public int FeedbackId { get; set; }
-			public bool IsAdmin { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<FeedbackDTO>>
@@ -41,12 +40,6 @@ namespace Application.Feedbacks
 					FeedbackDTO feedback = new FeedbackDTO();
 
 					_mapper.Map(feedbackDB, feedback);
-
-					if (!request.IsAdmin)
-					{
-						// Set to null to make unnecessary fields excluded from response body.
-						feedback.CreatedDate = null;
-					}
 
 					_logger.LogInformation($"Successfully retrieved feedback by FeedbackId {request.FeedbackId}.");
 					return Result<FeedbackDTO>.Success(

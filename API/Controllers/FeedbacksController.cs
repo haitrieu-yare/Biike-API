@@ -11,33 +11,49 @@ namespace API.Controllers
 	[Authorize]
 	public class FeedbacksController : BaseApiController
 	{
+		[Authorized(RoleStatus.Admin)]
 		[HttpGet]
 		public async Task<IActionResult> GetTripAllFeedBacks(int page, int limit, CancellationToken ct)
 		{
-			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
-			return HandleResult(await Mediator.Send(
-				new ListAllFeedbacks.Query { Page = page, Limit = limit, IsAdmin = isAdmin }, ct));
+			return HandleResult(await Mediator.Send(new ListAllFeedbacks.Query { Page = page, Limit = limit }, ct));
 		}
 
+		[Authorized(RoleStatus.Admin)]
 		[HttpGet("{feedbackId:int}")]
 		public async Task<IActionResult> GetTripFeedBackById(int feedbackId, CancellationToken ct)
 		{
-			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
-			return HandleResult(await Mediator.Send(
-				new DetailFeedback.Query { IsAdmin = isAdmin, FeedbackId = feedbackId }, ct));
+			return HandleResult(await Mediator.Send(new DetailFeedback.Query { FeedbackId = feedbackId }, ct));
 		}
 
 		[HttpGet("trips/{tripId:int}")]
 		public async Task<IActionResult> GetTripFeedBacks(int tripId, CancellationToken ct)
 		{
-			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
+			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext);
+
+			if (!validationDto.IsUserFound)
+				return BadRequest("Can't get userId who send the request.");
+
 			return HandleResult(await Mediator.Send(
-				new ListFeedbacksByTrip.Query { IsAdmin = isAdmin, TripId = tripId }, ct));
+				new ListFeedbacksByTrip.Query
+				{
+					IsAdmin = validationDto.IsAdmin,
+					TripId = tripId,
+					UserRequestId = validationDto.UserRequestId,
+				}, ct));
 		}
 
+		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpPost]
 		public async Task<IActionResult> CreateFeedBack(FeedbackCreateDTO feedbackCreateDto, CancellationToken ct)
 		{
+			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, feedbackCreateDto.UserId);
+
+			if (!validationDto.IsUserFound)
+				return BadRequest("Can't get userId who send the request.");
+
+			if (!validationDto.IsAuthorized)
+				return BadRequest("UserId of requester isn't the same with userId of feedback.");
+
 			return HandleResult(await Mediator.Send(
 				new CreateFeedback.Command { FeedbackCreateDTO = feedbackCreateDto }, ct));
 		}
