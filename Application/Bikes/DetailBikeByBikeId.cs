@@ -14,7 +14,6 @@ namespace Application.Bikes
 		public class Query : IRequest<Result<BikeDTO>>
 		{
 			public int BikeId { get; set; }
-			public bool IsAdmin { get; set; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<BikeDTO>>
@@ -41,12 +40,6 @@ namespace Application.Bikes
 					BikeDTO bike = new BikeDTO();
 
 					_mapper.Map(bikeDB, bike);
-
-					if (!request.IsAdmin)
-					{
-						// Set to null to make unnecessary fields excluded from response body.
-						bike.CreatedDate = null;
-					}
 
 					_logger.LogInformation($"Successfully retrieved bike by BikeId {request.BikeId}.");
 					return Result<BikeDTO>.Success(bike, $"Successfully retrieved bike by BikeId {request.BikeId}.");

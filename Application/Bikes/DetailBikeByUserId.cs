@@ -17,6 +17,7 @@ namespace Application.Bikes
 		public class Query : IRequest<Result<BikeDTO>>
 		{
 			public int UserId { get; set; }
+			public int UserRequestId { get; set; }
 			public bool IsAdmin { get; set; }
 		}
 
@@ -42,6 +43,8 @@ namespace Application.Bikes
 						.Where(b => b.UserId == request.UserId)
 						.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
+
+					if (bike == null) return null!;
 
 					if (!request.IsAdmin)
 					{

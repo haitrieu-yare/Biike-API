@@ -5,39 +5,58 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Bikes;
 using Application.Bikes.DTOs;
 using Domain.Enums;
+using static API.ControllerUtils;
 
 namespace API.Controllers
 {
 	[Authorize]
 	public class BikesController : BaseApiController
 	{
+		[Authorized(RoleStatus.Admin)]
 		[HttpGet]
 		public async Task<IActionResult> GetAllBikes(int page, int limit, CancellationToken ct)
 		{
-			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
-			return HandleResult(await Mediator.Send(
-				new ListBikes.Query { IsAdmin = isAdmin, Page = page, Limit = limit }, ct));
+			return HandleResult(await Mediator.Send(new ListBikes.Query { Page = page, Limit = limit }, ct));
 		}
 
 		[HttpGet("users/{userId}")]
 		public async Task<IActionResult> GetBikeByUserId(int userId, CancellationToken ct)
 		{
-			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
+			ValidationDTO validationDto = new ControllerUtils().CheckRequestUserId(HttpContext, userId);
+
+			if (!validationDto.IsUserFound)
+				return BadRequest("Can't get userId who send the request.");
+
+			if (!validationDto.IsAuthorized)
+				return Forbid();
+
 			return HandleResult(await Mediator.Send(
-				new DetailBikeByUserId.Query { IsAdmin = isAdmin, UserId = userId }, ct));
+				new DetailBikeByUserId.Query
+				{
+					IsAdmin = validationDto.IsAdmin,
+					UserId = userId,
+					UserRequestId = validationDto.UserRequestId
+				}, ct));
 		}
 
+		[Authorized(RoleStatus.Admin)]
 		[HttpGet("{bikeId}")]
 		public async Task<IActionResult> GetBikeByBikeId(int bikeId, CancellationToken ct)
 		{
-			bool isAdmin = HttpContext.User.IsInRole(((int)RoleStatus.Admin).ToString());
-			return HandleResult(await Mediator.Send(
-				new DetailBikeByBikeId.Query { IsAdmin = isAdmin, BikeId = bikeId }, ct));
+			return HandleResult(await Mediator.Send(new DetailBikeByBikeId.Query { BikeId = bikeId }, ct));
 		}
 
 		[HttpPost]
 		public async Task<IActionResult> CreateBike(BikeCreateDTO bikeCreateDTO, CancellationToken ct)
 		{
+			ValidationDTO validationDto = new ControllerUtils().CheckRequestUserId(HttpContext, bikeCreateDTO.UserId);
+
+			if (!validationDto.IsUserFound)
+				return BadRequest("Can't get userId who send the request.");
+
+			if (!validationDto.IsAuthorized)
+				return BadRequest("UserId of requester isn't the same with userId of bike.");
+
 			return HandleResult(await Mediator.Send(
 				new CreateBike.Command { BikeCreateDTO = bikeCreateDTO }, ct));
 		}
@@ -45,6 +64,14 @@ namespace API.Controllers
 		[HttpDelete("{userId}")]
 		public async Task<IActionResult> DeleteBike(int userId, CancellationToken ct)
 		{
+			ValidationDTO validationDto = new ControllerUtils().CheckRequestUserId(HttpContext, userId);
+
+			if (!validationDto.IsUserFound)
+				return BadRequest("Can't get userId who send the request.");
+
+			if (!validationDto.IsAuthorized)
+				return BadRequest("UserId of requester isn't the same with userId of bike.");
+
 			return HandleResult(await Mediator.Send(new DeleteBike.Command { UserId = userId }, ct));
 		}
 	}

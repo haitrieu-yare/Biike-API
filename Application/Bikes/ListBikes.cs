@@ -17,7 +17,6 @@ namespace Application.Bikes
 	{
 		public class Query : IRequest<Result<List<BikeDTO>>>
 		{
-			public bool IsAdmin { get; set; }
 			public int Page { get; set; }
 			public int Limit { get; set; }
 		}
@@ -62,12 +61,6 @@ namespace Application.Bikes
 							.Take(request.Limit)
 							.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
-
-						if (!request.IsAdmin)
-						{
-							// Set to null to make unnecessary fields excluded from response body.
-							bikes.ForEach(b => b.CreatedDate = null);
-						}
 					}
 
 					PaginationDTO paginationDTO = new PaginationDTO(
