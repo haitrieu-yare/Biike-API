@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Bikes;
 using Application.Bikes.DTOs;
 using Domain.Enums;
-using static API.ControllerUtils;
 
 namespace API.Controllers
 {
@@ -22,7 +21,7 @@ namespace API.Controllers
 		[HttpGet("users/{userId}")]
 		public async Task<IActionResult> GetBikeByUserId(int userId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = new ControllerUtils().CheckRequestUserId(HttpContext, userId);
+			ValidationDTO validationDto = ControllerUtils.CheckRequestUserId(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -49,7 +48,7 @@ namespace API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> CreateBike(BikeCreateDTO bikeCreateDTO, CancellationToken ct)
 		{
-			ValidationDTO validationDto = new ControllerUtils().CheckRequestUserId(HttpContext, bikeCreateDTO.UserId);
+			ValidationDTO validationDto = ControllerUtils.CheckRequestUserId(HttpContext, bikeCreateDTO.UserId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -64,7 +63,7 @@ namespace API.Controllers
 		[HttpDelete("{userId}")]
 		public async Task<IActionResult> DeleteBike(int userId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = new ControllerUtils().CheckRequestUserId(HttpContext, userId);
+			ValidationDTO validationDto = ControllerUtils.CheckRequestUserId(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");

@@ -3,16 +3,9 @@ using Domain.Enums;
 
 namespace API
 {
-	public class ControllerUtils
+	public static class ControllerUtils
 	{
-		public class ValidationDTO
-		{
-			public bool IsUserFound { get; set; } = false;
-			public bool IsAdmin { get; set; } = false;
-			public bool IsAuthorized { get; set; } = false;
-			public int UserRequestId { get; set; }
-		}
-		public ValidationDTO CheckRequestUserId(HttpContext httpContext, int? userId)
+		public static ValidationDTO CheckRequestUserId(HttpContext httpContext, int? userId)
 		{
 			if (userId == null) return new ValidationDTO
 			{
@@ -46,5 +39,13 @@ namespace API
 				UserRequestId = userRequestId
 			};
 		}
+	}
+
+	public class ValidationDTO
+	{
+		public bool IsUserFound { get; set; } = false;
+		public bool IsAdmin { get; set; } = false;
+		public bool IsAuthorized { get; set; } = false;
+		public int UserRequestId { get; set; }
 	}
 }
