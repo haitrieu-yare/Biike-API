@@ -23,8 +23,8 @@ namespace Application.Trips
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<DetailTrip> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<DetailTrip> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -42,13 +42,13 @@ namespace Application.Trips
 						.ProjectTo<TripDetailDTO>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 
-					_logger.LogInformation($"Successfully retrieved trip by TripId {request.TripId}.");
+					_logger.LogInformation($"Successfully retrieved trip by TripId {request.TripId}");
 					return Result<TripDetailDTO>.Success(
 						trip, $"Successfully retrieved trip by TripId {request.TripId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<TripDetailDTO>.Failure("Request was cancelled.");
 				}
 			}

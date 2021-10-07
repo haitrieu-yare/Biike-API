@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Trips;
 using Application.Trips.DTOs;
+using Domain.Enums;
 
 namespace API.Controllers
 {
@@ -18,6 +19,7 @@ namespace API.Controllers
 				new ListTrips.Query { Page = page, Limit = limit }, ct));
 		}
 
+		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpGet("{userId}/history")]
 		public async Task<IActionResult> GetHistoryTrips(
 			int userId, int role, int page, int limit, CancellationToken ct)
@@ -26,6 +28,7 @@ namespace API.Controllers
 				new HistoryList.Query { Page = page, Limit = limit, UserId = userId, Role = role }, ct));
 		}
 
+		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpGet("{userId}/upcoming")]
 		public async Task<IActionResult> GetUpcomingTrips(
 			int userId, int role, int page, int limit, CancellationToken ct)
@@ -34,6 +37,7 @@ namespace API.Controllers
 				new UpcomingList.Query { Page = page, Limit = limit, UserId = userId, Role = role }, ct));
 		}
 
+		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpGet("historyPair")]
 		public async Task<IActionResult> GetHistoryPairTrips(
 			int userOneId, int userTwoId, int page, int limit, CancellationToken ct)
@@ -49,9 +53,39 @@ namespace API.Controllers
 		}
 
 		[HttpGet("{tripId}")]
-		public async Task<IActionResult> GetTrip(int tripId, CancellationToken ct)
+		public async Task<IActionResult> GetTripDetail(int tripId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new DetailTrip.Query { TripId = tripId }, ct));
+		}
+
+		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
+		[HttpGet("{tripId}/details")]
+		public async Task<IActionResult> GetTripDetailInfo(int tripId, CancellationToken ct)
+		{
+			int role = 0;
+			foreach (RoleStatus roleStatus in Enum.GetValues(typeof(RoleStatus)))
+			{
+				if (HttpContext.User.IsInRole(((int)roleStatus).ToString()))
+				{
+					role = (int)roleStatus;
+				}
+			}
+
+			var userRequestIdClaim = HttpContext.User.FindFirst(c => c.Type.Equals("user_id"));
+			string? userRequestId = userRequestIdClaim?.Value;
+
+			if (string.IsNullOrEmpty(userRequestId))
+			{
+				return BadRequest("Can't get userId who send the request.");
+			}
+
+			return HandleResult(await Mediator.Send(
+				new DetailTripInfo.Query
+				{
+					TripId = tripId,
+					Role = role,
+					UserRequestId = int.Parse(userRequestId),
+				}, ct));
 		}
 
 		[HttpPost]

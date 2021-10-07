@@ -7,6 +7,8 @@ namespace Application.Feedbacks.DTOs
 	{
 		public int? FeedbackId { get; set; }
 		public int? UserId { get; set; }
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? TripId { get; set; }
 		public string? FeedbackContent { get; set; }
 		public int? TripStar { get; set; }

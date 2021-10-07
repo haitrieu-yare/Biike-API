@@ -26,7 +26,8 @@ namespace API.Controllers
 				return NotFound(NotFoundMessage);
 
 			if (result.IsSuccess && result.Value != null)
-				if (!string.IsNullOrEmpty(result.NewResourceId))
+			{
+				if (!string.IsNullOrEmpty(result.NewResourceId)) // CREATE - 201
 				{
 					string newResourceURL = baseURL + "/" + result.NewResourceId;
 
@@ -36,7 +37,7 @@ namespace API.Controllers
 						data = result.Value,
 					});
 				}
-				else if (result.PaginationDTO != null)
+				else if (result.PaginationDTO != null)  // PAGINATION
 				{
 					#region Reconstruct a query string
 					List<string> queryString = Request.QueryString.ToString().Split("&").ToList();
@@ -114,7 +115,7 @@ namespace API.Controllers
 
 					return Ok(response);
 				}
-				else
+				else // NORMAL - 200
 				{
 					return Ok(new
 					{
@@ -122,6 +123,12 @@ namespace API.Controllers
 						data = result.Value,
 					});
 				}
+			}
+
+			if (!result.IsSuccess && result.IsUnauthorized) // FORBIDDEN
+			{
+				return Forbid();
+			}
 
 			return BadRequest(result.ErrorMessage);
 		}

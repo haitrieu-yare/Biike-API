@@ -1,0 +1,23 @@
+using System;
+using System.Collections.Generic;
+using Application.Feedbacks.DTOs;
+
+namespace Application.Trips.DTOs
+{
+	public class TripDetailInfoDTO
+	{
+		public int? TripId { get; set; }
+		public int? UserId { get; set; }
+		public string? UserPhoneNumber { get; set; }
+		public string? Avatar { get; set; }
+		public string? UserFullname { get; set; }
+		public double? UserStar { get; set; }
+		public DateTime? CreatedTime { get; set; }
+		public DateTime? TimeBook { get; set; }
+		public DateTime? TimeFinished { get; set; }
+		public int? TripStatus { get; set; }
+		public string? StartingPointName { get; set; }
+		public string? DestinationName { get; set; }
+		public List<FeedbackDTO> Feedbacks { get; set; } = new List<FeedbackDTO>();
+	}
+}

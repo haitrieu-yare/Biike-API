@@ -23,8 +23,7 @@ namespace API.Controllers
 		[HttpGet("{userId}/profile")]
 		public async Task<IActionResult> GetUserSelfProfile(int userId, CancellationToken ct)
 		{
-			var user = HttpContext.User;
-			var userRequestIdClaim = user.FindFirst(c => c.Type.Equals("user_id"));
+			var userRequestIdClaim = HttpContext.User.FindFirst(c => c.Type.Equals("user_id"));
 			string? userRequestId = userRequestIdClaim?.Value;
 
 			if (string.IsNullOrEmpty(userRequestId))

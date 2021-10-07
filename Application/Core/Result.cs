@@ -5,7 +5,7 @@ namespace Application.Core
 		public bool IsSuccess { get; set; }
 		public string NewResourceId { get; set; } = string.Empty;
 		public PaginationDTO? PaginationDTO { get; set; }
-
+		public bool IsUnauthorized { get; set; } = false;
 		public T? Value { get; set; }
 		public string? ErrorMessage { get; set; }
 		public string? SuccessMessage { get; set; }
@@ -30,5 +30,7 @@ namespace Application.Core
 			};
 		public static Result<T> Failure(string errorMessage)
 			=> new Result<T> { IsSuccess = false, ErrorMessage = errorMessage };
+		public static Result<T> Unauthorized()
+			=> new Result<T> { IsSuccess = false, IsUnauthorized = true };
 	}
 }
