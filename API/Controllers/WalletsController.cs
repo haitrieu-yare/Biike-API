@@ -11,6 +11,7 @@ namespace API.Controllers
 	[Authorize]
 	public class WalletsController : BaseApiController
 	{
+		[Authorized(RoleStatus.Admin)]
 		[HttpGet]
 		public async Task<IActionResult> GetAllWallets(int page, int limit, CancellationToken ct)
 		{
@@ -20,10 +21,19 @@ namespace API.Controllers
 		[HttpGet("users/{userId}")]
 		public async Task<IActionResult> GetAllWalletsByUserId(int page, int limit, int userId, CancellationToken ct)
 		{
+			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+
+			if (!validationDto.IsUserFound)
+				return BadRequest("Can't get userId who send the request.");
+
+			if (!validationDto.IsAuthorized)
+				return BadRequest("UserId of requester isn't the same with userId of wallet.");
+
 			return HandleResult(await Mediator.Send(
 				new ListWalletsByUserId.Query { Page = page, Limit = limit, UserId = userId }, ct));
 		}
 
+		[Authorized(RoleStatus.Admin)]
 		[HttpGet("{walletId}")]
 		public async Task<IActionResult> GetWalletByWalletId(int walletId, CancellationToken ct)
 		{
@@ -38,6 +48,7 @@ namespace API.Controllers
 				new CreateWallet.Command { WalletCreateDTO = walletCreateDTO }, ct));
 		}
 
+		[Authorized(RoleStatus.Admin)]
 		[HttpPut("{walletId}")]
 		public async Task<IActionResult> EditWalletByWalletId(int walletId,
 			WalletDTO newWalletDTO, CancellationToken ct)

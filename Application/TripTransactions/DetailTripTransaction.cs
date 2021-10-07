@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.TripTransactions.DTOs;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using MediatR;
 using Persistence;
 
