@@ -19,10 +19,8 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new ListTrips.Query { Page = page, Limit = limit }, ct));
 		}
 
-		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpGet("{userId:int}/history")]
-		public async Task<IActionResult> GetHistoryTrips(
-			int userId, int page, int limit, CancellationToken ct)
+		public async Task<IActionResult> GetHistoryTrips(int userId, int page, int limit, CancellationToken ct)
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
@@ -38,10 +36,8 @@ namespace API.Controllers
 				new HistoryList.Query { Page = page, Limit = limit, UserId = userId, Role = role }, ct));
 		}
 
-		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpGet("{userId:int}/upcoming")]
-		public async Task<IActionResult> GetUpcomingTrips(
-			int userId, int page, int limit, CancellationToken ct)
+		public async Task<IActionResult> GetUpcomingTrips(int userId, int page, int limit, CancellationToken ct)
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
@@ -57,7 +53,24 @@ namespace API.Controllers
 				new UpcomingList.Query { Page = page, Limit = limit, UserId = userId, Role = role }, ct));
 		}
 
-		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
+		[Authorized(RoleStatus.Biker, RoleStatus.Admin)]
+		[HttpGet("upcomingBiker")]
+		public async Task<IActionResult> GetUpcomingTripsForBiker(int page, int limit, CancellationToken ct)
+		{
+			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext);
+
+			if (!validationDto.IsUserFound)
+				return BadRequest("Can't get userId who send the request.");
+
+			return HandleResult(await Mediator.Send(
+				new UpcomingListForBiker.Query
+				{
+					Page = page,
+					Limit = limit,
+					UserId = validationDto.UserRequestId
+				}, ct));
+		}
+
 		[HttpGet("historyPair")]
 		public async Task<IActionResult> GetHistoryPairTrips(
 			int userOneId, int userTwoId, int page, int limit, CancellationToken ct)
@@ -171,7 +184,7 @@ namespace API.Controllers
 				new EditTripCancellation.Command
 				{
 					TripId = tripId,
-					UserId = userId,
+					UserId = validationDto.UserRequestId,
 					TripCancellationDTO = tripCancellationDTO
 				}, ct));
 		}

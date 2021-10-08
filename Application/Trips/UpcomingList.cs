@@ -48,20 +48,21 @@ namespace Application.Trips
 						return Result<List<TripDTO>>.Failure("Page must larger than 0.");
 					}
 
-					if (request.Role != (int)RoleStatus.Keer && request.Role != (int)RoleStatus.Biker)
+					bool isKeer = true;
+
+					if (request.Role == (int)RoleStatus.Biker)
 					{
-						_logger.LogInformation("Role must be " + (int)RoleStatus.Keer
-							+ " (Keer) or " + (int)RoleStatus.Biker + " (Biker)");
-						return Result<List<TripDTO>>.Failure("Role must be " + (int)RoleStatus.Keer
-							+ " (Keer) or " + (int)RoleStatus.Biker + " (Biker).");
+						isKeer = false;
 					}
 
 					int totalRecord = await _context.Trip
-						.Where(t => (request.Role == (int)RoleStatus.Keer) ?
+						.Where(t =>
+							isKeer ?
 							t.KeerId == request.UserId :
 							t.BikerId == request.UserId)
-						.Where(t => t.Status == (int)TripStatus.Finding
-							|| t.Status == (int)TripStatus.Waiting)
+						.Where(t =>
+							t.Status == (int)TripStatus.Finding ||
+							t.Status == (int)TripStatus.Waiting)
 						.CountAsync(cancellationToken);
 
 					#region Calculate last page
@@ -73,16 +74,18 @@ namespace Application.Trips
 					if (request.Page <= lastPage)
 					{
 						trips = await _context.Trip
-							.Where(t => (request.Role == (int)RoleStatus.Keer) ?
+							.Where(t =>
+								isKeer ?
 								t.KeerId == request.UserId :
 								t.BikerId == request.UserId)
-							.Where(t => t.Status == (int)TripStatus.Finding
-								|| t.Status == (int)TripStatus.Waiting)
+							.Where(t =>
+								t.Status == (int)TripStatus.Finding ||
+								t.Status == (int)TripStatus.Waiting)
 							.OrderBy(t => t.BookTime)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
 							.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
-								new { role = request.Role })
+								new { isKeer = isKeer })
 							.ToListAsync(cancellationToken);
 					}
 

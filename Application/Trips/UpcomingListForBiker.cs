@@ -14,12 +14,11 @@ using Persistence;
 
 namespace Application.Trips
 {
-	public class HistoryList
+	public class UpcomingListForBiker
 	{
 		public class Query : IRequest<Result<List<TripDTO>>>
 		{
 			public int UserId { get; set; }
-			public int Role { get; set; }
 			public int Page { get; set; }
 			public int Limit { get; set; }
 		}
@@ -48,21 +47,9 @@ namespace Application.Trips
 						return Result<List<TripDTO>>.Failure("Page must larger than 0.");
 					}
 
-					bool isKeer = true;
-
-					if (request.Role == (int)RoleStatus.Biker)
-					{
-						isKeer = false;
-					}
-
 					int totalRecord = await _context.Trip
-						.Where(t =>
-							isKeer ?
-							t.KeerId == request.UserId :
-							t.BikerId == request.UserId)
-						.Where(t =>
-							t.Status == (int)TripStatus.Finished ||
-							t.Status == (int)TripStatus.Cancelled)
+						.Where(t => t.KeerId != request.UserId)
+						.Where(t => t.Status == (int)TripStatus.Finding)
 						.CountAsync(cancellationToken);
 
 					#region Calculate last page
@@ -74,18 +61,13 @@ namespace Application.Trips
 					if (request.Page <= lastPage)
 					{
 						trips = await _context.Trip
-							.Where(t =>
-								isKeer ?
-								t.KeerId == request.UserId :
-								t.BikerId == request.UserId)
-							.Where(t =>
-								t.Status == (int)TripStatus.Finished ||
-								t.Status == (int)TripStatus.Cancelled)
-							.OrderByDescending(t => t.BookTime)
+							.Where(t => t.KeerId != request.UserId)
+							.Where(t => t.Status == (int)TripStatus.Finding)
+							.OrderBy(t => t.BookTime)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
 							.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
-								new { isKeer = isKeer })
+								new { isKeer = false })
 							.ToListAsync(cancellationToken);
 					}
 
@@ -93,9 +75,9 @@ namespace Application.Trips
 						request.Page, request.Limit, trips.Count, lastPage, totalRecord
 					);
 
-					_logger.LogInformation("Successfully retrieved list of all history trips");
+					_logger.LogInformation("Successfully retrieved list of all upcoming trips for biker");
 					return Result<List<TripDTO>>.Success(
-						trips, "Successfully retrieved list of all history trips.", paginationDto);
+						trips, "Successfully retrieved list of all upcoming trips for biker.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{

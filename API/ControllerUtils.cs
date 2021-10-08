@@ -29,10 +29,11 @@ namespace API
 			var userRequestIdClaim = httpContext.User.FindFirst(c => c.Type.Equals("user_id"));
 			string? userRequestIdString = userRequestIdClaim?.Value;
 
-			if (string.IsNullOrEmpty(userRequestIdString)) return new ValidationDTO
-			{
-				IsUserFound = false
-			};
+			if (string.IsNullOrEmpty(userRequestIdString))
+				return new ValidationDTO
+				{
+					IsUserFound = false
+				};
 			#endregion
 
 			#region Check Admin
@@ -60,10 +61,11 @@ namespace API
 			// 3) Lấy Id của user tạo request này
 
 			#region Check requested user existence
-			if (userIdGetRequested == null) return new ValidationDTO
-			{
-				IsUserFound = false
-			};
+			if (userIdGetRequested == null)
+				return new ValidationDTO
+				{
+					IsUserFound = false
+				};
 			#endregion
 
 			#region Check user make request existence

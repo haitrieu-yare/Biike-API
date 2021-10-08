@@ -110,20 +110,26 @@ namespace Application.Core
 			#endregion
 
 			#region Trip
-			// History/Upcoming Trips
-			int role = 0;
+			// History Trips & Upcoming Trips
+			bool isKeer = true;
 			CreateMap<Trip, TripDTO>()
 				.ForMember(t => t.UserId, o =>
-					o.MapFrom(t => (role == (int)RoleStatus.Keer) ? t.BikerId : t.KeerId))
+					o.MapFrom(t => isKeer ? t.BikerId : t.KeerId))
 				.ForMember(t => t.Avatar, o =>
-					o.MapFrom(t => (t.Biker == null) ? null :
-						(role == (int)RoleStatus.Keer) ? t.Biker.Avatar : t.Keer.Avatar))
+					o.MapFrom(t =>
+						(t.Biker == null && isKeer) ? null :
+						(t.Biker == null && !isKeer) ? t.Keer.Avatar :
+						(t.Biker != null && isKeer) ? t.Biker.Avatar : t.Keer.Avatar))
 				.ForMember(t => t.UserFullname, o =>
-					o.MapFrom(t => (t.Biker == null) ? null :
-						(role == (int)RoleStatus.Keer) ? t.Biker.FullName : t.Keer.FullName))
+					o.MapFrom(t =>
+						(t.Biker == null && isKeer) ? null :
+						(t.Biker == null && !isKeer) ? t.Keer.FullName :
+						(t.Biker != null && isKeer) ? t.Biker.FullName : t.Keer.FullName))
 				.ForMember(t => t.UserPhoneNumber, o =>
-					o.MapFrom(t => (t.Biker == null) ? null :
-						(role == (int)RoleStatus.Keer) ? t.Biker.PhoneNumber : t.Keer.PhoneNumber))
+					o.MapFrom(t =>
+						(t.Biker == null && isKeer) ? null :
+						(t.Biker == null && !isKeer) ? t.Keer.PhoneNumber :
+						(t.Biker != null && isKeer) ? t.Biker.PhoneNumber : t.Keer.PhoneNumber))
 				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
 				.ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
 				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))
@@ -144,6 +150,7 @@ namespace Application.Core
 				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
 
 			// Detail
+			int role = 0;
 			CreateMap<Trip, TripDetailInfoDTO>()
 				.ForMember(t => t.UserId, o =>
 					o.MapFrom(t => (role == (int)RoleStatus.Keer) ? t.BikerId : t.KeerId))

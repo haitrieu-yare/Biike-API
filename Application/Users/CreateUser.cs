@@ -76,15 +76,15 @@ namespace Application.Users
 
 					if (currentTime.Month >= 1 && currentTime.Month <= 4)
 					{
-						toDate = DateTime.Parse($"{currentTime.Year}/04/30 23:59:59.999999");
+						toDate = DateTime.Parse($"{currentTime.Year}/04/30 23:59:59.9999999");
 					}
 					else if (currentTime.Month >= 5 && currentTime.Month <= 8)
 					{
-						toDate = DateTime.Parse($"{currentTime.Year}/08/31 23:59:59.999999");
+						toDate = DateTime.Parse($"{currentTime.Year}/08/31 23:59:59.9999999");
 					}
 					else if (currentTime.Month >= 9 && currentTime.Month <= 12)
 					{
-						toDate = DateTime.Parse($"{currentTime.Year}/12/31 23:59:59.999999");
+						toDate = DateTime.Parse($"{currentTime.Year}/12/31 23:59:59.9999999");
 					}
 
 					Wallet newWallet = new Wallet

@@ -9,9 +9,9 @@ namespace Application.Trips.DTOs
 		public int? TripId { get; set; }
 		public int? UserId { get; set; }
 		public string? UserPhoneNumber { get; set; }
-		public string? Avatar { get; set; }
 		public string? UserFullname { get; set; }
 		public double? UserStar { get; set; }
+		public string? Avatar { get; set; }
 		public DateTime? CreatedTime { get; set; }
 		public DateTime? TimeBook { get; set; }
 		public DateTime? TimeFinished { get; set; }
