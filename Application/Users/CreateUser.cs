@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using FirebaseAdmin.Auth;
@@ -68,11 +70,41 @@ namespace Application.Users
 					// Hash password
 					newUser.PasswordHash = _hashing.HashPassword(newUser.PasswordHash);
 
+					#region Create Wallet
+					DateTime currentTime = DateTime.UtcNow.AddHours(7);
+					DateTime toDate = currentTime;
+
+					if (currentTime.Month >= 1 && currentTime.Month <= 4)
+					{
+						toDate = DateTime.Parse($"{currentTime.Year}/04/30 23:59:59.999999");
+					}
+					else if (currentTime.Month >= 5 && currentTime.Month <= 8)
+					{
+						toDate = DateTime.Parse($"{currentTime.Year}/08/31 23:59:59.999999");
+					}
+					else if (currentTime.Month >= 9 && currentTime.Month <= 12)
+					{
+						toDate = DateTime.Parse($"{currentTime.Year}/12/31 23:59:59.999999");
+					}
+
+					Wallet newWallet = new Wallet
+					{
+						User = newUser,
+						ToDate = toDate,
+					};
+					#endregion
+
+					using var transaction = _context.Database.BeginTransaction();
 					await _context.User.AddAsync(newUser, cancellationToken);
+					var resultUser = await _context.SaveChangesAsync(cancellationToken) > 0;
+					await _context.Wallet.AddAsync(newWallet, cancellationToken);
+					var resultWallet = await _context.SaveChangesAsync(cancellationToken) > 0;
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					// Commit transaction if all commands succeed, transaction will auto-rollback
+					// when disposed if either commands fails
+					transaction.Commit();
 
-					if (!result)
+					if (!resultUser || !resultWallet)
 					{
 						_logger.LogInformation("Failed to create new user.");
 						return Result<Unit>.Failure("Failed to create new user.");
