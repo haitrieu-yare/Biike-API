@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain;
 using Domain.Entities;
 
 namespace Persistence.Data
@@ -11,6 +13,8 @@ namespace Persistence.Data
 		{
 			if (context.Feedback.Any()) return;
 
+			DateTime currentTime = CurrentTime.GetCurrentTime();
+
 			var feedbackList = new List<Feedback>
 			{
 				new Feedback
@@ -19,15 +23,17 @@ namespace Persistence.Data
 					TripId = 1,
 					FeedbackContent = "Chuyến đi rất là thoải mái luôn.",
 					Star = 5,
-					Criteria = "Dịch Vụ Tốt"
+					Criteria = "Dịch Vụ Tốt",
+					CreatedDate = currentTime.AddDays(-9).AddSeconds(900),
 				},
 				new Feedback
 				{
-					UserId = 4,
+					UserId = 3,
 					TripId = 1,
 					FeedbackContent = "Mọi chuyện suôn sẻ, thuận lợi.",
 					Star = 5,
-					Criteria = "Đúng Giờ"
+					Criteria = "Đúng Giờ",
+					CreatedDate = currentTime.AddDays(-9).AddSeconds(800),
 				},
 				new Feedback
 				{
@@ -35,31 +41,17 @@ namespace Persistence.Data
 					TripId = 2,
 					FeedbackContent = "Tài xế đến hơi trễ xíu.",
 					Star = 4,
-					Criteria = "Cần Đến Đúng Giờ"
+					Criteria = "Cần Đến Đúng Giờ",
+					CreatedDate = currentTime.AddDays(-2).AddSeconds(420+600+300),
 				},
 				new Feedback
 				{
-					UserId = 5,
+					UserId = 3,
 					TripId = 2,
-					FeedbackContent = "Bạn nữ dễ thương.",
+					FeedbackContent = "Bạn dễ thương.",
 					Star = 5,
-					Criteria = "Thân Thiện"
-				},
-				new Feedback
-				{
-					UserId = 6,
-					TripId = 3,
-					FeedbackContent = "Bạn này chạy hơi ẩu.",
-					Star = 3,
-					Criteria = "Chạy Ẩu"
-				},
-				new Feedback
-				{
-					UserId = 7,
-					TripId = 3,
-					FeedbackContent = "Bạn này nói hơi nhiều.",
-					Star = 4,
-					Criteria = "Không Thân Thiện"
+					Criteria = "Thân Thiện",
+					CreatedDate = currentTime.AddDays(-2).AddSeconds(420+600+400),
 				},
 			};
 

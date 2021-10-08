@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain;
 using Domain.Entities;
 
 namespace Persistence.Data
@@ -12,34 +13,36 @@ namespace Persistence.Data
 		{
 			if (context.Redemption.Any()) return;
 
+			DateTime currentTime = CurrentTime.GetCurrentTime();
+
 			var redemptions = new List<Redemption>
 			{
 				new Redemption
 				{
-					WalletId = 4,
+					WalletId = 1,
 					VoucherId = 1,
 					VoucherCode = "ORANGEAUTUMN20",
 					VoucherPoint = 200,
 					IsUsed = false,
-					RedemptionDate = DateTime.Now,
+					RedemptionDate = currentTime.AddDays(-5),
 				},
 				new Redemption
 				{
-					WalletId = 5,
+					WalletId = 3,
 					VoucherId = 2,
 					VoucherCode = "BLUESKY30",
 					VoucherPoint = 300,
 					IsUsed = false,
-					RedemptionDate = DateTime.Now,
+					RedemptionDate = currentTime.AddDays(-3),
 				},
 				new Redemption
 				{
-					WalletId = 6,
+					WalletId = 4,
 					VoucherId = 3,
 					VoucherCode = "GOLDMEDAL50",
 					VoucherPoint = 500,
 					IsUsed = true,
-					RedemptionDate = DateTime.Now,
+					RedemptionDate = currentTime.AddDays(-2),
 				},
 			};
 

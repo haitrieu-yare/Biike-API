@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain;
 using Domain.Entities;
 
 namespace Persistence.Data
@@ -12,28 +13,37 @@ namespace Persistence.Data
 		{
 			if (context.TripTransaction.Any()) return;
 
+			DateTime currentTime = CurrentTime.GetCurrentTime();
+
 			var tripTransactions = new List<TripTransaction>
 			{
 				new TripTransaction
 				{
 					TripId = 1,
-					WalletId = 4,
+					WalletId = 3,
 					AmountOfPoint = 10,
-					TransactionDate = DateTime.Now.AddDays(-9).AddMilliseconds(1800000),
+					TransactionDate = currentTime.AddDays(-9).AddSeconds(600),
+				},
+				new TripTransaction
+				{
+					TripId = 1,
+					WalletId = 3,
+					AmountOfPoint = 10,
+					TransactionDate = currentTime.AddDays(-9).AddSeconds(900),
 				},
 				new TripTransaction
 				{
 					TripId = 2,
-					WalletId = 5,
-					AmountOfPoint = 15,
-					TransactionDate = DateTime.Now.AddDays(-5).AddMilliseconds(1200000),
+					WalletId = 4,
+					AmountOfPoint = 12,
+					TransactionDate = currentTime.AddDays(-2).AddSeconds(420+600),
 				},
 				new TripTransaction
 				{
-					TripId = 3,
-					WalletId = 7,
-					AmountOfPoint = 12,
-					TransactionDate = DateTime.Now.AddDays(-2).AddMilliseconds(900000),
+					TripId = 2,
+					WalletId = 4,
+					AmountOfPoint = 10,
+					TransactionDate = currentTime.AddDays(-2).AddSeconds(420+600+300),
 				},
 			};
 

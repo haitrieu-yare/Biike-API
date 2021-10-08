@@ -73,6 +73,8 @@ namespace Persistence.Migrations
                     BikeId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
+                    BikeOwner = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Picture = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PlateNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),

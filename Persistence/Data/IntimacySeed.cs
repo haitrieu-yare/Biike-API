@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain;
 using Domain.Entities;
 
 namespace Persistence.Data
@@ -12,29 +13,24 @@ namespace Persistence.Data
 		{
 			if (context.Intimacy.Any()) return;
 
+			DateTime currentTime = CurrentTime.GetCurrentTime();
+
 			var intimacies = new List<Intimacy>
 			{
 				new Intimacy
 				{
-					UserOneId = 5,
-					UserTwoId = 6,
-					IsBlock = true,
-					BlockTime = DateTime.Now.AddDays(-1),
-				},
-				new Intimacy
-				{
-					UserOneId = 6,
-					UserTwoId = 5,
-					IsBlock = true,
-					BlockTime = DateTime.Now.AddDays(-1).AddMilliseconds(1500000),
-				},
-				new Intimacy
-				{
 					UserOneId = 7,
-					UserTwoId = 2,
+					UserTwoId = 8,
+					IsBlock = true,
+					BlockTime = currentTime.AddDays(-1),
+				},
+				new Intimacy
+				{
+					UserOneId = 8,
+					UserTwoId = 7,
 					IsBlock = false,
-					BlockTime = DateTime.Now.AddDays(-3),
-					UnblockTime = DateTime.Now.AddDays(-2),
+					BlockTime = currentTime.AddDays(-3),
+					UnblockTime = currentTime.AddDays(-2),
 				},
 			};
 

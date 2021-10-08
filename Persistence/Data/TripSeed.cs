@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 
@@ -13,84 +14,89 @@ namespace Persistence.Data
 		{
 			if (context.Trip.Any()) return;
 
+			DateTime currentTime = CurrentTime.GetCurrentTime();
+
 			var trips = new List<Trip>
 			{
 				new Trip
 				{
 					KeerId = 1,
-					BikerId = 4,
-					RouteId = 1,
-					BookTime = DateTime.Now.AddDays(-10),
-					PickupTime = DateTime.Now.AddDays(-9),
-					FinishedTime = DateTime.Now.AddDays(-9).AddMilliseconds(1800000),
+					BikerId = 3,
+					RouteId = 2,
+					CreatedDate = currentTime.AddDays(-10),
+					BookTime = currentTime.AddDays(-9),
+					PickupTime = currentTime.AddDays(-9).AddSeconds(300),
+					FinishedTime = currentTime.AddDays(-9).AddSeconds(600),
 					Status = (int) TripStatus.Finished,
 					PlateNumber = "7000",
 					IsScheduled = true,
 				},
 				new Trip
 				{
-					KeerId = 2,
-					BikerId = 5,
+					KeerId = 1,
+					BikerId = 4,
 					RouteId = 2,
-					BookTime = DateTime.Now.AddDays(-5),
-					PickupTime = DateTime.Now.AddDays(-5).AddMilliseconds(300000),
-					FinishedTime = DateTime.Now.AddDays(-5).AddMilliseconds(1200000),
-					Status = (int) TripStatus.Finished,
-					PlateNumber = "7001",
-					IsScheduled = false,
-				},
-				new Trip
-				{
-					KeerId = 6,
-					BikerId = 7,
-					RouteId = 3,
-					BookTime = DateTime.Now.AddDays(-2),
-					PickupTime = DateTime.Now.AddDays(-2).AddMilliseconds(600000),
-					FinishedTime = DateTime.Now.AddDays(-2).AddMilliseconds(900000),
-					Status = (int) TripStatus.Finished,
-					PlateNumber = "7004",
-					IsScheduled = false,
-				},
-				new Trip
-				{
-					KeerId = 1,
-					BikerId = 5,
-					RouteId = 1,
-					BookTime = DateTime.Now.AddDays(-8),
-					PickupTime = DateTime.Now.AddDays(-7),
-					FinishedTime = DateTime.Now.AddDays(-7).AddMilliseconds(1800000),
-					Status = (int) TripStatus.Finished,
-					PlateNumber = "7001",
-					IsScheduled = true,
-				},
-				new Trip
-				{
-					KeerId = 1,
-					BikerId = null,
-					RouteId = 1,
-					BookTime = DateTime.Now.AddDays(1),
-					Status = (int) TripStatus.Finding,
-					PlateNumber = "7001",
-					IsScheduled = true,
-				},
-				new Trip
-				{
-					KeerId = 1,
-					BikerId = null,
-					RouteId = 1,
-					BookTime = DateTime.Now.AddDays(2),
-					Status = (int) TripStatus.Finding,
-					PlateNumber = "7002",
-					IsScheduled = true,
-				},
-				new Trip
-				{
-					KeerId = 1,
-					BikerId = 7,
-					RouteId = 1,
-					BookTime = DateTime.Now.AddDays(2),
+					CreatedDate = currentTime,
+					BookTime = currentTime.AddDays(2),
 					Status = (int) TripStatus.Waiting,
-					PlateNumber = "7003",
+					PlateNumber = "7001",
+					IsScheduled = true,
+				},
+				new Trip
+				{
+					KeerId = 1,
+					RouteId = 2,
+					CreatedDate = currentTime,
+					BookTime = currentTime.AddDays(4),
+					Status = (int) TripStatus.Finding,
+					IsScheduled = true,
+				},
+				new Trip
+				{
+					KeerId = 1,
+					BikerId = 8,
+					RouteId = 2,
+					CreatedDate = currentTime.AddDays(-15),
+					BookTime = currentTime.AddDays(-12),
+					Status = (int) TripStatus.Cancelled,
+					CancelPersonId = 1,
+					CancelReason = "Mình bận đột xuất. Sorry!",
+					IsScheduled = true,
+				},
+				new Trip
+				{
+					KeerId = 1,
+					BikerId = 4,
+					RouteId = 2,
+					CreatedDate = currentTime.AddDays(-7),
+					BookTime = currentTime.AddDays(-5),
+					Status = (int) TripStatus.Cancelled,
+					CancelPersonId = 4,
+					CancelReason = "Mình bận đột xuất. Sorry!",
+					IsScheduled = true,
+				},
+				new Trip
+				{
+					KeerId = 2,
+					BikerId = 3,
+					RouteId = 5,
+					CreatedDate = currentTime.AddDays(-2),
+					BookTime = currentTime.AddDays(-2),
+					PickupTime = currentTime.AddDays(-2).AddSeconds(420),
+					FinishedTime = currentTime.AddDays(-2).AddSeconds(420+600),
+					Status = (int) TripStatus.Finished,
+					PlateNumber = "7000",
+					IsScheduled = false,
+				},
+				new Trip
+				{
+					KeerId = 2,
+					BikerId = 4,
+					RouteId = 6,
+					CreatedDate = currentTime,
+					BookTime = currentTime.AddDays(3),
+					Status = (int) TripStatus.Waiting,
+					PlateNumber = "7001",
 					IsScheduled = true,
 				},
 			};

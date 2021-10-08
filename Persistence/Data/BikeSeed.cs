@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,42 +12,33 @@ namespace Persistence.Data
 		{
 			if (context.Bike.Any()) return;
 
+			DateTime createdDate = DateTime.Parse("2021/09/01");
+
 			var bikes = new List<Bike>
 			{
 				new Bike
 				{
-					UserId = 4,
+					UserId = 3,
 					PlateNumber = "7000",
 					Color = "Gold",
 					Brand = "Honda",
+					CreatedDate = createdDate,
 				},
 				new Bike
 				{
-					UserId = 5,
+					UserId = 4,
 					PlateNumber = "7001",
 					Color = "Blue",
 					Brand = "Yamaha",
-				},
-				new Bike
-				{
-					UserId = 6,
-					PlateNumber = "7002",
-					Color = "Red",
-					Brand = "Honda",
-				},
-				new Bike
-				{
-					UserId = 7,
-					PlateNumber = "7004",
-					Color = "Green",
-					Brand = "Suzuki",
+					CreatedDate = createdDate,
 				},
 				new Bike
 				{
 					UserId = 8,
-					PlateNumber = "7005",
+					PlateNumber = "7002",
 					Color = "Black",
-					Brand = "Yamaha",
+					Brand = "Suzuki",
+					CreatedDate = createdDate,
 				},
 			};
 

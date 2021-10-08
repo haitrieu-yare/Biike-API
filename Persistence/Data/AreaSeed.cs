@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,11 +12,14 @@ namespace Persistence.Data
 		{
 			if (context.Area.Any()) return;
 
+			DateTime createdDate = DateTime.Parse("2021/09/01");
+
 			var areas = new List<Area>
 			{
 				new Area
 				{
 					Name = "Đại Học FPT TP.HCM",
+					CreatedDate = createdDate,
 				},
 			};
 

@@ -12,15 +12,19 @@ namespace Persistence.Data
 		{
 			if (context.VoucherCategory.Any()) return;
 
+			DateTime createdDate = DateTime.Parse("2021/09/01");
+
 			var voucherCategories = new List<VoucherCategory>
 			{
 				new VoucherCategory
 				{
 					CategoryName = "Bình Dân",
+					CreatedDate = createdDate,
 				},
 				new VoucherCategory
 				{
 					CategoryName = "Cao Cấp",
+					CreatedDate = createdDate,
 				},
 			};
 
