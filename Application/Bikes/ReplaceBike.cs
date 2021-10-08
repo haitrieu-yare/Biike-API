@@ -6,13 +6,13 @@ using Microsoft.Extensions.Logging;
 using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
-using Domain.Entities;
 using MediatR;
 using Persistence;
+using Domain.Entities;
 
 namespace Application.Bikes
 {
-	public class CreateBike
+	public class ReplaceBike
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
@@ -37,26 +37,17 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var user = await _context.User
-						.FindAsync(new object[] { request.BikeCreateDTO.UserId! }, cancellationToken);
-
-					if (user == null || (user != null && user.IsDeleted))
-					{
-						_logger.LogInformation("User to create bike does not exist");
-						return Result<Unit>.NotFound("User to create bike does not exist.");
-					}
-
-					user!.IsBikeVerified = true;
-
 					var oldBike = await _context.Bike
 						.Where(b => b.UserId == request.BikeCreateDTO.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
 
-					if (oldBike != null)
+					if (oldBike == null)
 					{
-						_logger.LogInformation("User already has a bike");
-						return Result<Unit>.Failure("User already has a bike.");
+						_logger.LogInformation("User doesn't have a bike");
+						return Result<Unit>.Failure("User doesn't have a bike.");
 					}
+
+					_context.Bike.Remove(oldBike);
 
 					Bike newBike = new Bike();
 
@@ -68,14 +59,14 @@ namespace Application.Bikes
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new bike");
-						return Result<Unit>.Failure("Failed to create new bike.");
+						_logger.LogInformation("Failed to replace old bike with new bike");
+						return Result<Unit>.Failure("Failed to replace old bike with new bike.");
 					}
 					else
 					{
-						_logger.LogInformation("Successfully created new bike");
+						_logger.LogInformation("Successfully replace old bike with new bike");
 						return Result<Unit>.Success(
-							Unit.Value, "Successfully created new bike.", newBike.BikeId.ToString());
+							Unit.Value, "Successfully replace old bike with new bike.", newBike.BikeId.ToString());
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

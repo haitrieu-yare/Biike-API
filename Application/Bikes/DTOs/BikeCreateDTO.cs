@@ -8,12 +8,19 @@ namespace Application.Bikes.DTOs
 		public int? UserId { get; set; }
 
 		[Required]
-		public string? NumberPlate { get; set; } = string.Empty;
+		[MinLength(4)]
+		public string? NumberPlate { get; set; }
 
 		[Required]
-		public string? Color { get; set; } = string.Empty;
+		public string? BikeOwner { get; set; }
 
 		[Required]
-		public string? Brand { get; set; } = string.Empty;
+		public string? Picture { get; set; }
+
+		[Required]
+		public string? Color { get; set; }
+
+		[Required]
+		public string? Brand { get; set; }
 	}
 }

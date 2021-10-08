@@ -20,6 +20,8 @@ namespace Persistence.Data
 				{
 					UserId = 3,
 					PlateNumber = "7000",
+					BikeOwner = "Phương Uyên",
+					Picture = "thisispicturelink",
 					Color = "Gold",
 					Brand = "Honda",
 					CreatedDate = createdDate,
@@ -28,6 +30,8 @@ namespace Persistence.Data
 				{
 					UserId = 4,
 					PlateNumber = "7001",
+					BikeOwner = "Hữu Phát",
+					Picture = "thisispicturelink",
 					Color = "Blue",
 					Brand = "Yamaha",
 					CreatedDate = createdDate,
@@ -36,6 +40,8 @@ namespace Persistence.Data
 				{
 					UserId = 8,
 					PlateNumber = "7002",
+					BikeOwner = "Minh Tường",
+					Picture = "thisispicturelink",
 					Color = "Black",
 					Brand = "Suzuki",
 					CreatedDate = createdDate,

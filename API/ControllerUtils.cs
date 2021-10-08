@@ -9,6 +9,7 @@ namespace API
 		public static int GetRole(HttpContext httpContext)
 		{
 			int role = 0;
+
 			foreach (RoleStatus roleStatus in Enum.GetValues(typeof(RoleStatus)))
 			{
 				if (httpContext.User.IsInRole(((int)roleStatus).ToString()))
@@ -16,6 +17,7 @@ namespace API
 					role = (int)roleStatus;
 				}
 			}
+
 			return role;
 		}
 		public static ValidationDTO Validate(HttpContext httpContext)

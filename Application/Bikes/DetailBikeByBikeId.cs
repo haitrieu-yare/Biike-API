@@ -37,16 +37,22 @@ namespace Application.Bikes
 					var bikeDB = await _context.Bike
 						.FindAsync(new object[] { request.BikeId }, cancellationToken);
 
+					if (bikeDB == null)
+					{
+						_logger.LogInformation($"Cound not found bike with BikeId {request.BikeId}");
+						return Result<BikeDTO>.NotFound($"Cound not found bike with BikeId {request.BikeId}.");
+					}
+
 					BikeDTO bike = new BikeDTO();
 
 					_mapper.Map(bikeDB, bike);
 
-					_logger.LogInformation($"Successfully retrieved bike by BikeId {request.BikeId}.");
+					_logger.LogInformation($"Successfully retrieved bike by BikeId {request.BikeId}");
 					return Result<BikeDTO>.Success(bike, $"Successfully retrieved bike by BikeId {request.BikeId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<BikeDTO>.Failure("Request was cancelled.");
 				}
 			}

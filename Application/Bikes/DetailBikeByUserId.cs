@@ -17,7 +17,6 @@ namespace Application.Bikes
 		public class Query : IRequest<Result<BikeDTO>>
 		{
 			public int UserId { get; set; }
-			public int UserRequestId { get; set; }
 			public bool IsAdmin { get; set; }
 		}
 
@@ -44,7 +43,11 @@ namespace Application.Bikes
 						.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 
-					if (bike == null) return null!;
+					if (bike == null)
+					{
+						_logger.LogInformation($"Cound not found bike with UserId {request.UserId}");
+						return Result<BikeDTO>.NotFound($"Cound not found bike with UserId {request.UserId}.");
+					}
 
 					if (!request.IsAdmin)
 					{
@@ -52,12 +55,12 @@ namespace Application.Bikes
 						bike.CreatedDate = null;
 					}
 
-					_logger.LogInformation($"Successfully retrieved bike by UserId {request.UserId}.");
+					_logger.LogInformation($"Successfully retrieved bike by UserId {request.UserId}");
 					return Result<BikeDTO>.Success(bike, $"Successfully retrieved bike by UserId {request.UserId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<BikeDTO>.Failure("Request was cancelled.");
 				}
 			}

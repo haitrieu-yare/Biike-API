@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
-using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using FirebaseAdmin.Auth;

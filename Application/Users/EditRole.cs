@@ -51,6 +51,12 @@ namespace Application.Users
 							"Please reactivate it if you want to edit it.");
 					}
 
+					if (!user.IsBikeVerified)
+					{
+						_logger.LogInformation("User does not have bike");
+						return Result<Unit>.Failure("User does not have bike.");
+					}
+
 					switch (user.Role)
 					{
 						case (int)RoleStatus.Keer:

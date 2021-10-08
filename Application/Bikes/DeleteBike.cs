@@ -32,6 +32,17 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
+					var user = await _context.User
+						.FindAsync(new object[] { request.UserId }, cancellationToken);
+
+					if (user == null || (user != null && user.IsDeleted))
+					{
+						_logger.LogInformation("User to delete bike does not exist");
+						return Result<Unit>.NotFound("User to delete bike does not exist.");
+					}
+
+					user!.IsBikeVerified = false;
+
 					var bike = await _context.Bike
 						.Where(b => b.UserId == request.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
@@ -44,19 +55,19 @@ namespace Application.Bikes
 
 					if (!result)
 					{
-						_logger.LogInformation($"Failed to delete bike by userId {request.UserId}.");
+						_logger.LogInformation($"Failed to delete bike by userId {request.UserId}");
 						return Result<Unit>.Failure($"Failed to delete bike by userId {request.UserId}.");
 					}
 					else
 					{
-						_logger.LogInformation($"Successfully deleted bike by userId {request.UserId}.");
+						_logger.LogInformation($"Successfully deleted bike by userId {request.UserId}");
 						return Result<Unit>.Success(
 							Unit.Value, $"Successfully deleted bike by userId {request.UserId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (System.Exception ex) when (ex is DbUpdateException)

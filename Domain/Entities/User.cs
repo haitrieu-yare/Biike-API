@@ -16,6 +16,7 @@ namespace Domain.Entities
 		[EmailAddress]
 		public string Email { get; set; } = "thisisadefaultmail@gmail.com";
 
+		[MinLength(6)]
 		public string PasswordHash { get; set; } = "092021";
 		public int Role { get; set; } = (int)RoleStatus.Keer;
 		public string FullName { get; set; } = string.Empty;

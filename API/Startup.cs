@@ -16,6 +16,7 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using MediatR;
 using Persistence;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API
 {
@@ -84,6 +85,9 @@ namespace API
 						ValidAudience = _config["Jwt:Firebase:ValidAudience"]
 					};
 				});
+
+			services.AddAuthorization()
+				.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultTransformer>();
 
 			services.AddMediatR(typeof(HistoryList.Handler).Assembly);
 			services.AddAutoMapper(typeof(MappingProfiles).Assembly);

@@ -22,8 +22,8 @@ namespace Application.Stations
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
-			private readonly ILogger<EditStation> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditStation> logger)
+			private readonly ILogger<Handler> _logger;
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;

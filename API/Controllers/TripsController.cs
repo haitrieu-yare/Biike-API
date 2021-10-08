@@ -24,6 +24,11 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
+			if (role == 0)
+			{
+				return Unauthorized("Couldn't get user's role.");
+			}
+
 			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
