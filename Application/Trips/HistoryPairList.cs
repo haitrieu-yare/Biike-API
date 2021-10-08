@@ -48,21 +48,12 @@ namespace Application.Trips
 						return Result<List<TripPairDTO>>.Failure("Page must larger than 0.");
 					}
 
-					int totalRecordAsKeer = await _context.Trip
-						.Where(t => t.KeerId == request.UserOneId)
-						.Where(t => t.BikerId == request.UserTwoId)
+					int totalRecord = await _context.Trip
+						.Where(t => (t.KeerId == request.UserOneId && t.BikerId == request.UserTwoId)
+							|| (t.KeerId == request.UserTwoId && t.BikerId == request.UserOneId))
 						.Where(t => t.Status == (int)TripStatus.Finished
 							|| t.Status == (int)TripStatus.Cancelled)
 						.CountAsync(cancellationToken);
-
-					int totalRecordAsBiker = await _context.Trip
-						.Where(t => t.KeerId == request.UserTwoId)
-						.Where(t => t.BikerId == request.UserOneId)
-						.Where(t => t.Status == (int)TripStatus.Finished
-							|| t.Status == (int)TripStatus.Cancelled)
-						.CountAsync(cancellationToken);
-
-					int totalRecord = totalRecordAsKeer + totalRecordAsBiker;
 
 					#region Calculate last page
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
@@ -72,31 +63,17 @@ namespace Application.Trips
 
 					if (request.Page <= lastPage)
 					{
-						var pairTripsAsKeer = await _context.Trip
-							.Where(t => t.KeerId == request.UserOneId)
-							.Where(t => t.BikerId == request.UserTwoId)
+						trips = await _context.Trip
+							.Where(t => (t.KeerId == request.UserOneId && t.BikerId == request.UserTwoId)
+							|| (t.KeerId == request.UserTwoId && t.BikerId == request.UserOneId))
 							.Where(t => t.Status == (int)TripStatus.Finished
 								|| t.Status == (int)TripStatus.Cancelled)
 							.OrderByDescending(t => t.BookTime)
-							.ProjectTo<TripPairDTO>(_mapper.ConfigurationProvider,
-								new { userTwoId = request.UserTwoId })
-							.ToListAsync(cancellationToken);
-
-						var pairTripsAsBiker = await _context.Trip
-							.Where(t => t.KeerId == request.UserTwoId)
-							.Where(t => t.BikerId == request.UserOneId)
-							.Where(t => t.Status == (int)TripStatus.Finished
-								|| t.Status == (int)TripStatus.Cancelled)
-							.OrderByDescending(t => t.BookTime)
-							.ProjectTo<TripPairDTO>(_mapper.ConfigurationProvider,
-								new { userTwoId = request.UserTwoId })
-							.ToListAsync(cancellationToken);
-
-						trips = pairTripsAsKeer.Concat(pairTripsAsBiker)
-							.OrderByDescending(t => t.TimeBook)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
-							.ToList();
+							.ProjectTo<TripPairDTO>(_mapper.ConfigurationProvider,
+								new { userTwoId = request.UserTwoId })
+							.ToListAsync(cancellationToken);
 					}
 
 					PaginationDTO paginationDto = new PaginationDTO(

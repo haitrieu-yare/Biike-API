@@ -60,8 +60,8 @@ namespace Application.Trips
 						.Where(t => (request.Role == (int)RoleStatus.Keer) ?
 							t.KeerId == request.UserId :
 							t.BikerId == request.UserId)
-						.Where(t => t.Status == (int)TripStatus.Finished
-							|| t.Status == (int)TripStatus.Cancelled)
+						.Where(t => t.Status == (int)TripStatus.Finding
+							|| t.Status == (int)TripStatus.Waiting)
 						.CountAsync(cancellationToken);
 
 					#region Calculate last page

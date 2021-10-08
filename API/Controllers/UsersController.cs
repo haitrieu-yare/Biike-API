@@ -92,6 +92,19 @@ namespace API.Controllers
 				new EditProfile.Command { UserId = userId, UserProfileEditDTO = userProfileEditDTO }, ct));
 		}
 
+		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
+		[HttpPut("role")]
+		public async Task<IActionResult> EditUserRole(CancellationToken ct)
+		{
+			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext);
+
+			if (!validationDto.IsUserFound)
+				return BadRequest("Can't get userId who send the request.");
+
+			return HandleResult(await Mediator.Send(
+				new EditRole.Command { UserId = validationDto.UserRequestId }, ct));
+		}
+
 		[Authorized(RoleStatus.Admin)]
 		[HttpPut("{userId}")]
 		public async Task<IActionResult> EditUserStatus(int userId, CancellationToken ct)

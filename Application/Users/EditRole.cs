@@ -3,30 +3,28 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Application.Core;
-using Application.Users.DTOs;
-using AutoMapper;
+using Domain.Enums;
 using MediatR;
 using Persistence;
+using System.Collections.Generic;
+using FirebaseAdmin.Auth;
 
 namespace Application.Users
 {
-	public class EditProfile
+	public class EditRole
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int UserId { get; set; }
-			public UserProfileEditDTO UserProfileEditDTO { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
 			private readonly ILogger<Handler> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+			public Handler(DataContext context, ILogger<Handler> logger)
 			{
 				_context = context;
-				_mapper = mapper;
 				_logger = logger;
 			}
 
@@ -53,21 +51,49 @@ namespace Application.Users
 							"Please reactivate it if you want to edit it.");
 					}
 
-					_mapper.Map(request.UserProfileEditDTO, user);
+					switch (user.Role)
+					{
+						case (int)RoleStatus.Keer:
+							user.Role = (int)RoleStatus.Biker;
+							break;
+						case (int)RoleStatus.Biker:
+							user.Role = (int)RoleStatus.Keer;
+							break;
+					}
+
+					try
+					{
+						#region Import user's role to Firebase
+						var claims = new Dictionary<string, object>()
+						{
+							{"role", user.Role}
+						};
+
+						await FirebaseAuth.DefaultInstance
+							.SetCustomUserClaimsAsync(user.UserId.ToString(), claims, cancellationToken);
+						#endregion
+					}
+					catch (FirebaseAuthException e)
+					{
+						_logger.LogError("Error create user on Firebase. " +
+							$"{e.InnerException?.Message ?? e.Message}");
+						return Result<Unit>.Failure("Error create user on Firebase. " +
+							$"{e.InnerException?.Message ?? e.Message}");
+					}
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation($"Failed to update user's profile by userId {request.UserId}");
+						_logger.LogInformation($"Failed to update user's role by userId {request.UserId}");
 						return Result<Unit>.Failure(
-							$"Failed to update user's profile by userId {request.UserId}.");
+							$"Failed to update user's role by userId {request.UserId}.");
 					}
 					else
 					{
-						_logger.LogInformation($"Successfully updated user's profile by userId {request.UserId}");
+						_logger.LogInformation($"Successfully updated user's role by userId {request.UserId}");
 						return Result<Unit>.Success(
-							Unit.Value, $"Successfully updated user's profile by userId {request.UserId}.");
+							Unit.Value, $"Successfully updated user's role by userId {request.UserId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

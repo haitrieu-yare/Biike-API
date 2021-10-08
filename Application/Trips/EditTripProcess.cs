@@ -85,8 +85,20 @@ namespace Application.Trips.DTOs
 
 					try
 					{
+						bool result = true;
 						if (oldTrip.Status == (int)TripStatus.Finished)
+						{
 							await _autoCreate.Run(oldTrip, 10, cancellationToken);
+						}
+						else
+						{
+							result = await _context.SaveChangesAsync() > 0;
+							if (!result)
+							{
+								_logger.LogInformation($"Failed to update trip with TripId {request.TripId}");
+								return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
+							}
+						}
 
 						_logger.LogInformation($"Successfully updated trip with TripId {request.TripId}");
 						return Result<Unit>.Success(
