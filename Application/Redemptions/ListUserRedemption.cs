@@ -7,6 +7,7 @@ using Application.Core;
 using Application.Redemptions.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +20,9 @@ namespace Application.Redemptions
 	{
 		public class Query : IRequest<Result<List<RedemptionDto>>>
 		{
-			public int UserId { get; set; }
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int UserId { get; init; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<RedemptionDto>>>
@@ -50,12 +51,11 @@ namespace Application.Redemptions
 					}
 
 					// Max number of active wallets is 2 for each user
-					var wallets = await _context.Wallet
-						.Where(w => w.UserId == request.UserId)
+					List<Wallet> wallets = await _context.Wallet.Where(w => w.UserId == request.UserId)
 						.Where(w => w.Status != (int) WalletStatus.Expired)
 						.ToListAsync(cancellationToken);
 
-					if (wallets == null)
+					if (wallets.Count == 0)
 					{
 						_logger.LogInformation("User doesn't have wallet");
 						return Result<List<RedemptionDto>>.Failure("User doesn't have wallet.");
@@ -63,14 +63,10 @@ namespace Application.Redemptions
 
 					int totalRecord = await _context.Redemption
 						.Where(r => r.WalletId == wallets[0].WalletId ||
-						            r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId)
-						).CountAsync(cancellationToken);
-
-					#region Calculate last page
+						            r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId))
+						.CountAsync(cancellationToken);
 
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<RedemptionDto> redemptions = new();
 
@@ -78,9 +74,8 @@ namespace Application.Redemptions
 						// Nếu user có 2 wallet thì query == wallets[0].Id || wallets[1].Id
 						// Nếu user có 1 wallet thì query == wallets[0].Id || wallets[0].Id
 						redemptions = await _context.Redemption
-							.Where(r => r.WalletId == wallets[0].WalletId ||
-							            r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId)
-							)
+							.Where(r => r.WalletId == wallets[0].WalletId || r.WalletId ==
+								(wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId))
 							.OrderBy(r => r.RedemptionId)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
@@ -88,12 +83,12 @@ namespace Application.Redemptions
 							.ToListAsync(cancellationToken);
 
 					PaginationDto paginationDto = new(
-						request.Page, request.Limit, redemptions.Count, lastPage, totalRecord
-					);
+						request.Page, request.Limit, redemptions.Count, lastPage, totalRecord);
 
-					_logger.LogInformation($"Successfully retrieved redemptions of userId {request.UserId}");
-					return Result<List<RedemptionDto>>.Success(
-						redemptions, $"Successfully retrieved redemptions of userId {request.UserId}.", paginationDto);
+					_logger.LogInformation("Successfully retrieved redemptions of userId {request.UserId}",
+						request.UserId);
+					return Result<List<RedemptionDto>>.Success(redemptions,
+						$"Successfully retrieved redemptions of userId {request.UserId}.", paginationDto);
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

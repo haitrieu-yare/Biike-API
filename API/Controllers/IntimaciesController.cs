@@ -33,7 +33,8 @@ namespace API.Controllers
 
 			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
-			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
+			if (!validationDto.IsAuthorized) 
+				return new ObjectResult(ConstantString.DidNotHavePermissionToAccess) { StatusCode = 403 };
 
 			return HandleResult(await Mediator.Send(
 				new ListIntimaciesByUserId.Query { Page = page, Limit = limit, UserOneId = userOneId }, ct));

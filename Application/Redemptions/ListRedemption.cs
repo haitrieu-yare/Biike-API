@@ -18,8 +18,8 @@ namespace Application.Redemptions
 	{
 		public class Query : IRequest<Result<List<RedemptionDto>>>
 		{
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<RedemptionDto>>>
@@ -49,29 +49,23 @@ namespace Application.Redemptions
 
 					int totalRecord = await _context.Redemption.CountAsync(cancellationToken);
 
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<RedemptionDto> redemptions = new();
 
 					if (request.Page <= lastPage)
-						redemptions = await _context.Redemption
-							.OrderBy(r => r.RedemptionId)
+						redemptions = await _context.Redemption.OrderBy(r => r.RedemptionId)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
 							.ProjectTo<RedemptionDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
 
 					PaginationDto paginationDto = new(
-						request.Page, request.Limit, redemptions.Count, lastPage, totalRecord
-					);
+						request.Page, request.Limit, redemptions.Count, lastPage, totalRecord);
 
 					_logger.LogInformation("Successfully retrieved list of all redemptions");
-					return Result<List<RedemptionDto>>.Success(
-						redemptions, "Successfully retrieved list of all redemptions.", paginationDto);
+					return Result<List<RedemptionDto>>.Success(redemptions,
+						"Successfully retrieved list of all redemptions.", paginationDto);
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

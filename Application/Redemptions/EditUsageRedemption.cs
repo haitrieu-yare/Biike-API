@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,16 +16,16 @@ namespace Application.Redemptions
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int RedemptionId { get; set; }
-			public int UserRequestId { get; set; }
+			public int RedemptionId { get; init; }
+			public int UserRequestId { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<EditUsageRedemption> _logger;
+			private readonly ILogger<Handler> _logger;
 
-			public Handler(DataContext context, ILogger<EditUsageRedemption> logger)
+			public Handler(DataContext context, ILogger<Handler> logger)
 			{
 				_context = context;
 				_logger = logger;
@@ -35,29 +37,47 @@ namespace Application.Redemptions
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var redemption = await _context.Redemption
-						.Where(r => r.RedemptionId == request.RedemptionId)
+					List<Redemption> redemptionsByUserId = await _context.Redemption
 						.Where(r => r.Wallet.User.UserId == request.UserRequestId)
-						.SingleOrDefaultAsync(cancellationToken);
+						.ToListAsync(cancellationToken);
 
-					if (redemption == null) return null!;
+					if (redemptionsByUserId.Count == 0)
+					{
+						_logger.LogInformation("User with {request.UserRequestId} doesn't have any redemption",
+							request.UserRequestId);
+						return Result<Unit>.NotFound($"User with {request.UserRequestId} doesn't have any redemption.");
+					}
+
+					Redemption? redemption =
+						redemptionsByUserId.Find(redemption => redemption.RedemptionId == request.RedemptionId);
+
+					if (redemption == null)
+					{
+						_logger.LogInformation(
+							"Redemption doesn't exist or this redemption doesn't belong to user with {request.UserRequestId}",
+							request.UserRequestId);
+						return Result<Unit>.NotFound(
+							$"Redemption doesn't exist or this redemption doesn't belong to user with {request.UserRequestId}.");
+					}
 
 					redemption.IsUsed = !redemption.IsUsed;
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update redemption usage " +
-						                       $"with RedemptionId {request.RedemptionId}");
+						_logger.LogInformation(
+							"Failed to update redemption usage with RedemptionId {request.RedemptionId}",
+							request.RedemptionId);
 						return Result<Unit>.Failure("Failed to update redemption usage " +
 						                            $"with RedemptionId {request.RedemptionId}.");
 					}
 
-					_logger.LogInformation("Successfully updated redemption usage " +
-					                       $"with RedemptionId {request.RedemptionId}");
-					return Result<Unit>.Success(Unit.Value, "Successfully updated redemption usage " +
-					                                        $"with RedemptionId {request.RedemptionId}.");
+					_logger.LogInformation(
+						"Successfully updated redemption usage with RedemptionId {request.RedemptionId}",
+						request.RedemptionId);
+					return Result<Unit>.Success(Unit.Value,
+						"Successfully updated redemption usage " + $"with RedemptionId {request.RedemptionId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
@@ -66,7 +86,7 @@ namespace Application.Redemptions
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}
