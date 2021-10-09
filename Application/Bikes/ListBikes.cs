@@ -47,7 +47,7 @@ namespace Application.Bikes
 						return Result<List<BikeDto>>.Failure("Page must larger than 0.");
 					}
 
-					var totalRecord = await _context.Bike.CountAsync(cancellationToken);
+					int totalRecord = await _context.Bike.CountAsync(cancellationToken);
 
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 

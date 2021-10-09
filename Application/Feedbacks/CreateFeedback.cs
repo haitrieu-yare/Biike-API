@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Feedbacks.DTOs;
 using Application.TripTransactions;
 using AutoMapper;
 using Domain.Entities;
@@ -12,13 +14,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Feedbacks.DTOs
+namespace Application.Feedbacks
 {
 	public class CreateFeedback
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public FeedbackCreateDto FeedbackCreateDto { get; set; } = null!;
+			public FeedbackCreateDto FeedbackCreateDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -28,8 +30,8 @@ namespace Application.Feedbacks.DTOs
 			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper,
-				ILogger<Handler> logger, AutoCreateTripTransaction autoCreate)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger,
+				AutoCreateTripTransaction autoCreate)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -43,15 +45,16 @@ namespace Application.Feedbacks.DTOs
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var trip = await _context.Trip
-						.FindAsync(new object[] { request.FeedbackCreateDto.TripId! }, cancellationToken);
+					Trip trip = await _context.Trip.FindAsync(new object[] { request.FeedbackCreateDto.TripId! },
+						cancellationToken);
 
 					if (trip == null) return Result<Unit>.NotFound("Trip doesn't exist.");
 
 					if (request.FeedbackCreateDto.UserId != trip.KeerId &&
 					    request.FeedbackCreateDto.UserId != trip.BikerId)
 					{
-						_logger.LogInformation($"User send feedback must be in the trip with tripId {trip.TripId}");
+						_logger.LogInformation("User send feedback must be in the trip with tripId {trip.TripId}",
+							trip.TripId);
 						return Result<Unit>.Failure(
 							$"User send feedback must be in the trip with tripId {trip.TripId}.");
 					}
@@ -68,11 +71,11 @@ namespace Application.Feedbacks.DTOs
 						return Result<Unit>.Failure("Can't create feedback because trip hasn't finished yet.");
 					}
 
-					var feedbacks = await _context.Feedback
+					List<Feedback> feedbacks = await _context.Feedback
 						.Where(f => f.TripId == request.FeedbackCreateDto.TripId)
 						.ToListAsync(cancellationToken);
 
-					var existedFeedback = feedbacks.Find(f => f.UserId == request.FeedbackCreateDto.UserId);
+					Feedback? existedFeedback = feedbacks.Find(f => f.UserId == request.FeedbackCreateDto.UserId);
 
 					if (existedFeedback != null)
 					{
@@ -101,13 +104,13 @@ namespace Application.Feedbacks.DTOs
 							}
 
 						_logger.LogInformation("Successfully created feedback");
-						return Result<Unit>.Success(Unit.Value,
-							"Successfully created feedback.", newFeedback.FeedbackId.ToString());
+						return Result<Unit>.Success(Unit.Value, "Successfully created feedback.",
+							newFeedback.FeedbackId.ToString());
 					}
 					catch (Exception ex)
 					{
 						_logger.LogInformation("Failed to create new feedback");
-						_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+						_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 
 						return Result<Unit>.Failure(
 							$"Failed to create new feedback. {ex.InnerException?.Message ?? ex.Message}");
@@ -115,12 +118,12 @@ namespace Application.Feedbacks.DTOs
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

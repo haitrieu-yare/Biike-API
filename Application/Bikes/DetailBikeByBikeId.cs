@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -36,7 +37,7 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var bikeDb = await _context.Bike
+					Bike bikeDb = await _context.Bike
 						.FindAsync(new object[] { request.BikeId }, cancellationToken);
 
 					if (bikeDb == null)

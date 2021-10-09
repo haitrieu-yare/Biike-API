@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var user = await _context.User
+					User user = await _context.User
 						.FindAsync(new object[] { request.UserId }, cancellationToken);
 
 					if (user == null || user.IsDeleted)
@@ -45,7 +46,7 @@ namespace Application.Bikes
 
 					user.IsBikeVerified = false;
 
-					var bike = await _context.Bike
+					Bike bike = await _context.Bike
 						.Where(b => b.UserId == request.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
 
@@ -57,7 +58,7 @@ namespace Application.Bikes
 
 					_context.Bike.Remove(bike);
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{

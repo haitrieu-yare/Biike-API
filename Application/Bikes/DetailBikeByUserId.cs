@@ -40,7 +40,7 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var bike = await _context.Bike
+					BikeDto bike = await _context.Bike
 						.Where(b => b.UserId == request.UserId)
 						.ProjectTo<BikeDto>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);

@@ -49,29 +49,23 @@ namespace Application.Feedbacks
 
 					int totalRecord = await _context.Feedback.CountAsync(cancellationToken);
 
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<FeedbackDto> feedbacks = new();
 
 					if (request.Page <= lastPage)
-						feedbacks = await _context.Feedback
-							.OrderBy(f => f.FeedbackId)
+						feedbacks = await _context.Feedback.OrderBy(f => f.FeedbackId)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
 							.ProjectTo<FeedbackDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
 
 					PaginationDto paginationDto = new(
-						request.Page, request.Limit, feedbacks.Count, lastPage, totalRecord
-					);
+						request.Page, request.Limit, feedbacks.Count, lastPage, totalRecord);
 
 					_logger.LogInformation("Successfully retrieved all trip's feedbacks");
-					return Result<List<FeedbackDto>>.Success(
-						feedbacks, "Successfully retrieved all trip's feedbacks.", paginationDto);
+					return Result<List<FeedbackDto>>.Success(feedbacks, "Successfully retrieved all trip's feedbacks.",
+						paginationDto);
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

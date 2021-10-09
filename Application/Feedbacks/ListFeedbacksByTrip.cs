@@ -7,6 +7,7 @@ using Application.Core;
 using Application.Feedbacks.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -19,18 +20,18 @@ namespace Application.Feedbacks
 	{
 		public class Query : IRequest<Result<List<FeedbackDto>>>
 		{
-			public int TripId { get; set; }
-			public int UserRequestId { get; set; }
-			public bool IsAdmin { get; set; }
+			public int TripId { get; init; }
+			public int UserRequestId { get; init; }
+			public bool IsAdmin { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<FeedbackDto>>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<ListFeedbacksByTrip> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<ListFeedbacksByTrip> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -43,12 +44,11 @@ namespace Application.Feedbacks
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var trip = await _context.Trip
-						.FindAsync(new object[] { request.TripId }, cancellationToken);
+					Trip trip = await _context.Trip.FindAsync(new object[] { request.TripId }, cancellationToken);
 
 					if (trip == null) return Result<List<FeedbackDto>>.NotFound("Trip doesn't exist.");
 
-					bool isRequestUserInTrip = true;
+					var isRequestUserInTrip = true;
 
 					if (trip.BikerId == null && request.UserRequestId != trip.KeerId && !request.IsAdmin)
 						isRequestUserInTrip = false;
@@ -58,20 +58,19 @@ namespace Application.Feedbacks
 
 					if (!isRequestUserInTrip)
 					{
-						_logger.LogInformation($"User send request must be in the trip with tripId {trip.TripId}");
+						_logger.LogInformation("User send request must be in the trip with tripId {trip.TripId}",
+							trip.TripId);
 						return Result<List<FeedbackDto>>.Failure(
 							$"User send request must be in the trip with tripId {trip.TripId}.");
 					}
 
 					if (trip.Status != (int) TripStatus.Finished)
 					{
-						_logger.LogInformation($"Trip with tripId {trip.TripId} hasn't finished");
-						return Result<List<FeedbackDto>>.Failure(
-							$"Trip with tripId {trip.TripId} hasn't finished.");
+						_logger.LogInformation("Trip with tripId {trip.TripId} hasn't finished", trip.TripId);
+						return Result<List<FeedbackDto>>.Failure($"Trip with tripId {trip.TripId} hasn't finished.");
 					}
 
-					var feedbacks = await _context.Feedback
-						.Where(s => s.TripId == request.TripId)
+					List<FeedbackDto> feedbacks = await _context.Feedback.Where(s => s.TripId == request.TripId)
 						.ProjectTo<FeedbackDto>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
@@ -79,13 +78,14 @@ namespace Application.Feedbacks
 						// Set to null to make unnecessary fields excluded from response body.
 						feedbacks.ForEach(f => f.CreatedDate = null);
 
-					_logger.LogInformation($"Successfully retrieved trip's feedbacks by tripId {request.TripId}.");
-					return Result<List<FeedbackDto>>.Success(
-						feedbacks, $"Successfully retrieved trip's feedbacks by tripId {request.TripId}.");
+					_logger.LogInformation("Successfully retrieved trip's feedbacks by tripId {request.TripId}",
+						request.TripId);
+					return Result<List<FeedbackDto>>.Success(feedbacks,
+						$"Successfully retrieved trip's feedbacks by tripId {request.TripId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<List<FeedbackDto>>.Failure("Request was cancelled.");
 				}
 			}

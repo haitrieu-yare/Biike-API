@@ -39,7 +39,7 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldBike = await _context.Bike
+					Bike oldBike = await _context.Bike
 						.Where(b => b.UserId == request.BikeCreateDto.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
 
@@ -57,7 +57,7 @@ namespace Application.Bikes
 
 					await _context.Bike.AddAsync(newBike, cancellationToken);
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
