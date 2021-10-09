@@ -16,8 +16,8 @@ namespace Application.Bikes
 	{
 		public class Query : IRequest<Result<BikeDto>>
 		{
-			public int UserId { get; set; }
-			public bool IsAdmin { get; set; }
+			public int UserId { get; init; }
+			public bool IsAdmin { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<BikeDto>>

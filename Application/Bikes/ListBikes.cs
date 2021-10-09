@@ -17,8 +17,8 @@ namespace Application.Bikes
 	{
 		public class Query : IRequest<Result<List<BikeDto>>>
 		{
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<BikeDto>>>
@@ -51,7 +51,7 @@ namespace Application.Bikes
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 					#endregion
 
-					List<BikeDto> bikes = new List<BikeDto>();
+					List<BikeDto> bikes = new();
 
 					if (request.Page <= lastPage)
 					{
@@ -63,7 +63,7 @@ namespace Application.Bikes
 							.ToListAsync(cancellationToken);
 					}
 
-					PaginationDto paginationDto = new PaginationDto(
+					PaginationDto paginationDto = new(
 						request.Page, request.Limit, bikes.Count, lastPage, totalRecord
 					);
 

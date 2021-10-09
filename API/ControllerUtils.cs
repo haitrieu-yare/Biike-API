@@ -82,21 +82,20 @@ namespace API
 
 			#endregion
 
-			// Nếu người request và người được request không trùng nhau và cũng không phai là admin thì trả BadRequest
 			if (userRequestId != userRequestedId && !isAdmin)
 				return new ValidationDto
 				{
 					IsUserFound = true,
-					IsAdmin = isAdmin,
 					IsAuthorized = false,
+					IsAdmin = isAdmin,
 					UserRequestId = userRequestId,
 				};
 
 			return new ValidationDto
 			{
 				IsUserFound = true,
-				IsAdmin = isAdmin,
 				IsAuthorized = true,
+				IsAdmin = isAdmin,
 				UserRequestId = userRequestId,
 			};
 		}
@@ -105,8 +104,8 @@ namespace API
 	public class ValidationDto
 	{
 		public bool IsUserFound { get; init; }
-		public bool IsAdmin { get; init; }
 		public bool IsAuthorized { get; init; }
+		public bool IsAdmin { get; init; }
 		public int UserRequestId { get; init; }
 	}
 }

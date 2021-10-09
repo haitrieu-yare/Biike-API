@@ -13,7 +13,7 @@ namespace Application.Bikes
 	{
 		public class Query : IRequest<Result<BikeDto>>
 		{
-			public int BikeId { get; set; }
+			public int BikeId { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<BikeDto>>

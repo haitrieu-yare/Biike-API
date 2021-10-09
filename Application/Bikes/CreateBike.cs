@@ -16,7 +16,7 @@ namespace Application.Bikes
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public BikeCreateDto BikeCreateDto { get; set; } = null!;
+			public BikeCreateDto BikeCreateDto { get; init; }  = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

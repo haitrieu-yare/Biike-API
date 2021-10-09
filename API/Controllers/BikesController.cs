@@ -21,7 +21,8 @@ namespace API.Controllers
 			{
 				return Unauthorized(ConstantString.CouldNotGetUserRole);
 			}
-			else if (role != (int)RoleStatus.Admin)
+
+			if (role != (int)RoleStatus.Admin)
 			{
 				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
 			}
@@ -39,7 +40,8 @@ namespace API.Controllers
 			{
 				return Unauthorized(ConstantString.CouldNotGetUserRole);
 			}
-			else if (role != (int)RoleStatus.Admin)
+			
+			if (role != (int)RoleStatus.Admin)
 			{
 				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
 			}
@@ -77,7 +79,8 @@ namespace API.Controllers
 			{
 				return Unauthorized(ConstantString.CouldNotGetUserRole);
 			}
-			else if (role != (int)RoleStatus.Keer)
+			
+			if (role != (int)RoleStatus.Keer)
 			{
 				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString())) { StatusCode = 403 };
 			}
@@ -104,7 +107,8 @@ namespace API.Controllers
 			{
 				return Unauthorized(ConstantString.CouldNotGetUserRole);
 			}
-			else if (role != (int)RoleStatus.Biker)
+			 
+			if (role != (int)RoleStatus.Biker)
 			{
 				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
 			}
@@ -122,7 +126,7 @@ namespace API.Controllers
 		}
 
 		// Biker
-		[HttpDelete("{userId}:int")]
+		[HttpDelete("{userId:int}")]
 		public async Task<IActionResult> DeleteBike(int userId, CancellationToken ct)
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
@@ -131,7 +135,8 @@ namespace API.Controllers
 			{
 				return Unauthorized(ConstantString.CouldNotGetUserRole);
 			}
-			else if (role != (int)RoleStatus.Biker)
+			
+			if (role != (int)RoleStatus.Biker)
 			{
 				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
 			}
