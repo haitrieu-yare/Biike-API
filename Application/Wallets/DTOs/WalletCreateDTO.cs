@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Wallets.DTOs
 {
-	public class WalletCreateDTO
+	public class WalletCreateDto
 	{
 		[Required]
 		public int? UserId { get; set; }

@@ -3,7 +3,7 @@ using Domain;
 
 namespace Application.Trips.DTOs
 {
-	public class TripCreateDTO
+	public class TripCreateDto
 	{
 		public int KeerId { get; set; }
 		public int RouteId { get; set; }

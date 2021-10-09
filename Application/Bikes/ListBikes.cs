@@ -15,13 +15,13 @@ namespace Application.Bikes
 {
 	public class ListBikes
 	{
-		public class Query : IRequest<Result<List<BikeDTO>>>
+		public class Query : IRequest<Result<List<BikeDto>>>
 		{
 			public int Page { get; set; }
 			public int Limit { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<BikeDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<BikeDto>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -33,7 +33,7 @@ namespace Application.Bikes
 				_logger = logger;
 			}
 
-			public async Task<Result<List<BikeDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<BikeDto>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -42,7 +42,7 @@ namespace Application.Bikes
 					if (request.Page <= 0)
 					{
 						_logger.LogInformation("Page must larger than 0");
-						return Result<List<BikeDTO>>.Failure("Page must larger than 0.");
+						return Result<List<BikeDto>>.Failure("Page must larger than 0.");
 					}
 
 					var totalRecord = await _context.Bike.CountAsync(cancellationToken);
@@ -51,7 +51,7 @@ namespace Application.Bikes
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 					#endregion
 
-					List<BikeDTO> bikes = new List<BikeDTO>();
+					List<BikeDto> bikes = new List<BikeDto>();
 
 					if (request.Page <= lastPage)
 					{
@@ -59,22 +59,22 @@ namespace Application.Bikes
 							.OrderBy(b => b.BikeId)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
-							.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
+							.ProjectTo<BikeDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
 					}
 
-					PaginationDTO paginationDTO = new PaginationDTO(
+					PaginationDto paginationDto = new PaginationDto(
 						request.Page, request.Limit, bikes.Count, lastPage, totalRecord
 					);
 
 					_logger.LogInformation("Successfully retrieved list of all bikes");
-					return Result<List<BikeDTO>>.Success(
-						bikes, "Successfully retrieved list of all bikes.", paginationDTO);
+					return Result<List<BikeDto>>.Success(
+						bikes, "Successfully retrieved list of all bikes.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<BikeDTO>>.Failure("Request was cancelled.");
+					return Result<List<BikeDto>>.Failure("Request was cancelled.");
 				}
 			}
 		}

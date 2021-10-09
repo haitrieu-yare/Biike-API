@@ -69,50 +69,50 @@ namespace Application.Core
 
 			#region Station
 			// List, Detail 
-			CreateMap<Station, StationDTO>();
+			CreateMap<Station, StationDto>();
 			// Edit
-			CreateMap<StationDTO, Station>()
+			CreateMap<StationDto, Station>()
 				.ForMember(s => s.StationId, opt => opt.Ignore())
 				.ForMember(s => s.CreatedDate, opt => opt.Ignore())
 				.ForMember(s => s.IsDeleted, opt => opt.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
-			CreateMap<StationCreateDTO, Station>();
+			CreateMap<StationCreateDto, Station>();
 			#endregion
 
 			#region Route
 			// List, Detail 
-			CreateMap<Route, RouteDTO>();
+			CreateMap<Route, RouteDto>();
 			// Edit 
-			CreateMap<RouteDTO, Route>()
+			CreateMap<RouteDto, Route>()
 				.ForMember(r => r.RouteId, opt => opt.Ignore())
 				.ForMember(r => r.CreatedDate, opt => opt.Ignore())
 				.ForMember(r => r.IsDeleted, opt => opt.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
-			CreateMap<RouteCreateDTO, Route>();
+			CreateMap<RouteCreateDto, Route>();
 			#endregion
 
 			#region User
 			// List, Detail
-			CreateMap<User, UserDTO>()
+			CreateMap<User, UserDto>()
 				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
 			// Create
-			CreateMap<UserCreateDTO, User>()
+			CreateMap<UserCreateDto, User>()
 				.ForMember(u => u.PasswordHash, o => o.MapFrom(u => u.Password));
 			// Edit Profile
-			CreateMap<UserProfileEditDTO, User>()
+			CreateMap<UserProfileEditDto, User>()
 				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname))
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Edit LoginDevice
-			CreateMap<UserLoginDeviceDTO, User>()
+			CreateMap<UserLoginDeviceDto, User>()
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			#endregion
 
 			#region Trip
 			// History Trips & Upcoming Trips
 			bool isKeer = true;
-			CreateMap<Trip, TripDTO>()
+			CreateMap<Trip, TripDto>()
 				.ForMember(t => t.UserId, o =>
 					o.MapFrom(t => isKeer ? t.BikerId : t.KeerId))
 				.ForMember(t => t.Avatar, o =>
@@ -137,7 +137,7 @@ namespace Application.Core
 
 			// TripHistoryPair
 			int userTwoId = 0;
-			CreateMap<Trip, TripPairDTO>()
+			CreateMap<Trip, TripPairDto>()
 				.ForMember(t => t.UserId, o =>
 					o.MapFrom(t => userTwoId == t.BikerId ? t.BikerId : t.KeerId))
 				.ForMember(t => t.Avatar, o =>
@@ -151,7 +151,7 @@ namespace Application.Core
 
 			// Detail
 			int role = 0;
-			CreateMap<Trip, TripDetailInfoDTO>()
+			CreateMap<Trip, TripDetailInfoDto>()
 				.ForMember(t => t.UserId, o =>
 					o.MapFrom(t => (role == (int)RoleStatus.Keer) ? t.BikerId : t.KeerId))
 				.ForMember(t => t.Avatar, o =>
@@ -173,75 +173,75 @@ namespace Application.Core
 				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name))
 				.ForMember(t => t.Feedbacks, o => o.MapFrom(t => t.FeedbackList));
 			// Detail Info
-			CreateMap<Trip, TripDetailDTO>();
+			CreateMap<Trip, TripDetailDto>();
 			// Create
-			CreateMap<TripCreateDTO, Trip>();
+			CreateMap<TripCreateDto, Trip>();
 			// Edit BikerInfo
-			CreateMap<TripBikerInfoDTO, Trip>()
+			CreateMap<TripBikerInfoDto, Trip>()
 				.ForMember(t => t.PlateNumber, o => o.MapFrom(t => t.NumberPlate));
 			// Cancel Trip
-			CreateMap<TripCancellationDTO, Trip>()
+			CreateMap<TripCancellationDto, Trip>()
 				.ForMember(t => t.FinishedTime, o => o.MapFrom(t => t.TimeFinished));
 			#endregion
 
 			#region Feedback
 			// ListAll, List
-			CreateMap<Feedback, FeedbackDTO>()
+			CreateMap<Feedback, FeedbackDto>()
 				.ForMember(f => f.TripStar, o => o.MapFrom(f => f.Star));
 			// Create
-			CreateMap<FeedbackCreateDTO, Feedback>()
+			CreateMap<FeedbackCreateDto, Feedback>()
 				.ForMember(f => f.Star, o => o.MapFrom(f => f.TripStar));
 			#endregion
 
 			#region Bike
 			// List, Detail
-			CreateMap<Bike, BikeDTO>()
+			CreateMap<Bike, BikeDto>()
 				.ForMember(b => b.NumberPlate, o => o.MapFrom(b => b.PlateNumber));
 			// Create
-			CreateMap<BikeCreateDTO, Bike>()
+			CreateMap<BikeCreateDto, Bike>()
 				.ForMember(b => b.PlateNumber, o => o.MapFrom(b => b.NumberPlate));
 			#endregion
 
 			#region Trip Transaction
 			// List, Detail, DetailTrip
-			CreateMap<TripTransaction, TripTransactionDTO>()
+			CreateMap<TripTransaction, TripTransactionDto>()
 				.ForMember(t => t.AmountPoint, o => o.MapFrom(t => t.AmountOfPoint));
 			#endregion
 
 			#region Intimacy
 			// List, Detail
-			CreateMap<Intimacy, IntimacyDTO>();
+			CreateMap<Intimacy, IntimacyDto>();
 			// Edit, Create
-			CreateMap<IntimacyCreateEditDTO, Intimacy>();
+			CreateMap<IntimacyCreateEditDto, Intimacy>();
 			#endregion
 
 			#region Voucher's Category
 			// List, Detail
-			CreateMap<VoucherCategory, VoucherCategoryDTO>();
+			CreateMap<VoucherCategory, VoucherCategoryDto>();
 			// Edit
-			CreateMap<VoucherCategoryDTO, VoucherCategory>()
+			CreateMap<VoucherCategoryDto, VoucherCategory>()
 				.ForMember(v => v.VoucherCategoryId, o => o.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
-			CreateMap<VoucherCategoryCreateDTO, VoucherCategory>();
+			CreateMap<VoucherCategoryCreateDto, VoucherCategory>();
 			#endregion
 
 			#region Voucher
 			// List, Detail
-			CreateMap<Voucher, VoucherDTO>();
+			CreateMap<Voucher, VoucherDto>();
 			// Edit
-			CreateMap<VoucherEditDTO, Voucher>()
+			CreateMap<VoucherEditDto, Voucher>()
 				.ForMember(v => v.VoucherId, o => o.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
-			CreateMap<VoucherCreateDTO, Voucher>();
+			CreateMap<VoucherCreateDto, Voucher>();
 			#endregion
 
 			#region Redemption
 			// ListUserRedemption, ListRedemption
-			CreateMap<Redemption, RedemptionDTO>();
+			CreateMap<Redemption, RedemptionDto>();
 			// ListUserRedemptionAndVoucher
-			CreateMap<Redemption, RedemptionAndVoucherDTO>()
+			CreateMap<Redemption, RedemptionAndVoucherDto>()
 				.ForMember(r => r.VoucherCategoryId, o => o.MapFrom(u => u.Voucher.VoucherCategoryId))
 				.ForMember(r => r.VoucherName, o => o.MapFrom(u => u.Voucher.VoucherName))
 				.ForMember(r => r.Brand, o => o.MapFrom(u => u.Voucher.Brand))
@@ -250,18 +250,18 @@ namespace Application.Core
 				.ForMember(r => r.Description, o => o.MapFrom(u => u.Voucher.Description))
 				.ForMember(r => r.TermsAndConditions, o => o.MapFrom(u => u.Voucher.TermsAndConditions));
 			// Create
-			CreateMap<RedemptionCreateDTO, Redemption>();
+			CreateMap<RedemptionCreateDto, Redemption>();
 			#endregion
 
 			#region Wallet
 			// List, Detail
-			CreateMap<Wallet, WalletDTO>();
+			CreateMap<Wallet, WalletDto>();
 			// Edit
-			CreateMap<WalletDTO, Wallet>()
+			CreateMap<WalletDto, Wallet>()
 				.ForMember(w => w.WalletId, o => o.Ignore())
 				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
 			// Create
-			CreateMap<WalletCreateDTO, Wallet>();
+			CreateMap<WalletCreateDto, Wallet>();
 			#endregion
 		}
 	}

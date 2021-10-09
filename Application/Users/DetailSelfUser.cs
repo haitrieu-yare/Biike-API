@@ -15,12 +15,12 @@ namespace Application.Users
 {
 	public class DetailSelfUser
 	{
-		public class Query : IRequest<Result<UserDTO>>
+		public class Query : IRequest<Result<UserDto>>
 		{
 			public int UserId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<UserDTO>>
+		public class Handler : IRequestHandler<Query, Result<UserDto>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -32,7 +32,7 @@ namespace Application.Users
 				_logger = logger;
 			}
 
-			public async Task<Result<UserDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<UserDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -42,7 +42,7 @@ namespace Application.Users
 						.Where(u => u.UserId == request.UserId)
 						// .Where(u => u.Status == (int)UserStatus.Active)
 						.Where(u => u.IsDeleted != true)
-						.ProjectTo<UserDTO>(_mapper.ConfigurationProvider)
+						.ProjectTo<UserDto>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 					// Set to null to make unnecessary fields excluded from response body.
 					userProfile.Role = null;
@@ -54,13 +54,13 @@ namespace Application.Users
 					userProfile.IsDeleted = null;
 
 					_logger.LogInformation("Successfully retrieved user self profile.");
-					return Result<UserDTO>.Success(
+					return Result<UserDto>.Success(
 						userProfile, "Successfully retrieved user self profile.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled.");
-					return Result<UserDTO>.Failure("Request was cancelled.");
+					return Result<UserDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

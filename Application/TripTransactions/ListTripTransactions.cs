@@ -15,13 +15,13 @@ namespace Application.TripTransactions
 {
 	public class ListTripTransactions
 	{
-		public class Query : IRequest<Result<List<TripTransactionDTO>>>
+		public class Query : IRequest<Result<List<TripTransactionDto>>>
 		{
 			public int Page { get; set; }
 			public int Limit { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<TripTransactionDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<TripTransactionDto>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -33,7 +33,7 @@ namespace Application.TripTransactions
 				_logger = logger;
 			}
 
-			public async Task<Result<List<TripTransactionDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<TripTransactionDto>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -42,12 +42,12 @@ namespace Application.TripTransactions
 					if (request.Page <= 0)
 					{
 						_logger.LogInformation("Page must larger than 0");
-						return Result<List<TripTransactionDTO>>.Failure("Page must larger than 0.");
+						return Result<List<TripTransactionDto>>.Failure("Page must larger than 0.");
 					}
 					else if (request.Limit <= 0)
 					{
 						_logger.LogInformation("Limit must larger than 0");
-						return Result<List<TripTransactionDTO>>.Failure("Limit must larger than 0.");
+						return Result<List<TripTransactionDto>>.Failure("Limit must larger than 0.");
 					}
 
 					int totalRecord = await _context.TripTransaction.CountAsync(cancellationToken);
@@ -56,7 +56,7 @@ namespace Application.TripTransactions
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 					#endregion
 
-					List<TripTransactionDTO> tripTransactions = new List<TripTransactionDTO>();
+					List<TripTransactionDto> tripTransactions = new List<TripTransactionDto>();
 
 					if (request.Page <= lastPage)
 					{
@@ -64,22 +64,22 @@ namespace Application.TripTransactions
 						.OrderBy(t => t.TripTransactionId)
 						.Skip((request.Page - 1) * request.Limit)
 						.Take(request.Limit)
-						.ProjectTo<TripTransactionDTO>(_mapper.ConfigurationProvider)
+						.ProjectTo<TripTransactionDto>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 					}
 
-					PaginationDTO paginationDto = new PaginationDTO(
+					PaginationDto paginationDto = new PaginationDto(
 						request.Page, request.Limit, tripTransactions.Count, lastPage, totalRecord
 					);
 
 					_logger.LogInformation("Successfully retrieved list of all trip transaction");
-					return Result<List<TripTransactionDTO>>.Success(
+					return Result<List<TripTransactionDto>>.Success(
 						tripTransactions, "Successfully retrieved list of all trip transaction.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripTransactionDTO>>.Failure("Request was cancelled.");
+					return Result<List<TripTransactionDto>>.Failure("Request was cancelled.");
 				}
 			}
 		}

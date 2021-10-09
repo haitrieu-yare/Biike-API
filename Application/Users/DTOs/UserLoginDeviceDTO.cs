@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Users.DTOs
 {
-	public class UserLoginDeviceDTO
+	public class UserLoginDeviceDto
 	{
 		[Required]
 		public string? LastLoginDevice { get; set; }

@@ -12,12 +12,12 @@ namespace Application.Users
 {
 	public class CheckAccountActivation
 	{
-		public class Query : IRequest<Result<UserActivationDTO>>
+		public class Query : IRequest<Result<UserActivationDto>>
 		{
 			public int UserId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<UserActivationDTO>>
+		public class Handler : IRequestHandler<Query, Result<UserActivationDto>>
 		{
 			private readonly DataContext _context;
 			private readonly ILogger<CheckAccountActivation> _logger;
@@ -27,7 +27,7 @@ namespace Application.Users
 				_logger = logger;
 			}
 
-			public async Task<Result<UserActivationDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<UserActivationDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -38,7 +38,7 @@ namespace Application.Users
 
 					if (user == null) return null!;
 
-					UserActivationDTO result = new UserActivationDTO();
+					UserActivationDto result = new UserActivationDto();
 
 					if (user.Status == (int)UserStatus.Active)
 					{
@@ -54,13 +54,13 @@ namespace Application.Users
 					result.IsPhoneVerified = null;
 
 					_logger.LogInformation($"Successfully get user activation with UserId {request.UserId}.");
-					return Result<UserActivationDTO>.Success(
+					return Result<UserActivationDto>.Success(
 						result, $"Successfully get user activation with UserId {request.UserId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled.");
-					return Result<UserActivationDTO>.Failure("Request was cancelled.");
+					return Result<UserActivationDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

@@ -15,7 +15,7 @@ namespace Application.Routes
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public RouteCreateDTO RouteCreateDTO { get; set; } = null!;
+			public RouteCreateDto RouteCreateDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,7 +38,7 @@ namespace Application.Routes
 
 					var newRoute = new Route();
 
-					_mapper.Map(request.RouteCreateDTO, newRoute);
+					_mapper.Map(request.RouteCreateDto, newRoute);
 
 					await _context.Route.AddAsync(newRoute, cancellationToken);
 

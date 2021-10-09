@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Application.Routes.DTOs
 {
-	public class RouteDTO
+	public class RouteDto
 	{
 		public int? RouteId { get; set; }
 		public int? DepartureId { get; set; }

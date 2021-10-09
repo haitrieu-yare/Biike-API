@@ -16,14 +16,14 @@ namespace Application.Redemptions
 {
 	public class ListUserRedemption
 	{
-		public class Query : IRequest<Result<List<RedemptionDTO>>>
+		public class Query : IRequest<Result<List<RedemptionDto>>>
 		{
 			public int UserId { get; set; }
 			public int Page { get; set; }
 			public int Limit { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<RedemptionDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<RedemptionDto>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -35,7 +35,7 @@ namespace Application.Redemptions
 				_logger = logger;
 			}
 
-			public async Task<Result<List<RedemptionDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<RedemptionDto>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -44,7 +44,7 @@ namespace Application.Redemptions
 					if (request.Page <= 0)
 					{
 						_logger.LogInformation("Page must larger than 0");
-						return Result<List<RedemptionDTO>>.Failure("Page must larger than 0.");
+						return Result<List<RedemptionDto>>.Failure("Page must larger than 0.");
 					}
 
 					// Max number of active wallets is 2 for each user
@@ -56,7 +56,7 @@ namespace Application.Redemptions
 					if (wallets == null)
 					{
 						_logger.LogInformation("User doesn't have wallet");
-						return Result<List<RedemptionDTO>>.Failure("User doesn't have wallet.");
+						return Result<List<RedemptionDto>>.Failure("User doesn't have wallet.");
 					}
 
 					int totalRecord = await _context.Redemption
@@ -68,7 +68,7 @@ namespace Application.Redemptions
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 					#endregion
 
-					List<RedemptionDTO> redemptions = new List<RedemptionDTO>();
+					List<RedemptionDto> redemptions = new List<RedemptionDto>();
 
 					if (request.Page <= lastPage)
 					{
@@ -81,22 +81,22 @@ namespace Application.Redemptions
 							.OrderBy(r => r.RedemptionId)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
-							.ProjectTo<RedemptionDTO>(_mapper.ConfigurationProvider)
+							.ProjectTo<RedemptionDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
 					}
 
-					PaginationDTO paginationDto = new PaginationDTO(
+					PaginationDto paginationDto = new PaginationDto(
 						request.Page, request.Limit, redemptions.Count, lastPage, totalRecord
 					);
 
 					_logger.LogInformation($"Successfully retrieved redemptions of userId {request.UserId}");
-					return Result<List<RedemptionDTO>>.Success(
+					return Result<List<RedemptionDto>>.Success(
 						redemptions, $"Successfully retrieved redemptions of userId {request.UserId}.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<RedemptionDTO>>.Failure("Request was cancelled.");
+					return Result<List<RedemptionDto>>.Failure("Request was cancelled.");
 				}
 			}
 		}

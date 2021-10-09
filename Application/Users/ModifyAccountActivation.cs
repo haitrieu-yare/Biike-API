@@ -16,7 +16,7 @@ namespace Application.Users
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int UserId { get; set; }
-			public UserActivationDTO UserActivationDTO { get; set; } = null!;
+			public UserActivationDto UserActivationDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -40,9 +40,9 @@ namespace Application.Users
 
 					if (user == null) return null!;
 
-					if (request.UserActivationDTO.IsEmailVerified != null)
+					if (request.UserActivationDto.IsEmailVerified != null)
 					{
-						if (request.UserActivationDTO.IsEmailVerified == false)
+						if (request.UserActivationDto.IsEmailVerified == false)
 						{
 							_logger.LogInformation($"Can't set email verification to false.");
 							return Result<Unit>.Failure($"Can't set email verification to false.");
@@ -55,12 +55,12 @@ namespace Application.Users
 								$"User with UserId {request.UserId} has already verified email.");
 						}
 
-						user.IsEmailVerified = (bool)request.UserActivationDTO.IsEmailVerified;
+						user.IsEmailVerified = (bool)request.UserActivationDto.IsEmailVerified;
 					}
 
-					if (request.UserActivationDTO.IsPhoneVerified != null)
+					if (request.UserActivationDto.IsPhoneVerified != null)
 					{
-						if (request.UserActivationDTO.IsPhoneVerified == false)
+						if (request.UserActivationDto.IsPhoneVerified == false)
 						{
 							_logger.LogInformation($"Can't set phone verification to false.");
 							return Result<Unit>.Failure($"Can't set phone verification to false.");
@@ -73,7 +73,7 @@ namespace Application.Users
 								$"User with UserId {request.UserId} has already verified phone.");
 						}
 
-						user.IsPhoneVerified = (bool)request.UserActivationDTO.IsPhoneVerified;
+						user.IsPhoneVerified = (bool)request.UserActivationDto.IsPhoneVerified;
 					}
 
 					if (user.IsEmailVerified && user.IsPhoneVerified)

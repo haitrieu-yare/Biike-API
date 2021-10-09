@@ -2,7 +2,7 @@ using System;
 
 namespace Application.Intimacies.DTOs
 {
-	public class IntimacyDTO
+	public class IntimacyDto
 	{
 		public int? UserOneId { get; set; }
 		public int? UserTwoId { get; set; }

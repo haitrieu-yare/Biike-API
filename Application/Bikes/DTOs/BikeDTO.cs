@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Application.Bikes.DTOs
 {
-	public class BikeDTO
+	public class BikeDto
 	{
 		public int? BikeId { get; set; }
 		public int? UserId { get; set; }

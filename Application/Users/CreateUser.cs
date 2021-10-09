@@ -20,7 +20,7 @@ namespace Application.Users
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public UserCreateDTO UserCreateDTO { get; set; } = null!;
+			public UserCreateDto UserCreateDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -43,12 +43,12 @@ namespace Application.Users
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var userDB = await _context.User
-						.Where(u => u.Email == request.UserCreateDTO.Email ||
-							u.PhoneNumber == request.UserCreateDTO.PhoneNumber)
+					var userDb = await _context.User
+						.Where(u => u.Email == request.UserCreateDto.Email ||
+							u.PhoneNumber == request.UserCreateDto.PhoneNumber)
 						.SingleOrDefaultAsync(cancellationToken);
 
-					if (userDB != null)
+					if (userDb != null)
 					{
 						_logger.LogInformation("User with the same email or phone number has already existed.");
 						return Result<Unit>.Failure("User with the same email or phone number has already existed.");
@@ -56,7 +56,7 @@ namespace Application.Users
 
 					User newUser = new User();
 
-					_mapper.Map(request.UserCreateDTO, newUser);
+					_mapper.Map(request.UserCreateDto, newUser);
 
 					// Setup email, avatar
 					newUser.Email = newUser.Email.ToLower();
@@ -117,7 +117,7 @@ namespace Application.Users
 							{
 								Uid = newUser.UserId.ToString(),
 								Email = newUser.Email,
-								Password = request.UserCreateDTO.Password,
+								Password = request.UserCreateDto.Password,
 								PhoneNumber = newUser.PhoneNumber,
 								DisplayName = newUser.FullName,
 								PhotoUrl = newUser.Avatar,

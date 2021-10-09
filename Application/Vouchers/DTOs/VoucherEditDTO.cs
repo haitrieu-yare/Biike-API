@@ -2,7 +2,7 @@ using System;
 
 namespace Application.Vouchers.DTOs
 {
-	public class VoucherEditDTO
+	public class VoucherEditDto
 	{
 		public int? VoucherCategoryId { get; set; }
 		public string? VoucherName { get; set; }

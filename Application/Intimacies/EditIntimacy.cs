@@ -14,7 +14,7 @@ namespace Application.Intimacies
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public IntimacyCreateEditDTO IntimacyCreateEditDTO { get; set; } = null!;
+			public IntimacyCreateEditDto IntimacyCreateEditDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -36,8 +36,8 @@ namespace Application.Intimacies
 					var oldIntimacy = await _context.Intimacy
 						.FindAsync(new object[]
 						{
-							request.IntimacyCreateEditDTO.UserOneId!,
-							request.IntimacyCreateEditDTO.UserTwoId!
+							request.IntimacyCreateEditDto.UserOneId!,
+							request.IntimacyCreateEditDto.UserTwoId!
 						}, cancellationToken);
 
 					if (oldIntimacy == null) return null!;
@@ -58,20 +58,20 @@ namespace Application.Intimacies
 					if (!result)
 					{
 						_logger.LogInformation("Failed to update intimacy of " +
-							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
-							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}");
+							$"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
+							$"userTwoId {request.IntimacyCreateEditDto.UserTwoId}");
 						return Result<Unit>.Failure("Failed to update intimacy of " +
-							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
-							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
+							$"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
+							$"userTwoId {request.IntimacyCreateEditDto.UserTwoId}.");
 					}
 					else
 					{
 						_logger.LogInformation("Successfully updated intimacy of " +
-							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
-							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}");
+							$"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
+							$"userTwoId {request.IntimacyCreateEditDto.UserTwoId}");
 						return Result<Unit>.Success(Unit.Value, "Successfully updated intimacy of " +
-							$"userOneId {request.IntimacyCreateEditDTO.UserOneId} and " +
-							$"userTwoId {request.IntimacyCreateEditDTO.UserTwoId}.");
+							$"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
+							$"userTwoId {request.IntimacyCreateEditDto.UserTwoId}.");
 					}
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)

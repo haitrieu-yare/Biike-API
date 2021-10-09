@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Redemptions.DTOs
 {
-	public class RedemptionCreateDTO
+	public class RedemptionCreateDto
 	{
 		[Required]
 		public int? UserId { get; set; }

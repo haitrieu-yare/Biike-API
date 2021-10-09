@@ -27,22 +27,22 @@ namespace API.Controllers
 		[Authorized(RoleStatus.Admin)]
 		[HttpPost]
 		public async Task<IActionResult> CreateVoucherCategory(
-			VoucherCategoryCreateDTO voucherCategoryCreateDTO, CancellationToken ct)
+			VoucherCategoryCreateDto voucherCategoryCreateDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new CreateVoucherCategory.Command { VoucherCategoryCreateDTO = voucherCategoryCreateDTO }, ct));
+				new CreateVoucherCategory.Command { VoucherCategoryCreateDto = voucherCategoryCreateDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Admin)]
 		[HttpPut("{voucherCategoryId}")]
 		public async Task<IActionResult> EditVoucherCategory(
-			int voucherCategoryId, VoucherCategoryDTO newVoucherCategoryDTO, CancellationToken ct)
+			int voucherCategoryId, VoucherCategoryDto newVoucherCategoryDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
 				new EditVoucherCategory.Command
 				{
 					VoucherCategoryId = voucherCategoryId,
-					NewVoucherCategoryDTO = newVoucherCategoryDTO
+					NewVoucherCategoryDto = newVoucherCategoryDto
 				}, ct));
 		}
 

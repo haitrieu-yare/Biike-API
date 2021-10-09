@@ -15,7 +15,7 @@ namespace Application.Wallets
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public WalletCreateDTO WalletCreateDTO { get; set; } = null!;
+			public WalletCreateDto WalletCreateDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,7 +38,7 @@ namespace Application.Wallets
 
 					Wallet newWallet = new Wallet();
 
-					_mapper.Map(request.WalletCreateDTO, newWallet);
+					_mapper.Map(request.WalletCreateDto, newWallet);
 
 					await _context.Wallet.AddAsync(newWallet, cancellationToken);
 

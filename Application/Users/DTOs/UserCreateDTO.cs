@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Users.DTOs
 {
-	public class UserCreateDTO
+	public class UserCreateDto
 	{
 		[Required]
 		[RegularExpression(@"^(\+84)([0-9]{9})$", ErrorMessage = "Invalid phone number.")]

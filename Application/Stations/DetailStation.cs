@@ -15,13 +15,13 @@ namespace Application.Stations
 {
 	public class DetailStation
 	{
-		public class Query : IRequest<Result<StationDTO>>
+		public class Query : IRequest<Result<StationDto>>
 		{
 			public int StationId { get; set; }
 			public bool IsAdmin { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<StationDTO>>
+		public class Handler : IRequestHandler<Query, Result<StationDto>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -33,27 +33,27 @@ namespace Application.Stations
 				_logger = logger;
 			}
 
-			public async Task<Result<StationDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<StationDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					StationDTO station = new StationDTO();
+					StationDto station = new StationDto();
 
 					if (request.IsAdmin)
 					{
-						Station stationDB = await _context.Station
+						Station stationDb = await _context.Station
 							.FindAsync(new object[] { request.StationId }, cancellationToken);
 
-						_mapper.Map(stationDB, station);
+						_mapper.Map(stationDb, station);
 					}
 					else
 					{
 						station = await _context.Station
 							.Where(s => s.StationId == request.StationId)
 							.Where(s => s.IsDeleted != true)
-							.ProjectTo<StationDTO>(_mapper.ConfigurationProvider)
+							.ProjectTo<StationDto>(_mapper.ConfigurationProvider)
 							.SingleOrDefaultAsync(cancellationToken);
 						// Set to null to make unnecessary fields excluded from response body.
 						station.CreatedDate = null;
@@ -61,13 +61,13 @@ namespace Application.Stations
 					}
 
 					_logger.LogInformation($"Successfully retrieved station by stationId {request.StationId}.");
-					return Result<StationDTO>.Success(
+					return Result<StationDto>.Success(
 						station, $"Successfully retrieved station by stationId {request.StationId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled.");
-					return Result<StationDTO>.Failure("Request was cancelled.");
+					return Result<StationDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

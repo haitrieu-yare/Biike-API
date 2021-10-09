@@ -28,7 +28,7 @@ namespace API.Controllers
 		[HttpGet("trips/{tripId:int}")]
 		public async Task<IActionResult> GetTripFeedBacks(int tripId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -44,9 +44,9 @@ namespace API.Controllers
 
 		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpPost]
-		public async Task<IActionResult> CreateFeedBack(FeedbackCreateDTO feedbackCreateDto, CancellationToken ct)
+		public async Task<IActionResult> CreateFeedBack(FeedbackCreateDto feedbackCreateDto, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, feedbackCreateDto.UserId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, feedbackCreateDto.UserId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -55,7 +55,7 @@ namespace API.Controllers
 				return BadRequest("UserId of requester isn't the same with userId of feedback.");
 
 			return HandleResult(await Mediator.Send(
-				new CreateFeedback.Command { FeedbackCreateDTO = feedbackCreateDto }, ct));
+				new CreateFeedback.Command { FeedbackCreateDto = feedbackCreateDto }, ct));
 		}
 	}
 }

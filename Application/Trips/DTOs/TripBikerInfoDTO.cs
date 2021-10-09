@@ -1,6 +1,6 @@
 namespace Application.Trips.DTOs
 {
-	public class TripBikerInfoDTO
+	public class TripBikerInfoDto
 	{
 		public int BikerId { get; set; }
 		public string NumberPlate { get; set; } = string.Empty;

@@ -29,17 +29,17 @@ namespace API.Controllers
 
 		[Authorized(RoleStatus.Admin)]
 		[HttpPost]
-		public async Task<IActionResult> CreateRoute(RouteCreateDTO routeCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateRoute(RouteCreateDto routeCreateDto, CancellationToken ct)
 		{
-			return HandleResult(await Mediator.Send(new CreateRoute.Command { RouteCreateDTO = routeCreateDTO }, ct));
+			return HandleResult(await Mediator.Send(new CreateRoute.Command { RouteCreateDto = routeCreateDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Admin)]
 		[HttpPut("{routeId}")]
-		public async Task<IActionResult> EditRoute(int routeId, RouteDTO routeDTO, CancellationToken ct)
+		public async Task<IActionResult> EditRoute(int routeId, RouteDto routeDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new EditRoute.Command { RouteId = routeId, RouteDTO = routeDTO }, ct));
+				new EditRoute.Command { RouteId = routeId, RouteDto = routeDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Admin)]

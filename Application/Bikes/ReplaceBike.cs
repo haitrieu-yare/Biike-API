@@ -16,7 +16,7 @@ namespace Application.Bikes
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public BikeCreateDTO BikeCreateDTO { get; set; } = null!;
+			public BikeCreateDto BikeCreateDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,7 +38,7 @@ namespace Application.Bikes
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var oldBike = await _context.Bike
-						.Where(b => b.UserId == request.BikeCreateDTO.UserId)
+						.Where(b => b.UserId == request.BikeCreateDto.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					if (oldBike == null)
@@ -51,7 +51,7 @@ namespace Application.Bikes
 
 					Bike newBike = new Bike();
 
-					_mapper.Map(request.BikeCreateDTO, newBike);
+					_mapper.Map(request.BikeCreateDto, newBike);
 
 					await _context.Bike.AddAsync(newBike, cancellationToken);
 

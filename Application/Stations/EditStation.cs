@@ -15,7 +15,7 @@ namespace Application.Stations
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int StationId { get; set; }
-			public StationDTO NewStationDTO { get; set; } = null!;
+			public StationDto NewStationDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -49,7 +49,7 @@ namespace Application.Stations
 							"Please reactivate it if you want to edit it.");
 					}
 
-					_mapper.Map(request.NewStationDTO, oldStation);
+					_mapper.Map(request.NewStationDto, oldStation);
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

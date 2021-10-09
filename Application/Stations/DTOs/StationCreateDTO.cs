@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Stations.DTOs
 {
-	public class StationCreateDTO
+	public class StationCreateDto
 	{
 		[Required]
 		public int? AreaId { get; set; }

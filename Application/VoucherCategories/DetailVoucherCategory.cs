@@ -12,12 +12,12 @@ namespace Application.VoucherCategories
 {
 	public class DetailVoucherCategory
 	{
-		public class Query : IRequest<Result<VoucherCategoryDTO>>
+		public class Query : IRequest<Result<VoucherCategoryDto>>
 		{
 			public int VoucherCategoryId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<VoucherCategoryDTO>>
+		public class Handler : IRequestHandler<Query, Result<VoucherCategoryDto>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -29,28 +29,28 @@ namespace Application.VoucherCategories
 				_logger = logger;
 			}
 
-			public async Task<Result<VoucherCategoryDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<VoucherCategoryDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					VoucherCategoryDTO voucherCategory = new VoucherCategoryDTO();
+					VoucherCategoryDto voucherCategory = new VoucherCategoryDto();
 
-					VoucherCategory voucherCategoryDB = await _context.VoucherCategory
+					VoucherCategory voucherCategoryDb = await _context.VoucherCategory
 						.FindAsync(new object[] { request.VoucherCategoryId }, cancellationToken);
 
-					_mapper.Map(voucherCategoryDB, voucherCategory);
+					_mapper.Map(voucherCategoryDb, voucherCategory);
 
 					_logger.LogInformation("Successfully retrieved voucherCategory " +
 						$"by voucherCategoryId {request.VoucherCategoryId}.");
-					return Result<VoucherCategoryDTO>.Success(voucherCategory,
+					return Result<VoucherCategoryDto>.Success(voucherCategory,
 						$"Successfully retrieved voucherCategory by voucherCategoryId {request.VoucherCategoryId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled.");
-					return Result<VoucherCategoryDTO>.Failure("Request was cancelled.");
+					return Result<VoucherCategoryDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

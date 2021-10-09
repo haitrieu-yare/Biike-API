@@ -21,7 +21,7 @@ namespace API.Controllers
 		[HttpGet("users/{userId}")]
 		public async Task<IActionResult> GetAllWalletsByUserId(int page, int limit, int userId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -42,19 +42,19 @@ namespace API.Controllers
 
 		[Authorized(RoleStatus.Admin)]
 		[HttpPost]
-		public async Task<IActionResult> CreateWallet(WalletCreateDTO walletCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateWallet(WalletCreateDto walletCreateDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new CreateWallet.Command { WalletCreateDTO = walletCreateDTO }, ct));
+				new CreateWallet.Command { WalletCreateDto = walletCreateDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Admin)]
 		[HttpPut("{walletId}")]
 		public async Task<IActionResult> EditWalletByWalletId(int walletId,
-			WalletDTO newWalletDTO, CancellationToken ct)
+			WalletDto newWalletDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new EditWallet.Command { WalletId = walletId, NewWalletDTO = newWalletDTO }, ct));
+				new EditWallet.Command { WalletId = walletId, NewWalletDto = newWalletDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Admin)]

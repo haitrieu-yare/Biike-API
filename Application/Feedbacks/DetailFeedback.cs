@@ -11,12 +11,12 @@ namespace Application.Feedbacks
 {
 	public class DetailFeedback
 	{
-		public class Query : IRequest<Result<FeedbackDTO>>
+		public class Query : IRequest<Result<FeedbackDto>>
 		{
 			public int FeedbackId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<FeedbackDTO>>
+		public class Handler : IRequestHandler<Query, Result<FeedbackDto>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -28,27 +28,27 @@ namespace Application.Feedbacks
 				_logger = logger;
 			}
 
-			public async Task<Result<FeedbackDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<FeedbackDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var feedbackDB = await _context.Feedback
+					var feedbackDb = await _context.Feedback
 						.FindAsync(new object[] { request.FeedbackId }, cancellationToken);
 
-					FeedbackDTO feedback = new FeedbackDTO();
+					FeedbackDto feedback = new FeedbackDto();
 
-					_mapper.Map(feedbackDB, feedback);
+					_mapper.Map(feedbackDb, feedback);
 
 					_logger.LogInformation($"Successfully retrieved feedback by FeedbackId {request.FeedbackId}.");
-					return Result<FeedbackDTO>.Success(
+					return Result<FeedbackDto>.Success(
 						feedback, $"Successfully retrieved feedback by FeedbackId {request.FeedbackId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled.");
-					return Result<FeedbackDTO>.Failure("Request was cancelled.");
+					return Result<FeedbackDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

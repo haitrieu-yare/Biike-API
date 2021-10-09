@@ -18,7 +18,7 @@ namespace Application.Redemptions
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public RedemptionCreateDTO RedemptionCreateDTO { get; set; } = null!;
+			public RedemptionCreateDto RedemptionCreateDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -40,7 +40,7 @@ namespace Application.Redemptions
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var voucher = await _context.Voucher
-						.FindAsync(new object[] { request.RedemptionCreateDTO.VoucherId! }, cancellationToken);
+						.FindAsync(new object[] { request.RedemptionCreateDto.VoucherId! }, cancellationToken);
 
 					if (voucher == null)
 					{
@@ -65,12 +65,12 @@ namespace Application.Redemptions
 					// Max number of active wallets is 2 for each user
 					// Current Wallet
 					var currentWallet = await _context.Wallet
-						.Where(w => w.UserId == request.RedemptionCreateDTO.UserId)
+						.Where(w => w.UserId == request.RedemptionCreateDto.UserId)
 						.Where(w => w.Status == (int)WalletStatus.Current)
 						.SingleOrDefaultAsync(cancellationToken);
 					// Old Wallet
 					var oldWallet = await _context.Wallet
-						.Where(w => w.UserId == request.RedemptionCreateDTO.UserId)
+						.Where(w => w.UserId == request.RedemptionCreateDto.UserId)
 						.Where(w => w.Status == (int)WalletStatus.Old)
 						.SingleOrDefaultAsync(cancellationToken);
 
@@ -82,7 +82,7 @@ namespace Application.Redemptions
 
 					Redemption newRedemption = new Redemption();
 
-					_mapper.Map(request.RedemptionCreateDTO, newRedemption);
+					_mapper.Map(request.RedemptionCreateDto, newRedemption);
 
 					// Set voucherPoint
 					newRedemption.VoucherPoint = voucher.AmountOfPoint;

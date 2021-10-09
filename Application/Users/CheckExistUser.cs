@@ -15,7 +15,7 @@ namespace Application.Users
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public UserExistDTO UserExistDTO { get; set; } = null!;
+			public UserExistDto UserExistDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -37,8 +37,8 @@ namespace Application.Users
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var user = await _context.User
-						.Where(u => u.Email == request.UserExistDTO.Email ||
-							u.PhoneNumber == request.UserExistDTO.PhoneNumber)
+						.Where(u => u.Email == request.UserExistDto.Email ||
+							u.PhoneNumber == request.UserExistDto.PhoneNumber)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					if (user != null)

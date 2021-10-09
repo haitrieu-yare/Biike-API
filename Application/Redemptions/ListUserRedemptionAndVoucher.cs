@@ -16,14 +16,14 @@ namespace Application.Redemptions
 {
 	public class ListUserRedemptionAndVoucher
 	{
-		public class Query : IRequest<Result<List<RedemptionAndVoucherDTO>>>
+		public class Query : IRequest<Result<List<RedemptionAndVoucherDto>>>
 		{
 			public int UserId { get; set; }
 			public int Page { get; set; }
 			public int Limit { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<RedemptionAndVoucherDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<RedemptionAndVoucherDto>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -35,7 +35,7 @@ namespace Application.Redemptions
 				_logger = logger;
 			}
 
-			public async Task<Result<List<RedemptionAndVoucherDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<RedemptionAndVoucherDto>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -44,7 +44,7 @@ namespace Application.Redemptions
 					if (request.Page <= 0)
 					{
 						_logger.LogInformation("Page must larger than 0");
-						return Result<List<RedemptionAndVoucherDTO>>.Failure("Page must larger than 0.");
+						return Result<List<RedemptionAndVoucherDto>>.Failure("Page must larger than 0.");
 					}
 
 					// Max number of active wallets is 2 for each user
@@ -56,7 +56,7 @@ namespace Application.Redemptions
 					if (wallets == null)
 					{
 						_logger.LogInformation("User doesn't have wallet");
-						return Result<List<RedemptionAndVoucherDTO>>.Failure("User doesn't have wallet.");
+						return Result<List<RedemptionAndVoucherDto>>.Failure("User doesn't have wallet.");
 					}
 
 					int totalRecord = await _context.Redemption
@@ -68,7 +68,7 @@ namespace Application.Redemptions
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 					#endregion
 
-					List<RedemptionAndVoucherDTO> redemptions = new List<RedemptionAndVoucherDTO>();
+					List<RedemptionAndVoucherDto> redemptions = new List<RedemptionAndVoucherDto>();
 
 					if (request.Page <= lastPage)
 					{
@@ -81,24 +81,24 @@ namespace Application.Redemptions
 							.OrderBy(r => r.RedemptionId)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
-							.ProjectTo<RedemptionAndVoucherDTO>(_mapper.ConfigurationProvider)
+							.ProjectTo<RedemptionAndVoucherDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
 					}
 
-					PaginationDTO paginationDto = new PaginationDTO(
+					PaginationDto paginationDto = new PaginationDto(
 						request.Page, request.Limit, redemptions.Count, lastPage, totalRecord
 					);
 
 					_logger.LogInformation("Successfully retrieved redemptions and " +
 						$"vouchers of userId {request.UserId}");
-					return Result<List<RedemptionAndVoucherDTO>>.Success
+					return Result<List<RedemptionAndVoucherDto>>.Success
 						(redemptions, "Successfully retrieved redemptions and " +
 						$"vouchers of userId {request.UserId}.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<RedemptionAndVoucherDTO>>.Failure("Request was cancelled.");
+					return Result<List<RedemptionAndVoucherDto>>.Failure("Request was cancelled.");
 				}
 			}
 		}

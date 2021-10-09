@@ -21,7 +21,7 @@ namespace API.Controllers
 		[HttpGet("{userOneId:int}")]
 		public async Task<IActionResult> GetIntimaciesByUserId(int userOneId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userOneId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userOneId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -34,9 +34,9 @@ namespace API.Controllers
 
 		[HttpPost]
 		public async Task<IActionResult> CreateIntimacies(
-			IntimacyCreateEditDTO intimacyCreateEditDTO, CancellationToken ct)
+			IntimacyCreateEditDto intimacyCreateEditDto, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, intimacyCreateEditDTO.UserOneId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, intimacyCreateEditDto.UserOneId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -45,14 +45,14 @@ namespace API.Controllers
 				return BadRequest("UserId of requester isn't the same with userId of intimacy.");
 
 			return HandleResult(await Mediator.Send(
-				new CreateIntimacy.Command { IntimacyCreateEditDTO = intimacyCreateEditDTO }, ct));
+				new CreateIntimacy.Command { IntimacyCreateEditDto = intimacyCreateEditDto }, ct));
 		}
 
 		[HttpPut]
-		public async Task<IActionResult> EditIntimacies(IntimacyCreateEditDTO intimacyCreateEditDTO,
+		public async Task<IActionResult> EditIntimacies(IntimacyCreateEditDto intimacyCreateEditDto,
 			CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, intimacyCreateEditDTO.UserOneId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, intimacyCreateEditDto.UserOneId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -61,7 +61,7 @@ namespace API.Controllers
 				return BadRequest("UserId of requester isn't the same with userId of intimacy.");
 
 			return HandleResult(await Mediator.Send(
-				new EditIntimacy.Command { IntimacyCreateEditDTO = intimacyCreateEditDTO }, ct));
+				new EditIntimacy.Command { IntimacyCreateEditDto = intimacyCreateEditDto }, ct));
 		}
 	}
 }

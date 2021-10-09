@@ -18,7 +18,7 @@ namespace Application.Trips
 			public int TripId { get; set; }
 			public int UserId { get; set; }
 			public bool IsAdmin { get; set; }
-			public TripCancellationDTO TripCancellationDTO { get; set; } = null!;
+			public TripCancellationDto TripCancellationDto { get; set; } = null!;
 		}
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
@@ -75,7 +75,7 @@ namespace Application.Trips
 							return Result<Unit>.Failure("Trip has already cancelled.");
 					}
 
-					_mapper.Map(request.TripCancellationDTO, oldTrip);
+					_mapper.Map(request.TripCancellationDto, oldTrip);
 
 					oldTrip.CancelPersonId = request.UserId;
 					oldTrip.Status = (int)TripStatus.Cancelled;

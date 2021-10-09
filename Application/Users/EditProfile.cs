@@ -15,7 +15,7 @@ namespace Application.Users
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int UserId { get; set; }
-			public UserProfileEditDTO UserProfileEditDTO { get; set; } = null!;
+			public UserProfileEditDto UserProfileEditDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -53,7 +53,7 @@ namespace Application.Users
 							"Please reactivate it if you want to edit it.");
 					}
 
-					_mapper.Map(request.UserProfileEditDTO, user);
+					_mapper.Map(request.UserProfileEditDto, user);
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

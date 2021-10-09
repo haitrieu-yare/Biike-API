@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Application.Users.DTOs
 {
-	public class UserActivationDTO
+	public class UserActivationDto
 	{
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public bool? IsEmailVerified { get; set; }

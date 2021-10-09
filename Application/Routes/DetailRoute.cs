@@ -15,13 +15,13 @@ namespace Application.Routes
 {
 	public class DetailRoute
 	{
-		public class Query : IRequest<Result<RouteDTO>>
+		public class Query : IRequest<Result<RouteDto>>
 		{
 			public int RouteId { get; set; }
 			public bool IsAdmin { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<RouteDTO>>
+		public class Handler : IRequestHandler<Query, Result<RouteDto>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -33,27 +33,27 @@ namespace Application.Routes
 				_logger = logger;
 			}
 
-			public async Task<Result<RouteDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<RouteDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					RouteDTO route = new RouteDTO();
+					RouteDto route = new RouteDto();
 
 					if (request.IsAdmin)
 					{
-						Route routeDB = await _context.Route
+						Route routeDb = await _context.Route
 							.FindAsync(new object[] { request.RouteId }, cancellationToken);
 
-						_mapper.Map(routeDB, route);
+						_mapper.Map(routeDb, route);
 					}
 					else
 					{
 						route = await _context.Route
 							.Where(r => r.RouteId == request.RouteId)
 							.Where(r => r.IsDeleted != true)
-							.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
+							.ProjectTo<RouteDto>(_mapper.ConfigurationProvider)
 							.FirstOrDefaultAsync(cancellationToken);
 						// Set to null to make unnecessary fields excluded from response body.
 						route.CreatedDate = null;
@@ -61,13 +61,13 @@ namespace Application.Routes
 					}
 
 					_logger.LogInformation($"Successfully retrieved route by routeId {request.RouteId}.");
-					return Result<RouteDTO>.Success(
+					return Result<RouteDto>.Success(
 						route, $"Successfully retrieved route by routeId {request.RouteId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled.");
-					return Result<RouteDTO>.Failure("Request was cancelled.");
+					return Result<RouteDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Application.Feedbacks.DTOs
 {
-	public class FeedbackDTO
+	public class FeedbackDto
 	{
 		public int? FeedbackId { get; set; }
 		public int? UserId { get; set; }

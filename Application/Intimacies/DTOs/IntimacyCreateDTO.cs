@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Intimacies.DTOs
 {
-	public class IntimacyCreateEditDTO
+	public class IntimacyCreateEditDto
 	{
 		[Required]
 		public int? UserOneId { get; set; }

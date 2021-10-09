@@ -15,7 +15,7 @@ namespace Application.Vouchers
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int VoucherId { get; set; }
-			public VoucherEditDTO NewVoucher { get; set; } = null!;
+			public VoucherEditDto NewVoucher { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>

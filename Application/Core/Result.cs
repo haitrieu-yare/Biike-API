@@ -4,7 +4,7 @@ namespace Application.Core
 	{
 		public bool IsSuccess { get; set; }
 		public string NewResourceId { get; set; } = string.Empty;
-		public PaginationDTO? PaginationDTO { get; set; }
+		public PaginationDto? PaginationDto { get; set; }
 		public bool IsUnauthorized { get; set; } = false;
 		public T? Value { get; set; }
 		public string? ErrorMessage { get; set; }
@@ -13,13 +13,13 @@ namespace Application.Core
 
 		public static Result<T> Success(T value, string successMessage)
 			=> new Result<T> { IsSuccess = true, Value = value, SuccessMessage = successMessage };
-		public static Result<T> Success(T value, string successMessage, PaginationDTO paginationDTO)
+		public static Result<T> Success(T value, string successMessage, PaginationDto paginationDto)
 			=> new Result<T>
 			{
 				IsSuccess = true,
 				Value = value,
 				SuccessMessage = successMessage,
-				PaginationDTO = paginationDTO,
+				PaginationDto = paginationDto,
 			};
 		public static Result<T> Success(T value, string successMessage, string newResourceId)
 			=> new Result<T>

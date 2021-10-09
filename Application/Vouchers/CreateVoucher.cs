@@ -15,7 +15,7 @@ namespace Application.Vouchers
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public VoucherCreateDTO VoucherCreateDTO { get; set; } = null!;
+			public VoucherCreateDto VoucherCreateDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,7 +38,7 @@ namespace Application.Vouchers
 
 					Voucher newVoucher = new Voucher();
 
-					_mapper.Map(request.VoucherCreateDTO, newVoucher);
+					_mapper.Map(request.VoucherCreateDto, newVoucher);
 
 					if (newVoucher.EndDate.CompareTo(newVoucher.StartDate) < 0)
 					{

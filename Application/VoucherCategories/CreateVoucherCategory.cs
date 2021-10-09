@@ -15,7 +15,7 @@ namespace Application.VoucherCategories
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public VoucherCategoryCreateDTO VoucherCategoryCreateDTO { get; set; } = null!;
+			public VoucherCategoryCreateDto VoucherCategoryCreateDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,7 +38,7 @@ namespace Application.VoucherCategories
 
 					VoucherCategory newVoucherCategory = new VoucherCategory();
 
-					_mapper.Map(request.VoucherCategoryCreateDTO, newVoucherCategory);
+					_mapper.Map(request.VoucherCategoryCreateDto, newVoucherCategory);
 
 					await _context.VoucherCategory.AddAsync(newVoucherCategory, cancellationToken);
 

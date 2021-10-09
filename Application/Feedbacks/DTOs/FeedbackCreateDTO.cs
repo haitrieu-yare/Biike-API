@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Feedbacks.DTOs
 {
-	public class FeedbackCreateDTO
+	public class FeedbackCreateDto
 	{
 		[Required]
 		public int? UserId { get; set; }

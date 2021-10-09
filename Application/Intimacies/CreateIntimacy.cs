@@ -15,7 +15,7 @@ namespace Application.Intimacies
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public IntimacyCreateEditDTO IntimacyCreateEditDTO { get; set; } = null!;
+			public IntimacyCreateEditDto IntimacyCreateEditDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -39,8 +39,8 @@ namespace Application.Intimacies
 					var oldIntimacy = await _context.Intimacy
 						.FindAsync(new object[]
 						{
-							request.IntimacyCreateEditDTO.UserOneId!,
-							request.IntimacyCreateEditDTO.UserTwoId!
+							request.IntimacyCreateEditDto.UserOneId!,
+							request.IntimacyCreateEditDto.UserTwoId!
 						}, cancellationToken);
 
 					if (oldIntimacy != null)
@@ -51,7 +51,7 @@ namespace Application.Intimacies
 
 					Intimacy newIntimacy = new Intimacy();
 
-					_mapper.Map(request.IntimacyCreateEditDTO, newIntimacy);
+					_mapper.Map(request.IntimacyCreateEditDto, newIntimacy);
 
 					await _context.Intimacy.AddAsync(newIntimacy, cancellationToken);
 

@@ -14,13 +14,13 @@ namespace Application.Bikes
 {
 	public class DetailBikeByUserId
 	{
-		public class Query : IRequest<Result<BikeDTO>>
+		public class Query : IRequest<Result<BikeDto>>
 		{
 			public int UserId { get; set; }
 			public bool IsAdmin { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<BikeDTO>>
+		public class Handler : IRequestHandler<Query, Result<BikeDto>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -32,7 +32,7 @@ namespace Application.Bikes
 				_logger = logger;
 			}
 
-			public async Task<Result<BikeDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<BikeDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -40,13 +40,13 @@ namespace Application.Bikes
 
 					var bike = await _context.Bike
 						.Where(b => b.UserId == request.UserId)
-						.ProjectTo<BikeDTO>(_mapper.ConfigurationProvider)
+						.ProjectTo<BikeDto>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					if (bike == null)
 					{
 						_logger.LogInformation($"Cound not found bike with UserId {request.UserId}");
-						return Result<BikeDTO>.NotFound($"Cound not found bike with UserId {request.UserId}.");
+						return Result<BikeDto>.NotFound($"Cound not found bike with UserId {request.UserId}.");
 					}
 
 					if (!request.IsAdmin)
@@ -56,12 +56,12 @@ namespace Application.Bikes
 					}
 
 					_logger.LogInformation($"Successfully retrieved bike by UserId {request.UserId}");
-					return Result<BikeDTO>.Success(bike, $"Successfully retrieved bike by UserId {request.UserId}.");
+					return Result<BikeDto>.Success(bike, $"Successfully retrieved bike by UserId {request.UserId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<BikeDTO>.Failure("Request was cancelled.");
+					return Result<BikeDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

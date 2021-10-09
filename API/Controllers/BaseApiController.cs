@@ -16,7 +16,7 @@ namespace API.Controllers
 		private const string NotFoundMessage = "No records found.";
 		protected ActionResult HandleResult<T>(Result<T> result)
 		{
-			string baseURL = $"{Request.Scheme}://{Request.Host}{Request.Path}";
+			string baseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
 			string controllerName = Request.Path.ToString().Split("v1/").Last();
 
 			if (result == null)
@@ -34,15 +34,15 @@ namespace API.Controllers
 			{
 				if (!string.IsNullOrEmpty(result.NewResourceId)) // CREATE - 201
 				{
-					string newResourceURL = baseURL + "/" + result.NewResourceId;
+					string newResourceUrl = baseUrl + "/" + result.NewResourceId;
 
-					return Created(newResourceURL, new
+					return Created(newResourceUrl, new
 					{
 						message = result.SuccessMessage,
 						data = result.Value,
 					});
 				}
-				else if (result.PaginationDTO != null)  // PAGINATION
+				else if (result.PaginationDto != null)  // PAGINATION
 				{
 					#region Reconstruct a query string
 					List<string> queryString = Request.QueryString.ToString().Split("&").ToList();
@@ -69,37 +69,37 @@ namespace API.Controllers
 					{
 						new
 						{
-							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDTO.Page}" +
-								$"&limit={result.PaginationDTO.Limit}",
+							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDto.Page}" +
+								$"&limit={result.PaginationDto.Limit}",
 							rel = "self",
 						},
 						new {
-							href = $"/{controllerName}?{completeQueryString}page=1&limit={result.PaginationDTO.Limit}",
+							href = $"/{controllerName}?{completeQueryString}page=1&limit={result.PaginationDto.Limit}",
 							rel = "first",
 						},
 						new {
-							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDTO.LastPage}" +
-								$"&limit={result.PaginationDTO.Limit}",
+							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDto.LastPage}" +
+								$"&limit={result.PaginationDto.Limit}",
 							rel = "last",
 						}
 					};
 
-					if (result.PaginationDTO.Page > 1 && result.PaginationDTO.Page <= result.PaginationDTO.LastPage)
+					if (result.PaginationDto.Page > 1 && result.PaginationDto.Page <= result.PaginationDto.LastPage)
 					{
 						link.Add(new
 						{
-							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDTO.Page - 1}" +
-								$"&limit={result.PaginationDTO.Limit}",
+							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDto.Page - 1}" +
+								$"&limit={result.PaginationDto.Limit}",
 							rel = "prev",
 						});
 					}
 
-					if (result.PaginationDTO.Page >= 1 && result.PaginationDTO.Page < result.PaginationDTO.LastPage)
+					if (result.PaginationDto.Page >= 1 && result.PaginationDto.Page < result.PaginationDto.LastPage)
 					{
 						link.Add(new
 						{
-							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDTO.Page + 1}" +
-								$"&limit={result.PaginationDTO.Limit}",
+							href = $"/{controllerName}?{completeQueryString}page={result.PaginationDto.Page + 1}" +
+								$"&limit={result.PaginationDto.Limit}",
 							rel = "next",
 						});
 					}
@@ -109,10 +109,10 @@ namespace API.Controllers
 						message = result.SuccessMessage,
 						_meta = new
 						{
-							page = result.PaginationDTO.Page,
-							limit = result.PaginationDTO.Limit,
-							count = result.PaginationDTO.Count,
-							totalRecord = result.PaginationDTO.TotalRecord,
+							page = result.PaginationDto.Page,
+							limit = result.PaginationDto.Limit,
+							count = result.PaginationDto.Count,
+							totalRecord = result.PaginationDto.TotalRecord,
 						},
 						_link = link,
 						data = result.Value,

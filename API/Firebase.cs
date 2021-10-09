@@ -24,12 +24,12 @@ namespace API
 		{
 			try
 			{
-				var usersFromDB = await _context.User.ToListAsync();
+				var usersFromDb = await _context.User.ToListAsync();
 				var usersToFireBase = new List<ImportUserRecordArgs>();
 
-				if (usersFromDB.Count > 0)
+				if (usersFromDb.Count > 0)
 				{
-					foreach (var user in usersFromDB)
+					foreach (var user in usersFromDb)
 					{
 						usersToFireBase.Add(
 							new ImportUserRecordArgs()

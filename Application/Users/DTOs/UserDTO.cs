@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Application.Users.DTOs
 {
-	public class UserDTO
+	public class UserDto
 	{
 		public int? UserId { get; set; }
 		public string? PhoneNumber { get; set; }

@@ -29,18 +29,18 @@ namespace API.Controllers
 
 		[Authorized(RoleStatus.Admin)]
 		[HttpPost]
-		public async Task<IActionResult> CreateStation(StationCreateDTO stationCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateStation(StationCreateDto stationCreateDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new CreateStation.Command { StationCreateDTO = stationCreateDTO }, ct));
+				new CreateStation.Command { StationCreateDto = stationCreateDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Admin)]
 		[HttpPut("{stationId}")]
-		public async Task<IActionResult> EditStation(int stationId, StationDTO newStationDTO, CancellationToken ct)
+		public async Task<IActionResult> EditStation(int stationId, StationDto newStationDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new EditStation.Command { StationId = stationId, NewStationDTO = newStationDTO }, ct));
+				new EditStation.Command { StationId = stationId, NewStationDto = newStationDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Admin)]

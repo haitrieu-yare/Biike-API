@@ -15,7 +15,7 @@ namespace Application.Trips
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public TripCreateDTO TripCreateDTO { get; set; } = null!;
+			public TripCreateDto TripCreateDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -37,7 +37,7 @@ namespace Application.Trips
 
 					Trip newTrip = new Trip();
 
-					_mapper.Map(request.TripCreateDTO, newTrip);
+					_mapper.Map(request.TripCreateDto, newTrip);
 
 					await _context.Trip.AddAsync(newTrip, cancellationToken);
 

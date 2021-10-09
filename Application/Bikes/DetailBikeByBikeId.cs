@@ -11,12 +11,12 @@ namespace Application.Bikes
 {
 	public class DetailBikeByBikeId
 	{
-		public class Query : IRequest<Result<BikeDTO>>
+		public class Query : IRequest<Result<BikeDto>>
 		{
 			public int BikeId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<BikeDTO>>
+		public class Handler : IRequestHandler<Query, Result<BikeDto>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -28,32 +28,32 @@ namespace Application.Bikes
 				_logger = logger;
 			}
 
-			public async Task<Result<BikeDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<BikeDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var bikeDB = await _context.Bike
+					var bikeDb = await _context.Bike
 						.FindAsync(new object[] { request.BikeId }, cancellationToken);
 
-					if (bikeDB == null)
+					if (bikeDb == null)
 					{
 						_logger.LogInformation($"Cound not found bike with BikeId {request.BikeId}");
-						return Result<BikeDTO>.NotFound($"Cound not found bike with BikeId {request.BikeId}.");
+						return Result<BikeDto>.NotFound($"Cound not found bike with BikeId {request.BikeId}.");
 					}
 
-					BikeDTO bike = new BikeDTO();
+					BikeDto bike = new BikeDto();
 
-					_mapper.Map(bikeDB, bike);
+					_mapper.Map(bikeDb, bike);
 
 					_logger.LogInformation($"Successfully retrieved bike by BikeId {request.BikeId}");
-					return Result<BikeDTO>.Success(bike, $"Successfully retrieved bike by BikeId {request.BikeId}.");
+					return Result<BikeDto>.Success(bike, $"Successfully retrieved bike by BikeId {request.BikeId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<BikeDTO>.Failure("Request was cancelled.");
+					return Result<BikeDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

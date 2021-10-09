@@ -4,7 +4,7 @@ using Application.Feedbacks.DTOs;
 
 namespace Application.Trips.DTOs
 {
-	public class TripDetailInfoDTO
+	public class TripDetailInfoDto
 	{
 		public int? TripId { get; set; }
 		public int? UserId { get; set; }
@@ -18,6 +18,6 @@ namespace Application.Trips.DTOs
 		public int? TripStatus { get; set; }
 		public string? StartingPointName { get; set; }
 		public string? DestinationName { get; set; }
-		public List<FeedbackDTO> Feedbacks { get; set; } = new List<FeedbackDTO>();
+		public List<FeedbackDto> Feedbacks { get; set; } = new List<FeedbackDto>();
 	}
 }

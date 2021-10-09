@@ -15,13 +15,13 @@ namespace Application.Vouchers
 {
 	public class ListVouchers
 	{
-		public class Query : IRequest<Result<List<VoucherDTO>>>
+		public class Query : IRequest<Result<List<VoucherDto>>>
 		{
 			public int Page { get; set; }
 			public int Limit { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<VoucherDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<VoucherDto>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -33,7 +33,7 @@ namespace Application.Vouchers
 				_logger = logger;
 			}
 
-			public async Task<Result<List<VoucherDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<VoucherDto>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -42,12 +42,12 @@ namespace Application.Vouchers
 					if (request.Page <= 0)
 					{
 						_logger.LogInformation("Page must larger than 0");
-						return Result<List<VoucherDTO>>.Failure("Page must larger than 0.");
+						return Result<List<VoucherDto>>.Failure("Page must larger than 0.");
 					}
 					else if (request.Limit <= 0)
 					{
 						_logger.LogInformation("Limit must larger than 0");
-						return Result<List<VoucherDTO>>.Failure("Limit must larger than 0.");
+						return Result<List<VoucherDto>>.Failure("Limit must larger than 0.");
 					}
 
 					int totalRecord = await _context.Voucher.CountAsync(cancellationToken);
@@ -56,7 +56,7 @@ namespace Application.Vouchers
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 					#endregion
 
-					List<VoucherDTO> vouchers = new List<VoucherDTO>();
+					List<VoucherDto> vouchers = new List<VoucherDto>();
 
 					if (request.Page <= lastPage)
 					{
@@ -64,22 +64,22 @@ namespace Application.Vouchers
 							.OrderBy(v => v.VoucherId)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
-							.ProjectTo<VoucherDTO>(_mapper.ConfigurationProvider)
+							.ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
 					}
 
-					PaginationDTO paginationDto = new PaginationDTO(
+					PaginationDto paginationDto = new PaginationDto(
 						request.Page, request.Limit, vouchers.Count, lastPage, totalRecord
 					);
 
 					_logger.LogInformation("Successfully retrieved list of all vouchers");
-					return Result<List<VoucherDTO>>.Success(
+					return Result<List<VoucherDto>>.Success(
 						vouchers, "Successfully retrieved list of all vouchers.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<VoucherDTO>>.Failure("Request was cancelled.");
+					return Result<List<VoucherDto>>.Failure("Request was cancelled.");
 				}
 			}
 		}

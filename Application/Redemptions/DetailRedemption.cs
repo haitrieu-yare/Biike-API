@@ -11,12 +11,12 @@ namespace Application.Redemptions
 {
 	public class DetailRedemption
 	{
-		public class Query : IRequest<Result<RedemptionDTO>>
+		public class Query : IRequest<Result<RedemptionDto>>
 		{
 			public int RedemptionId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<RedemptionDTO>>
+		public class Handler : IRequestHandler<Query, Result<RedemptionDto>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -28,27 +28,27 @@ namespace Application.Redemptions
 				_logger = logger;
 			}
 
-			public async Task<Result<RedemptionDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<RedemptionDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var redemptionDB = await _context.Redemption
+					var redemptionDb = await _context.Redemption
 						.FindAsync(new object[] { request.RedemptionId }, cancellationToken);
 
-					RedemptionDTO redemption = new RedemptionDTO();
+					RedemptionDto redemption = new RedemptionDto();
 
-					_mapper.Map(redemptionDB, redemption);
+					_mapper.Map(redemptionDb, redemption);
 
 					_logger.LogInformation($"Successfully retrieved redemption by {request.RedemptionId}.");
-					return Result<RedemptionDTO>.Success(
+					return Result<RedemptionDto>.Success(
 						redemption, $"Successfully retrieved redemption by {request.RedemptionId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled.");
-					return Result<RedemptionDTO>.Failure("Request was cancelled.");
+					return Result<RedemptionDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

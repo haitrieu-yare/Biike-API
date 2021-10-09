@@ -16,7 +16,7 @@ namespace Application.Trips
 {
 	public class HistoryList
 	{
-		public class Query : IRequest<Result<List<TripDTO>>>
+		public class Query : IRequest<Result<List<TripDto>>>
 		{
 			public int UserId { get; set; }
 			public int Role { get; set; }
@@ -24,7 +24,7 @@ namespace Application.Trips
 			public int Limit { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<TripDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<TripDto>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -36,7 +36,7 @@ namespace Application.Trips
 				_logger = logger;
 			}
 
-			public async Task<Result<List<TripDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<TripDto>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -45,7 +45,7 @@ namespace Application.Trips
 					if (request.Page <= 0)
 					{
 						_logger.LogInformation("Page must larger than 0");
-						return Result<List<TripDTO>>.Failure("Page must larger than 0.");
+						return Result<List<TripDto>>.Failure("Page must larger than 0.");
 					}
 
 					bool isKeer = true;
@@ -69,7 +69,7 @@ namespace Application.Trips
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 					#endregion
 
-					List<TripDTO> trips = new List<TripDTO>();
+					List<TripDto> trips = new List<TripDto>();
 
 					if (request.Page <= lastPage)
 					{
@@ -84,23 +84,23 @@ namespace Application.Trips
 							.OrderByDescending(t => t.BookTime)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
-							.ProjectTo<TripDTO>(_mapper.ConfigurationProvider,
+							.ProjectTo<TripDto>(_mapper.ConfigurationProvider,
 								new { isKeer = isKeer })
 							.ToListAsync(cancellationToken);
 					}
 
-					PaginationDTO paginationDto = new PaginationDTO(
+					PaginationDto paginationDto = new PaginationDto(
 						request.Page, request.Limit, trips.Count, lastPage, totalRecord
 					);
 
 					_logger.LogInformation("Successfully retrieved list of all history trips");
-					return Result<List<TripDTO>>.Success(
+					return Result<List<TripDto>>.Success(
 						trips, "Successfully retrieved list of all history trips.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripDTO>>.Failure("Request was cancelled.");
+					return Result<List<TripDto>>.Failure("Request was cancelled.");
 				}
 			}
 		}

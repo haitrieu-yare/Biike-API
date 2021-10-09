@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Users.DTOs
 {
-	public class UserExistDTO
+	public class UserExistDto
 	{
 		[Required]
 		public string? PhoneNumber { get; set; }

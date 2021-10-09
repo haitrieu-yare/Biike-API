@@ -2,7 +2,7 @@ using System;
 
 namespace Application.Redemptions.DTOs
 {
-	public class RedemptionAndVoucherDTO
+	public class RedemptionAndVoucherDto
 	{
 		public int? VoucherId { get; set; }
 		public int? VoucherCategoryId { get; set; }

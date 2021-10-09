@@ -20,11 +20,11 @@ namespace Application
 		{
 			try
 			{
-				var usersFromDB = await _context.User.ToListAsync();
+				var usersFromDb = await _context.User.ToListAsync();
 
-				if (usersFromDB.Count == 0) return;
+				if (usersFromDb.Count == 0) return;
 
-				foreach (var user in usersFromDB)
+				foreach (var user in usersFromDb)
 				{
 					string passwordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
 					user.PasswordHash = passwordHash;

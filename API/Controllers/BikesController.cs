@@ -51,7 +51,7 @@ namespace API.Controllers
 		[HttpGet("users/{userId:int}")]
 		public async Task<IActionResult> GetBikeByUserId(int userId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
@@ -69,7 +69,7 @@ namespace API.Controllers
 
 		// Keer
 		[HttpPost]
-		public async Task<IActionResult> CreateBike(BikeCreateDTO bikeCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> CreateBike(BikeCreateDto bikeCreateDto, CancellationToken ct)
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
@@ -82,7 +82,7 @@ namespace API.Controllers
 				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString())) { StatusCode = 403 };
 			}
 
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, bikeCreateDTO.UserId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikeCreateDto.UserId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
@@ -91,12 +91,12 @@ namespace API.Controllers
 				return BadRequest(ConstantString.NotSameUserId);
 
 			return HandleResult(await Mediator.Send(
-				new CreateBike.Command { BikeCreateDTO = bikeCreateDTO }, ct));
+				new CreateBike.Command { BikeCreateDto = bikeCreateDto }, ct));
 		}
 
 		// Biker
 		[HttpPost("bikeReplacement")]
-		public async Task<IActionResult> ReplaceBike(BikeCreateDTO bikeCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> ReplaceBike(BikeCreateDto bikeCreateDto, CancellationToken ct)
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
@@ -109,7 +109,7 @@ namespace API.Controllers
 				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
 			}
 
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, bikeCreateDTO.UserId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikeCreateDto.UserId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
@@ -118,7 +118,7 @@ namespace API.Controllers
 				return BadRequest(ConstantString.NotSameUserId);
 
 			return HandleResult(await Mediator.Send(
-				new ReplaceBike.Command { BikeCreateDTO = bikeCreateDTO }, ct));
+				new ReplaceBike.Command { BikeCreateDto = bikeCreateDto }, ct));
 		}
 
 		// Biker
@@ -136,7 +136,7 @@ namespace API.Controllers
 				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
 			}
 
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);

@@ -15,13 +15,13 @@ namespace Application.Feedbacks
 {
 	public class ListAllFeedbacks
 	{
-		public class Query : IRequest<Result<List<FeedbackDTO>>>
+		public class Query : IRequest<Result<List<FeedbackDto>>>
 		{
 			public int Page { get; init; }
 			public int Limit { get; init; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<FeedbackDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<FeedbackDto>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -33,7 +33,7 @@ namespace Application.Feedbacks
 				_logger = logger;
 			}
 
-			public async Task<Result<List<FeedbackDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<FeedbackDto>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -42,7 +42,7 @@ namespace Application.Feedbacks
 					if (request.Page <= 0)
 					{
 						_logger.LogInformation("Page must larger than 0");
-						return Result<List<FeedbackDTO>>.Failure("Page must larger than 0.");
+						return Result<List<FeedbackDto>>.Failure("Page must larger than 0.");
 					}
 
 					int totalRecord = await _context.Feedback.CountAsync(cancellationToken);
@@ -51,7 +51,7 @@ namespace Application.Feedbacks
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 					#endregion
 
-					List<FeedbackDTO> feedbacks = new List<FeedbackDTO>();
+					List<FeedbackDto> feedbacks = new List<FeedbackDto>();
 
 					if (request.Page <= lastPage)
 					{
@@ -59,22 +59,22 @@ namespace Application.Feedbacks
 							.OrderBy(f => f.FeedbackId)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
-							.ProjectTo<FeedbackDTO>(_mapper.ConfigurationProvider)
+							.ProjectTo<FeedbackDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
 					}
 
-					PaginationDTO paginationDto = new PaginationDTO(
+					PaginationDto paginationDto = new PaginationDto(
 						request.Page, request.Limit, feedbacks.Count, lastPage, totalRecord
 					);
 
 					_logger.LogInformation("Successfully retrieved all trip's feedbacks");
-					return Result<List<FeedbackDTO>>.Success(
+					return Result<List<FeedbackDto>>.Success(
 						feedbacks, "Successfully retrieved all trip's feedbacks.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<FeedbackDTO>>.Failure("Request was cancelled.");
+					return Result<List<FeedbackDto>>.Failure("Request was cancelled.");
 				}
 			}
 		}

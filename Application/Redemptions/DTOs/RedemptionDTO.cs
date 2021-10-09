@@ -2,7 +2,7 @@ using System;
 
 namespace Application.Redemptions.DTOs
 {
-	public class RedemptionDTO
+	public class RedemptionDto
 	{
 		public int? RedemptionId { get; set; }
 		public int? WalletId { get; set; }

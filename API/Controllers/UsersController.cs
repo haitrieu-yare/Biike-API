@@ -23,7 +23,7 @@ namespace API.Controllers
 		[HttpGet("{userId}/profile")]
 		public async Task<IActionResult> GetUserSelfProfile(int userId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -44,27 +44,27 @@ namespace API.Controllers
 
 		[AllowAnonymous]
 		[HttpPost("checkExist")]
-		public async Task<IActionResult> CheckExistUser(UserExistDTO userExistDTO, CancellationToken ct)
+		public async Task<IActionResult> CheckExistUser(UserExistDto userExistDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new CheckExistUser.Command { UserExistDTO = userExistDTO }, ct));
+				new CheckExistUser.Command { UserExistDto = userExistDto }, ct));
 		}
 
 		[AllowAnonymous]
 		[HttpPost]
-		public async Task<IActionResult> SignUp(UserCreateDTO userCreateDTO, CancellationToken ct)
+		public async Task<IActionResult> SignUp(UserCreateDto userCreateDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new CreateUser.Command { UserCreateDTO = userCreateDTO }, ct));
+				new CreateUser.Command { UserCreateDto = userCreateDto }, ct));
 		}
 
 		[AllowAnonymous]
 		[HttpPut("{userId}/activation")]
 		public async Task<IActionResult> VerifyUser(
-			int userId, UserActivationDTO userActivationDTO, CancellationToken ct)
+			int userId, UserActivationDto userActivationDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
-				new ModifyAccountActivation.Command { UserId = userId, UserActivationDTO = userActivationDTO }, ct));
+				new ModifyAccountActivation.Command { UserId = userId, UserActivationDto = userActivationDto }, ct));
 		}
 
 		[AllowAnonymous]
@@ -78,9 +78,9 @@ namespace API.Controllers
 		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpPut("{userId}/profile")]
 		public async Task<IActionResult> EditUserProfile(int userId,
-			UserProfileEditDTO userProfileEditDTO, CancellationToken ct)
+			UserProfileEditDto userProfileEditDto, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -89,14 +89,14 @@ namespace API.Controllers
 				return BadRequest("UserId of requester isn't the same with userId of user's profile.");
 
 			return HandleResult(await Mediator.Send(
-				new EditProfile.Command { UserId = userId, UserProfileEditDTO = userProfileEditDTO }, ct));
+				new EditProfile.Command { UserId = userId, UserProfileEditDto = userProfileEditDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpPut("role")]
 		public async Task<IActionResult> EditUserRole(CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -115,9 +115,9 @@ namespace API.Controllers
 		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
 		[HttpPut("{userId}/login-device")]
 		public async Task<IActionResult> EditUserLoginDevice(int userId,
-			UserLoginDeviceDTO userLoginDeviceDTO, CancellationToken ct)
+			UserLoginDeviceDto userLoginDeviceDto, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -134,13 +134,13 @@ namespace API.Controllers
 			}
 
 			int authTime = int.Parse(authTimeString);
-			DateTime BeginningTime = DateTime.UnixEpoch;
-			var currentTimeUTC7 = BeginningTime.AddSeconds(authTime).AddHours(7);
+			DateTime beginningTime = DateTime.UnixEpoch;
+			var currentTimeUtc7 = beginningTime.AddSeconds(authTime).AddHours(7);
 
-			userLoginDeviceDTO.LastTimeLogin = currentTimeUTC7;
+			userLoginDeviceDto.LastTimeLogin = currentTimeUtc7;
 
 			return HandleResult(await Mediator.Send(
-				new EditLoginDevice.Command { UserId = userId, UserLoginDeviceDTO = userLoginDeviceDTO }, ct));
+				new EditLoginDevice.Command { UserId = userId, UserLoginDeviceDto = userLoginDeviceDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Admin)]

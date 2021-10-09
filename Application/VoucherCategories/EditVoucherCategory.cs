@@ -15,7 +15,7 @@ namespace Application.VoucherCategories
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int VoucherCategoryId { get; set; }
-			public VoucherCategoryDTO NewVoucherCategoryDTO { get; set; } = null!;
+			public VoucherCategoryDto NewVoucherCategoryDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -41,7 +41,7 @@ namespace Application.VoucherCategories
 
 					if (oldVoucherCategory == null) return null!;
 
-					_mapper.Map(request.NewVoucherCategoryDTO, oldVoucherCategory);
+					_mapper.Map(request.NewVoucherCategoryDto, oldVoucherCategory);
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

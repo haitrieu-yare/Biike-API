@@ -14,12 +14,12 @@ namespace Application.Wallets
 {
 	public class DetailWallet
 	{
-		public class Query : IRequest<Result<WalletDTO>>
+		public class Query : IRequest<Result<WalletDto>>
 		{
 			public int WalletId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<WalletDTO>>
+		public class Handler : IRequestHandler<Query, Result<WalletDto>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -31,27 +31,27 @@ namespace Application.Wallets
 				_logger = logger;
 			}
 
-			public async Task<Result<WalletDTO>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<WalletDto>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var walletDB = await _context.Wallet
+					var walletDb = await _context.Wallet
 						.FindAsync(new object[] { request.WalletId }, cancellationToken);
 
-					WalletDTO wallet = new WalletDTO();
+					WalletDto wallet = new WalletDto();
 
-					_mapper.Map(walletDB, wallet);
+					_mapper.Map(walletDb, wallet);
 
 					_logger.LogInformation($"Successfully retrieved wallet by walletId {request.WalletId}.");
-					return Result<WalletDTO>.Success(
+					return Result<WalletDto>.Success(
 						wallet, $"Successfully retrieved wallet by walletId {request.WalletId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled.");
-					return Result<WalletDTO>.Failure("Request was cancelled.");
+					return Result<WalletDto>.Failure("Request was cancelled.");
 				}
 			}
 		}

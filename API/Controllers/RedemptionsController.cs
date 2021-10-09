@@ -28,7 +28,7 @@ namespace API.Controllers
 		[HttpGet("users/{userId:int}")]
 		public async Task<IActionResult> GetUserRedemptions(int userId, int page, int limit, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -44,7 +44,7 @@ namespace API.Controllers
 		public async Task<IActionResult> GetAllRedemptionsAndVouchers(
 			int userId, int page, int limit, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -57,10 +57,10 @@ namespace API.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateRedemption(RedemptionCreateDTO redemptionCreateDTO,
+		public async Task<IActionResult> CreateRedemption(RedemptionCreateDto redemptionCreateDto,
 			CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, redemptionCreateDTO.UserId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, redemptionCreateDto.UserId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -69,13 +69,13 @@ namespace API.Controllers
 				return BadRequest("UserId of requester isn't the same with userId of redemption.");
 
 			return HandleResult(await Mediator.Send(
-				new CreateRedemption.Command { RedemptionCreateDTO = redemptionCreateDTO }, ct));
+				new CreateRedemption.Command { RedemptionCreateDto = redemptionCreateDto }, ct));
 		}
 
 		[HttpPut("{redemptionId}")]
 		public async Task<IActionResult> EditUsageRedemption(int redemptionId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");

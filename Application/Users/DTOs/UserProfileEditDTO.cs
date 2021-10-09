@@ -2,7 +2,7 @@ using System;
 
 namespace Application.Users.DTOs
 {
-	public class UserProfileEditDTO
+	public class UserProfileEditDto
 	{
 		public string? UserFullname { get; set; }
 		public string? Avatar { get; set; }

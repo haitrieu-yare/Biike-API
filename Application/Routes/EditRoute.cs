@@ -15,7 +15,7 @@ namespace Application.Routes
 		public class Command : IRequest<Result<Unit>>
 		{
 			public int RouteId { get; set; }
-			public RouteDTO RouteDTO { get; set; } = null!;
+			public RouteDto RouteDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -49,7 +49,7 @@ namespace Application.Routes
 							"Please reactivate it if you want to edit it.");
 					}
 
-					_mapper.Map(request.RouteDTO, oldRoute);
+					_mapper.Map(request.RouteDto, oldRoute);
 
 					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

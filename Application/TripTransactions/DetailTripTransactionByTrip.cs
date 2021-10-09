@@ -15,12 +15,12 @@ namespace Application.TripTransactions
 {
 	public class DetailTripTransactionByTrip
 	{
-		public class Query : IRequest<Result<List<TripTransactionDTO>>>
+		public class Query : IRequest<Result<List<TripTransactionDto>>>
 		{
 			public int TripId { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<TripTransactionDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<TripTransactionDto>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -32,7 +32,7 @@ namespace Application.TripTransactions
 				_logger = logger;
 			}
 
-			public async Task<Result<List<TripTransactionDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<TripTransactionDto>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -40,19 +40,19 @@ namespace Application.TripTransactions
 
 					var tripTransaction = await _context.TripTransaction
 						.Where(t => t.TripId == request.TripId)
-						.ProjectTo<TripTransactionDTO>(_mapper.ConfigurationProvider)
+						.ProjectTo<TripTransactionDto>(_mapper.ConfigurationProvider)
 						.ToListAsync(cancellationToken);
 
 					_logger.LogInformation("Successfully retrieved trip transaction " +
 						$"based on tripId {request.TripId}.");
-					return Result<List<TripTransactionDTO>>.Success(
+					return Result<List<TripTransactionDto>>.Success(
 						tripTransaction, "Successfully retrieved trip transaction " +
 						$"based on tripId {request.TripId}.");
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled.");
-					return Result<List<TripTransactionDTO>>.Failure("Request was cancelled.");
+					return Result<List<TripTransactionDto>>.Failure("Request was cancelled.");
 				}
 			}
 		}

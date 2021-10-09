@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Vouchers.DTOs
 {
-	public class VoucherCreateDTO
+	public class VoucherCreateDto
 	{
 		[Required]
 		public int? VoucherCategoryId { get; set; }

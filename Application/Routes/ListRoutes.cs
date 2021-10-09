@@ -15,14 +15,14 @@ namespace Application.Routes
 {
 	public class ListRoutes
 	{
-		public class Query : IRequest<Result<List<RouteDTO>>>
+		public class Query : IRequest<Result<List<RouteDto>>>
 		{
 			public bool IsAdmin { get; set; }
 			public int Page { get; set; }
 			public int Limit { get; set; }
 		}
 
-		public class Handler : IRequestHandler<Query, Result<List<RouteDTO>>>
+		public class Handler : IRequestHandler<Query, Result<List<RouteDto>>>
 		{
 			private readonly DataContext _context;
 			private readonly IMapper _mapper;
@@ -34,7 +34,7 @@ namespace Application.Routes
 				_logger = logger;
 			}
 
-			public async Task<Result<List<RouteDTO>>> Handle(Query request, CancellationToken cancellationToken)
+			public async Task<Result<List<RouteDto>>> Handle(Query request, CancellationToken cancellationToken)
 			{
 				try
 				{
@@ -43,7 +43,7 @@ namespace Application.Routes
 					if (request.Page <= 0)
 					{
 						_logger.LogInformation("Page must larger than 0");
-						return Result<List<RouteDTO>>.Failure("Page must larger than 0.");
+						return Result<List<RouteDto>>.Failure("Page must larger than 0.");
 					}
 
 					int totalRecord = await _context.Route.CountAsync(cancellationToken);
@@ -52,7 +52,7 @@ namespace Application.Routes
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 					#endregion
 
-					List<RouteDTO> routes = new List<RouteDTO>();
+					List<RouteDto> routes = new List<RouteDto>();
 
 					if (request.Page <= lastPage)
 					{
@@ -62,7 +62,7 @@ namespace Application.Routes
 								.OrderBy(r => r.RouteId)
 								.Skip((request.Page - 1) * request.Limit)
 								.Take(request.Limit)
-								.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
+								.ProjectTo<RouteDto>(_mapper.ConfigurationProvider)
 								.ToListAsync(cancellationToken);
 						}
 						else
@@ -72,7 +72,7 @@ namespace Application.Routes
 								.OrderBy(r => r.RouteId)
 								.Skip((request.Page - 1) * request.Limit)
 								.Take(request.Limit)
-								.ProjectTo<RouteDTO>(_mapper.ConfigurationProvider)
+								.ProjectTo<RouteDto>(_mapper.ConfigurationProvider)
 								.ToListAsync(cancellationToken);
 							// Set to null to make unnecessary fields excluded from response body.
 							routes.ForEach(r =>
@@ -83,18 +83,18 @@ namespace Application.Routes
 						}
 					}
 
-					PaginationDTO paginationDto = new PaginationDTO(
+					PaginationDto paginationDto = new PaginationDto(
 						request.Page, request.Limit, routes.Count, lastPage, totalRecord
 					);
 
 					_logger.LogInformation("Successfully retrieved list of all routes");
-					return Result<List<RouteDTO>>.Success(
+					return Result<List<RouteDto>>.Success(
 						routes, "Successfully retrieved list of all routes.", paginationDto);
 				}
 				catch (System.Exception ex) when (ex is TaskCanceledException)
 				{
 					_logger.LogInformation("Request was cancelled");
-					return Result<List<RouteDTO>>.Failure("Request was cancelled.");
+					return Result<List<RouteDto>>.Failure("Request was cancelled.");
 				}
 			}
 		}

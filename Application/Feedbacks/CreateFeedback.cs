@@ -17,7 +17,7 @@ namespace Application.Feedbacks.DTOs
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public FeedbackCreateDTO FeedbackCreateDTO { get; set; } = null!;
+			public FeedbackCreateDto FeedbackCreateDto { get; set; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -41,12 +41,12 @@ namespace Application.Feedbacks.DTOs
 					cancellationToken.ThrowIfCancellationRequested();
 
 					var trip = await _context.Trip
-						.FindAsync(new object[] { request.FeedbackCreateDTO.TripId! }, cancellationToken);
+						.FindAsync(new object[] { request.FeedbackCreateDto.TripId! }, cancellationToken);
 
 					if (trip == null) return Result<Unit>.NotFound("Trip doesn't exist.");
 
-					if (request.FeedbackCreateDTO.UserId != trip.KeerId &&
-					  	request.FeedbackCreateDTO.UserId != trip.BikerId)
+					if (request.FeedbackCreateDto.UserId != trip.KeerId &&
+					  	request.FeedbackCreateDto.UserId != trip.BikerId)
 					{
 						_logger.LogInformation($"User send feedback must be in the trip with tripId {trip.TripId}");
 						return Result<Unit>.Failure(
@@ -64,10 +64,10 @@ namespace Application.Feedbacks.DTOs
 					}
 
 					var feedbacks = await _context.Feedback
-						.Where(f => f.TripId == request.FeedbackCreateDTO.TripId)
+						.Where(f => f.TripId == request.FeedbackCreateDto.TripId)
 						.ToListAsync(cancellationToken);
 
-					var existedFeedback = feedbacks.Find(f => f.UserId == request.FeedbackCreateDTO.UserId);
+					var existedFeedback = feedbacks.Find(f => f.UserId == request.FeedbackCreateDto.UserId);
 
 					if (existedFeedback != null)
 					{
@@ -77,14 +77,14 @@ namespace Application.Feedbacks.DTOs
 
 					Feedback newFeedback = new Feedback();
 
-					_mapper.Map(request.FeedbackCreateDTO, newFeedback);
+					_mapper.Map(request.FeedbackCreateDto, newFeedback);
 
 					await _context.Feedback.AddAsync(newFeedback, cancellationToken);
 
 					try
 					{
 						// Create new transaction to add more point to Biker
-						if (request.FeedbackCreateDTO.UserId == trip.KeerId)
+						if (request.FeedbackCreateDto.UserId == trip.KeerId)
 						{
 							switch (newFeedback.Star)
 							{

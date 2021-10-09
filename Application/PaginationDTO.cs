@@ -1,12 +1,12 @@
 namespace Application
 {
-	public class PaginationDTO
+	public class PaginationDto
 	{
-		public PaginationDTO()
+		public PaginationDto()
 		{
 		}
 
-		public PaginationDTO(int page, int limit, int count, int lastPage, int totalRecord)
+		public PaginationDto(int page, int limit, int count, int lastPage, int totalRecord)
 		{
 			Page = page;
 			Limit = limit;

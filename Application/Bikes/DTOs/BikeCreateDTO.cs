@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Bikes.DTOs
 {
-	public class BikeCreateDTO
+	public class BikeCreateDto
 	{
 		[Required]
 		public int? UserId { get; set; }

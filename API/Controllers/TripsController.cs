@@ -29,7 +29,7 @@ namespace API.Controllers
 				return Unauthorized("Couldn't get user's role.");
 			}
 
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -46,7 +46,7 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -62,7 +62,7 @@ namespace API.Controllers
 		[HttpGet("upcomingBiker")]
 		public async Task<IActionResult> GetUpcomingTripsForBiker(int page, int limit, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -80,7 +80,7 @@ namespace API.Controllers
 		public async Task<IActionResult> GetHistoryPairTrips(
 			int userOneId, int userTwoId, int page, int limit, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userOneId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userOneId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -111,7 +111,7 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -127,9 +127,9 @@ namespace API.Controllers
 
 		[Authorized(RoleStatus.Keer)]
 		[HttpPost]
-		public async Task<IActionResult> CreateTrip(TripCreateDTO tripCreateDto, CancellationToken ct)
+		public async Task<IActionResult> CreateTrip(TripCreateDto tripCreateDto, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, tripCreateDto.KeerId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, tripCreateDto.KeerId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -137,14 +137,14 @@ namespace API.Controllers
 			if (!validationDto.IsAuthorized)
 				return BadRequest("UserId of requester isn't the same with userId of trip.");
 
-			return HandleResult(await Mediator.Send(new CreateTrip.Command { TripCreateDTO = tripCreateDto }, ct));
+			return HandleResult(await Mediator.Send(new CreateTrip.Command { TripCreateDto = tripCreateDto }, ct));
 		}
 
 		[Authorized(RoleStatus.Biker)]
 		[HttpPut("{tripId:int}")]
 		public async Task<IActionResult> EditTripBiker(int tripId, int bikerId, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, bikerId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikerId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -161,7 +161,7 @@ namespace API.Controllers
 		public async Task<IActionResult> EditTripProgressTime(
 			int tripId, int bikerId, string time, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, bikerId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikerId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -175,9 +175,9 @@ namespace API.Controllers
 
 		[HttpPut("{tripId:int}/cancel")]
 		public async Task<IActionResult> EditTripCancellation(int tripId, int userId,
-			TripCancellationDTO tripCancellationDTO, CancellationToken ct)
+			TripCancellationDto tripCancellationDto, CancellationToken ct)
 		{
-			ValidationDTO validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
 				return BadRequest("Can't get userId who send the request.");
@@ -190,7 +190,7 @@ namespace API.Controllers
 				{
 					TripId = tripId,
 					UserId = validationDto.UserRequestId,
-					TripCancellationDTO = tripCancellationDTO
+					TripCancellationDto = tripCancellationDto
 				}, ct));
 		}
 	}
