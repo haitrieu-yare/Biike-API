@@ -1,85 +1,85 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
-using MediatR;
-using Persistence;
 using Domain.Entities;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Persistence;
 
 namespace Application.Bikes
 {
-	public class ReplaceBike
-	{
-		public class Command : IRequest<Result<Unit>>
-		{
-			public BikeCreateDto BikeCreateDto { get; set; } = null!;
-		}
+    public class ReplaceBike
+    {
+        public class Command : IRequest<Result<Unit>>
+        {
+            public BikeCreateDto BikeCreateDto { get; init; } = null!;
+        }
 
-		public class Handler : IRequestHandler<Command, Result<Unit>>
-		{
-			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<Handler> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
-			{
-				_context = context;
-				_mapper = mapper;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<Handler> _logger;
+            private readonly IMapper _mapper;
 
-			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            {
+                _context = context;
+                _mapper = mapper;
+                _logger = logger;
+            }
 
-					var oldBike = await _context.Bike
-						.Where(b => b.UserId == request.BikeCreateDto.UserId)
-						.SingleOrDefaultAsync(cancellationToken);
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (oldBike == null)
-					{
-						_logger.LogInformation("User doesn't have a bike");
-						return Result<Unit>.Failure("User doesn't have a bike.");
-					}
+                    var oldBike = await _context.Bike
+                        .Where(b => b.UserId == request.BikeCreateDto.UserId)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-					_context.Bike.Remove(oldBike);
+                    if (oldBike == null)
+                    {
+                        _logger.LogInformation("User doesn't have a bike");
+                        return Result<Unit>.Failure("User doesn't have a bike.");
+                    }
 
-					Bike newBike = new Bike();
+                    _context.Bike.Remove(oldBike);
 
-					_mapper.Map(request.BikeCreateDto, newBike);
+                    Bike newBike = new();
 
-					await _context.Bike.AddAsync(newBike, cancellationToken);
+                    _mapper.Map(request.BikeCreateDto, newBike);
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    await _context.Bike.AddAsync(newBike, cancellationToken);
 
-					if (!result)
-					{
-						_logger.LogInformation("Failed to replace old bike with new bike");
-						return Result<Unit>.Failure("Failed to replace old bike with new bike.");
-					}
-					else
-					{
-						_logger.LogInformation("Successfully replace old bike with new bike");
-						return Result<Unit>.Success(
-							Unit.Value, "Successfully replace old bike with new bike.", newBike.BikeId.ToString());
-					}
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled.");
-				}
-				catch (System.Exception ex) when (ex is DbUpdateException)
-				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
-					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
-				}
-			}
-		}
-	}
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    if (!result)
+                    {
+                        _logger.LogInformation("Failed to replace old bike with new bike");
+                        return Result<Unit>.Failure("Failed to replace old bike with new bike.");
+                    }
+
+                    _logger.LogInformation("Successfully replace old bike with new bike");
+                    return Result<Unit>.Success(
+                        Unit.Value, "Successfully replace old bike with new bike.", newBike.BikeId.ToString());
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled");
+                    return Result<Unit>.Failure("Request was cancelled.");
+                }
+                catch (Exception ex) when (ex is DbUpdateException)
+                {
+                    _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
+                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
+                }
+            }
+        }
+    }
 }

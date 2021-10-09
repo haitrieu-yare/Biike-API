@@ -1,8 +1,7 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Redemptions.DTOs;
 using AutoMapper;
@@ -10,168 +9,169 @@ using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Redemptions
 {
-	public class CreateRedemption
-	{
-		public class Command : IRequest<Result<Unit>>
-		{
-			public RedemptionCreateDto RedemptionCreateDto { get; set; } = null!;
-		}
+    public class CreateRedemption
+    {
+        public class Command : IRequest<Result<Unit>>
+        {
+            public RedemptionCreateDto RedemptionCreateDto { get; set; } = null!;
+        }
 
-		public class Handler : IRequestHandler<Command, Result<Unit>>
-		{
-			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<CreateRedemption> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<CreateRedemption> logger)
-			{
-				_context = context;
-				_mapper = mapper;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<CreateRedemption> _logger;
+            private readonly IMapper _mapper;
 
-			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, IMapper mapper, ILogger<CreateRedemption> logger)
+            {
+                _context = context;
+                _mapper = mapper;
+                _logger = logger;
+            }
 
-					var voucher = await _context.Voucher
-						.FindAsync(new object[] { request.RedemptionCreateDto.VoucherId! }, cancellationToken);
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (voucher == null)
-					{
-						_logger.LogInformation("Voucher doesn't exist.");
-						return Result<Unit>.Failure("Voucher doesn't exist.");
-					}
+                    var voucher = await _context.Voucher
+                        .FindAsync(new object[] {request.RedemptionCreateDto.VoucherId!}, cancellationToken);
 
-					// Check if voucher is expired
-					if (CurrentTime.GetCurrentTime().CompareTo(voucher.EndDate) > 0)
-					{
-						_logger.LogInformation("Voucher has expired.");
-						return Result<Unit>.Failure("Voucher has expired.");
-					}
+                    if (voucher == null)
+                    {
+                        _logger.LogInformation("Voucher doesn't exist.");
+                        return Result<Unit>.Failure("Voucher doesn't exist.");
+                    }
 
-					// Check if voucher is open for redemption
-					if (CurrentTime.GetCurrentTime().CompareTo(voucher.StartDate) < 0)
-					{
-						_logger.LogInformation("Voucher is not open for exchange yet.");
-						return Result<Unit>.Failure("Voucher is not open for exchange yet.");
-					}
+                    // Check if voucher is expired
+                    if (CurrentTime.GetCurrentTime().CompareTo(voucher.EndDate) > 0)
+                    {
+                        _logger.LogInformation("Voucher has expired.");
+                        return Result<Unit>.Failure("Voucher has expired.");
+                    }
 
-					// Max number of active wallets is 2 for each user
-					// Current Wallet
-					var currentWallet = await _context.Wallet
-						.Where(w => w.UserId == request.RedemptionCreateDto.UserId)
-						.Where(w => w.Status == (int)WalletStatus.Current)
-						.SingleOrDefaultAsync(cancellationToken);
-					// Old Wallet
-					var oldWallet = await _context.Wallet
-						.Where(w => w.UserId == request.RedemptionCreateDto.UserId)
-						.Where(w => w.Status == (int)WalletStatus.Old)
-						.SingleOrDefaultAsync(cancellationToken);
+                    // Check if voucher is open for redemption
+                    if (CurrentTime.GetCurrentTime().CompareTo(voucher.StartDate) < 0)
+                    {
+                        _logger.LogInformation("Voucher is not open for exchange yet.");
+                        return Result<Unit>.Failure("Voucher is not open for exchange yet.");
+                    }
 
-					if (currentWallet == null)
-					{
-						_logger.LogInformation("User doesn't have wallet.");
-						return Result<Unit>.Failure("User doesn't have wallet.");
-					}
+                    // Max number of active wallets is 2 for each user
+                    // Current Wallet
+                    var currentWallet = await _context.Wallet
+                        .Where(w => w.UserId == request.RedemptionCreateDto.UserId)
+                        .Where(w => w.Status == (int) WalletStatus.Current)
+                        .SingleOrDefaultAsync(cancellationToken);
+                    // Old Wallet
+                    var oldWallet = await _context.Wallet
+                        .Where(w => w.UserId == request.RedemptionCreateDto.UserId)
+                        .Where(w => w.Status == (int) WalletStatus.Old)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-					Redemption newRedemption = new Redemption();
+                    if (currentWallet == null)
+                    {
+                        _logger.LogInformation("User doesn't have wallet.");
+                        return Result<Unit>.Failure("User doesn't have wallet.");
+                    }
 
-					_mapper.Map(request.RedemptionCreateDto, newRedemption);
+                    Redemption newRedemption = new();
 
-					// Set voucherPoint
-					newRedemption.VoucherPoint = voucher.AmountOfPoint;
+                    _mapper.Map(request.RedemptionCreateDto, newRedemption);
 
-					//TODO: Auto generate voucher code
-					newRedemption.VoucherCode = "5XSG1205";
+                    // Set voucherPoint
+                    newRedemption.VoucherPoint = voucher.AmountOfPoint;
 
-					// Change remaining of voucher
-					voucher.Remaining--;
+                    //TODO: Auto generate voucher code
+                    newRedemption.VoucherCode = "5XSG1205";
 
-					if (oldWallet != null)
-					{
-						// Check if user have enough point
-						int totalPoint = 0;
-						totalPoint = oldWallet.Point + currentWallet.Point;
+                    // Change remaining of voucher
+                    voucher.Remaining--;
 
-						if (voucher.AmountOfPoint - totalPoint < 0)
-						{
-							_logger.LogInformation("User doesn't have enough point.");
-							return Result<Unit>.Failure("User doesn't have enough point.");
-						}
+                    if (oldWallet != null)
+                    {
+                        // Check if user have enough point
+                        int totalPoint = 0;
+                        totalPoint = oldWallet.Point + currentWallet.Point;
 
-						// Check if old wallet have enough point 
-						// so we don't need to use current wallet point
-						// Then minus the point 
-						if (voucher.AmountOfPoint - oldWallet.Point >= 0)
-						{
-							// Set the old walletId
-							newRedemption.WalletId = oldWallet.WalletId;
-							oldWallet.Point -= voucher.AmountOfPoint;
-						}
-						else
-						{
-							// Set the current walletId
-							newRedemption.WalletId = currentWallet.WalletId;
-							int oldWalletPoint = oldWallet.Point;
-							oldWalletPoint -= voucher.AmountOfPoint;
+                        if (voucher.AmountOfPoint - totalPoint < 0)
+                        {
+                            _logger.LogInformation("User doesn't have enough point.");
+                            return Result<Unit>.Failure("User doesn't have enough point.");
+                        }
 
-							if (oldWalletPoint < 0)
-							{
-								oldWallet.Point = 0;
-								currentWallet.Point += oldWalletPoint;
-							}
-						}
-					}
+                        // Check if old wallet have enough point 
+                        // so we don't need to use current wallet point
+                        // Then minus the point 
+                        if (voucher.AmountOfPoint - oldWallet.Point >= 0)
+                        {
+                            // Set the old walletId
+                            newRedemption.WalletId = oldWallet.WalletId;
+                            oldWallet.Point -= voucher.AmountOfPoint;
+                        }
+                        else
+                        {
+                            // Set the current walletId
+                            newRedemption.WalletId = currentWallet.WalletId;
+                            int oldWalletPoint = oldWallet.Point;
+                            oldWalletPoint -= voucher.AmountOfPoint;
 
-					if (oldWallet == null)
-					{
-						// Check if user have enough point
-						if (voucher.AmountOfPoint - currentWallet.Point < 0)
-						{
-							_logger.LogInformation("User doesn't have enough point.");
-							return Result<Unit>.Failure("User doesn't have enough point.");
-						}
+                            if (oldWalletPoint < 0)
+                            {
+                                oldWallet.Point = 0;
+                                currentWallet.Point += oldWalletPoint;
+                            }
+                        }
+                    }
 
-						// Set the current walletId
-						newRedemption.WalletId = currentWallet.WalletId;
+                    if (oldWallet == null)
+                    {
+                        // Check if user have enough point
+                        if (voucher.AmountOfPoint - currentWallet.Point < 0)
+                        {
+                            _logger.LogInformation("User doesn't have enough point.");
+                            return Result<Unit>.Failure("User doesn't have enough point.");
+                        }
 
-						// Minus point of user wallet
-						currentWallet.Point -= voucher.AmountOfPoint;
-					}
+                        // Set the current walletId
+                        newRedemption.WalletId = currentWallet.WalletId;
 
-					await _context.Redemption.AddAsync(newRedemption, cancellationToken);
+                        // Minus point of user wallet
+                        currentWallet.Point -= voucher.AmountOfPoint;
+                    }
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    await _context.Redemption.AddAsync(newRedemption, cancellationToken);
 
-					if (!result)
-					{
-						_logger.LogInformation("Failed to create new redemption.");
-						return Result<Unit>.Failure("Failed to create new redemption.");
-					}
-					else
-					{
-						_logger.LogInformation("Successfully created redemption.");
-						return Result<Unit>.Success(
-							Unit.Value, "Successfully created redemption.", newRedemption.RedemptionId.ToString());
-					}
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled.");
-					return Result<Unit>.Failure("Request was cancelled.");
-				}
-				catch (System.Exception ex) when (ex is DbUpdateException)
-				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
-					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
-				}
-			}
-		}
-	}
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    if (!result)
+                    {
+                        _logger.LogInformation("Failed to create new redemption.");
+                        return Result<Unit>.Failure("Failed to create new redemption.");
+                    }
+
+                    _logger.LogInformation("Successfully created redemption.");
+                    return Result<Unit>.Success(
+                        Unit.Value, "Successfully created redemption.", newRedemption.RedemptionId.ToString());
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled.");
+                    return Result<Unit>.Failure("Request was cancelled.");
+                }
+                catch (Exception ex) when (ex is DbUpdateException)
+                {
+                    _logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
+                }
+            }
+        }
+    }
 }

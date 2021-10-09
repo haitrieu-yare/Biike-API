@@ -1,68 +1,66 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
 using Domain.Enums;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Users
 {
-	public class CheckAccountActivation
-	{
-		public class Query : IRequest<Result<UserActivationDto>>
-		{
-			public int UserId { get; set; }
-		}
+    public class CheckAccountActivation
+    {
+        public class Query : IRequest<Result<UserActivationDto>>
+        {
+            public int UserId { get; set; }
+        }
 
-		public class Handler : IRequestHandler<Query, Result<UserActivationDto>>
-		{
-			private readonly DataContext _context;
-			private readonly ILogger<CheckAccountActivation> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<CheckAccountActivation> logger)
-			{
-				_context = context;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Query, Result<UserActivationDto>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<CheckAccountActivation> _logger;
 
-			public async Task<Result<UserActivationDto>> Handle(Query request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, IMapper mapper, ILogger<CheckAccountActivation> logger)
+            {
+                _context = context;
+                _logger = logger;
+            }
 
-					var user = await _context.User
-						.FindAsync(new object[] { request.UserId }, cancellationToken);
+            public async Task<Result<UserActivationDto>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (user == null) return null!;
+                    var user = await _context.User
+                        .FindAsync(new object[] {request.UserId}, cancellationToken);
 
-					UserActivationDto result = new UserActivationDto();
+                    if (user == null) return null!;
 
-					if (user.Status == (int)UserStatus.Active)
-					{
-						result.IsVerified = true;
-					}
-					else
-					{
-						result.IsVerified = false;
-					}
+                    UserActivationDto result = new();
 
-					// Set to null to make unnecessary fields excluded from response body.
-					result.IsEmailVerified = null;
-					result.IsPhoneVerified = null;
+                    if (user.Status == (int) UserStatus.Active)
+                        result.IsVerified = true;
+                    else
+                        result.IsVerified = false;
 
-					_logger.LogInformation($"Successfully get user activation with UserId {request.UserId}.");
-					return Result<UserActivationDto>.Success(
-						result, $"Successfully get user activation with UserId {request.UserId}.");
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled.");
-					return Result<UserActivationDto>.Failure("Request was cancelled.");
-				}
-			}
-		}
-	}
+                    // Set to null to make unnecessary fields excluded from response body.
+                    result.IsEmailVerified = null;
+                    result.IsPhoneVerified = null;
+
+                    _logger.LogInformation($"Successfully get user activation with UserId {request.UserId}.");
+                    return Result<UserActivationDto>.Success(
+                        result, $"Successfully get user activation with UserId {request.UserId}.");
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled.");
+                    return Result<UserActivationDto>.Failure("Request was cancelled.");
+                }
+            }
+        }
+    }
 }

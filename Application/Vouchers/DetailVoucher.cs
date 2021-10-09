@@ -1,58 +1,60 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Vouchers.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Vouchers
 {
-	public class DetailVoucher
-	{
-		public class Query : IRequest<Result<VoucherDto>>
-		{
-			public int VoucherId { get; set; }
-		}
+    public class DetailVoucher
+    {
+        public class Query : IRequest<Result<VoucherDto>>
+        {
+            public int VoucherId { get; set; }
+        }
 
-		public class Handler : IRequestHandler<Query, Result<VoucherDto>>
-		{
-			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<DetailVoucher> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<DetailVoucher> logger)
-			{
-				_context = context;
-				_mapper = mapper;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Query, Result<VoucherDto>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<DetailVoucher> _logger;
+            private readonly IMapper _mapper;
 
-			public async Task<Result<VoucherDto>> Handle(Query request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, IMapper mapper, ILogger<DetailVoucher> logger)
+            {
+                _context = context;
+                _mapper = mapper;
+                _logger = logger;
+            }
 
-					VoucherDto voucher = new VoucherDto();
+            public async Task<Result<VoucherDto>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					Voucher voucherDb = await _context.Voucher
-						.FindAsync(new object[] { request.VoucherId }, cancellationToken);
+                    VoucherDto voucher = new();
 
-					_mapper.Map(voucherDb, voucher);
+                    Voucher voucherDb = await _context.Voucher
+                        .FindAsync(new object[] {request.VoucherId}, cancellationToken);
 
-					_logger.LogInformation("Successfully retrieved voucher " +
-						$"by voucherId {request.VoucherId}.");
-					return Result<VoucherDto>.Success(voucher,
-						$"Successfully retrieved voucher by voucherId {request.VoucherId}.");
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled.");
-					return Result<VoucherDto>.Failure("Request was cancelled.");
-				}
-			}
-		}
-	}
+                    _mapper.Map(voucherDb, voucher);
+
+                    _logger.LogInformation("Successfully retrieved voucher " +
+                                           $"by voucherId {request.VoucherId}.");
+                    return Result<VoucherDto>.Success(voucher,
+                        $"Successfully retrieved voucher by voucherId {request.VoucherId}.");
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled.");
+                    return Result<VoucherDto>.Failure("Request was cancelled.");
+                }
+            }
+        }
+    }
 }

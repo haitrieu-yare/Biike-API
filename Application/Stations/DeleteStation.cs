@@ -1,68 +1,68 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Application.Core;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Stations
 {
-	public class DeleteStation
-	{
-		public class Command : IRequest<Result<Unit>>
-		{
-			public int StationId { get; set; }
-		}
+    public class DeleteStation
+    {
+        public class Command : IRequest<Result<Unit>>
+        {
+            public int StationId { get; set; }
+        }
 
-		public class Handler : IRequestHandler<Command, Result<Unit>>
-		{
-			private readonly DataContext _context;
-			private readonly ILogger<DeleteStation> _logger;
-			public Handler(DataContext context, ILogger<DeleteStation> logger)
-			{
-				_context = context;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<DeleteStation> _logger;
 
-			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, ILogger<DeleteStation> logger)
+            {
+                _context = context;
+                _logger = logger;
+            }
 
-					var station = await _context.Station
-						.FindAsync(new object[] { request.StationId }, cancellationToken);
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (station == null) return null!;
+                    var station = await _context.Station
+                        .FindAsync(new object[] {request.StationId}, cancellationToken);
 
-					station.IsDeleted = !station.IsDeleted;
+                    if (station == null) return null!;
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    station.IsDeleted = !station.IsDeleted;
 
-					if (!result)
-					{
-						_logger.LogInformation($"Failed to delete station by stationId {request.StationId}.");
-						return Result<Unit>.Failure($"Failed to delete station by stationId {request.StationId}.");
-					}
-					else
-					{
-						_logger.LogInformation($"Successfully deleted station by stationId {request.StationId}.");
-						return Result<Unit>.Success(
-							Unit.Value, $"Successfully deleted station by stationId {request.StationId}.");
-					}
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled.");
-					return Result<Unit>.Failure("Request was cancelled.");
-				}
-				catch (System.Exception ex) when (ex is DbUpdateException)
-				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
-					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
-				}
-			}
-		}
-	}
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    if (!result)
+                    {
+                        _logger.LogInformation($"Failed to delete station by stationId {request.StationId}.");
+                        return Result<Unit>.Failure($"Failed to delete station by stationId {request.StationId}.");
+                    }
+
+                    _logger.LogInformation($"Successfully deleted station by stationId {request.StationId}.");
+                    return Result<Unit>.Success(
+                        Unit.Value, $"Successfully deleted station by stationId {request.StationId}.");
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled.");
+                    return Result<Unit>.Failure("Request was cancelled.");
+                }
+                catch (Exception ex) when (ex is DbUpdateException)
+                {
+                    _logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
+                }
+            }
+        }
+    }
 }

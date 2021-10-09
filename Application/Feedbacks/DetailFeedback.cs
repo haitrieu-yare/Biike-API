@@ -1,56 +1,58 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Feedbacks.DTOs;
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Feedbacks
 {
-	public class DetailFeedback
-	{
-		public class Query : IRequest<Result<FeedbackDto>>
-		{
-			public int FeedbackId { get; set; }
-		}
+    public class DetailFeedback
+    {
+        public class Query : IRequest<Result<FeedbackDto>>
+        {
+            public int FeedbackId { get; set; }
+        }
 
-		public class Handler : IRequestHandler<Query, Result<FeedbackDto>>
-		{
-			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<ListFeedbacksByTrip> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<ListFeedbacksByTrip> logger)
-			{
-				_context = context;
-				_mapper = mapper;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Query, Result<FeedbackDto>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<ListFeedbacksByTrip> _logger;
+            private readonly IMapper _mapper;
 
-			public async Task<Result<FeedbackDto>> Handle(Query request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, IMapper mapper, ILogger<ListFeedbacksByTrip> logger)
+            {
+                _context = context;
+                _mapper = mapper;
+                _logger = logger;
+            }
 
-					var feedbackDb = await _context.Feedback
-						.FindAsync(new object[] { request.FeedbackId }, cancellationToken);
+            public async Task<Result<FeedbackDto>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					FeedbackDto feedback = new FeedbackDto();
+                    var feedbackDb = await _context.Feedback
+                        .FindAsync(new object[] {request.FeedbackId}, cancellationToken);
 
-					_mapper.Map(feedbackDb, feedback);
+                    FeedbackDto feedback = new();
 
-					_logger.LogInformation($"Successfully retrieved feedback by FeedbackId {request.FeedbackId}.");
-					return Result<FeedbackDto>.Success(
-						feedback, $"Successfully retrieved feedback by FeedbackId {request.FeedbackId}.");
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled.");
-					return Result<FeedbackDto>.Failure("Request was cancelled.");
-				}
-			}
-		}
-	}
+                    _mapper.Map(feedbackDb, feedback);
+
+                    _logger.LogInformation($"Successfully retrieved feedback by FeedbackId {request.FeedbackId}.");
+                    return Result<FeedbackDto>.Success(
+                        feedback, $"Successfully retrieved feedback by FeedbackId {request.FeedbackId}.");
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled.");
+                    return Result<FeedbackDto>.Failure("Request was cancelled.");
+                }
+            }
+        }
+    }
 }

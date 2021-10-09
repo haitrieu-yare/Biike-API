@@ -6,46 +6,44 @@ using Persistence;
 
 namespace Application
 {
-	public class Hashing
-	{
-		private readonly DataContext _context;
-		private readonly ILogger<Hashing> _logger;
-		public Hashing(DataContext context, ILogger<Hashing> logger)
-		{
-			_context = context;
-			_logger = logger;
-		}
+    public class Hashing
+    {
+        private readonly DataContext _context;
+        private readonly ILogger<Hashing> _logger;
 
-		public async Task CreatePasswordForUsers()
-		{
-			try
-			{
-				var usersFromDb = await _context.User.ToListAsync();
+        public Hashing(DataContext context, ILogger<Hashing> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
 
-				if (usersFromDb.Count == 0) return;
+        public async Task CreatePasswordForUsers()
+        {
+            try
+            {
+                var usersFromDb = await _context.User.ToListAsync();
 
-				foreach (var user in usersFromDb)
-				{
-					string passwordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
-					user.PasswordHash = passwordHash;
-				}
+                if (usersFromDb.Count == 0) return;
 
-				var result = await _context.SaveChangesAsync() > 0;
+                foreach (var user in usersFromDb)
+                {
+                    string passwordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+                    user.PasswordHash = passwordHash;
+                }
 
-				if (!result)
-				{
-					throw new Exception("Failed to create hashed password for users.");
-				}
-			}
-			catch (System.Exception ex)
-			{
-				_logger.LogError(ex.InnerException?.Message ?? ex.Message);
-			}
-		}
+                var result = await _context.SaveChangesAsync() > 0;
 
-		public string HashPassword(string password)
-		{
-			return BCrypt.Net.BCrypt.HashPassword(password);
-		}
-	}
+                if (!result) throw new Exception("Failed to create hashed password for users.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.InnerException?.Message ?? ex.Message);
+            }
+        }
+
+        public string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+    }
 }

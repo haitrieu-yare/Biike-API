@@ -2,67 +2,66 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using AutoMapper;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.TripTransactions
 {
-	public class AutoCreateTripTransaction
-	{
-		private readonly DataContext _context;
-		private readonly IMapper _mapper;
-		private readonly ILogger<AutoCreateTripTransaction> _logger;
-		public AutoCreateTripTransaction(DataContext context, IMapper mapper, ILogger<AutoCreateTripTransaction> logger)
-		{
-			_context = context;
-			_mapper = mapper;
-			_logger = logger;
-		}
+    public class AutoCreateTripTransaction
+    {
+        private readonly DataContext _context;
+        private readonly ILogger<AutoCreateTripTransaction> _logger;
+        private readonly IMapper _mapper;
 
-		public async Task Run(Trip trip, int newPoint, CancellationToken cancellationToken)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
+        public AutoCreateTripTransaction(DataContext context, IMapper mapper, ILogger<AutoCreateTripTransaction> logger)
+        {
+            _context = context;
+            _mapper = mapper;
+            _logger = logger;
+        }
 
-			var tripTransaction = new TripTransaction
-			{
-				TripId = trip.TripId,
-				TransactionDate = CurrentTime.GetCurrentTime(),
-			};
+        public async Task Run(Trip trip, int newPoint, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
-			var wallet = await _context.Wallet
-				.Where(w => w.UserId == trip.BikerId)
-				.Where(w => w.Status == (int)WalletStatus.Current)
-				.SingleOrDefaultAsync(cancellationToken);
+            var tripTransaction = new TripTransaction
+            {
+                TripId = trip.TripId,
+                TransactionDate = CurrentTime.GetCurrentTime()
+            };
 
-			tripTransaction.WalletId = wallet.WalletId;
-			tripTransaction.AmountOfPoint = newPoint;
-			wallet.Point += newPoint;
+            var wallet = await _context.Wallet
+                .Where(w => w.UserId == trip.BikerId)
+                .Where(w => w.Status == (int) WalletStatus.Current)
+                .SingleOrDefaultAsync(cancellationToken);
 
-			var user = await _context.User
-				.Where(u => u.UserId == wallet.UserId)
-				.SingleOrDefaultAsync(cancellationToken);
+            tripTransaction.WalletId = wallet.WalletId;
+            tripTransaction.AmountOfPoint = newPoint;
+            wallet.Point += newPoint;
 
-			user.TotalPoint += newPoint;
+            var user = await _context.User
+                .Where(u => u.UserId == wallet.UserId)
+                .SingleOrDefaultAsync(cancellationToken);
 
-			await _context.TripTransaction.AddAsync(tripTransaction, cancellationToken);
+            user.TotalPoint += newPoint;
 
-			// Save change to feedback, tripTransaction, wallet, user table
-			var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+            await _context.TripTransaction.AddAsync(tripTransaction, cancellationToken);
 
-			if (!result)
-			{
-				_logger.LogInformation("Failed to create new trip transaction.");
-				throw new Exception("Failed to create new trip transaction.");
-			}
-			else
-			{
-				_logger.LogInformation("Successfully created trip transaction.");
-			}
-		}
-	}
+            // Save change to feedback, tripTransaction, wallet, user table
+            var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+            if (!result)
+            {
+                _logger.LogInformation("Failed to create new trip transaction.");
+                throw new Exception("Failed to create new trip transaction.");
+            }
+
+            _logger.LogInformation("Successfully created trip transaction.");
+        }
+    }
 }

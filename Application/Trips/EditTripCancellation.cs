@@ -1,110 +1,105 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
 using Domain.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Trips
 {
-	public class EditTripCancellation
-	{
-		public class Command : IRequest<Result<Unit>>
-		{
-			public int TripId { get; set; }
-			public int UserId { get; set; }
-			public bool IsAdmin { get; set; }
-			public TripCancellationDto TripCancellationDto { get; set; } = null!;
-		}
-		public class Handler : IRequestHandler<Command, Result<Unit>>
-		{
-			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<Handler> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
-			{
-				_context = context;
-				_mapper = mapper;
-				_logger = logger;
-			}
+    public class EditTripCancellation
+    {
+        public class Command : IRequest<Result<Unit>>
+        {
+            public int TripId { get; set; }
+            public int UserId { get; set; }
+            public bool IsAdmin { get; set; }
+            public TripCancellationDto TripCancellationDto { get; set; } = null!;
+        }
 
-			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<Handler> _logger;
+            private readonly IMapper _mapper;
 
-					var oldTrip = await _context.Trip
-						.FindAsync(new object[] { request.TripId }, cancellationToken);
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            {
+                _context = context;
+                _mapper = mapper;
+                _logger = logger;
+            }
 
-					if (oldTrip == null) return null!;
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (!request.IsAdmin)
-					{
-						bool isUserInTrip = true;
+                    var oldTrip = await _context.Trip
+                        .FindAsync(new object[] {request.TripId}, cancellationToken);
 
-						if (oldTrip.BikerId == null && request.UserId != oldTrip.KeerId)
-						{
-							isUserInTrip = false;
-						}
+                    if (oldTrip == null) return null!;
 
-						if (request.UserId != oldTrip.KeerId && request.UserId != oldTrip.BikerId)
-						{
-							isUserInTrip = false;
-						}
+                    if (!request.IsAdmin)
+                    {
+                        bool isUserInTrip = true;
 
-						if (!isUserInTrip)
-						{
-							_logger.LogInformation("Cancellation request must come from Keer or Biker of the trip");
-							return Result<Unit>.Failure(
-								"Cancellation request must come from Keer or Biker of the trip.");
-						}
-					}
+                        if (oldTrip.BikerId == null && request.UserId != oldTrip.KeerId) isUserInTrip = false;
 
-					switch (oldTrip.Status)
-					{
-						case (int)TripStatus.Finished:
-							_logger.LogInformation("Trip has already finished.");
-							return Result<Unit>.Failure("Trip has already finished.");
-						case (int)TripStatus.Cancelled:
-							_logger.LogInformation("Trip has already cancelled.");
-							return Result<Unit>.Failure("Trip has already cancelled.");
-					}
+                        if (request.UserId != oldTrip.KeerId && request.UserId != oldTrip.BikerId) isUserInTrip = false;
 
-					_mapper.Map(request.TripCancellationDto, oldTrip);
+                        if (!isUserInTrip)
+                        {
+                            _logger.LogInformation("Cancellation request must come from Keer or Biker of the trip");
+                            return Result<Unit>.Failure(
+                                "Cancellation request must come from Keer or Biker of the trip.");
+                        }
+                    }
 
-					oldTrip.CancelPersonId = request.UserId;
-					oldTrip.Status = (int)TripStatus.Cancelled;
+                    switch (oldTrip.Status)
+                    {
+                        case (int) TripStatus.Finished:
+                            _logger.LogInformation("Trip has already finished.");
+                            return Result<Unit>.Failure("Trip has already finished.");
+                        case (int) TripStatus.Cancelled:
+                            _logger.LogInformation("Trip has already cancelled.");
+                            return Result<Unit>.Failure("Trip has already cancelled.");
+                    }
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    _mapper.Map(request.TripCancellationDto, oldTrip);
 
-					if (!result)
-					{
-						_logger.LogInformation($"Failed to update trip with TripId {request.TripId}");
-						return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
-					}
-					else
-					{
-						_logger.LogInformation("Successfully updated trip with TripId {request.TripId}");
-						return Result<Unit>.Success(
-							Unit.Value, "Successfully updated trip with TripId {request.TripId}.");
-					}
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled.");
-				}
-				catch (System.Exception ex) when (ex is DbUpdateException)
-				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
-					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
-				}
-			}
-		}
-	}
+                    oldTrip.CancelPersonId = request.UserId;
+                    oldTrip.Status = (int) TripStatus.Cancelled;
+
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    if (!result)
+                    {
+                        _logger.LogInformation($"Failed to update trip with TripId {request.TripId}");
+                        return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
+                    }
+
+                    _logger.LogInformation("Successfully updated trip with TripId {request.TripId}");
+                    return Result<Unit>.Success(
+                        Unit.Value, "Successfully updated trip with TripId {request.TripId}.");
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled");
+                    return Result<Unit>.Failure("Request was cancelled.");
+                }
+                catch (Exception ex) when (ex is DbUpdateException)
+                {
+                    _logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
+                }
+            }
+        }
+    }
 }

@@ -1,94 +1,94 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Bikes
 {
-	public class CreateBike
-	{
-		public class Command : IRequest<Result<Unit>>
-		{
-			public BikeCreateDto BikeCreateDto { get; init; }  = null!;
-		}
+    public class CreateBike
+    {
+        public class Command : IRequest<Result<Unit>>
+        {
+            public BikeCreateDto BikeCreateDto { get; init; } = null!;
+        }
 
-		public class Handler : IRequestHandler<Command, Result<Unit>>
-		{
-			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<Handler> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
-			{
-				_context = context;
-				_mapper = mapper;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<Handler> _logger;
+            private readonly IMapper _mapper;
 
-			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            {
+                _context = context;
+                _mapper = mapper;
+                _logger = logger;
+            }
 
-					var user = await _context.User
-						.FindAsync(new object[] { request.BikeCreateDto.UserId! }, cancellationToken);
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (user == null || (user != null && user.IsDeleted))
-					{
-						_logger.LogInformation("User to create bike does not exist");
-						return Result<Unit>.NotFound("User to create bike does not exist.");
-					}
+                    var user = await _context.User
+                        .FindAsync(new object[] {request.BikeCreateDto.UserId!}, cancellationToken);
 
-					user!.IsBikeVerified = true;
+                    if (user == null || user.IsDeleted)
+                    {
+                        _logger.LogInformation("User to create bike does not exist");
+                        return Result<Unit>.NotFound("User to create bike does not exist.");
+                    }
 
-					var oldBike = await _context.Bike
-						.Where(b => b.UserId == request.BikeCreateDto.UserId)
-						.SingleOrDefaultAsync(cancellationToken);
+                    user.IsBikeVerified = true;
 
-					if (oldBike != null)
-					{
-						_logger.LogInformation("User already has a bike");
-						return Result<Unit>.Failure("User already has a bike.");
-					}
+                    var oldBike = await _context.Bike
+                        .Where(b => b.UserId == request.BikeCreateDto.UserId)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-					Bike newBike = new Bike();
+                    if (oldBike != null)
+                    {
+                        _logger.LogInformation("User already has a bike");
+                        return Result<Unit>.Failure("User already has a bike.");
+                    }
 
-					_mapper.Map(request.BikeCreateDto, newBike);
+                    Bike newBike = new();
 
-					await _context.Bike.AddAsync(newBike, cancellationToken);
+                    _mapper.Map(request.BikeCreateDto, newBike);
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    await _context.Bike.AddAsync(newBike, cancellationToken);
 
-					if (!result)
-					{
-						_logger.LogInformation("Failed to create new bike");
-						return Result<Unit>.Failure("Failed to create new bike.");
-					}
-					else
-					{
-						_logger.LogInformation("Successfully created new bike");
-						return Result<Unit>.Success(
-							Unit.Value, "Successfully created new bike.", newBike.BikeId.ToString());
-					}
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled.");
-				}
-				catch (System.Exception ex) when (ex is DbUpdateException)
-				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
-					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
-				}
-			}
-		}
-	}
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    if (!result)
+                    {
+                        _logger.LogInformation("Failed to create new bike");
+                        return Result<Unit>.Failure("Failed to create new bike.");
+                    }
+
+                    _logger.LogInformation("Successfully created new bike");
+                    return Result<Unit>.Success(
+                        Unit.Value, "Successfully created new bike.", newBike.BikeId.ToString());
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled");
+                    return Result<Unit>.Failure("Request was cancelled.");
+                }
+                catch (Exception ex) when (ex is DbUpdateException)
+                {
+                    _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
+                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
+                }
+            }
+        }
+    }
 }

@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using FirebaseAdmin.Auth;
 
 namespace API.Controllers
 {

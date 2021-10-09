@@ -1,69 +1,69 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Bikes
 {
-	public class DetailBikeByUserId
-	{
-		public class Query : IRequest<Result<BikeDto>>
-		{
-			public int UserId { get; init; }
-			public bool IsAdmin { get; init; }
-		}
+    public class DetailBikeByUserId
+    {
+        public class Query : IRequest<Result<BikeDto>>
+        {
+            public int UserId { get; init; }
+            public bool IsAdmin { get; init; }
+        }
 
-		public class Handler : IRequestHandler<Query, Result<BikeDto>>
-		{
-			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<Handler> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
-			{
-				_context = context;
-				_mapper = mapper;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Query, Result<BikeDto>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<Handler> _logger;
+            private readonly IMapper _mapper;
 
-			public async Task<Result<BikeDto>> Handle(Query request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            {
+                _context = context;
+                _mapper = mapper;
+                _logger = logger;
+            }
 
-					var bike = await _context.Bike
-						.Where(b => b.UserId == request.UserId)
-						.ProjectTo<BikeDto>(_mapper.ConfigurationProvider)
-						.SingleOrDefaultAsync(cancellationToken);
+            public async Task<Result<BikeDto>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (bike == null)
-					{
-						_logger.LogInformation($"Cound not found bike with UserId {request.UserId}");
-						return Result<BikeDto>.NotFound($"Cound not found bike with UserId {request.UserId}.");
-					}
+                    var bike = await _context.Bike
+                        .Where(b => b.UserId == request.UserId)
+                        .ProjectTo<BikeDto>(_mapper.ConfigurationProvider)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-					if (!request.IsAdmin)
-					{
-						// Set to null to make unnecessary fields excluded from response body.
-						bike.CreatedDate = null;
-					}
+                    if (bike == null)
+                    {
+                        _logger.LogInformation("Could not found bike with UserId {request.UserId}", request.UserId);
+                        return Result<BikeDto>.NotFound($"Could not found bike with UserId {request.UserId}.");
+                    }
 
-					_logger.LogInformation($"Successfully retrieved bike by UserId {request.UserId}");
-					return Result<BikeDto>.Success(bike, $"Successfully retrieved bike by UserId {request.UserId}.");
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<BikeDto>.Failure("Request was cancelled.");
-				}
-			}
-		}
-	}
+                    if (!request.IsAdmin)
+                        // Set to null to make unnecessary fields excluded from response body.
+                        bike.CreatedDate = null;
+
+                    _logger.LogInformation("Successfully retrieved bike by UserId {request.UserId}", request.UserId);
+                    return Result<BikeDto>.Success(bike, $"Successfully retrieved bike by UserId {request.UserId}.");
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled");
+                    return Result<BikeDto>.Failure("Request was cancelled.");
+                }
+            }
+        }
+    }
 }

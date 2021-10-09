@@ -1,73 +1,73 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Application.Core;
 using Application.Wallets.DTOs;
 using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Wallets
 {
-	public class EditWallet
-	{
-		public class Command : IRequest<Result<Unit>>
-		{
-			public int WalletId { get; set; }
-			public WalletDto NewWalletDto { get; set; } = null!;
-		}
+    public class EditWallet
+    {
+        public class Command : IRequest<Result<Unit>>
+        {
+            public int WalletId { get; set; }
+            public WalletDto NewWalletDto { get; set; } = null!;
+        }
 
-		public class Handler : IRequestHandler<Command, Result<Unit>>
-		{
-			private readonly DataContext _context;
-			private readonly IMapper _mapper;
-			private readonly ILogger<EditWallet> _logger;
-			public Handler(DataContext context, IMapper mapper, ILogger<EditWallet> logger)
-			{
-				_context = context;
-				_mapper = mapper;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<EditWallet> _logger;
+            private readonly IMapper _mapper;
 
-			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, IMapper mapper, ILogger<EditWallet> logger)
+            {
+                _context = context;
+                _mapper = mapper;
+                _logger = logger;
+            }
 
-					var oldWallet = await _context.Wallet
-						.FindAsync(new object[] { request.WalletId }, cancellationToken);
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (oldWallet == null) return null!;
+                    var oldWallet = await _context.Wallet
+                        .FindAsync(new object[] {request.WalletId}, cancellationToken);
 
-					_mapper.Map(request.NewWalletDto, oldWallet);
+                    if (oldWallet == null) return null!;
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    _mapper.Map(request.NewWalletDto, oldWallet);
 
-					if (!result)
-					{
-						_logger.LogInformation($"Failed to update wallet by walletId {request.WalletId}.");
-						return Result<Unit>.Failure($"Failed to update wallet by walletId {request.WalletId}.");
-					}
-					else
-					{
-						_logger.LogInformation($"Successfully updated wallet by walletId {request.WalletId}.");
-						return Result<Unit>.Success(
-							Unit.Value, $"Successfully updated wallet by walletId {request.WalletId}.");
-					}
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled.");
-					return Result<Unit>.Failure("Request was cancelled.");
-				}
-				catch (System.Exception ex) when (ex is DbUpdateException)
-				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
-					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
-				}
-			}
-		}
-	}
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    if (!result)
+                    {
+                        _logger.LogInformation($"Failed to update wallet by walletId {request.WalletId}.");
+                        return Result<Unit>.Failure($"Failed to update wallet by walletId {request.WalletId}.");
+                    }
+
+                    _logger.LogInformation($"Successfully updated wallet by walletId {request.WalletId}.");
+                    return Result<Unit>.Success(
+                        Unit.Value, $"Successfully updated wallet by walletId {request.WalletId}.");
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled.");
+                    return Result<Unit>.Failure("Request was cancelled.");
+                }
+                catch (Exception ex) when (ex is DbUpdateException)
+                {
+                    _logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
+                }
+            }
+        }
+    }
 }

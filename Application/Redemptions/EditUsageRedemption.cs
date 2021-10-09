@@ -1,75 +1,75 @@
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Application.Core;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Persistence;
-using System.Linq;
 
 namespace Application.Redemptions
 {
-	public class EditUsageRedemption
-	{
-		public class Command : IRequest<Result<Unit>>
-		{
-			public int RedemptionId { get; set; }
-			public int UserRequestId { get; set; }
-		}
+    public class EditUsageRedemption
+    {
+        public class Command : IRequest<Result<Unit>>
+        {
+            public int RedemptionId { get; set; }
+            public int UserRequestId { get; set; }
+        }
 
-		public class Handler : IRequestHandler<Command, Result<Unit>>
-		{
-			private readonly DataContext _context;
-			private readonly ILogger<EditUsageRedemption> _logger;
-			public Handler(DataContext context, ILogger<EditUsageRedemption> logger)
-			{
-				_context = context;
-				_logger = logger;
-			}
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<EditUsageRedemption> _logger;
 
-			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public Handler(DataContext context, ILogger<EditUsageRedemption> logger)
+            {
+                _context = context;
+                _logger = logger;
+            }
 
-					var redemption = await _context.Redemption
-						.Where(r => r.RedemptionId == request.RedemptionId)
-						.Where(r => r.Wallet.User.UserId == request.UserRequestId)
-						.SingleOrDefaultAsync(cancellationToken);
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (redemption == null) return null!;
+                    var redemption = await _context.Redemption
+                        .Where(r => r.RedemptionId == request.RedemptionId)
+                        .Where(r => r.Wallet.User.UserId == request.UserRequestId)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-					redemption.IsUsed = !redemption.IsUsed;
+                    if (redemption == null) return null!;
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    redemption.IsUsed = !redemption.IsUsed;
 
-					if (!result)
-					{
-						_logger.LogInformation("Failed to update redemption usage " +
-							$"with RedemptionId {request.RedemptionId}");
-						return Result<Unit>.Failure("Failed to update redemption usage " +
-							$"with RedemptionId {request.RedemptionId}.");
-					}
-					else
-					{
-						_logger.LogInformation("Successfully updated redemption usage " +
-							$"with RedemptionId {request.RedemptionId}");
-						return Result<Unit>.Success(Unit.Value, "Successfully updated redemption usage " +
-							$"with RedemptionId {request.RedemptionId}.");
-					}
-				}
-				catch (System.Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled.");
-				}
-				catch (System.Exception ex) when (ex is DbUpdateException)
-				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
-					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
-				}
-			}
-		}
-	}
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    if (!result)
+                    {
+                        _logger.LogInformation("Failed to update redemption usage " +
+                                               $"with RedemptionId {request.RedemptionId}");
+                        return Result<Unit>.Failure("Failed to update redemption usage " +
+                                                    $"with RedemptionId {request.RedemptionId}.");
+                    }
+
+                    _logger.LogInformation("Successfully updated redemption usage " +
+                                           $"with RedemptionId {request.RedemptionId}");
+                    return Result<Unit>.Success(Unit.Value, "Successfully updated redemption usage " +
+                                                            $"with RedemptionId {request.RedemptionId}.");
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled");
+                    return Result<Unit>.Failure("Request was cancelled.");
+                }
+                catch (Exception ex) when (ex is DbUpdateException)
+                {
+                    _logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
+                }
+            }
+        }
+    }
 }
