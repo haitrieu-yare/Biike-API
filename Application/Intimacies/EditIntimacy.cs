@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Intimacies.DTOs;
 using Domain;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace Application.Intimacies
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public IntimacyCreateEditDto IntimacyCreateEditDto { get; set; } = null!;
+			public IntimacyCreateEditDto IntimacyCreateEditDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -35,44 +36,49 @@ namespace Application.Intimacies
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldIntimacy = await _context.Intimacy
-						.FindAsync(new object[]
+					Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
+						new object[]
 						{
-							request.IntimacyCreateEditDto.UserOneId!,
-							request.IntimacyCreateEditDto.UserTwoId!
+							request.IntimacyCreateEditDto.UserOneId!, request.IntimacyCreateEditDto.UserTwoId!
 						}, cancellationToken);
 
 					if (oldIntimacy == null) return null!;
 
-					if (oldIntimacy.IsBlock)
+					switch (oldIntimacy.IsBlock)
 					{
-						oldIntimacy.IsBlock = !oldIntimacy.IsBlock;
-						oldIntimacy.UnblockTime = CurrentTime.GetCurrentTime();
-					}
-					else if (!oldIntimacy.IsBlock)
-					{
-						oldIntimacy.IsBlock = !oldIntimacy.IsBlock;
-						oldIntimacy.BlockTime = CurrentTime.GetCurrentTime();
+						case true:
+							oldIntimacy.IsBlock = !oldIntimacy.IsBlock;
+							oldIntimacy.UnblockTime = CurrentTime.GetCurrentTime();
+							break;
+						case false:
+							oldIntimacy.IsBlock = !oldIntimacy.IsBlock;
+							oldIntimacy.BlockTime = CurrentTime.GetCurrentTime();
+							break;
 					}
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update intimacy of " +
-						                       $"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
-						                       $"userTwoId {request.IntimacyCreateEditDto.UserTwoId}");
+						_logger.LogInformation(
+							"Failed to update intimacy of " +
+							"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
+							"userTwoId {request.IntimacyCreateEditDto.UserTwoId}",
+							request.IntimacyCreateEditDto.UserOneId, request.IntimacyCreateEditDto.UserTwoId);
 						return Result<Unit>.Failure("Failed to update intimacy of " +
 						                            $"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
 						                            $"userTwoId {request.IntimacyCreateEditDto.UserTwoId}.");
 					}
 
-					_logger.LogInformation("Successfully updated intimacy of " +
-					                       $"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
-					                       $"userTwoId {request.IntimacyCreateEditDto.UserTwoId}");
-					return Result<Unit>.Success(Unit.Value, "Successfully updated intimacy of " +
-					                                        $"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
-					                                        $"userTwoId {request.IntimacyCreateEditDto.UserTwoId}.");
+					_logger.LogInformation(
+						"Successfully updated intimacy of " +
+						"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
+						"userTwoId {request.IntimacyCreateEditDto.UserTwoId}", request.IntimacyCreateEditDto.UserOneId,
+						request.IntimacyCreateEditDto.UserTwoId);
+					return Result<Unit>.Success(Unit.Value,
+						"Successfully updated intimacy of " +
+						$"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
+						$"userTwoId {request.IntimacyCreateEditDto.UserTwoId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
@@ -81,7 +87,7 @@ namespace Application.Intimacies
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

@@ -16,7 +16,7 @@ namespace Application.Intimacies
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public IntimacyCreateEditDto IntimacyCreateEditDto { get; set; } = null!;
+			public IntimacyCreateEditDto IntimacyCreateEditDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,11 +38,10 @@ namespace Application.Intimacies
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldIntimacy = await _context.Intimacy
-						.FindAsync(new object[]
+					Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
+						new object[]
 						{
-							request.IntimacyCreateEditDto.UserOneId!,
-							request.IntimacyCreateEditDto.UserTwoId!
+							request.IntimacyCreateEditDto.UserOneId!, request.IntimacyCreateEditDto.UserTwoId!
 						}, cancellationToken);
 
 					if (oldIntimacy != null)
@@ -57,7 +56,7 @@ namespace Application.Intimacies
 
 					await _context.Intimacy.AddAsync(newIntimacy, cancellationToken);
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
@@ -66,8 +65,8 @@ namespace Application.Intimacies
 					}
 
 					_logger.LogInformation("Successfully created intimacy");
-					return Result<Unit>.Success(
-						Unit.Value, "Successfully created intimacy.", newIntimacy.UserOneId.ToString());
+					return Result<Unit>.Success(Unit.Value, "Successfully created intimacy.",
+						newIntimacy.UserOneId.ToString());
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
@@ -76,7 +75,7 @@ namespace Application.Intimacies
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

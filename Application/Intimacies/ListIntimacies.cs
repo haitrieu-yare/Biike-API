@@ -18,8 +18,8 @@ namespace Application.Intimacies
 	{
 		public class Query : IRequest<Result<List<IntimacyDto>>>
 		{
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<IntimacyDto>>>
@@ -48,30 +48,24 @@ namespace Application.Intimacies
 					}
 
 					int totalRecord = await _context.Intimacy.CountAsync(cancellationToken);
-
-					#region Calculate last page
-
+					
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<IntimacyDto> intimacies = new();
 
 					if (request.Page <= lastPage)
-						intimacies = await _context.Intimacy
-							.OrderBy(i => i.UserOneId)
+						intimacies = await _context.Intimacy.OrderBy(i => i.UserOneId)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
 							.ProjectTo<IntimacyDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
 
 					PaginationDto paginationDto = new(
-						request.Page, request.Limit, intimacies.Count, lastPage, totalRecord
-					);
+						request.Page, request.Limit, intimacies.Count, lastPage, totalRecord);
 
 					_logger.LogInformation("Successfully retrieved list of all intimacies");
-					return Result<List<IntimacyDto>>.Success(
-						intimacies, "Successfully retrieved list of all intimacies.", paginationDto);
+					return Result<List<IntimacyDto>>.Success(intimacies,
+						"Successfully retrieved list of all intimacies.", paginationDto);
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

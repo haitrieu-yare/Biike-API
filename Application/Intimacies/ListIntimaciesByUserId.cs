@@ -18,9 +18,9 @@ namespace Application.Intimacies
 	{
 		public class Query : IRequest<Result<List<IntimacyDto>>>
 		{
-			public int UserOneId { get; set; }
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int UserOneId { get; init; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<IntimacyDto>>>
@@ -48,32 +48,29 @@ namespace Application.Intimacies
 						return Result<List<IntimacyDto>>.Failure("Page must larger than 0.");
 					}
 
-					int totalRecord = await _context.Intimacy
-						.Where(i => i.UserOneId == request.UserOneId)
+					int totalRecord = await _context.Intimacy.Where(i => i.UserOneId == request.UserOneId)
 						.CountAsync(cancellationToken);
 
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<IntimacyDto> intimacies = new();
 
 					if (request.Page <= lastPage)
-						intimacies = await _context.Intimacy
-							.Where(i => i.UserOneId == request.UserOneId)
+						intimacies = await _context.Intimacy.Where(i => i.UserOneId == request.UserOneId)
+							.OrderBy(i => i.UserOneId)
+							.Skip((request.Page - 1) * request.Limit)
+							.Take(request.Limit)
 							.ProjectTo<IntimacyDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
 
 					PaginationDto paginationDto = new(
-						request.Page, request.Limit, intimacies.Count, lastPage, totalRecord
-					);
+						request.Page, request.Limit, intimacies.Count, lastPage, totalRecord);
 
-					_logger.LogInformation("Successfully retrieved list of user intimacies " +
-					                       $"by UserId {request.UserOneId}");
-					return Result<List<IntimacyDto>>.Success(intimacies, "Successfully retrieved list of " +
-					                                                     $"user intimacies by UserId {request.UserOneId}.",
+					_logger.LogInformation(
+						"Successfully retrieved list of user intimacies by UserId {request.UserOneId}",
+						request.UserOneId);
+					return Result<List<IntimacyDto>>.Success(intimacies,
+						"Successfully retrieved list of " + $"user intimacies by UserId {request.UserOneId}.",
 						paginationDto);
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
