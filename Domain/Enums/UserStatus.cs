@@ -1,8 +1,8 @@
 namespace Domain.Enums
 {
-    public enum UserStatus
-    {
-        Deactive = 1,
-        Active
-    }
+	public enum UserStatus
+	{
+		Deactive = 1,
+		Active
+	}
 }

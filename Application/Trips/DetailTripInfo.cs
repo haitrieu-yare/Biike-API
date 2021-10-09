@@ -13,76 +13,76 @@ using Persistence;
 
 namespace Application.Trips
 {
-    public class DetailTripInfo
-    {
-        public class Query : IRequest<Result<TripDetailInfoDto>>
-        {
-            public int TripId { get; set; }
-            public int Role { get; set; }
-            public int UserRequestId { get; set; }
-        }
+	public class DetailTripInfo
+	{
+		public class Query : IRequest<Result<TripDetailInfoDto>>
+		{
+			public int TripId { get; set; }
+			public int Role { get; set; }
+			public int UserRequestId { get; set; }
+		}
 
-        public class Handler : IRequestHandler<Query, Result<TripDetailInfoDto>>
-        {
-            private readonly DataContext _context;
-            private readonly ILogger<Handler> _logger;
-            private readonly IMapper _mapper;
+		public class Handler : IRequestHandler<Query, Result<TripDetailInfoDto>>
+		{
+			private readonly DataContext _context;
+			private readonly ILogger<Handler> _logger;
+			private readonly IMapper _mapper;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
-            {
-                _context = context;
-                _mapper = mapper;
-                _logger = logger;
-            }
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+			{
+				_context = context;
+				_mapper = mapper;
+				_logger = logger;
+			}
 
-            public async Task<Result<TripDetailInfoDto>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                try
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
+			public async Task<Result<TripDetailInfoDto>> Handle(Query request, CancellationToken cancellationToken)
+			{
+				try
+				{
+					cancellationToken.ThrowIfCancellationRequested();
 
-                    var tripDb = await _context.Trip
-                        .FindAsync(new object[] {request.TripId}, cancellationToken);
+					var tripDb = await _context.Trip
+						.FindAsync(new object[] { request.TripId }, cancellationToken);
 
-                    if (tripDb == null) return Result<TripDetailInfoDto>.NotFound("Trip doens't exist.");
+					if (tripDb == null) return Result<TripDetailInfoDto>.NotFound("Trip doens't exist.");
 
-                    bool isRequestUserInTrip = true;
+					bool isRequestUserInTrip = true;
 
-                    if (tripDb.BikerId == null && request.UserRequestId != tripDb.KeerId)
-                        isRequestUserInTrip = false;
-                    else if (request.UserRequestId != tripDb.KeerId && request.UserRequestId != tripDb.BikerId)
-                        isRequestUserInTrip = false;
+					if (tripDb.BikerId == null && request.UserRequestId != tripDb.KeerId)
+						isRequestUserInTrip = false;
+					else if (request.UserRequestId != tripDb.KeerId && request.UserRequestId != tripDb.BikerId)
+						isRequestUserInTrip = false;
 
-                    if (!isRequestUserInTrip)
-                    {
-                        _logger.LogInformation($"User with UserId {request.UserRequestId} " +
-                                               $"request an unauthorized content of trip with TripId {request.TripId}");
-                        return Result<TripDetailInfoDto>.Unauthorized();
-                    }
+					if (!isRequestUserInTrip)
+					{
+						_logger.LogInformation($"User with UserId {request.UserRequestId} " +
+						                       $"request an unauthorized content of trip with TripId {request.TripId}");
+						return Result<TripDetailInfoDto>.Unauthorized();
+					}
 
-                    var trip = await _context.Trip
-                        .Where(t => t.TripId == request.TripId)
-                        .ProjectTo<TripDetailInfoDto>(_mapper.ConfigurationProvider,
-                            new {role = request.Role})
-                        .SingleOrDefaultAsync(cancellationToken);
+					var trip = await _context.Trip
+						.Where(t => t.TripId == request.TripId)
+						.ProjectTo<TripDetailInfoDto>(_mapper.ConfigurationProvider,
+							new { role = request.Role })
+						.SingleOrDefaultAsync(cancellationToken);
 
-                    // Set to null to make unnecessary fields excluded from response body.
-                    trip.Feedbacks.ForEach(feedback =>
-                    {
-                        feedback.TripId = null;
-                        feedback.CreatedDate = null;
-                    });
+					// Set to null to make unnecessary fields excluded from response body.
+					trip.Feedbacks.ForEach(feedback =>
+					{
+						feedback.TripId = null;
+						feedback.CreatedDate = null;
+					});
 
-                    _logger.LogInformation($"Successfully retrieved trip by TripId {request.TripId}");
-                    return Result<TripDetailInfoDto>.Success(
-                        trip, $"Successfully retrieved trip by TripId {request.TripId}.");
-                }
-                catch (Exception ex) when (ex is TaskCanceledException)
-                {
-                    _logger.LogInformation("Request was cancelled");
-                    return Result<TripDetailInfoDto>.Failure("Request was cancelled.");
-                }
-            }
-        }
-    }
+					_logger.LogInformation($"Successfully retrieved trip by TripId {request.TripId}");
+					return Result<TripDetailInfoDto>.Success(
+						trip, $"Successfully retrieved trip by TripId {request.TripId}.");
+				}
+				catch (Exception ex) when (ex is TaskCanceledException)
+				{
+					_logger.LogInformation("Request was cancelled");
+					return Result<TripDetailInfoDto>.Failure("Request was cancelled.");
+				}
+			}
+		}
+	}
 }

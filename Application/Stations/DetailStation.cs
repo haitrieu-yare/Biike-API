@@ -14,64 +14,64 @@ using Persistence;
 
 namespace Application.Stations
 {
-    public class DetailStation
-    {
-        public class Query : IRequest<Result<StationDto>>
-        {
-            public int StationId { get; set; }
-            public bool IsAdmin { get; set; }
-        }
+	public class DetailStation
+	{
+		public class Query : IRequest<Result<StationDto>>
+		{
+			public int StationId { get; set; }
+			public bool IsAdmin { get; set; }
+		}
 
-        public class Handler : IRequestHandler<Query, Result<StationDto>>
-        {
-            private readonly DataContext _context;
-            private readonly ILogger<DetailStation> _logger;
-            private readonly IMapper _mapper;
+		public class Handler : IRequestHandler<Query, Result<StationDto>>
+		{
+			private readonly DataContext _context;
+			private readonly ILogger<DetailStation> _logger;
+			private readonly IMapper _mapper;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<DetailStation> logger)
-            {
-                _context = context;
-                _mapper = mapper;
-                _logger = logger;
-            }
+			public Handler(DataContext context, IMapper mapper, ILogger<DetailStation> logger)
+			{
+				_context = context;
+				_mapper = mapper;
+				_logger = logger;
+			}
 
-            public async Task<Result<StationDto>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                try
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
+			public async Task<Result<StationDto>> Handle(Query request, CancellationToken cancellationToken)
+			{
+				try
+				{
+					cancellationToken.ThrowIfCancellationRequested();
 
-                    StationDto station = new();
+					StationDto station = new();
 
-                    if (request.IsAdmin)
-                    {
-                        Station stationDb = await _context.Station
-                            .FindAsync(new object[] {request.StationId}, cancellationToken);
+					if (request.IsAdmin)
+					{
+						Station stationDb = await _context.Station
+							.FindAsync(new object[] { request.StationId }, cancellationToken);
 
-                        _mapper.Map(stationDb, station);
-                    }
-                    else
-                    {
-                        station = await _context.Station
-                            .Where(s => s.StationId == request.StationId)
-                            .Where(s => s.IsDeleted != true)
-                            .ProjectTo<StationDto>(_mapper.ConfigurationProvider)
-                            .SingleOrDefaultAsync(cancellationToken);
-                        // Set to null to make unnecessary fields excluded from response body.
-                        station.CreatedDate = null;
-                        station.IsDeleted = null;
-                    }
+						_mapper.Map(stationDb, station);
+					}
+					else
+					{
+						station = await _context.Station
+							.Where(s => s.StationId == request.StationId)
+							.Where(s => s.IsDeleted != true)
+							.ProjectTo<StationDto>(_mapper.ConfigurationProvider)
+							.SingleOrDefaultAsync(cancellationToken);
+						// Set to null to make unnecessary fields excluded from response body.
+						station.CreatedDate = null;
+						station.IsDeleted = null;
+					}
 
-                    _logger.LogInformation($"Successfully retrieved station by stationId {request.StationId}.");
-                    return Result<StationDto>.Success(
-                        station, $"Successfully retrieved station by stationId {request.StationId}.");
-                }
-                catch (Exception ex) when (ex is TaskCanceledException)
-                {
-                    _logger.LogInformation("Request was cancelled.");
-                    return Result<StationDto>.Failure("Request was cancelled.");
-                }
-            }
-        }
-    }
+					_logger.LogInformation($"Successfully retrieved station by stationId {request.StationId}.");
+					return Result<StationDto>.Success(
+						station, $"Successfully retrieved station by stationId {request.StationId}.");
+				}
+				catch (Exception ex) when (ex is TaskCanceledException)
+				{
+					_logger.LogInformation("Request was cancelled.");
+					return Result<StationDto>.Failure("Request was cancelled.");
+				}
+			}
+		}
+	}
 }

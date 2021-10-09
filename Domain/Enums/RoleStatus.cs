@@ -1,9 +1,9 @@
 namespace Domain.Enums
 {
-    public enum RoleStatus
-    {
-        Keer = 1,
-        Biker,
-        Admin
-    }
+	public enum RoleStatus
+	{
+		Keer = 1,
+		Biker,
+		Admin
+	}
 }

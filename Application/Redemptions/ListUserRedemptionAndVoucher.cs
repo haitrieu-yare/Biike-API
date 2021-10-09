@@ -15,95 +15,95 @@ using Persistence;
 
 namespace Application.Redemptions
 {
-    public class ListUserRedemptionAndVoucher
-    {
-        public class Query : IRequest<Result<List<RedemptionAndVoucherDto>>>
-        {
-            public int UserId { get; set; }
-            public int Page { get; set; }
-            public int Limit { get; set; }
-        }
+	public class ListUserRedemptionAndVoucher
+	{
+		public class Query : IRequest<Result<List<RedemptionAndVoucherDto>>>
+		{
+			public int UserId { get; set; }
+			public int Page { get; set; }
+			public int Limit { get; set; }
+		}
 
-        public class Handler : IRequestHandler<Query, Result<List<RedemptionAndVoucherDto>>>
-        {
-            private readonly DataContext _context;
-            private readonly ILogger<Handler> _logger;
-            private readonly IMapper _mapper;
+		public class Handler : IRequestHandler<Query, Result<List<RedemptionAndVoucherDto>>>
+		{
+			private readonly DataContext _context;
+			private readonly ILogger<Handler> _logger;
+			private readonly IMapper _mapper;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
-            {
-                _context = context;
-                _mapper = mapper;
-                _logger = logger;
-            }
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+			{
+				_context = context;
+				_mapper = mapper;
+				_logger = logger;
+			}
 
-            public async Task<Result<List<RedemptionAndVoucherDto>>> Handle(Query request,
-                CancellationToken cancellationToken)
-            {
-                try
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
+			public async Task<Result<List<RedemptionAndVoucherDto>>> Handle(Query request,
+				CancellationToken cancellationToken)
+			{
+				try
+				{
+					cancellationToken.ThrowIfCancellationRequested();
 
-                    if (request.Page <= 0)
-                    {
-                        _logger.LogInformation("Page must larger than 0");
-                        return Result<List<RedemptionAndVoucherDto>>.Failure("Page must larger than 0.");
-                    }
+					if (request.Page <= 0)
+					{
+						_logger.LogInformation("Page must larger than 0");
+						return Result<List<RedemptionAndVoucherDto>>.Failure("Page must larger than 0.");
+					}
 
-                    // Max number of active wallets is 2 for each user
-                    var wallets = await _context.Wallet
-                        .Where(w => w.UserId == request.UserId)
-                        .Where(w => w.Status != (int) WalletStatus.Expired)
-                        .ToListAsync(cancellationToken);
+					// Max number of active wallets is 2 for each user
+					var wallets = await _context.Wallet
+						.Where(w => w.UserId == request.UserId)
+						.Where(w => w.Status != (int) WalletStatus.Expired)
+						.ToListAsync(cancellationToken);
 
-                    if (wallets == null)
-                    {
-                        _logger.LogInformation("User doesn't have wallet");
-                        return Result<List<RedemptionAndVoucherDto>>.Failure("User doesn't have wallet.");
-                    }
+					if (wallets == null)
+					{
+						_logger.LogInformation("User doesn't have wallet");
+						return Result<List<RedemptionAndVoucherDto>>.Failure("User doesn't have wallet.");
+					}
 
-                    int totalRecord = await _context.Redemption
-                        .Where(r => r.WalletId == wallets[0].WalletId ||
-                                    r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId)
-                        ).CountAsync(cancellationToken);
+					int totalRecord = await _context.Redemption
+						.Where(r => r.WalletId == wallets[0].WalletId ||
+						            r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId)
+						).CountAsync(cancellationToken);
 
-                    #region Calculate last page
+					#region Calculate last page
 
-                    int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 
-                    #endregion
+					#endregion
 
-                    List<RedemptionAndVoucherDto> redemptions = new();
+					List<RedemptionAndVoucherDto> redemptions = new();
 
-                    if (request.Page <= lastPage)
-                        // Nếu user có 2 wallet thì query == wallets[0].Id || wallets[1].Id
-                        // Nếu user có 1 wallet thì query == wallets[0].Id || wallets[0].Id
-                        redemptions = await _context.Redemption
-                            .Where(r => r.WalletId == wallets[0].WalletId ||
-                                        r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId)
-                            )
-                            .OrderBy(r => r.RedemptionId)
-                            .Skip((request.Page - 1) * request.Limit)
-                            .Take(request.Limit)
-                            .ProjectTo<RedemptionAndVoucherDto>(_mapper.ConfigurationProvider)
-                            .ToListAsync(cancellationToken);
+					if (request.Page <= lastPage)
+						// Nếu user có 2 wallet thì query == wallets[0].Id || wallets[1].Id
+						// Nếu user có 1 wallet thì query == wallets[0].Id || wallets[0].Id
+						redemptions = await _context.Redemption
+							.Where(r => r.WalletId == wallets[0].WalletId ||
+							            r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId)
+							)
+							.OrderBy(r => r.RedemptionId)
+							.Skip((request.Page - 1) * request.Limit)
+							.Take(request.Limit)
+							.ProjectTo<RedemptionAndVoucherDto>(_mapper.ConfigurationProvider)
+							.ToListAsync(cancellationToken);
 
-                    PaginationDto paginationDto = new(
-                        request.Page, request.Limit, redemptions.Count, lastPage, totalRecord
-                    );
+					PaginationDto paginationDto = new(
+						request.Page, request.Limit, redemptions.Count, lastPage, totalRecord
+					);
 
-                    _logger.LogInformation("Successfully retrieved redemptions and " +
-                                           $"vouchers of userId {request.UserId}");
-                    return Result<List<RedemptionAndVoucherDto>>.Success
-                    (redemptions, "Successfully retrieved redemptions and " +
-                                  $"vouchers of userId {request.UserId}.", paginationDto);
-                }
-                catch (Exception ex) when (ex is TaskCanceledException)
-                {
-                    _logger.LogInformation("Request was cancelled");
-                    return Result<List<RedemptionAndVoucherDto>>.Failure("Request was cancelled.");
-                }
-            }
-        }
-    }
+					_logger.LogInformation("Successfully retrieved redemptions and " +
+					                       $"vouchers of userId {request.UserId}");
+					return Result<List<RedemptionAndVoucherDto>>.Success
+					(redemptions, "Successfully retrieved redemptions and " +
+					              $"vouchers of userId {request.UserId}.", paginationDto);
+				}
+				catch (Exception ex) when (ex is TaskCanceledException)
+				{
+					_logger.LogInformation("Request was cancelled");
+					return Result<List<RedemptionAndVoucherDto>>.Failure("Request was cancelled.");
+				}
+			}
+		}
+	}
 }

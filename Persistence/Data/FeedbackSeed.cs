@@ -7,61 +7,61 @@ using Domain.Entities;
 
 namespace Persistence.Data
 {
-    public static class FeedbackSeed
-    {
-        public static async Task SeedData(DataContext context)
-        {
-            if (context.Feedback.Any()) return;
+	public static class FeedbackSeed
+	{
+		public static async Task SeedData(DataContext context)
+		{
+			if (context.Feedback.Any()) return;
 
-            DateTime currentTime = CurrentTime.GetCurrentTime();
+			DateTime currentTime = CurrentTime.GetCurrentTime();
 
-            var feedbackList = new List<Feedback>
-            {
-                new()
-                {
-                    UserId = 1,
-                    TripId = 1,
-                    FeedbackContent = "Chuyến đi rất là thoải mái luôn.",
-                    Star = 5,
-                    Criteria = "Dịch Vụ Tốt",
-                    CreatedDate = currentTime.AddDays(-9).AddSeconds(900)
-                },
-                new()
-                {
-                    UserId = 3,
-                    TripId = 1,
-                    FeedbackContent = "Mọi chuyện suôn sẻ, thuận lợi.",
-                    Star = 5,
-                    Criteria = "Đúng Giờ",
-                    CreatedDate = currentTime.AddDays(-9).AddSeconds(800)
-                },
-                new()
-                {
-                    UserId = 2,
-                    TripId = 2,
-                    FeedbackContent = "Tài xế đến hơi trễ xíu.",
-                    Star = 4,
-                    Criteria = "Cần Đến Đúng Giờ",
-                    CreatedDate = currentTime.AddDays(-2).AddSeconds(420 + 600 + 300)
-                },
-                new()
-                {
-                    UserId = 3,
-                    TripId = 2,
-                    FeedbackContent = "Bạn dễ thương.",
-                    Star = 5,
-                    Criteria = "Thân Thiện",
-                    CreatedDate = currentTime.AddDays(-2).AddSeconds(420 + 600 + 400)
-                }
-            };
+			var feedbackList = new List<Feedback>
+			{
+				new()
+				{
+					UserId = 1,
+					TripId = 1,
+					FeedbackContent = "Chuyến đi rất là thoải mái luôn.",
+					Star = 5,
+					Criteria = "Dịch Vụ Tốt",
+					CreatedDate = currentTime.AddDays(-9).AddSeconds(900)
+				},
+				new()
+				{
+					UserId = 3,
+					TripId = 1,
+					FeedbackContent = "Mọi chuyện suôn sẻ, thuận lợi.",
+					Star = 5,
+					Criteria = "Đúng Giờ",
+					CreatedDate = currentTime.AddDays(-9).AddSeconds(800)
+				},
+				new()
+				{
+					UserId = 2,
+					TripId = 2,
+					FeedbackContent = "Tài xế đến hơi trễ xíu.",
+					Star = 4,
+					Criteria = "Cần Đến Đúng Giờ",
+					CreatedDate = currentTime.AddDays(-2).AddSeconds(420 + 600 + 300)
+				},
+				new()
+				{
+					UserId = 3,
+					TripId = 2,
+					FeedbackContent = "Bạn dễ thương.",
+					Star = 5,
+					Criteria = "Thân Thiện",
+					CreatedDate = currentTime.AddDays(-2).AddSeconds(420 + 600 + 400)
+				}
+			};
 
-            // Save change for each item because EF doesn't insert like the order
-            // we define in our list.
-            foreach (var feedback in feedbackList)
-            {
-                await context.Feedback.AddAsync(feedback);
-                await context.SaveChangesAsync();
-            }
-        }
-    }
+			// Save change for each item because EF doesn't insert like the order
+			// we define in our list.
+			foreach (var feedback in feedbackList)
+			{
+				await context.Feedback.AddAsync(feedback);
+				await context.SaveChangesAsync();
+			}
+		}
+	}
 }

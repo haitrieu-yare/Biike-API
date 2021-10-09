@@ -20,93 +20,84 @@ using Persistence;
 
 namespace API
 {
-    public class Startup
-    {
-        private readonly IConfiguration _config;
-        private readonly IWebHostEnvironment _currentEnvironment;
+	public class Startup
+	{
+		private readonly IConfiguration _config;
+		private readonly IWebHostEnvironment _currentEnvironment;
 
-        public Startup(IConfiguration config, IWebHostEnvironment env)
-        {
-            _currentEnvironment = env;
-            _config = config;
-        }
+		public Startup(IConfiguration config, IWebHostEnvironment env)
+		{
+			_currentEnvironment = env;
+			_config = config;
+		}
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddControllers();
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "API", Version = "v1"}); });
-            services.AddDbContext<DataContext>(opt =>
-            {
-                opt.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
-            });
-            services.AddCors(opt =>
-            {
-                opt.AddPolicy("CorsPolicy", policy =>
-                {
-                    policy
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowAnyOrigin();
-                });
-            });
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
+		{
+			services.AddControllers();
+			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" }); });
+			services.AddDbContext<DataContext>(opt =>
+			{
+				opt.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
+			});
+			services.AddCors(opt =>
+			{
+				opt.AddPolicy("CorsPolicy",
+					policy => { policy.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin(); });
+			});
 
-            string pathToKey = string.Empty;
+			string pathToKey = string.Empty;
 
-            if (_currentEnvironment.IsDevelopment())
-                pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
-                    "keys", "firebase_admin_sdk_development.json");
-            else if (_currentEnvironment.IsProduction())
-                pathToKey = Path.Combine(Directory.GetCurrentDirectory(),
-                    "keys", "firebase_admin_sdk.json");
+			if (_currentEnvironment.IsDevelopment())
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "keys",
+					"firebase_admin_sdk_development.json");
+			else if (_currentEnvironment.IsProduction())
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "keys", "firebase_admin_sdk.json");
 
-            FirebaseApp.Create(new AppOptions
-            {
-                Credential = GoogleCredential.FromFile(pathToKey)
-            });
+			FirebaseApp.Create(new AppOptions { Credential = GoogleCredential.FromFile(pathToKey) });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(opt =>
-                {
-                    opt.Authority = _config["Jwt:Firebase:ValidIssuer"];
-                    opt.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = _config["Jwt:Firebase:ValidIssuer"],
-                        ValidAudience = _config["Jwt:Firebase:ValidAudience"]
-                    };
-                });
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer(opt =>
+				{
+					opt.Authority = _config["Jwt:Firebase:ValidIssuer"];
+					opt.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						ValidIssuer = _config["Jwt:Firebase:ValidIssuer"],
+						ValidAudience = _config["Jwt:Firebase:ValidAudience"]
+					};
+				});
 
-            services.AddAuthorization()
-                .AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultTransformer>();
+			services.AddAuthorization()
+				.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultTransformer>();
 
-            services.AddMediatR(typeof(HistoryList.Handler).Assembly);
-            services.AddAutoMapper(typeof(MappingProfiles).Assembly);
-            services.AddScoped(typeof(Hashing));
-            services.AddScoped(typeof(AutoCreateTripTransaction));
-        }
+			services.AddMediatR(typeof(HistoryList.Handler).Assembly);
+			services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+			services.AddScoped(typeof(Hashing));
+			services.AddScoped(typeof(AutoCreateTripTransaction));
+		}
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		{
+			if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
+			app.UseSwagger();
+			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
 
-            app.UseHttpsRedirection();
+			app.UseHttpsRedirection();
 
-            app.UseRouting();
+			app.UseRouting();
 
-            app.UseCors("CorsPolicy");
+			app.UseCors("CorsPolicy");
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+			app.UseAuthentication();
+			app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-        }
-    }
+			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+		}
+	}
 }

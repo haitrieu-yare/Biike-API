@@ -15,80 +15,80 @@ using Persistence;
 
 namespace Application.Feedbacks
 {
-    public class ListFeedbacksByTrip
-    {
-        public class Query : IRequest<Result<List<FeedbackDto>>>
-        {
-            public int TripId { get; set; }
-            public int UserRequestId { get; set; }
-            public bool IsAdmin { get; set; }
-        }
+	public class ListFeedbacksByTrip
+	{
+		public class Query : IRequest<Result<List<FeedbackDto>>>
+		{
+			public int TripId { get; set; }
+			public int UserRequestId { get; set; }
+			public bool IsAdmin { get; set; }
+		}
 
-        public class Handler : IRequestHandler<Query, Result<List<FeedbackDto>>>
-        {
-            private readonly DataContext _context;
-            private readonly ILogger<ListFeedbacksByTrip> _logger;
-            private readonly IMapper _mapper;
+		public class Handler : IRequestHandler<Query, Result<List<FeedbackDto>>>
+		{
+			private readonly DataContext _context;
+			private readonly ILogger<ListFeedbacksByTrip> _logger;
+			private readonly IMapper _mapper;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<ListFeedbacksByTrip> logger)
-            {
-                _context = context;
-                _mapper = mapper;
-                _logger = logger;
-            }
+			public Handler(DataContext context, IMapper mapper, ILogger<ListFeedbacksByTrip> logger)
+			{
+				_context = context;
+				_mapper = mapper;
+				_logger = logger;
+			}
 
-            public async Task<Result<List<FeedbackDto>>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                try
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
+			public async Task<Result<List<FeedbackDto>>> Handle(Query request, CancellationToken cancellationToken)
+			{
+				try
+				{
+					cancellationToken.ThrowIfCancellationRequested();
 
-                    var trip = await _context.Trip
-                        .FindAsync(new object[] {request.TripId}, cancellationToken);
+					var trip = await _context.Trip
+						.FindAsync(new object[] { request.TripId }, cancellationToken);
 
-                    if (trip == null) return Result<List<FeedbackDto>>.NotFound("Trip doesn't exist.");
+					if (trip == null) return Result<List<FeedbackDto>>.NotFound("Trip doesn't exist.");
 
-                    bool isRequestUserInTrip = true;
+					bool isRequestUserInTrip = true;
 
-                    if (trip.BikerId == null && request.UserRequestId != trip.KeerId && !request.IsAdmin)
-                        isRequestUserInTrip = false;
-                    else if (trip.BikerId != null && request.UserRequestId != trip.BikerId &&
-                             request.UserRequestId != trip.KeerId && !request.IsAdmin)
-                        isRequestUserInTrip = false;
+					if (trip.BikerId == null && request.UserRequestId != trip.KeerId && !request.IsAdmin)
+						isRequestUserInTrip = false;
+					else if (trip.BikerId != null && request.UserRequestId != trip.BikerId &&
+					         request.UserRequestId != trip.KeerId && !request.IsAdmin)
+						isRequestUserInTrip = false;
 
-                    if (!isRequestUserInTrip)
-                    {
-                        _logger.LogInformation($"User send request must be in the trip with tripId {trip.TripId}");
-                        return Result<List<FeedbackDto>>.Failure(
-                            $"User send request must be in the trip with tripId {trip.TripId}.");
-                    }
+					if (!isRequestUserInTrip)
+					{
+						_logger.LogInformation($"User send request must be in the trip with tripId {trip.TripId}");
+						return Result<List<FeedbackDto>>.Failure(
+							$"User send request must be in the trip with tripId {trip.TripId}.");
+					}
 
-                    if (trip.Status != (int) TripStatus.Finished)
-                    {
-                        _logger.LogInformation($"Trip with tripId {trip.TripId} hasn't finished");
-                        return Result<List<FeedbackDto>>.Failure(
-                            $"Trip with tripId {trip.TripId} hasn't finished.");
-                    }
+					if (trip.Status != (int) TripStatus.Finished)
+					{
+						_logger.LogInformation($"Trip with tripId {trip.TripId} hasn't finished");
+						return Result<List<FeedbackDto>>.Failure(
+							$"Trip with tripId {trip.TripId} hasn't finished.");
+					}
 
-                    var feedbacks = await _context.Feedback
-                        .Where(s => s.TripId == request.TripId)
-                        .ProjectTo<FeedbackDto>(_mapper.ConfigurationProvider)
-                        .ToListAsync(cancellationToken);
+					var feedbacks = await _context.Feedback
+						.Where(s => s.TripId == request.TripId)
+						.ProjectTo<FeedbackDto>(_mapper.ConfigurationProvider)
+						.ToListAsync(cancellationToken);
 
-                    if (!request.IsAdmin)
-                        // Set to null to make unnecessary fields excluded from response body.
-                        feedbacks.ForEach(f => f.CreatedDate = null);
+					if (!request.IsAdmin)
+						// Set to null to make unnecessary fields excluded from response body.
+						feedbacks.ForEach(f => f.CreatedDate = null);
 
-                    _logger.LogInformation($"Successfully retrieved trip's feedbacks by tripId {request.TripId}.");
-                    return Result<List<FeedbackDto>>.Success(
-                        feedbacks, $"Successfully retrieved trip's feedbacks by tripId {request.TripId}.");
-                }
-                catch (Exception ex) when (ex is TaskCanceledException)
-                {
-                    _logger.LogInformation("Request was cancelled.");
-                    return Result<List<FeedbackDto>>.Failure("Request was cancelled.");
-                }
-            }
-        }
-    }
+					_logger.LogInformation($"Successfully retrieved trip's feedbacks by tripId {request.TripId}.");
+					return Result<List<FeedbackDto>>.Success(
+						feedbacks, $"Successfully retrieved trip's feedbacks by tripId {request.TripId}.");
+				}
+				catch (Exception ex) when (ex is TaskCanceledException)
+				{
+					_logger.LogInformation("Request was cancelled.");
+					return Result<List<FeedbackDto>>.Failure("Request was cancelled.");
+				}
+			}
+		}
+	}
 }

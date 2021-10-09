@@ -29,7 +29,7 @@ namespace API.Controllers
 				case false when !string.IsNullOrEmpty(result.NotFoundMessage):
 					return NotFound(result.NotFoundMessage);
 				case false when result.IsUnauthorized:
-					return new ObjectResult(ConstantString.DidNotHavePermissionToMakeRequest) {StatusCode = 403};
+					return new ObjectResult(ConstantString.DidNotHavePermissionToMakeRequest) { StatusCode = 403 };
 				case true when result.Value != null:
 				{
 					#region CREATED - 201
@@ -37,7 +37,7 @@ namespace API.Controllers
 					if (!string.IsNullOrEmpty(result.NewResourceId))
 					{
 						string newResourceUrl = baseUrl + "/" + result.NewResourceId;
-						return Created(newResourceUrl, new {message = result.SuccessMessage, data = result.Value});
+						return Created(newResourceUrl, new { message = result.SuccessMessage, data = result.Value });
 					}
 
 					#endregion
@@ -45,7 +45,7 @@ namespace API.Controllers
 					#region NORMAL - 200
 
 					if (result.PaginationDto == null)
-						return Ok(new {message = result.SuccessMessage, data = result.Value});
+						return Ok(new { message = result.SuccessMessage, data = result.Value });
 
 					#endregion
 
