@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Routes.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,17 +16,17 @@ namespace Application.Routes
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int RouteId { get; set; }
-			public RouteDto RouteDto { get; set; } = null!;
+			public int RouteId { get; init; }
+			public RouteDto RouteDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<EditRoute> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<EditRoute> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -38,41 +39,45 @@ namespace Application.Routes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldRoute = await _context.Route
-						.FindAsync(new object[] { request.RouteId }, cancellationToken);
+					Route oldRoute = await _context.Route.FindAsync(new object[] {request.RouteId}, cancellationToken);
 
-					if (oldRoute == null) return null!;
+					if (oldRoute == null)
+					{
+						_logger.LogInformation("Route doesn't exist");
+						return Result<Unit>.NotFound($"Route doesn't exist.");
+					}
 
 					if (oldRoute.IsDeleted)
 					{
-						_logger.LogInformation($"Station with RouteId {request.RouteId} has been deleted. " +
-						                       "Please reactivate it if you want to edit it.");
-						return Result<Unit>.Failure($"Station with RouteId {request.RouteId} has been deleted. " +
+						_logger.LogInformation(
+							"Route with RouteId {request.RouteId} has been deleted. " +
+							"Please reactivate it if you want to edit it", request.RouteId);
+						return Result<Unit>.Failure($"Route with RouteId {request.RouteId} has been deleted. " +
 						                            "Please reactivate it if you want to edit it.");
 					}
 
 					_mapper.Map(request.RouteDto, oldRoute);
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation($"Failed to update route by routeId {request.RouteId}.");
+						_logger.LogInformation("Failed to update route by routeId {request.RouteId}", request.RouteId);
 						return Result<Unit>.Failure($"Failed to update route by routeId {request.RouteId}.");
 					}
 
-					_logger.LogInformation($"Successfully updated route by routeId {request.RouteId}.");
-					return Result<Unit>.Success(
-						Unit.Value, $"Successfully updated route by routeId {request.RouteId}.");
+					_logger.LogInformation("Successfully updated route by routeId {request.RouteId}", request.RouteId);
+					return Result<Unit>.Success(Unit.Value,
+						$"Successfully updated route by routeId {request.RouteId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

@@ -45,7 +45,7 @@ namespace Application.Users
 						.Where(u => u.IsDeleted != true)
 						.ProjectTo<UserDto>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
-					// Set to null to make unnecessary fields excluded from response body.
+					// Set to null to make unnecessary fields excluded from the response body.
 					userProfile.Role = null;
 					userProfile.UserStatus = null;
 					userProfile.LastLoginDevice = null;

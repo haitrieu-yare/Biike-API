@@ -18,18 +18,18 @@ namespace Application.Stations
 	{
 		public class Query : IRequest<Result<List<StationDto>>>
 		{
-			public bool IsAdmin { get; set; }
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public bool IsAdmin { get; init; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<StationDto>>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<ListStations> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<ListStations> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -44,18 +44,12 @@ namespace Application.Stations
 
 					if (request.Page <= 0)
 					{
-						_logger.LogInformation("Page must larger than 0");
-						return Result<List<StationDto>>.Failure("Page must larger than 0.");
+						_logger.LogInformation("Page must be larger than 0");
+						return Result<List<StationDto>>.Failure("Page must be larger than 0.");
 					}
 
 					int totalRecord = await _context.Station.CountAsync(cancellationToken);
-
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
-
 					List<StationDto> stations = new();
 
 					if (request.Page <= lastPage)
@@ -78,7 +72,7 @@ namespace Application.Stations
 								.Take(request.Limit)
 								.ProjectTo<StationDto>(_mapper.ConfigurationProvider)
 								.ToListAsync(cancellationToken);
-							// Set to null to make unnecessary fields excluded from response body.
+							// Set to null to make unnecessary fields excluded from the response body.
 							stations.ForEach(s =>
 							{
 								s.CreatedDate = null;

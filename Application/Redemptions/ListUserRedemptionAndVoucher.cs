@@ -47,8 +47,8 @@ namespace Application.Redemptions
 
 					if (request.Page <= 0)
 					{
-						_logger.LogInformation("Page must larger than 0");
-						return Result<List<RedemptionAndVoucherDto>>.Failure("Page must larger than 0.");
+						_logger.LogInformation("Page must be larger than 0");
+						return Result<List<RedemptionAndVoucherDto>>.Failure("Page must be larger than 0.");
 					}
 
 					// Max number of active wallets is 2 for each user

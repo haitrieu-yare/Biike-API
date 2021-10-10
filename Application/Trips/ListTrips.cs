@@ -43,8 +43,8 @@ namespace Application.Trips
 
 					if (request.Page <= 0)
 					{
-						_logger.LogInformation("Page must larger than 0");
-						return Result<List<TripDetailDto>>.Failure("Page must larger than 0.");
+						_logger.LogInformation("Page must be larger than 0");
+						return Result<List<TripDetailDto>>.Failure("Page must be larger than 0.");
 					}
 
 					int totalRecord = await _context.Trip.CountAsync(cancellationToken);

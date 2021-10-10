@@ -58,7 +58,7 @@ namespace Application.Trips
 
 					var bike = await _context.Bike
 						.Where(b => b.UserId == biker.UserId)
-						.FirstOrDefaultAsync(cancellationToken);
+						.SingleOrDefaultAsync(cancellationToken);
 
 					oldTrip.BikerId = biker.UserId;
 					oldTrip.PlateNumber = bike.PlateNumber;

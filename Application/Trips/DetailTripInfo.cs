@@ -66,7 +66,7 @@ namespace Application.Trips
 							new { role = request.Role })
 						.SingleOrDefaultAsync(cancellationToken);
 
-					// Set to null to make unnecessary fields excluded from response body.
+					// Set to null to make unnecessary fields excluded from the response body.
 					trip.Feedbacks.ForEach(feedback =>
 					{
 						feedback.TripId = null;

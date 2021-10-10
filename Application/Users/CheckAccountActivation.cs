@@ -47,7 +47,7 @@ namespace Application.Users
 					else
 						result.IsVerified = false;
 
-					// Set to null to make unnecessary fields excluded from response body.
+					// Set to null to make unnecessary fields excluded from the response body.
 					result.IsEmailVerified = null;
 					result.IsPhoneVerified = null;
 

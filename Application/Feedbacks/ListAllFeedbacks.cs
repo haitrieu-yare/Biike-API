@@ -43,8 +43,8 @@ namespace Application.Feedbacks
 
 					if (request.Page <= 0)
 					{
-						_logger.LogInformation("Page must larger than 0");
-						return Result<List<FeedbackDto>>.Failure("Page must larger than 0.");
+						_logger.LogInformation("Page must be larger than 0");
+						return Result<List<FeedbackDto>>.Failure("Page must be larger than 0.");
 					}
 
 					int totalRecord = await _context.Feedback.CountAsync(cancellationToken);

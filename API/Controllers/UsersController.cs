@@ -20,7 +20,7 @@ namespace API.Controllers
 		}
 
 		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
-		[HttpGet("{userId}/profile")]
+		[HttpGet("{userId:int}/profile")]
 		public async Task<IActionResult> GetUserSelfProfile(int userId, CancellationToken ct)
 		{
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
@@ -34,7 +34,7 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(new DetailSelfUser.Query { UserId = userId }, ct));
 		}
 
-		[HttpGet("{userId}")]
+		[HttpGet("{userId:int}")]
 		public async Task<IActionResult> GetUserProfile(int userId, CancellationToken ct)
 		{
 			bool isAdmin = HttpContext.User.IsInRole(((int) RoleStatus.Admin).ToString());
@@ -59,7 +59,7 @@ namespace API.Controllers
 		}
 
 		[AllowAnonymous]
-		[HttpPut("{userId}/activation")]
+		[HttpPut("{userId:int}/activation")]
 		public async Task<IActionResult> VerifyUser(
 			int userId, UserActivationDto userActivationDto, CancellationToken ct)
 		{
@@ -68,7 +68,7 @@ namespace API.Controllers
 		}
 
 		[AllowAnonymous]
-		[HttpGet("{userId}/activation")]
+		[HttpGet("{userId:int}/activation")]
 		public async Task<IActionResult> GetUserActivation(int userId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
@@ -76,7 +76,7 @@ namespace API.Controllers
 		}
 
 		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
-		[HttpPut("{userId}/profile")]
+		[HttpPut("{userId:int}/profile")]
 		public async Task<IActionResult> EditUserProfile(int userId,
 			UserProfileEditDto userProfileEditDto, CancellationToken ct)
 		{
@@ -106,14 +106,14 @@ namespace API.Controllers
 		}
 
 		[Authorized(RoleStatus.Admin)]
-		[HttpPut("{userId}")]
+		[HttpPut("{userId:int}")]
 		public async Task<IActionResult> EditUserStatus(int userId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new EditStatus.Command { UserId = userId }, ct));
 		}
 
 		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
-		[HttpPut("{userId}/login-device")]
+		[HttpPut("{userId:int}/login-device")]
 		public async Task<IActionResult> EditUserLoginDevice(int userId,
 			UserLoginDeviceDto userLoginDeviceDto, CancellationToken ct)
 		{
@@ -142,7 +142,7 @@ namespace API.Controllers
 		}
 
 		[Authorized(RoleStatus.Admin)]
-		[HttpDelete("{userId}")]
+		[HttpDelete("{userId:int}")]
 		public async Task<IActionResult> DeleteUser(int userId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(new DeleteUser.Command { UserId = userId }, ct));

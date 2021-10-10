@@ -18,9 +18,9 @@ namespace Application.Routes
 	{
 		public class Query : IRequest<Result<List<RouteDto>>>
 		{
-			public bool IsAdmin { get; set; }
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
+			public bool IsAdmin { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<RouteDto>>>
@@ -44,17 +44,13 @@ namespace Application.Routes
 
 					if (request.Page <= 0)
 					{
-						_logger.LogInformation("Page must larger than 0");
-						return Result<List<RouteDto>>.Failure("Page must larger than 0.");
+						_logger.LogInformation("Page must be larger than 0");
+						return Result<List<RouteDto>>.Failure("Page must be larger than 0.");
 					}
 
 					int totalRecord = await _context.Route.CountAsync(cancellationToken);
 
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<RouteDto> routes = new();
 
@@ -62,8 +58,7 @@ namespace Application.Routes
 					{
 						if (request.IsAdmin)
 						{
-							routes = await _context.Route
-								.OrderBy(r => r.RouteId)
+							routes = await _context.Route.OrderBy(r => r.RouteId)
 								.Skip((request.Page - 1) * request.Limit)
 								.Take(request.Limit)
 								.ProjectTo<RouteDto>(_mapper.ConfigurationProvider)
@@ -71,14 +66,13 @@ namespace Application.Routes
 						}
 						else
 						{
-							routes = await _context.Route
-								.Where(r => r.IsDeleted != true)
+							routes = await _context.Route.Where(r => r.IsDeleted != true)
 								.OrderBy(r => r.RouteId)
 								.Skip((request.Page - 1) * request.Limit)
 								.Take(request.Limit)
 								.ProjectTo<RouteDto>(_mapper.ConfigurationProvider)
 								.ToListAsync(cancellationToken);
-							// Set to null to make unnecessary fields excluded from response body.
+							// Set to null to make unnecessary fields excluded from the response body.
 							routes.ForEach(r =>
 							{
 								r.CreatedDate = null;
@@ -87,13 +81,11 @@ namespace Application.Routes
 						}
 					}
 
-					PaginationDto paginationDto = new(
-						request.Page, request.Limit, routes.Count, lastPage, totalRecord
-					);
+					PaginationDto paginationDto = new(request.Page, request.Limit, routes.Count, lastPage, totalRecord);
 
 					_logger.LogInformation("Successfully retrieved list of all routes");
-					return Result<List<RouteDto>>.Success(
-						routes, "Successfully retrieved list of all routes.", paginationDto);
+					return Result<List<RouteDto>>.Success(routes, "Successfully retrieved list of all routes.",
+						paginationDto);
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

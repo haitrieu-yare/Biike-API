@@ -18,8 +18,8 @@ namespace Application.Users
 	{
 		public class Query : IRequest<Result<List<UserDto>>>
 		{
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<UserDto>>>
@@ -43,23 +43,18 @@ namespace Application.Users
 
 					if (request.Page <= 0)
 					{
-						_logger.LogInformation("Page must larger than 0");
-						return Result<List<UserDto>>.Failure("Page must larger than 0.");
+						_logger.LogInformation("Page must be larger than 0");
+						return Result<List<UserDto>>.Failure("Page must be larger than 0.");
 					}
 
 					if (request.Limit <= 0)
 					{
-						_logger.LogInformation("Limit must larger than 0");
-						return Result<List<UserDto>>.Failure("Limit must larger than 0.");
+						_logger.LogInformation("Limit must be larger than 0");
+						return Result<List<UserDto>>.Failure("Limit must be larger than 0.");
 					}
 
 					int totalRecord = await _context.User.CountAsync(cancellationToken);
-
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<UserDto> users = new();
 

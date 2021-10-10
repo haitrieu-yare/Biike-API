@@ -12,7 +12,7 @@ namespace Domain.Entities
 		public Station Destination { get; set; } = null!;
 		public int DefaultPoint { get; set; }
 		public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
-		public bool IsDeleted { get; set; } = false;
+		public bool IsDeleted { get; set; }
 		public ICollection<Trip> Trips { get; set; } = new List<Trip>();
 	}
 }

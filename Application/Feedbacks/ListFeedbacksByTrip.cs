@@ -75,7 +75,7 @@ namespace Application.Feedbacks
 						.ToListAsync(cancellationToken);
 
 					if (!request.IsAdmin)
-						// Set to null to make unnecessary fields excluded from response body.
+						// Set to null to make unnecessary fields excluded from the response body.
 						feedbacks.ForEach(f => f.CreatedDate = null);
 
 					_logger.LogInformation("Successfully retrieved trip's feedbacks by tripId {request.TripId}",
