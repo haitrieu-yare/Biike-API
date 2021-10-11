@@ -11,33 +11,57 @@ namespace API.Controllers
 	[Authorize]
 	public class VoucherCategoriesController : BaseApiController
 	{
+		// Keer, Biker, Admin
 		[HttpGet]
 		public async Task<IActionResult> GetVoucherCategories(int page, int limit, CancellationToken ct)
 		{
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+			
 			return HandleResult(await Mediator.Send(new ListVoucherCategory.Query { Page = page, Limit = limit }, ct));
 		}
 
-		[HttpGet("{voucherCategoryId}")]
+		// Keer, Biker, Admin
+		[HttpGet("{voucherCategoryId:int}")]
 		public async Task<IActionResult> GetVoucherCategory(int voucherCategoryId, CancellationToken ct)
 		{
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+			
 			return HandleResult(await Mediator.Send(
 				new DetailVoucherCategory.Query { VoucherCategoryId = voucherCategoryId }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// Admin
 		[HttpPost]
 		public async Task<IActionResult> CreateVoucherCategory(
 			VoucherCategoryCreateDto voucherCategoryCreateDto, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+			
 			return HandleResult(await Mediator.Send(
 				new CreateVoucherCategory.Command { VoucherCategoryCreateDto = voucherCategoryCreateDto }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
-		[HttpPut("{voucherCategoryId}")]
+		// Admin
+		[HttpPut("{voucherCategoryId:int}")]
 		public async Task<IActionResult> EditVoucherCategory(
 			int voucherCategoryId, VoucherCategoryDto newVoucherCategoryDto, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+			
 			return HandleResult(await Mediator.Send(
 				new EditVoucherCategory.Command
 				{
@@ -46,10 +70,17 @@ namespace API.Controllers
 				}, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
-		[HttpDelete("{voucherCategoryId}")]
+		// Admin
+		[HttpDelete("{voucherCategoryId:int}")]
 		public async Task<IActionResult> DeleteVoucherCategory(int voucherCategoryId, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+			
 			return HandleResult(await Mediator.Send(
 				new DeleteVoucherCategory.Command { VoucherCategoryId = voucherCategoryId }, ct));
 		}

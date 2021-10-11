@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Vouchers.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,17 +16,17 @@ namespace Application.Vouchers
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int VoucherId { get; set; }
-			public VoucherEditDto NewVoucher { get; set; } = null!;
+			public int VoucherId { get; init; }
+			public VoucherEditDto NewVoucher { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<EditVoucher> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<EditVoucher> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -38,39 +39,45 @@ namespace Application.Vouchers
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldVoucher = await _context.Voucher
-						.FindAsync(new object[] { request.VoucherId }, cancellationToken);
+					Voucher oldVoucher =
+						await _context.Voucher.FindAsync(new object[] { request.VoucherId }, cancellationToken);
 
-					if (oldVoucher == null) return null!;
+					if (oldVoucher == null)
+					{
+						_logger.LogInformation("Voucher doesn't exist");
+						return Result<Unit>.NotFound("Voucher doesn't exist.");
+					}
 
 					_mapper.Map(request.NewVoucher, oldVoucher);
 
 					if (oldVoucher.EndDate.CompareTo(oldVoucher.StartDate) < 0)
 					{
-						_logger.LogInformation("EndDate must be set later than StartDate.");
+						_logger.LogInformation("EndDate must be set later than StartDate");
 						return Result<Unit>.Failure("EndDate must be set later than StartDate.");
 					}
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation($"Failed to update voucher by voucherId {request.VoucherId}.");
+						_logger.LogInformation("Failed to update voucher by voucherId {request.VoucherId}",
+							request.VoucherId);
 						return Result<Unit>.Failure($"Failed to update voucher by voucherId {request.VoucherId}.");
 					}
 
-					_logger.LogInformation($"Successfully updated voucher by voucherId {request.VoucherId}.");
-					return Result<Unit>.Success(
-						Unit.Value, $"Successfully updated voucher by voucherId {request.VoucherId}.");
+					_logger.LogInformation("Successfully updated voucher by voucherId {request.VoucherId}",
+						request.VoucherId);
+					return Result<Unit>.Success(Unit.Value,
+						$"Successfully updated voucher by voucherId {request.VoucherId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

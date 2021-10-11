@@ -15,7 +15,7 @@ namespace Application.VoucherCategories
 	{
 		public class Query : IRequest<Result<VoucherCategoryDto>>
 		{
-			public int VoucherCategoryId { get; set; }
+			public int VoucherCategoryId { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<VoucherCategoryDto>>
@@ -36,22 +36,28 @@ namespace Application.VoucherCategories
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
-
-					VoucherCategoryDto voucherCategory = new();
-
+					
 					VoucherCategory voucherCategoryDb = await _context.VoucherCategory
 						.FindAsync(new object[] { request.VoucherCategoryId }, cancellationToken);
+					
+					if (voucherCategoryDb == null)
+					{
+						_logger.LogInformation("Voucher category doesn't exist");
+						return Result<VoucherCategoryDto>.NotFound("Voucher category doesn't exist.");
+					}
+					
+					VoucherCategoryDto voucherCategory = new();
 
 					_mapper.Map(voucherCategoryDb, voucherCategory);
 
 					_logger.LogInformation("Successfully retrieved voucherCategory " +
-					                       $"by voucherCategoryId {request.VoucherCategoryId}.");
+					                       "by voucherCategoryId {request.VoucherCategoryId}", request.VoucherCategoryId);
 					return Result<VoucherCategoryDto>.Success(voucherCategory,
 						$"Successfully retrieved voucherCategory by voucherCategoryId {request.VoucherCategoryId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<VoucherCategoryDto>.Failure("Request was cancelled.");
 				}
 			}

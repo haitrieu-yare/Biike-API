@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.VoucherCategories.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,8 +16,8 @@ namespace Application.VoucherCategories
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int VoucherCategoryId { get; set; }
-			public VoucherCategoryDto NewVoucherCategoryDto { get; set; } = null!;
+			public int VoucherCategoryId { get; init; }
+			public VoucherCategoryDto NewVoucherCategoryDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,36 +39,44 @@ namespace Application.VoucherCategories
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var oldVoucherCategory = await _context.VoucherCategory
-						.FindAsync(new object[] { request.VoucherCategoryId }, cancellationToken);
+					VoucherCategory oldVoucherCategory =
+						await _context.VoucherCategory.FindAsync(new object[] { request.VoucherCategoryId },
+							cancellationToken);
 
-					if (oldVoucherCategory == null) return null!;
+					if (oldVoucherCategory == null)
+					{
+						_logger.LogInformation("Voucher category doesn't exist");
+						return Result<Unit>.NotFound("Voucher category doesn't exist.");
+					}
 
 					_mapper.Map(request.NewVoucherCategoryDto, oldVoucherCategory);
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update voucher's category " +
-						                       $"by VoucherCategoryId {request.VoucherCategoryId}.");
+						_logger.LogInformation(
+							"Failed to update voucher's category " + "by VoucherCategoryId {request.VoucherCategoryId}",
+							request.VoucherCategoryId);
 						return Result<Unit>.Failure("Failed to update voucher's category " +
 						                            $"by VoucherCategoryId {request.VoucherCategoryId}.");
 					}
 
-					_logger.LogInformation("Successfully updated voucher's category " +
-					                       $"by VoucherCategoryId {request.VoucherCategoryId}.");
-					return Result<Unit>.Success(Unit.Value, "Successfully updated voucher's category " +
-					                                        $"by VoucherCategoryId {request.VoucherCategoryId}.");
+					_logger.LogInformation(
+						"Successfully updated voucher's category " + "by VoucherCategoryId {request.VoucherCategoryId}",
+						request.VoucherCategoryId);
+					return Result<Unit>.Success(Unit.Value,
+						"Successfully updated voucher's category " +
+						$"by VoucherCategoryId {request.VoucherCategoryId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

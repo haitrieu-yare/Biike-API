@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,7 @@ namespace Application.Wallets
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int WalletId { get; set; }
+			public int WalletId { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -33,10 +34,14 @@ namespace Application.Wallets
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var wallet = await _context.Wallet
-						.FindAsync(new object[] { request.WalletId }, cancellationToken);
+					Wallet wallet =
+						await _context.Wallet.FindAsync(new object[] { request.WalletId }, cancellationToken);
 
-					if (wallet == null) return null!;
+					if (wallet == null)
+					{
+						_logger.LogInformation("Wallet doesn't exist");
+						return Result<Unit>.NotFound("Wallet doesn't exist.");
+					}
 
 					_context.Wallet.Remove(wallet);
 
@@ -44,22 +49,24 @@ namespace Application.Wallets
 
 					if (!result)
 					{
-						_logger.LogInformation($"Failed to delete wallet by walletId {request.WalletId}.");
+						_logger.LogInformation("Failed to delete wallet by walletId {request.WalletId}",
+							request.WalletId);
 						return Result<Unit>.Failure($"Failed to delete wallet by walletId {request.WalletId}.");
 					}
 
-					_logger.LogInformation($"Successfully deleted wallet by walletId {request.WalletId}.");
-					return Result<Unit>.Success(
-						Unit.Value, $"Successfully deleted wallet by walletId {request.WalletId}.");
+					_logger.LogInformation("Successfully deleted wallet by walletId {request.WalletId}",
+						request.WalletId);
+					return Result<Unit>.Success(Unit.Value,
+						$"Successfully deleted wallet by walletId {request.WalletId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

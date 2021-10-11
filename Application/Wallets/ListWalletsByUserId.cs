@@ -18,9 +18,9 @@ namespace Application.Wallets
 	{
 		public class Query : IRequest<Result<List<WalletDto>>>
 		{
-			public int UserId { get; set; }
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int UserId { get; init; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<WalletDto>>>

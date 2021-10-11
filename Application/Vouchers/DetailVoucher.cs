@@ -15,16 +15,16 @@ namespace Application.Vouchers
 	{
 		public class Query : IRequest<Result<VoucherDto>>
 		{
-			public int VoucherId { get; set; }
+			public int VoucherId { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<VoucherDto>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<DetailVoucher> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<DetailVoucher> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -37,21 +37,27 @@ namespace Application.Vouchers
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					VoucherDto voucher = new();
+					Voucher voucherDb =
+						await _context.Voucher.FindAsync(new object[] { request.VoucherId }, cancellationToken);
 
-					Voucher voucherDb = await _context.Voucher
-						.FindAsync(new object[] { request.VoucherId }, cancellationToken);
+					if (voucherDb == null)
+					{
+						_logger.LogInformation("Voucher doesn't exist");
+						return Result<VoucherDto>.NotFound("Voucher doesn't exist.");
+					}
+
+					VoucherDto voucher = new();
 
 					_mapper.Map(voucherDb, voucher);
 
-					_logger.LogInformation("Successfully retrieved voucher " +
-					                       $"by voucherId {request.VoucherId}.");
+					_logger.LogInformation("Successfully retrieved voucher " + "by voucherId {request.VoucherId}",
+						request.VoucherId);
 					return Result<VoucherDto>.Success(voucher,
 						$"Successfully retrieved voucher by voucherId {request.VoucherId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<VoucherDto>.Failure("Request was cancelled.");
 				}
 			}

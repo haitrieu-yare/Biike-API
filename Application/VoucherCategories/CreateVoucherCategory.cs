@@ -16,7 +16,7 @@ namespace Application.VoucherCategories
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public VoucherCategoryCreateDto VoucherCategoryCreateDto { get; set; } = null!;
+			public VoucherCategoryCreateDto VoucherCategoryCreateDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -44,27 +44,27 @@ namespace Application.VoucherCategories
 
 					await _context.VoucherCategory.AddAsync(newVoucherCategory, cancellationToken);
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to create new voucher's category.");
+						_logger.LogInformation("Failed to create new voucher's category");
 						return Result<Unit>.Failure("Failed to create new voucher's category.");
 					}
 
-					_logger.LogInformation("Successfully created voucher's category.");
+					_logger.LogInformation("Successfully created voucher's category");
 					return Result<Unit>.Success(
 						Unit.Value, "Successfully created voucher's category.",
 						newVoucherCategory.VoucherCategoryId.ToString());
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

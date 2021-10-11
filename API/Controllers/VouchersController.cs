@@ -11,31 +11,55 @@ namespace API.Controllers
 	[Authorize]
 	public class VouchersController : BaseApiController
 	{
+		// Keer, Biker, Admin
 		[HttpGet]
 		public async Task<IActionResult> GetVouchers(int page, int limit, CancellationToken ct)
 		{
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+			
 			return HandleResult(await Mediator.Send(new ListVouchers.Query { Page = page, Limit = limit }, ct));
 		}
-
-		[HttpGet("{voucherId}")]
+		
+		// Keer, Biker, Admin
+		[HttpGet("{voucherId:int}")]
 		public async Task<IActionResult> GetVoucher(int voucherId, CancellationToken ct)
 		{
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+			
 			return HandleResult(await Mediator.Send(new DetailVoucher.Query { VoucherId = voucherId }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// Admin
 		[HttpPost]
 		public async Task<IActionResult> CreateVoucher(VoucherCreateDto voucherCreateDto,
 			CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+			
 			return HandleResult(await Mediator.Send(
 				new CreateVoucher.Command { VoucherCreateDto = voucherCreateDto }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
-		[HttpPut("{voucherId}")]
+		// Admin
+		[HttpPut("{voucherId:int}")]
 		public async Task<IActionResult> EditVoucher(int voucherId, VoucherEditDto newVoucher, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+			
 			return HandleResult(await Mediator.Send(
 				new EditVoucher.Command { VoucherId = voucherId, NewVoucher = newVoucher }, ct));
 		}

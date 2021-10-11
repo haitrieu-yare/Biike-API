@@ -78,7 +78,7 @@ namespace Application.Core
 				.ForMember(s => s.StationId, opt => opt.Ignore())
 				.ForMember(s => s.CreatedDate, opt => opt.Ignore())
 				.ForMember(s => s.IsDeleted, opt => opt.Ignore())
-				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+				.ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
 			// Create
 			CreateMap<StationCreateDto, Station>();
 
@@ -93,7 +93,7 @@ namespace Application.Core
 				.ForMember(r => r.RouteId, opt => opt.Ignore())
 				.ForMember(r => r.CreatedDate, opt => opt.Ignore())
 				.ForMember(r => r.IsDeleted, opt => opt.Ignore())
-				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+				.ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
 			// Create
 			CreateMap<RouteCreateDto, Route>();
 
@@ -110,10 +110,10 @@ namespace Application.Core
 			// Edit Profile
 			CreateMap<UserProfileEditDto, User>()
 				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname))
-				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+				.ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
 			// Edit LoginDevice
 			CreateMap<UserLoginDeviceDto, User>()
-				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+				.ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
 
 			#endregion
 
@@ -240,7 +240,7 @@ namespace Application.Core
 			// Edit
 			CreateMap<VoucherCategoryDto, VoucherCategory>()
 				.ForMember(v => v.VoucherCategoryId, o => o.Ignore())
-				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+				.ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
 			// Create
 			CreateMap<VoucherCategoryCreateDto, VoucherCategory>();
 
@@ -253,7 +253,7 @@ namespace Application.Core
 			// Edit
 			CreateMap<VoucherEditDto, Voucher>()
 				.ForMember(v => v.VoucherId, o => o.Ignore())
-				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+				.ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
 			// Create
 			CreateMap<VoucherCreateDto, Voucher>();
 
@@ -284,7 +284,7 @@ namespace Application.Core
 			// Edit
 			CreateMap<WalletDto, Wallet>()
 				.ForMember(w => w.WalletId, o => o.Ignore())
-				.ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+				.ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
 			// Create
 			CreateMap<WalletCreateDto, Wallet>();
 

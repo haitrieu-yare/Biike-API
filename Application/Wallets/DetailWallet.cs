@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Wallets.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -14,7 +15,7 @@ namespace Application.Wallets
 	{
 		public class Query : IRequest<Result<WalletDto>>
 		{
-			public int WalletId { get; set; }
+			public int WalletId { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<WalletDto>>
@@ -36,20 +37,27 @@ namespace Application.Wallets
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var walletDb = await _context.Wallet
-						.FindAsync(new object[] { request.WalletId }, cancellationToken);
+					Wallet walletDb =
+						await _context.Wallet.FindAsync(new object[] { request.WalletId }, cancellationToken);
+
+					if (walletDb == null)
+					{
+						_logger.LogInformation("Wallet doesn't exist");
+						return Result<WalletDto>.NotFound("Wallet doesn't exist.");
+					}
 
 					WalletDto wallet = new();
 
 					_mapper.Map(walletDb, wallet);
 
-					_logger.LogInformation($"Successfully retrieved wallet by walletId {request.WalletId}.");
-					return Result<WalletDto>.Success(
-						wallet, $"Successfully retrieved wallet by walletId {request.WalletId}.");
+					_logger.LogInformation("Successfully retrieved wallet by walletId {request.WalletId}",
+						request.WalletId);
+					return Result<WalletDto>.Success(wallet,
+						$"Successfully retrieved wallet by walletId {request.WalletId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<WalletDto>.Failure("Request was cancelled.");
 				}
 			}
