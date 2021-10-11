@@ -6,6 +6,7 @@ using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -17,9 +18,9 @@ namespace Application.Trips
 	{
 		public class Query : IRequest<Result<TripDetailInfoDto>>
 		{
-			public int TripId { get; set; }
-			public int Role { get; set; }
-			public int UserRequestId { get; set; }
+			public int TripId { get; init; }
+			public int Role { get; init; }
+			public int UserRequestId { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<TripDetailInfoDto>>
@@ -41,12 +42,15 @@ namespace Application.Trips
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var tripDb = await _context.Trip
-						.FindAsync(new object[] { request.TripId }, cancellationToken);
+					Trip tripDb = await _context.Trip.FindAsync(new object[] { request.TripId }, cancellationToken);
 
-					if (tripDb == null) return Result<TripDetailInfoDto>.NotFound("Trip doens't exist.");
+					if (tripDb == null)
+					{
+						_logger.LogInformation("Trip doesn't exist");
+						return Result<TripDetailInfoDto>.NotFound("Trip doesn't exist.");
+					}
 
-					bool isRequestUserInTrip = true;
+					var isRequestUserInTrip = true;
 
 					if (tripDb.BikerId == null && request.UserRequestId != tripDb.KeerId)
 						isRequestUserInTrip = false;
@@ -55,15 +59,16 @@ namespace Application.Trips
 
 					if (!isRequestUserInTrip)
 					{
-						_logger.LogInformation($"User with UserId {request.UserRequestId} " +
-						                       $"request an unauthorized content of trip with TripId {request.TripId}");
-						return Result<TripDetailInfoDto>.Unauthorized();
+						_logger.LogInformation(
+							"User with UserId {request.UserRequestId} " +
+							"request an unauthorized content of trip with TripId {request.TripId}",
+							request.UserRequestId, request.TripId);
+						return Result<TripDetailInfoDto>.Failure($"User with UserId {request.UserRequestId} " +
+						                                         $"request an unauthorized content of trip with TripId {request.TripId}");
 					}
 
-					var trip = await _context.Trip
-						.Where(t => t.TripId == request.TripId)
-						.ProjectTo<TripDetailInfoDto>(_mapper.ConfigurationProvider,
-							new { role = request.Role })
+					TripDetailInfoDto trip = await _context.Trip.Where(t => t.TripId == request.TripId)
+						.ProjectTo<TripDetailInfoDto>(_mapper.ConfigurationProvider, new { role = request.Role })
 						.SingleOrDefaultAsync(cancellationToken);
 
 					// Set to null to make unnecessary fields excluded from the response body.
@@ -73,9 +78,9 @@ namespace Application.Trips
 						feedback.CreatedDate = null;
 					});
 
-					_logger.LogInformation($"Successfully retrieved trip by TripId {request.TripId}");
-					return Result<TripDetailInfoDto>.Success(
-						trip, $"Successfully retrieved trip by TripId {request.TripId}.");
+					_logger.LogInformation("Successfully retrieved trip by TripId {request.TripId}", request.TripId);
+					return Result<TripDetailInfoDto>.Success(trip,
+						$"Successfully retrieved trip by TripId {request.TripId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

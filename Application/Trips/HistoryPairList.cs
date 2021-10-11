@@ -19,10 +19,10 @@ namespace Application.Trips
 	{
 		public class Query : IRequest<Result<List<TripPairDto>>>
 		{
-			public int UserOneId { get; set; }
-			public int UserTwoId { get; set; }
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int UserOneId { get; init; }
+			public int UserTwoId { get; init; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<TripPairDto>>>
@@ -51,26 +51,20 @@ namespace Application.Trips
 					}
 
 					int totalRecord = await _context.Trip
-						.Where(t => t.KeerId == request.UserOneId && t.BikerId == request.UserTwoId
-						            || t.KeerId == request.UserTwoId && t.BikerId == request.UserOneId)
-						.Where(t => t.Status == (int) TripStatus.Finished
-						            || t.Status == (int) TripStatus.Cancelled)
+						.Where(t => t.KeerId == request.UserOneId && t.BikerId == request.UserTwoId ||
+						            t.KeerId == request.UserTwoId && t.BikerId == request.UserOneId)
+						.Where(t => t.Status == (int) TripStatus.Finished || t.Status == (int) TripStatus.Cancelled)
 						.CountAsync(cancellationToken);
 
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<TripPairDto> trips = new();
 
 					if (request.Page <= lastPage)
 						trips = await _context.Trip
-							.Where(t => t.KeerId == request.UserOneId && t.BikerId == request.UserTwoId
-							            || t.KeerId == request.UserTwoId && t.BikerId == request.UserOneId)
-							.Where(t => t.Status == (int) TripStatus.Finished
-							            || t.Status == (int) TripStatus.Cancelled)
+							.Where(t => t.KeerId == request.UserOneId && t.BikerId == request.UserTwoId ||
+							            t.KeerId == request.UserTwoId && t.BikerId == request.UserOneId)
+							.Where(t => t.Status == (int) TripStatus.Finished || t.Status == (int) TripStatus.Cancelled)
 							.OrderByDescending(t => t.BookTime)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
@@ -78,13 +72,11 @@ namespace Application.Trips
 								new { userTwoId = request.UserTwoId })
 							.ToListAsync(cancellationToken);
 
-					PaginationDto paginationDto = new(
-						request.Page, request.Limit, trips.Count, lastPage, totalRecord
-					);
+					PaginationDto paginationDto = new(request.Page, request.Limit, trips.Count, lastPage, totalRecord);
 
 					_logger.LogInformation("Successfully retrieved list of all history pair trip");
-					return Result<List<TripPairDto>>.Success(
-						trips, "Successfully retrieved list of all history pair trip.", paginationDto);
+					return Result<List<TripPairDto>>.Success(trips,
+						"Successfully retrieved list of all history pair trip.", paginationDto);
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

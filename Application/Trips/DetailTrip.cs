@@ -17,7 +17,7 @@ namespace Application.Trips
 	{
 		public class Query : IRequest<Result<TripDetailDto>>
 		{
-			public int TripId { get; set; }
+			public int TripId { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<TripDetailDto>>
@@ -39,14 +39,19 @@ namespace Application.Trips
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var trip = await _context.Trip
-						.Where(t => t.TripId == request.TripId)
+					TripDetailDto trip = await _context.Trip.Where(t => t.TripId == request.TripId)
 						.ProjectTo<TripDetailDto>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
 
-					_logger.LogInformation($"Successfully retrieved trip by TripId {request.TripId}");
-					return Result<TripDetailDto>.Success(
-						trip, $"Successfully retrieved trip by TripId {request.TripId}.");
+					if (trip == null)
+					{
+						_logger.LogInformation("Trip doesn't exist");
+						return Result<TripDetailDto>.NotFound("Trip doesn't exist");
+					}
+
+					_logger.LogInformation("Successfully retrieved trip by TripId {request.TripId}", request.TripId);
+					return Result<TripDetailDto>.Success(trip,
+						$"Successfully retrieved trip by TripId {request.TripId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

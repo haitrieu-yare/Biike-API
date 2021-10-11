@@ -7,6 +7,7 @@ using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -19,10 +20,9 @@ namespace Application.Trips
 	{
 		public class Query : IRequest<Result<List<TripDto>>>
 		{
-			public int UserId { get; set; }
-			public int Role { get; set; }
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int UserId { get; init; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<TripDto>>>
@@ -50,9 +50,15 @@ namespace Application.Trips
 						return Result<List<TripDto>>.Failure("Page must be larger than 0.");
 					}
 
-					bool isKeer = true;
+					User user = await _context.User.FindAsync(new object[] { request.UserId }, cancellationToken);
+					
+					if (user == null)
+					{
+						_logger.LogInformation("User with UserId {request.UserId} doesn't exist", request.UserId);
+						return Result<List<TripDto>>.NotFound($"User with UserId {request.UserId} doesn't exist.");
+					}
 
-					if (request.Role == (int) RoleStatus.Biker) isKeer = false;
+					bool isKeer = user.Role == (int) RoleStatus.Keer;
 
 					int totalRecord = await _context.Trip
 						.Where(t =>
@@ -62,11 +68,7 @@ namespace Application.Trips
 							t.Status == (int) TripStatus.Cancelled)
 						.CountAsync(cancellationToken);
 
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<TripDto> trips = new();
 

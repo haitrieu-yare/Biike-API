@@ -19,9 +19,9 @@ namespace Application.Trips
 	{
 		public class Query : IRequest<Result<List<TripDto>>>
 		{
-			public int UserId { get; set; }
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int UserId { get; init; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<TripDto>>>
@@ -54,11 +54,7 @@ namespace Application.Trips
 						.Where(t => t.Status == (int) TripStatus.Finding)
 						.CountAsync(cancellationToken);
 
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<TripDto> trips = new();
 

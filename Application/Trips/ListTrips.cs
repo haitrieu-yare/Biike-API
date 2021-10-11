@@ -18,8 +18,8 @@ namespace Application.Trips
 	{
 		public class Query : IRequest<Result<List<TripDetailDto>>>
 		{
-			public int Page { get; set; }
-			public int Limit { get; set; }
+			public int Page { get; init; }
+			public int Limit { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<List<TripDetailDto>>>
@@ -49,11 +49,7 @@ namespace Application.Trips
 
 					int totalRecord = await _context.Trip.CountAsync(cancellationToken);
 
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<TripDetailDto> trips = new();
 
