@@ -18,17 +18,17 @@ namespace Application.Users
 	{
 		public class Query : IRequest<Result<UserDto>>
 		{
-			public int UserId { get; set; }
-			public bool IsAdmin { get; set; }
+			public int UserId { get; init; }
+			public bool IsAdmin { get; init; }
 		}
 
 		public class Handler : IRequestHandler<Query, Result<UserDto>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<DetailUser> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<DetailUser> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -45,19 +45,31 @@ namespace Application.Users
 
 					if (request.IsAdmin)
 					{
-						User userProfileDb = await _context.User
-							.FindAsync(new object[] { request.UserId }, cancellationToken);
+						User userProfileDb =
+							await _context.User.FindAsync(new object[] { request.UserId }, cancellationToken);
+
+						if (userProfileDb == null)
+						{
+							_logger.LogInformation("User doesn't exist");
+							return Result<UserDto>.NotFound("User doesn't exist.");
+						}
 
 						_mapper.Map(userProfileDb, userProfile);
 					}
 					else
 					{
-						userProfile = await _context.User
-							.Where(u => u.UserId == request.UserId)
+						userProfile = await _context.User.Where(u => u.UserId == request.UserId)
 							// .Where(u => u.Status == (int)UserStatus.Active)
 							.Where(u => u.IsDeleted != true)
 							.ProjectTo<UserDto>(_mapper.ConfigurationProvider)
 							.SingleOrDefaultAsync(cancellationToken);
+
+						if (userProfile == null)
+						{
+							_logger.LogInformation("User doesn't exist");
+							return Result<UserDto>.NotFound("User doesn't exist.");
+						}
+
 						// Set to null to make unnecessary fields excluded from the response body.
 						userProfile.Role = null;
 						userProfile.TotalPoint = null;
@@ -69,13 +81,14 @@ namespace Application.Users
 						userProfile.IsDeleted = null;
 					}
 
-					_logger.LogInformation($"Successfully retrieved user profile by UserId {request.UserId}.");
-					return Result<UserDto>.Success(
-						userProfile, $"Successfully retrieved user profile by UserId {request.UserId}.");
+					_logger.LogInformation("Successfully retrieved user profile by UserId {request.UserId}",
+						request.UserId);
+					return Result<UserDto>.Success(userProfile,
+						$"Successfully retrieved user profile by UserId {request.UserId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<UserDto>.Failure("Request was cancelled.");
 				}
 			}

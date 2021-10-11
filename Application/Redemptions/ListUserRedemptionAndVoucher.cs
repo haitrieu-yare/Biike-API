@@ -50,6 +50,12 @@ namespace Application.Redemptions
 						_logger.LogInformation("Page must be larger than 0");
 						return Result<List<RedemptionAndVoucherDto>>.Failure("Page must be larger than 0.");
 					}
+					
+					if (request.Limit <= 0)
+					{
+						_logger.LogInformation("Limit must be larger than 0");
+						return Result<List<RedemptionAndVoucherDto>>.Failure("Limit must be larger than 0.");
+					}
 
 					// Max number of active wallets is 2 for each user
 					List<Wallet> wallets = await _context.Wallet.Where(w => w.UserId == request.UserId)

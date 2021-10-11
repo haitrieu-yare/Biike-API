@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
-using AutoMapper;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -15,16 +15,16 @@ namespace Application.Users
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int UserId { get; set; }
-			public UserActivationDto UserActivationDto { get; set; } = null!;
+			public int UserId { get; init; }
+			public UserActivationDto UserActivationDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<ModifyAccountActivation> _logger;
+			private readonly ILogger<Handler> _logger;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<ModifyAccountActivation> logger)
+			public Handler(DataContext context, ILogger<Handler> logger)
 			{
 				_context = context;
 				_logger = logger;
@@ -36,22 +36,26 @@ namespace Application.Users
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var user = await _context.User
-						.FindAsync(new object[] { request.UserId }, cancellationToken);
+					User user = await _context.User.FindAsync(new object[] { request.UserId }, cancellationToken);
 
-					if (user == null) return null!;
+					if (user == null)
+					{
+						_logger.LogInformation("User doesn't exist");
+						return Result<Unit>.NotFound("User doesn't exist.");
+					}
 
 					if (request.UserActivationDto.IsEmailVerified != null)
 					{
 						if (request.UserActivationDto.IsEmailVerified == false)
 						{
-							_logger.LogInformation("Can't set email verification to false.");
+							_logger.LogInformation("Can't set email verification to false");
 							return Result<Unit>.Failure("Can't set email verification to false.");
 						}
 
 						if (user.IsEmailVerified)
 						{
-							_logger.LogInformation($"User with UserId {request.UserId} has already verified email.");
+							_logger.LogInformation("User with UserId {request.UserId} has already verified email",
+								request.UserId);
 							return Result<Unit>.Failure(
 								$"User with UserId {request.UserId} has already verified email.");
 						}
@@ -63,13 +67,14 @@ namespace Application.Users
 					{
 						if (request.UserActivationDto.IsPhoneVerified == false)
 						{
-							_logger.LogInformation("Can't set phone verification to false.");
+							_logger.LogInformation("Can't set phone verification to false");
 							return Result<Unit>.Failure("Can't set phone verification to false.");
 						}
 
 						if (user.IsPhoneVerified)
 						{
-							_logger.LogInformation($"User with UserId {request.UserId} has already verified phone.");
+							_logger.LogInformation("User with UserId {request.UserId} has already verified phone",
+								request.UserId);
 							return Result<Unit>.Failure(
 								$"User with UserId {request.UserId} has already verified phone.");
 						}
@@ -77,8 +82,7 @@ namespace Application.Users
 						user.IsPhoneVerified = (bool) request.UserActivationDto.IsPhoneVerified;
 					}
 
-					if (user.IsEmailVerified && user.IsPhoneVerified)
-						user.Status = (int) UserStatus.Active;
+					if (user.IsEmailVerified && user.IsPhoneVerified) user.Status = (int) UserStatus.Active;
 
 					// #region Update user on Firebase
 					// var userToUpdate = new UserRecordArgs()
@@ -100,21 +104,21 @@ namespace Application.Users
 					// 		$"on Firebase. {ex.InnerException?.Message ?? ex.Message}");
 					// }
 
-					var result = await _context.SaveChangesAsync() > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation($"Failed to verify user with UserId {request.UserId}.");
+						_logger.LogInformation("Failed to verify user with UserId {request.UserId}", request.UserId);
 						return Result<Unit>.Failure($"Failed to verify user with UserId {request.UserId}.");
 					}
 
-					_logger.LogInformation($"Successfully verified user with UserId {request.UserId}.");
-					return Result<Unit>.Success(
-						Unit.Value, $"Successfully verified user with UserId {request.UserId}.");
+					_logger.LogInformation("Successfully verified user with UserId {request.UserId}", request.UserId);
+					return Result<Unit>.Success(Unit.Value,
+						$"Successfully verified user with UserId {request.UserId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 			}

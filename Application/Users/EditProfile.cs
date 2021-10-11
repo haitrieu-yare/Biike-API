@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,8 +16,8 @@ namespace Application.Users
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public int UserId { get; set; }
-			public UserProfileEditDto UserProfileEditDto { get; set; } = null!;
+			public int UserId { get; init; }
+			public UserProfileEditDto UserProfileEditDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,8 +39,7 @@ namespace Application.Users
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var user = await _context.User
-						.FindAsync(new object[] { request.UserId }, cancellationToken);
+					User user = await _context.User.FindAsync(new object[] { request.UserId }, cancellationToken);
 
 					if (user == null)
 					{
@@ -49,26 +49,28 @@ namespace Application.Users
 
 					if (user.IsDeleted)
 					{
-						_logger.LogInformation($"User with UserId {request.UserId} has been deleted. " +
-						                       "Please reactivate it if you want to edit it");
+						_logger.LogInformation(
+							"User with UserId {request.UserId} has been deleted. " +
+							"Please reactivate it if you want to edit it", request.UserId);
 						return Result<Unit>.Failure($"User with UserId {request.UserId} has been deleted. " +
 						                            "Please reactivate it if you want to edit it.");
 					}
 
 					_mapper.Map(request.UserProfileEditDto, user);
 
-					var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation($"Failed to update user's profile by userId {request.UserId}");
-						return Result<Unit>.Failure(
-							$"Failed to update user's profile by userId {request.UserId}.");
+						_logger.LogInformation("Failed to update user's profile by userId {request.UserId}",
+							request.UserId);
+						return Result<Unit>.Failure($"Failed to update user's profile by userId {request.UserId}.");
 					}
 
-					_logger.LogInformation($"Successfully updated user's profile by userId {request.UserId}");
-					return Result<Unit>.Success(
-						Unit.Value, $"Successfully updated user's profile by userId {request.UserId}.");
+					_logger.LogInformation("Successfully updated user's profile by userId {request.UserId}",
+						request.UserId);
+					return Result<Unit>.Success(Unit.Value,
+						$"Successfully updated user's profile by userId {request.UserId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
@@ -77,7 +79,7 @@ namespace Application.Users
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

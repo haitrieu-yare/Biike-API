@@ -46,6 +46,12 @@ namespace Application.Intimacies
 						_logger.LogInformation("Page must be larger than 0");
 						return Result<List<IntimacyDto>>.Failure("Page must be larger than 0.");
 					}
+					
+					if (request.Limit <= 0)
+					{
+						_logger.LogInformation("Limit must be larger than 0");
+						return Result<List<IntimacyDto>>.Failure("Limit must be larger than 0.");
+					}
 
 					int totalRecord = await _context.Intimacy.CountAsync(cancellationToken);
 					

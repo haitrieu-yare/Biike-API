@@ -19,9 +19,9 @@ namespace Application.Wallets
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<DeleteWallet> _logger;
+			private readonly ILogger<Handler> _logger;
 
-			public Handler(DataContext context, ILogger<DeleteWallet> logger)
+			public Handler(DataContext context, ILogger<Handler> logger)
 			{
 				_context = context;
 				_logger = logger;

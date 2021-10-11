@@ -49,6 +49,12 @@ namespace Application.Trips
 						_logger.LogInformation("Page must be larger than 0");
 						return Result<List<TripDto>>.Failure("Page must be larger than 0.");
 					}
+					
+					if (request.Limit <= 0)
+					{
+						_logger.LogInformation("Limit must be larger than 0");
+						return Result<List<TripDto>>.Failure("Limit must be larger than 0.");
+					}
 
 					User user = await _context.User.FindAsync(new object[] { request.UserId }, cancellationToken);
 					

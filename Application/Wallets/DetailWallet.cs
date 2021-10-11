@@ -20,10 +20,10 @@ namespace Application.Wallets
 		public class Handler : IRequestHandler<Query, Result<WalletDto>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<DetailWallet> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<DetailWallet> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -16,19 +17,17 @@ namespace Application.Users
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public UserExistDto UserExistDto { get; set; } = null!;
+			public UserExistDto UserExistDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<CheckExistUser> _logger;
-			private readonly IMapper _mapper;
+			private readonly ILogger<Handler> _logger;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<CheckExistUser> logger)
+			public Handler(DataContext context, ILogger<Handler> logger)
 			{
 				_context = context;
-				_mapper = mapper;
 				_logger = logger;
 			}
 
@@ -38,23 +37,23 @@ namespace Application.Users
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var user = await _context.User
+					User user = await _context.User
 						.Where(u => u.Email == request.UserExistDto.Email ||
 						            u.PhoneNumber == request.UserExistDto.PhoneNumber)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					if (user != null)
 					{
-						_logger.LogInformation("User with the same email or phone number has already existed.");
+						_logger.LogInformation("User with the same email or phone number has already existed");
 						return Result<Unit>.Failure("User with the same email or phone number has already existed.");
 					}
 
-					_logger.LogInformation("User doesn't exist.");
+					_logger.LogInformation("User doesn't exist");
 					return Result<Unit>.Success(Unit.Value, "User doesn't exist.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 			}

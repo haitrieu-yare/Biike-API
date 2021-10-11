@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Users;
@@ -12,34 +13,53 @@ namespace API.Controllers
 	[Authorize]
 	public class UsersController : BaseApiController
 	{
-		[Authorized(RoleStatus.Admin)]
+		// Admin
 		[HttpGet]
 		public async Task<IActionResult> GetAllUser(int page, int limit, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+			
 			return HandleResult(await Mediator.Send(new ListAllUsers.Query { Page = page, Limit = limit }, ct));
 		}
 
-		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
+		// Keer, Biker
 		[HttpGet("{userId:int}/profile")]
 		public async Task<IActionResult> GetUserSelfProfile(int userId, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+				                        ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
+
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
-			if (!validationDto.IsUserFound)
-				return BadRequest("Can't get userId who send the request.");
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
-			if (!validationDto.IsAuthorized)
-				return BadRequest("UserId of requester isn't the same with userId of user's profile.");
+			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.DidNotHavePermissionToAccess);
 
 			return HandleResult(await Mediator.Send(new DetailSelfUser.Query { UserId = userId }, ct));
 		}
 
+		// Keer, Biker, Admin
 		[HttpGet("{userId:int}")]
 		public async Task<IActionResult> GetUserProfile(int userId, CancellationToken ct)
 		{
-			bool isAdmin = HttpContext.User.IsInRole(((int) RoleStatus.Admin).ToString());
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
+
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+
+			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.DidNotHavePermissionToAccess);
+			
 			return HandleResult(await Mediator.Send(
-				new DetailUser.Query { IsAdmin = isAdmin, UserId = userId }, ct));
+				new DetailUser.Query { IsAdmin = validationDto.IsAdmin, UserId = userId }, ct));
 		}
 
 		[AllowAnonymous]
@@ -57,10 +77,11 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(
 				new CreateUser.Command { UserCreateDto = userCreateDto }, ct));
 		}
-
+	
+		// TODO: When a user can modify account activation?
 		[AllowAnonymous]
 		[HttpPut("{userId:int}/activation")]
-		public async Task<IActionResult> VerifyUser(
+		public async Task<IActionResult> ModifyAccountActivation(
 			int userId, UserActivationDto userActivationDto, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
@@ -69,63 +90,91 @@ namespace API.Controllers
 
 		[AllowAnonymous]
 		[HttpGet("{userId:int}/activation")]
-		public async Task<IActionResult> GetUserActivation(int userId, CancellationToken ct)
+		public async Task<IActionResult> CheckAccountActivation(int userId, CancellationToken ct)
 		{
 			return HandleResult(await Mediator.Send(
 				new CheckAccountActivation.Query { UserId = userId }, ct));
 		}
 
-		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
+		// Keer, Biker
 		[HttpPut("{userId:int}/profile")]
 		public async Task<IActionResult> EditUserProfile(int userId,
 			UserProfileEditDto userProfileEditDto, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+				                        ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
+			
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
-				return BadRequest("Can't get userId who send the request.");
+				return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
 			if (!validationDto.IsAuthorized)
-				return BadRequest("UserId of requester isn't the same with userId of user's profile.");
+				return BadRequest(ConstantString.NotSameUserId);
 
 			return HandleResult(await Mediator.Send(
 				new EditProfile.Command { UserId = userId, UserProfileEditDto = userProfileEditDto }, ct));
 		}
 
-		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
+		// Keer, Biker
 		[HttpPut("role")]
 		public async Task<IActionResult> EditUserRole(CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+				                        ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
+			
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
-			if (!validationDto.IsUserFound)
-				return BadRequest("Can't get userId who send the request.");
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
 			return HandleResult(await Mediator.Send(
 				new EditRole.Command { UserId = validationDto.UserRequestId }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// Admin
 		[HttpPut("{userId:int}")]
 		public async Task<IActionResult> EditUserStatus(int userId, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+			
 			return HandleResult(await Mediator.Send(new EditStatus.Command { UserId = userId }, ct));
 		}
 
-		[Authorized(RoleStatus.Keer, RoleStatus.Biker)]
+		// Keer, Biker
 		[HttpPut("{userId:int}/login-device")]
 		public async Task<IActionResult> EditUserLoginDevice(int userId,
 			UserLoginDeviceDto userLoginDeviceDto, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+				                        ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
+			
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
-			if (!validationDto.IsUserFound)
-				return BadRequest("Can't get userId who send the request.");
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
-			if (!validationDto.IsAuthorized)
-				return BadRequest("UserId of requester isn't the same with userId of user's info.");
+			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
-			var userAuthTimeClaim = HttpContext.User.FindFirst(c => c.Type.Equals("auth_time"));
+			Claim? userAuthTimeClaim = HttpContext.User.FindFirst(c => c.Type.Equals("auth_time"));
 			string? authTimeString = userAuthTimeClaim?.Value;
 
 			if (string.IsNullOrEmpty(authTimeString))
@@ -133,7 +182,7 @@ namespace API.Controllers
 
 			int authTime = int.Parse(authTimeString);
 			DateTime beginningTime = DateTime.UnixEpoch;
-			var currentTimeUtc7 = beginningTime.AddSeconds(authTime).AddHours(7);
+			DateTime currentTimeUtc7 = beginningTime.AddSeconds(authTime).AddHours(7);
 
 			userLoginDeviceDto.LastTimeLogin = currentTimeUtc7;
 
@@ -141,17 +190,31 @@ namespace API.Controllers
 				new EditLoginDevice.Command { UserId = userId, UserLoginDeviceDto = userLoginDeviceDto }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// Admin
 		[HttpDelete("{userId:int}")]
 		public async Task<IActionResult> DeleteUser(int userId, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+			
 			return HandleResult(await Mediator.Send(new DeleteUser.Command { UserId = userId }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// Admin
 		[HttpDelete("deleteFirebase")]
 		public async Task<IActionResult> DeleteAllFirebaseUsers(CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+			
 			return HandleResult(await Mediator.Send(new DeleteFireBaseUser.Command(), ct));
 		}
 	}

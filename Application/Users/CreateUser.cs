@@ -11,6 +11,7 @@ using Domain.Enums;
 using FirebaseAdmin.Auth;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -20,17 +21,17 @@ namespace Application.Users
 	{
 		public class Command : IRequest<Result<Unit>>
 		{
-			public UserCreateDto UserCreateDto { get; set; } = null!;
+			public UserCreateDto UserCreateDto { get; init; } = null!;
 		}
 
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
 			private readonly Hashing _hashing;
-			private readonly ILogger<CreateUser> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<CreateUser> logger, Hashing hashing)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger, Hashing hashing)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -44,14 +45,14 @@ namespace Application.Users
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var userDb = await _context.User
+					User userDb = await _context.User
 						.Where(u => u.Email == request.UserCreateDto.Email ||
 						            u.PhoneNumber == request.UserCreateDto.PhoneNumber)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					if (userDb != null)
 					{
-						_logger.LogInformation("User with the same email or phone number has already existed.");
+						_logger.LogInformation("User with the same email or phone number has already existed");
 						return Result<Unit>.Failure("User with the same email or phone number has already existed.");
 					}
 
@@ -75,34 +76,37 @@ namespace Application.Users
 					DateTime currentTime = DateTime.UtcNow.AddHours(7);
 					DateTime toDate = currentTime;
 
-					if (currentTime.Month >= 1 && currentTime.Month <= 4)
-						toDate = DateTime.Parse($"{currentTime.Year}/04/30 23:59:59.9999999");
-					else if (currentTime.Month >= 5 && currentTime.Month <= 8)
-						toDate = DateTime.Parse($"{currentTime.Year}/08/31 23:59:59.9999999");
-					else if (currentTime.Month >= 9 && currentTime.Month <= 12)
-						toDate = DateTime.Parse($"{currentTime.Year}/12/31 23:59:59.9999999");
-
-					Wallet newWallet = new()
+					switch (currentTime.Month)
 					{
-						User = newUser,
-						ToDate = toDate
-					};
+						case >= 1 and <= 4:
+							toDate = DateTime.Parse($"{currentTime.Year}/04/30 23:59:59.9999999");
+							break;
+						case >= 5 and <= 8:
+							toDate = DateTime.Parse($"{currentTime.Year}/08/31 23:59:59.9999999");
+							break;
+						case >= 9 and <= 12:
+							toDate = DateTime.Parse($"{currentTime.Year}/12/31 23:59:59.9999999");
+							break;
+					}
+
+					Wallet newWallet = new() { User = newUser, ToDate = toDate };
 
 					#endregion
 
-					using var transaction = _context.Database.BeginTransaction();
+					await using IDbContextTransaction transaction =
+						await _context.Database.BeginTransactionAsync(cancellationToken);
 					await _context.User.AddAsync(newUser, cancellationToken);
-					var resultUser = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool resultUser = await _context.SaveChangesAsync(cancellationToken) > 0;
 					await _context.Wallet.AddAsync(newWallet, cancellationToken);
-					var resultWallet = await _context.SaveChangesAsync(cancellationToken) > 0;
+					bool resultWallet = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					// Commit transaction if all commands succeed, transaction will auto-rollback
 					// when disposed if either commands fails
-					transaction.Commit();
+					await transaction.CommitAsync(cancellationToken);
 
 					if (!resultUser || !resultWallet)
 					{
-						_logger.LogInformation("Failed to create new user.");
+						_logger.LogInformation("Failed to create new user");
 						return Result<Unit>.Failure("Failed to create new user.");
 					}
 
@@ -126,36 +130,32 @@ namespace Application.Users
 
 						#region Import user's role to Firebase
 
-						var claims = new Dictionary<string, object>
-						{
-							{ "role", (int) RoleStatus.Keer }
-						};
+						var claims = new Dictionary<string, object> { { "role", (int) RoleStatus.Keer } };
 
-						await FirebaseAuth.DefaultInstance
-							.SetCustomUserClaimsAsync(userToCreate.Uid, claims, cancellationToken);
+						await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(userToCreate.Uid, claims,
+							cancellationToken);
 
 						#endregion
 					}
 					catch (FirebaseAuthException e)
 					{
-						_logger.LogError("Error create user on Firebase. " +
-						                 $"{e.InnerException?.Message ?? e.Message}");
+						_logger.LogError("Error create user on Firebase. {Error}",
+							e.InnerException?.Message ?? e.Message);
 						return Result<Unit>.Failure("Error create user on Firebase. " +
 						                            $"{e.InnerException?.Message ?? e.Message}");
 					}
 
-					_logger.LogInformation("Successfully created user.");
-					return Result<Unit>.Success(
-						Unit.Value, "Successfully created user.", newUser.UserId.ToString());
+					_logger.LogInformation("Successfully created user");
+					return Result<Unit>.Success(Unit.Value, "Successfully created user.", newUser.UserId.ToString());
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
-					_logger.LogInformation("Request was cancelled.");
+					_logger.LogInformation("Request was cancelled");
 					return Result<Unit>.Failure("Request was cancelled.");
 				}
 				catch (Exception ex) when (ex is DbUpdateException)
 				{
-					_logger.LogInformation(ex.InnerException?.Message ?? ex.Message);
+					_logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
 					return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
 				}
 			}

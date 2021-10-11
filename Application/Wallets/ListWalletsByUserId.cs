@@ -58,11 +58,7 @@ namespace Application.Wallets
 						.Where(w => w.UserId == request.UserId)
 						.CountAsync(cancellationToken);
 
-					#region Calculate last page
-
 					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
-
-					#endregion
 
 					List<WalletDto> wallets = new();
 

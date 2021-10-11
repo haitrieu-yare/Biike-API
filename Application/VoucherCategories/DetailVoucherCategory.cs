@@ -21,10 +21,10 @@ namespace Application.VoucherCategories
 		public class Handler : IRequestHandler<Query, Result<VoucherCategoryDto>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<DetailVoucherCategory> _logger;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<DetailVoucherCategory> logger)
+			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;

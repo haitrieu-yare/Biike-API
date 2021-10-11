@@ -10,28 +10,49 @@ namespace API.Controllers
 	[Authorize]
 	public class TripTransactionsController : BaseApiController
 	{
-		[Authorized(RoleStatus.Admin)]
+		// Admin
 		[HttpGet]
 		public async Task<IActionResult> GetTripTransactions(int page, int limit, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+			
 			return HandleResult(await Mediator.Send(
 				new ListTripTransactions.Query { Page = page, Limit = limit }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// Admin
 		[HttpGet("{tripTransactionId:int}")]
 		public async Task<IActionResult> GetSingleTripTransaction(int tripTransactionId, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+			
 			return HandleResult(await Mediator.Send(
 				new DetailTripTransaction.Query { TripTransactionId = tripTransactionId }, ct));
 		}
 
-		[Authorized(RoleStatus.Admin)]
+		// Admin
 		[HttpGet("trips/{tripId:int}")]
-		public async Task<IActionResult> GetTripTransaction(int tripId, CancellationToken ct)
+		public async Task<IActionResult> GetTripTransactionsByTripId(int tripId, int page, int limit, CancellationToken ct)
 		{
+			int role = ControllerUtils.GetRole(HttpContext);
+
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+
+			if (role != (int) RoleStatus.Admin)
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+			
 			return HandleResult(await Mediator.Send(
-				new DetailTripTransactionByTrip.Query { TripId = tripId }, ct));
+				new ListTripTransactionsByTripId.Query { TripId = tripId, Page = page, Limit = limit }, ct));
 		}
 	}
 }
