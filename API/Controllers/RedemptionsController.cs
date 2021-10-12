@@ -12,6 +12,7 @@ namespace API.Controllers
 	public class RedemptionsController : BaseApiController
 	{
 		// Admin
+		[HttpGet]
 		public async Task<IActionResult> GetAllRedemptions(int page, int limit, CancellationToken ct)
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
