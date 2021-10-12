@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'biike-api'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B765DF88E66D4525872A22AEE3D460CF }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4A6940FA6ACB4AEF843949B0492AEFF9 }}
           package: .
