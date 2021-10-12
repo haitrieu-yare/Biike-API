@@ -11,6 +11,7 @@
         <PackageReference Include="FirebaseAdmin" Version="2.2.0" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Quartz.AspNetCore" Version="3.3.3" />
     </ItemGroup>
 
     <PropertyGroup>

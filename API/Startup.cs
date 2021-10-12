@@ -1,8 +1,10 @@
+using System;
 using System.IO;
 using Application;
 using Application.Core;
 using Application.Trips;
 using Application.TripTransactions;
+using Application.Wallets;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using MediatR;
@@ -14,9 +16,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Persistence;
+using Quartz;
 
 namespace API
 {
@@ -73,7 +77,25 @@ namespace API
 
 			services.AddAuthorization()
 				.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultTransformer>();
-
+			
+			services.AddQuartz(q =>
+			{
+				q.UseMicrosoftDependencyInjectionJobFactory();
+				q.ScheduleJob<WalletJob>(trigger => trigger
+					.WithIdentity("WalletJob", "ReoccurredJob")
+					.StartNow()
+					.WithCronSchedule("0 0 0 1 1/4 ? *")
+					.WithDescription("Managing creating new wallet and expire old wallet")
+				);
+			});
+			
+			// ASP.NET Core hosting
+			services.AddQuartzServer(quartzHostedServiceOptions =>
+			{
+				// when shutting down we want jobs to complete gracefully
+				quartzHostedServiceOptions.WaitForJobsToComplete = true;
+			});
+			
 			services.AddMediatR(typeof(HistoryList.Handler).Assembly);
 			services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 			services.AddScoped(typeof(Hashing));
@@ -81,7 +103,7 @@ namespace API
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
 		{
 			if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
@@ -98,6 +120,8 @@ namespace API
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+			
+			logger.LogInformation("App start at {Time}", DateTime.UtcNow.AddHours(7));
 		}
 	}
 }
