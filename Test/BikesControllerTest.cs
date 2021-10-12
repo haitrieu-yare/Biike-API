@@ -62,14 +62,20 @@ namespace Test
 
 			return token;
 		}
-
-		private readonly string _adminToken = await Login(new LoginDto(email: "dangkhoa@fpt.edu.vn", password: "092021"));
-		private readonly string _keerToken = await Login(new LoginDto(email: "haitrieu@fpt.edu.vn", password: "092021"));
-		private readonly string _bikerToken = await Login(new LoginDto(email: "huuphat@fpt.edu.vn", password: "092021"));
+		
+		// private string _adminToken = await Login(new LoginDto(email: "dangkhoa@fpt.edu.vn", password: "092021"));
+		private string _adminToken = string.Empty;
+		// private string _keerToken = await Login(new LoginDto(email: "haitrieu@fpt.edu.vn", password: "092021"));
+		private string _keerToken = string.Empty;
+		// private string _bikerToken = await Login(new LoginDto(email: "huuphat@fpt.edu.vn", password: "092021"));
+		private string _bikerToken = string.Empty;
 
 		[Fact]
 		public async Task GetAllBikes()
 		{
+			if (string.IsNullOrEmpty(_adminToken))
+				_adminToken = await Login(new LoginDto(email: "dangkhoa@fpt.edu.vn", password: "092021"));
+
 			_client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _adminToken);
 
 			HttpResponseMessage response = await _client.GetAsync("api/biike/v1/bikes?page=1&limit=2");
