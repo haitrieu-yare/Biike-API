@@ -15,7 +15,6 @@
         <PackageReference Include="Google.Apis.Auth" Version="1.55.0" />
         <PackageReference Include="Google.Apis.Core" Version="1.55.0" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
 
     <PropertyGroup>
