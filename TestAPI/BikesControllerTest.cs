@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -9,7 +9,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace Test
+namespace TestAPI
 {
 	public class BikesControllerTest : IClassFixture<WebApplicationFactory<API.Startup>>
 	{
@@ -63,12 +63,9 @@ namespace Test
 			return token;
 		}
 		
-		// private string _adminToken = await Login(new LoginDto(email: "dangkhoa@fpt.edu.vn", password: "092021"));
 		private string _adminToken = string.Empty;
-		// private string _keerToken = await Login(new LoginDto(email: "haitrieu@fpt.edu.vn", password: "092021"));
-		private string _keerToken = string.Empty;
-		// private string _bikerToken = await Login(new LoginDto(email: "huuphat@fpt.edu.vn", password: "092021"));
-		private string _bikerToken = string.Empty;
+		// private string _keerToken = string.Empty;
+		// private string _bikerToken = string.Empty;
 
 		[Fact]
 		public async Task GetAllBikes()
