@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +13,10 @@ namespace API.Controllers
 		[HttpGet("testAuthentication")]
 		public async Task<IActionResult> TestAuthentication()
 		{
-			var user = HttpContext.User;
-			var isKeer = user.IsInRole("1");
-			var isBiker = user.IsInRole("2");
-			var isAdmin = user.IsInRole("3");
+			ClaimsPrincipal user = HttpContext.User;
+			bool isKeer = user.IsInRole("1");
+			bool isBiker = user.IsInRole("2");
+			bool isAdmin = user.IsInRole("3");
 
 			HttpContext.Request.Headers.TryGetValue("Authorization", out var tokenHeaders);
 			FirebaseToken decodedToken =

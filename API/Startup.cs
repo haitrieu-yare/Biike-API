@@ -49,10 +49,10 @@ namespace API
 			string pathToKey = string.Empty;
 
 			if (_currentEnvironment.IsDevelopment())
-				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "keys",
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys",
 					"firebase_admin_sdk_development.json");
 			else if (_currentEnvironment.IsProduction())
-				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "keys", "firebase_admin_sdk.json");
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys", "firebase_admin_sdk.json");
 
 			FirebaseApp.Create(new AppOptions { Credential = GoogleCredential.FromFile(pathToKey) });
 
