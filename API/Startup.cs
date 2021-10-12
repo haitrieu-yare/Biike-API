@@ -53,7 +53,8 @@ namespace API
 			else if (_currentEnvironment.IsProduction())
 				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys", "firebase_admin_sdk.json");
 
-			FirebaseApp.Create(new AppOptions { Credential = GoogleCredential.FromFile(pathToKey) });
+			var options = new AppOptions { Credential = GoogleCredential.FromFile(pathToKey) };
+			FirebaseApp.Create(options);
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 				.AddJwtBearer(opt =>
