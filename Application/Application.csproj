@@ -8,13 +8,14 @@
     <ItemGroup>
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.2" />
-        <PackageReference Include="FirebaseAdmin" Version="2.2.0" />
+        <PackageReference Include="FirebaseAdminCore" Version="2.0.0" />
         <PackageReference Include="Google.Api.Gax" Version="3.5.0" />
         <PackageReference Include="Google.Api.Gax.Rest" Version="3.5.0" />
         <PackageReference Include="Google.Apis" Version="1.55.0" />
         <PackageReference Include="Google.Apis.Auth" Version="1.55.0" />
         <PackageReference Include="Google.Apis.Core" Version="1.55.0" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
 
     <PropertyGroup>
