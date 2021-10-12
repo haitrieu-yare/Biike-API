@@ -49,8 +49,7 @@ namespace API
 			string pathToKey = string.Empty;
 
 			if (_currentEnvironment.IsDevelopment())
-				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys",
-					"firebase_admin_sdk_development.json");
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys", "firebase_admin_sdk_development.json");
 			else if (_currentEnvironment.IsProduction())
 				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys", "firebase_admin_sdk.json");
 
