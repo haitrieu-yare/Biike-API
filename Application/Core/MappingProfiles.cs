@@ -103,6 +103,8 @@ namespace Application.Core
 
 			// List, Detail
 			CreateMap<User, UserDto>()
+				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
+				.ForMember(u => u.UserFullName, o => o.MapFrom(u => u.FullName))
 				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
 			// Create
 			CreateMap<UserCreateDto, User>()

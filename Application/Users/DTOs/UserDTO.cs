@@ -6,13 +6,13 @@ namespace Application.Users.DTOs
 	public class UserDto
 	{
 		public int? UserId { get; set; }
-		public string? PhoneNumber { get; set; }
+		public string? UserPhoneNumber { get; set; }
 		public string? Email { get; set; }
 
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? Role { get; set; }
 
-		public string? FullName { get; set; }
+		public string? UserFullName { get; set; }
 		public string? Avatar { get; set; }
 		public int? Gender { get; set; }
 

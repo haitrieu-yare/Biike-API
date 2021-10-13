@@ -59,7 +59,6 @@ namespace Application.Users
 					else
 					{
 						userProfile = await _context.User.Where(u => u.UserId == request.UserId)
-							// .Where(u => u.Status == (int)UserStatus.Active)
 							.Where(u => u.IsDeleted != true)
 							.ProjectTo<UserDto>(_mapper.ConfigurationProvider)
 							.SingleOrDefaultAsync(cancellationToken);
