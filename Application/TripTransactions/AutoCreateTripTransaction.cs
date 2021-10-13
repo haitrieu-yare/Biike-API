@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
@@ -16,12 +15,10 @@ namespace Application.TripTransactions
 	{
 		private readonly DataContext _context;
 		private readonly ILogger<AutoCreateTripTransaction> _logger;
-		private readonly IMapper _mapper;
 
-		public AutoCreateTripTransaction(DataContext context, IMapper mapper, ILogger<AutoCreateTripTransaction> logger)
+		public AutoCreateTripTransaction(DataContext context, ILogger<AutoCreateTripTransaction> logger)
 		{
 			_context = context;
-			_mapper = mapper;
 			_logger = logger;
 		}
 
@@ -29,39 +26,57 @@ namespace Application.TripTransactions
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			var tripTransaction = new TripTransaction
+			if (trip.BikerId == null)
 			{
-				TripId = trip.TripId,
-				TransactionDate = CurrentTime.GetCurrentTime()
-			};
+				_logger.LogInformation("Trip with TripId {TripId} doesn't have Biker", trip.TripId);
+				throw new Exception($"Trip with TripId {trip.TripId} doesn't have Biker.");
+			}
+			
+			User user = await _context.User.FindAsync(new object[] { trip.BikerId }, cancellationToken);
+			
+			if (user == null)
+			{
+				_logger.LogInformation("User with UserId {UserId} doesn't exist", trip.BikerId);
+				throw new Exception($"User with UserId {trip.BikerId} doesn't exist.");
+			}
 
-			var wallet = await _context.Wallet
+			Wallet currentWallet = await _context.Wallet
 				.Where(w => w.UserId == trip.BikerId)
 				.Where(w => w.Status == (int) WalletStatus.Current)
 				.SingleOrDefaultAsync(cancellationToken);
-
-			tripTransaction.WalletId = wallet.WalletId;
-			tripTransaction.AmountOfPoint = newPoint;
-			wallet.Point += newPoint;
-
-			var user = await _context.User
-				.Where(u => u.UserId == wallet.UserId)
-				.SingleOrDefaultAsync(cancellationToken);
-
+			
+			if (currentWallet == null)
+			{
+				_logger.LogInformation("Biker with UserId {UserId} doesn't have wallet", trip.BikerId);
+				throw new Exception($"Biker with UserId {trip.BikerId} doesn't have wallet.");
+			}
+			
+			var tripTransaction = new TripTransaction
+			{
+				TripId = trip.TripId,
+				TransactionDate = CurrentTime.GetCurrentTime(),
+				WalletId = currentWallet.WalletId,
+				AmountOfPoint = newPoint
+			};
+			
+			await _context.TripTransaction.AddAsync(tripTransaction, cancellationToken);
+			
+			// Add point to current wallet
+			currentWallet.Point += newPoint;
+			
+			// Update user total point
 			user.TotalPoint += newPoint;
 
-			await _context.TripTransaction.AddAsync(tripTransaction, cancellationToken);
-
-			// Save change to feedback, tripTransaction, wallet, user table
-			var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+			// Save change to 4 tables: feedback, tripTransaction, wallet, user
+			bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 			if (!result)
 			{
-				_logger.LogInformation("Failed to create new trip transaction.");
+				_logger.LogInformation("Failed to create new trip transaction");
 				throw new Exception("Failed to create new trip transaction.");
 			}
 
-			_logger.LogInformation("Successfully created trip transaction.");
+			_logger.LogInformation("Successfully created trip transaction");
 		}
 	}
 }
