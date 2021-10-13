@@ -38,7 +38,7 @@ namespace Persistence.Data
 				new()
 				{
 					UserId = 2,
-					TripId = 2,
+					TripId = 6,
 					FeedbackContent = "Tài xế đến hơi trễ xíu.",
 					Star = 4,
 					Criteria = "Cần Đến Đúng Giờ",
@@ -47,7 +47,7 @@ namespace Persistence.Data
 				new()
 				{
 					UserId = 3,
-					TripId = 2,
+					TripId = 6,
 					FeedbackContent = "Bạn dễ thương.",
 					Star = 5,
 					Criteria = "Thân Thiện",

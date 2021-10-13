@@ -4,14 +4,17 @@ namespace Application.Feedbacks.DTOs
 {
 	public class FeedbackCreateDto
 	{
-		[Required] public int? UserId { get; set; }
+		// ReSharper disable once UnusedAutoPropertyAccessor.Global
+		[Required] public int? UserId { get; init; }
 
-		[Required] public int? TripId { get; set; }
+		// ReSharper disable once UnusedAutoPropertyAccessor.Global
+		[Required] public int? TripId { get; init; }
 
-		[Required] public string? FeedbackContent { get; set; } = string.Empty;
+		[Required] public string? FeedbackContent { get; init; }
 
-		[Required] public int? TripStar { get; set; }
+		// ReSharper disable once UnusedAutoPropertyAccessor.Global
+		[Required] [Range(1, 5)] public int? TripStar { get; init; }
 
-		[Required] public string? Criteria { get; set; } = string.Empty;
+		[Required] public string? Criteria { get; init; }
 	}
 }

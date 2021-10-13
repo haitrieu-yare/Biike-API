@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Application.Feedbacks.DTOs
@@ -12,7 +13,8 @@ namespace Application.Feedbacks.DTOs
 		public int? TripId { get; set; }
 
 		public string? FeedbackContent { get; set; }
-		public int? TripStar { get; set; }
+		[Range(1, 5)] public int? TripStar { get; set; }
+
 		public string? Criteria { get; set; }
 
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

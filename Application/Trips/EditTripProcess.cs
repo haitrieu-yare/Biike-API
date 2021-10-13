@@ -86,6 +86,7 @@ namespace Application.Trips
 
 					try
 					{
+						// TODO: Point based on Kilometer
 						if (oldTrip.Status == (int) TripStatus.Finished)
 						{
 							await _autoCreate.Run(oldTrip, 10, cancellationToken);
