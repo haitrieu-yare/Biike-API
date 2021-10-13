@@ -32,40 +32,16 @@ namespace Application.Core
 			// Việc truyền biến int? với giá trị null thường xảy ra 
 			// khi người dùng không truyền các optional field 
 			// ở trong body request của EditDTO.
-			CreateMap<int?, int>().ConvertUsing(
-				(src, dest) =>
-				{
-					if (src.HasValue) return src.Value;
-					return dest;
-				}
-			);
+			CreateMap<int?, int>().ConvertUsing((src, dest) => src ?? dest);
 
 			// Tương tự int?, chúng ta tạo map cho DateTime?
-			CreateMap<DateTime?, DateTime>().ConvertUsing(
-				(src, dest) =>
-				{
-					if (src.HasValue) return src.Value;
-					return dest;
-				}
-			);
+			CreateMap<DateTime?, DateTime>().ConvertUsing((src, dest) => src ?? dest);
 
 			// Tương tự int?, chúng ta tạo map cho bool?
-			CreateMap<bool?, bool>().ConvertUsing(
-				(src, dest) =>
-				{
-					if (src.HasValue) return src.Value;
-					return dest;
-				}
-			);
+			CreateMap<bool?, bool>().ConvertUsing((src, dest) => src ?? dest);
 
 			// Tương tự int?, chúng ta tạo map cho double?
-			CreateMap<double?, double>().ConvertUsing(
-				(src, dest) =>
-				{
-					if (src.HasValue) return src.Value;
-					return dest;
-				}
-			);
+			CreateMap<double?, double>().ConvertUsing((src, dest) => src ?? dest);
 
 			#endregion
 
@@ -104,7 +80,7 @@ namespace Application.Core
 			// List, Detail
 			CreateMap<User, UserDto>()
 				.ForMember(u => u.UserPhoneNumber, o => o.MapFrom(u => u.PhoneNumber))
-				.ForMember(u => u.UserFullName, o => o.MapFrom(u => u.FullName))
+				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
 				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
 			// Create
 			CreateMap<UserCreateDto, User>()
