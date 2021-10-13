@@ -21,22 +21,42 @@ namespace API.Controllers
 
 			if (role != (int) RoleStatus.Admin)
 				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
-			
+
 			return HandleResult(await Mediator.Send(new ListRedemption.Query { Page = page, Limit = limit }, ct));
 		}
 
-		// Admin
+		// Keer, Biker, Admin
 		[HttpGet("{redemptionId:int}")]
 		public async Task<IActionResult> GetRedemptionByRedemptionId(int redemptionId, CancellationToken ct)
 		{
-			int role = ControllerUtils.GetRole(HttpContext);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
-			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
-			
-			return HandleResult(await Mediator.Send(new DetailRedemption.Query { RedemptionId = redemptionId }, ct));
+			return HandleResult(await Mediator.Send(
+				new DetailRedemption.Query
+				{
+					RedemptionId = redemptionId,
+					UserRequestId = validationDto.UserRequestId,
+					IsAdmin = validationDto.IsAdmin
+				}, ct));
+		}
+
+		// Keer, Biker, Admin
+		[HttpGet("{redemptionId:int}/full")]
+		public async Task<IActionResult> GetRedemptionFullByRedemptionId(int redemptionId, CancellationToken ct)
+		{
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+
+			return HandleResult(await Mediator.Send(
+				new DetailRedemptionFull.Query
+				{
+					RedemptionId = redemptionId,
+					UserRequestId = validationDto.UserRequestId,
+					IsAdmin = validationDto.IsAdmin
+				}, ct));
 		}
 
 		// Keer, Biker, Admin
@@ -55,8 +75,8 @@ namespace API.Controllers
 
 		// Keer, Biker, Admin
 		[HttpGet("users/{userId:int}/full")]
-		public async Task<IActionResult> GetAllRedemptionsAndVouchers(
-			int userId, int page, int limit, CancellationToken ct)
+		public async Task<IActionResult> GetAllRedemptionsAndVouchers(int userId, int page, int limit,
+			CancellationToken ct)
 		{
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
@@ -67,11 +87,10 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(
 				new ListUserRedemptionAndVoucher.Query { Page = page, Limit = limit, UserId = userId }, ct));
 		}
-		
+
 		// Keer, Biker
 		[HttpPost]
-		public async Task<IActionResult> CreateRedemption(RedemptionCreateDto redemptionCreateDto,
-			CancellationToken ct)
+		public async Task<IActionResult> CreateRedemption(RedemptionCreateDto redemptionCreateDto, CancellationToken ct)
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
@@ -110,8 +129,7 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(
 				new EditUsageRedemption.Command
 				{
-					RedemptionId = redemptionId,
-					UserRequestId = validationDto.UserRequestId
+					RedemptionId = redemptionId, UserRequestId = validationDto.UserRequestId
 				}, ct));
 		}
 	}
