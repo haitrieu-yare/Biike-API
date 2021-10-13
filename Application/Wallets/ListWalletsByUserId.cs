@@ -65,7 +65,7 @@ namespace Application.Wallets
 					if (request.Page <= lastPage)
 						wallets = await _context.Wallet
 							.Where(w => w.UserId == request.UserId)
-							.OrderBy(w => w.WalletId)
+							.OrderByDescending(w => w.Status)
 							.Skip((request.Page - 1) * request.Limit)
 							.Take(request.Limit)
 							.ProjectTo<WalletDto>(_mapper.ConfigurationProvider)
