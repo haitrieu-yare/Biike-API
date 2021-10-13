@@ -42,7 +42,11 @@ namespace Application.Intimacies
 							request.IntimacyCreateEditDto.UserOneId!, request.IntimacyCreateEditDto.UserTwoId!
 						}, cancellationToken);
 
-					if (oldIntimacy == null) return null!;
+					if (oldIntimacy == null)
+					{
+						_logger.LogInformation("Intimacy doesn't exist");
+						return Result<Unit>.NotFound("Intimacy doesn't exist.");
+					}
 
 					switch (oldIntimacy.IsBlock)
 					{

@@ -33,17 +33,16 @@ namespace TestAPI
 			[JsonPropertyName("password")] public string Password { get; set; }
 
 			[JsonPropertyName("returnSecureToken")]
-			public bool ReturnSecureToken { get; set; } = true;
+			public bool ReturnSecureToken { get; } = true;
 
 			[JsonPropertyName("idToken")]
 			[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 			public string? IdToken { get; set; }
 		}
 
-		private static async Task<string> Login(LoginDto? loginDto)
+		private static async Task<string> Login(LoginDto loginDto)
 		{
 			string token = string.Empty;
-			if (loginDto == null) return token;
 
 			const string loginUrl =
 				"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyB1aW0yKA1ACzjVjqhiECryNSkt6gqksQM";
@@ -57,10 +56,30 @@ namespace TestAPI
 			if (!loginTask.IsSuccessStatusCode) return token;
 
 			Stream jsonStream = await loginTask.Content.ReadAsStreamAsync();
-			loginDto = await JsonSerializer.DeserializeAsync<LoginDto>(jsonStream);
-			token = loginDto?.IdToken ?? string.Empty;
+			var newLoginDto = await JsonSerializer.DeserializeAsync<LoginDto>(jsonStream);
+			
+			if (newLoginDto != null)
+			{
+				loginDto = newLoginDto;
+			}
+			
+			token = loginDto.IdToken ?? string.Empty;
 
 			return token;
+		}
+
+		[Fact]
+		public async Task TestLogin()
+		{
+			string testToken;
+			testToken = await Login(new LoginDto(email: "dangkhoa@fpt.edu.vn", password: "092021"));
+			testToken.Should().HaveLength(1093);
+			
+			testToken = await Login(new LoginDto(email: "notarealmail@fpt.edu.vn", password: "092021"));
+			testToken.Should().HaveLength(0);
+			
+			testToken = await Login(null!);
+			testToken.Should().HaveLength(0);
 		}
 		
 		private string _adminToken = string.Empty;

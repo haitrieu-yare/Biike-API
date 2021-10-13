@@ -11,16 +11,14 @@ namespace API.Controllers
 	[Route("api/biike/v1/[controller]")]
 	public class BaseApiController : ControllerBase
 	{
-		private const string NotFoundMessage = "No records found.";
 		private IMediator? _mediator;
 		protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetService<IMediator>()!;
-
+		
+		private const string NotFoundMessage = "No records found.";
 		protected ActionResult HandleResult<T>(Result<T> result)
 		{
 			string baseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
 			string controllerName = Request.Path.ToString().Split("v1/").Last();
-
-			if (result == null) return NotFound(NotFoundMessage);
 
 			switch (result.IsSuccess)
 			{
