@@ -6,8 +6,8 @@ namespace Domain
 	{
 		public static DateTime GetCurrentTime()
 		{
-			var timeUtc = DateTime.UtcNow;
-			var seAsiaTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+			DateTime timeUtc = DateTime.UtcNow;
+			TimeZoneInfo seAsiaTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 			return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, seAsiaTimeZone);
 		}
 	}

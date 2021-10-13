@@ -17,10 +17,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 			
 			return HandleResult(await Mediator.Send(new ListWallets.Query { Page = page, Limit = limit }, ct));
 		}
@@ -31,9 +31,9 @@ namespace API.Controllers
 		{
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
-			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
 
-			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.DidNotHavePermissionToAccess);
+			if (!validationDto.IsAuthorized) return BadRequest(ConstantStringApi.DidNotHavePermissionToAccess);
 
 			return HandleResult(await Mediator.Send(
 				new ListWalletsByUserId.Query { Page = page, Limit = limit, UserId = userId }, ct));
@@ -45,10 +45,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 			
 			return HandleResult(await Mediator.Send(new DetailWallet.Query { WalletId = walletId }, ct));
 		}
@@ -59,10 +59,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 			
 			return HandleResult(await Mediator.Send(
 				new CreateWallet.Command { WalletCreateDto = walletCreateDto }, ct));
@@ -75,10 +75,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 			
 			return HandleResult(await Mediator.Send(
 				new EditWallet.Command { WalletId = walletId, NewWalletDto = newWalletDto }, ct));
@@ -90,10 +90,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 				
 			return HandleResult(await Mediator.Send(new DeleteWallet.Command { WalletId = walletId }, ct));
 		}

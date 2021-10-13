@@ -9,9 +9,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
+using Quartz;
 
 namespace Application.Trips
 {
+	// ReSharper disable once ClassNeverInstantiated.Global
 	public class CreateTrip
 	{
 		public class Command : IRequest<Result<Unit>>
@@ -22,13 +24,15 @@ namespace Application.Trips
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
+			private readonly ISchedulerFactory _schedulerFactory;
+			private readonly ILogger<Handler> _logger;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+			public Handler(DataContext context, IMapper mapper, ISchedulerFactory schedulerFactory, ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
+				_schedulerFactory = schedulerFactory;
 				_logger = logger;
 			}
 
@@ -51,6 +55,26 @@ namespace Application.Trips
 						_logger.LogInformation("Failed to create new trip");
 						return Result<Unit>.Failure("Failed to create new trip.");
 					}
+					
+					string jobName = ConstantString.GetJobNameAutoCancellation(newTrip.TripId);
+
+					IJobDetail job = JobBuilder.Create<AutoTripCancellation>()
+						.WithIdentity(jobName, ConstantString.OneTimeJob)
+						.UsingJobData("TripId", $"{newTrip.TripId}")
+						.Build();
+
+					string triggerName = ConstantString.GetTriggerNameAutoCancellation(newTrip.TripId);
+
+					// Trigger the job to run now, and then repeat every 3 seconds
+					ITrigger trigger = TriggerBuilder.Create()
+						.WithIdentity(triggerName, ConstantString.OneTimeJob)
+						.StartAt(newTrip.BookTime)
+						.Build();
+					
+					// Tell quartz to schedule the job using the trigger
+					IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
+					await scheduler.ScheduleJob(job, trigger, cancellationToken);
+					_logger.LogInformation("Successfully created cancellation job");
 
 					_logger.LogInformation("Successfully created trip");
 					return Result<Unit>.Success(Unit.Value, "Successfully created trip.", newTrip.TripId.ToString());

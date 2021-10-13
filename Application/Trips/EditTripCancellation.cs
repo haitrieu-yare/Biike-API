@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
@@ -13,6 +14,7 @@ using Persistence;
 
 namespace Application.Trips
 {
+	// ReSharper disable once ClassNeverInstantiated.Global
 	public class EditTripCancellation
 	{
 		public class Command : IRequest<Result<Unit>>
@@ -26,8 +28,8 @@ namespace Application.Trips
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
+			private readonly ILogger<Handler> _logger;
 
 			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
@@ -78,17 +80,18 @@ namespace Application.Trips
 
 					oldTrip.CancelPersonId = request.UserId;
 					oldTrip.Status = (int) TripStatus.Cancelled;
+					oldTrip.FinishedTime = CurrentTime.GetCurrentTime();
 
 					bool result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
 					if (!result)
 					{
-						_logger.LogInformation("Failed to update trip with TripId {request.TripId}", request.TripId);
-						return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
+						_logger.LogInformation("Failed to cancel trip with TripId {request.TripId}", request.TripId);
+						return Result<Unit>.Failure($"Failed to cancel trip with TripId {request.TripId}.");
 					}
 
-					_logger.LogInformation("Successfully updated trip with TripId {request.TripId}", request.TripId);
-					return Result<Unit>.Success(Unit.Value, $"Successfully updated trip with TripId {request.TripId}.");
+					_logger.LogInformation("Successfully cancelled trip with TripId {request.TripId}", request.TripId);
+					return Result<Unit>.Success(Unit.Value, $"Successfully cancelled trip with TripId {request.TripId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

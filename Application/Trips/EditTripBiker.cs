@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
+using Quartz;
 
 namespace Application.Trips
 {
@@ -23,11 +24,13 @@ namespace Application.Trips
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
+			private readonly ISchedulerFactory _schedulerFactory;
 			private readonly ILogger<Handler> _logger;
 
-			public Handler(DataContext context, ILogger<Handler> logger)
+			public Handler(DataContext context, ISchedulerFactory schedulerFactory, ILogger<Handler> logger)
 			{
 				_context = context;
+				_schedulerFactory = schedulerFactory;
 				_logger = logger;
 			}
 
@@ -84,6 +87,20 @@ namespace Application.Trips
 					{
 						_logger.LogInformation("Failed to update trip with TripId {request.TripId}", request.TripId);
 						return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
+					}
+					
+					// Delete job after cancelling successfully
+					IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
+					
+					string jobName = ConstantString.GetJobNameAutoCancellation(oldTrip.TripId);
+					bool jobDeletionResult =
+						await scheduler.DeleteJob(JobKey.Create(jobName, ConstantString.OneTimeJob),
+							CancellationToken.None);
+					_logger.LogInformation("Successfully deleted cancellation job");
+					
+					if (!jobDeletionResult)
+					{
+						_logger.LogError("Fail to delete job with job name {JobName}", jobName);
 					}
 
 					_logger.LogInformation("Successfully updated trip with TripId {request.TripId}", request.TripId);

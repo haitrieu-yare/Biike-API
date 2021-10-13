@@ -16,10 +16,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 			
 			return HandleResult(await Mediator.Send(
 				new ListTripTransactions.Query { Page = page, Limit = limit }, ct));
@@ -31,10 +31,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 			
 			return HandleResult(await Mediator.Send(
 				new DetailTripTransaction.Query { TripTransactionId = tripTransactionId }, ct));
@@ -46,10 +46,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 			
 			return HandleResult(await Mediator.Send(
 				new ListTripTransactionsByTripId.Query { TripId = tripId, Page = page, Limit = limit }, ct));

@@ -17,10 +17,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
 
 			return HandleResult(await Mediator.Send(new ListBikes.Query { Page = page, Limit = limit }, ct));
 		}
@@ -31,10 +31,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
 
 			return HandleResult(await Mediator.Send(new DetailBikeByBikeId.Query { BikeId = bikeId }, ct));
 		}
@@ -45,10 +45,10 @@ namespace API.Controllers
 		{
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
-			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
 
 			if (!validationDto.IsAuthorized)
-				return new ObjectResult(ConstantString.DidNotHavePermissionToAccess) { StatusCode = 403 };
+				return new ObjectResult(ConstantStringApi.DidNotHavePermissionToAccess) { StatusCode = 403 };
 
 			return HandleResult(await Mediator.Send(
 				new DetailBikeByUserId.Query { IsAdmin = validationDto.IsAdmin, UserId = validationDto.UserRequestId },
@@ -61,16 +61,16 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Keer)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString())) { StatusCode = 403 };
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Keer.ToString())) { StatusCode = 403 };
 
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikeCreateDto.UserId);
 
-			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
 
-			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
+			if (!validationDto.IsAuthorized) return BadRequest(ConstantStringApi.NotSameUserId);
 
 			return HandleResult(await Mediator.Send(new CreateBike.Command { BikeCreateDto = bikeCreateDto }, ct));
 		}
@@ -81,16 +81,16 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Biker)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
 
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikeCreateDto.UserId);
 
-			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
 
-			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
+			if (!validationDto.IsAuthorized) return BadRequest(ConstantStringApi.NotSameUserId);
 
 			return HandleResult(await Mediator.Send(new ReplaceBike.Command { BikeCreateDto = bikeCreateDto }, ct));
 		}
@@ -101,17 +101,17 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Biker)
-				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
 
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
-			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
 
 			if (!validationDto.IsAuthorized)
-				return new ObjectResult(ConstantString.DidNotHavePermissionToMakeRequest) { StatusCode = 403 };
+				return new ObjectResult(ConstantStringApi.DidNotHavePermissionToMakeRequest) { StatusCode = 403 };
 
 			return HandleResult(await Mediator.Send(new DeleteBike.Command { UserId = userId }, ct));
 		}

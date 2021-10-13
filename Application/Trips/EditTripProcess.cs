@@ -13,6 +13,7 @@ using Persistence;
 
 namespace Application.Trips
 {
+	// ReSharper disable once ClassNeverInstantiated.Global
 	public class EditTripProcess
 	{
 		public class Command : IRequest<Result<Unit>>
@@ -112,7 +113,7 @@ namespace Application.Trips
 						_logger.LogInformation("Failed to update trip with TripId {request.TripId}. {Error}",
 							request.TripId, ex.InnerException?.Message ?? ex.Message);
 						return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}. " +
-							(ex.InnerException?.Message ?? ex.Message));
+						                            (ex.InnerException?.Message ?? ex.Message));
 					}
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)

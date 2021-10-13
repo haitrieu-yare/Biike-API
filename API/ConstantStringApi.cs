@@ -1,6 +1,6 @@
 namespace API
 {
-	public static class ConstantString
+	public static class ConstantStringApi
 	{
 		public const string CouldNotGetUserRole = "Could not get user's role.";
 		public const string CouldNotGetIdOfUserSentRequest = "Could not get the ID of the user that sent the request.";
