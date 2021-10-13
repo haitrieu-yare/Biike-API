@@ -52,11 +52,9 @@ namespace API.Controllers
 		[HttpGet("{userId:int}")]
 		public async Task<IActionResult> GetUserProfile(int userId, CancellationToken ct)
 		{
-			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
+			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
-
-			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.DidNotHavePermissionToAccess);
 			
 			return HandleResult(await Mediator.Send(
 				new DetailUser.Query { IsAdmin = validationDto.IsAdmin, UserId = userId }, ct));
