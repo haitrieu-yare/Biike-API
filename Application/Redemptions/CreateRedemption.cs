@@ -40,6 +40,17 @@ namespace Application.Redemptions
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
+					
+					User user = await _context.User.FindAsync(new object[] { request.RedemptionCreateDto.UserId! },
+						cancellationToken);
+					
+					if (user == null)
+					{
+						_logger.LogInformation("User with UserId {UserId} doesn't exist",
+							request.RedemptionCreateDto.UserId);
+						return Result<Unit>.NotFound(
+							$"User with UserId {request.RedemptionCreateDto.UserId} doesn't exist.");
+					}
 
 					Voucher voucher =
 						await _context.Voucher.FindAsync(new object[] { request.RedemptionCreateDto.VoucherId! },
@@ -48,7 +59,7 @@ namespace Application.Redemptions
 					if (voucher == null)
 					{
 						_logger.LogInformation("Voucher doesn't exist");
-						return Result<Unit>.Failure("Voucher doesn't exist.");
+						return Result<Unit>.NotFound("Voucher doesn't exist.");
 					}
 
 					// Check if voucher is expired
@@ -100,7 +111,7 @@ namespace Application.Redemptions
 						// Check if user have enough point
 						int totalPoint = oldWallet.Point + currentWallet.Point;
 
-						if (voucher.AmountOfPoint - totalPoint < 0)
+						if (totalPoint - voucher.AmountOfPoint < 0)
 						{
 							_logger.LogInformation("User doesn't have enough point");
 							return Result<Unit>.Failure("User doesn't have enough point.");
@@ -108,8 +119,7 @@ namespace Application.Redemptions
 
 						// Check if old wallet have enough point 
 						// so we don't need to use current wallet point
-						// Then minus the point 
-						if (voucher.AmountOfPoint - oldWallet.Point >= 0)
+						if (oldWallet.Point - voucher.AmountOfPoint >= 0)
 						{
 							// Set the old walletId
 							newRedemption.WalletId = oldWallet.WalletId;
@@ -119,21 +129,22 @@ namespace Application.Redemptions
 						{
 							// Set the current walletId
 							newRedemption.WalletId = currentWallet.WalletId;
-							int oldWalletPoint = oldWallet.Point;
-							oldWalletPoint -= voucher.AmountOfPoint;
-
-							if (oldWalletPoint < 0)
-							{
-								oldWallet.Point = 0;
-								currentWallet.Point += oldWalletPoint;
-							}
+							
+							// Use point of old wallet
+							oldWallet.Point -= voucher.AmountOfPoint;
+							
+							// Use point of current wallet
+							currentWallet.Point += oldWallet.Point;
+							
+							// Set point of old wallet back to 0
+							oldWallet.Point = 0;
 						}
 					}
 
 					if (oldWallet == null)
 					{
 						// Check if user have enough point
-						if (voucher.AmountOfPoint - currentWallet.Point < 0)
+						if (currentWallet.Point - voucher.AmountOfPoint < 0)
 						{
 							_logger.LogInformation("User doesn't have enough point");
 							return Result<Unit>.Failure("User doesn't have enough point.");
@@ -145,6 +156,9 @@ namespace Application.Redemptions
 						// Minus point of user wallet
 						currentWallet.Point -= voucher.AmountOfPoint;
 					}
+
+					// Update totalPoint of user
+					user.TotalPoint = (oldWallet?.Point ?? 0) + currentWallet.Point;
 
 					await _context.Redemption.AddAsync(newRedemption, cancellationToken);
 
