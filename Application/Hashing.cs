@@ -37,7 +37,7 @@ namespace Application
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex.InnerException?.Message ?? ex.Message);
+				_logger.LogError("{Error}", ex.InnerException?.Message ?? ex.Message);
 			}
 		}
 

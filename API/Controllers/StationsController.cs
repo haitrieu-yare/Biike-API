@@ -36,6 +36,12 @@ namespace API.Controllers
 		}
 
 		// Admin
+		/// <summary>
+		///	Yoooo
+		/// </summary>
+		/// <returns>
+		/// 201
+		/// </returns>
 		[HttpPost]
 		public async Task<IActionResult> CreateStation(StationCreateDto stationCreateDto, CancellationToken ct)
 		{

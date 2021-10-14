@@ -126,7 +126,6 @@ namespace Persistence
 
 			modelBuilder.Entity<Feedback>()
 				.HasIndex(i => new { i.UserId, i.TripId }).IsUnique();
-			;
 
 			modelBuilder.Entity<Feedback>()
 				.HasOne(f => f.Trip)

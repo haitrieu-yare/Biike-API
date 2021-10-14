@@ -53,7 +53,8 @@ namespace API
 			string pathToKey = string.Empty;
 
 			if (_currentEnvironment.IsDevelopment())
-				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys", "firebase_admin_sdk_development.json");
+				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys",
+					"firebase_admin_sdk_development.json");
 			else if (_currentEnvironment.IsProduction())
 				pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys", "firebase_admin_sdk.json");
 
@@ -77,7 +78,7 @@ namespace API
 
 			services.AddAuthorization()
 				.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultTransformer>();
-			
+
 			services.AddQuartz(q =>
 			{
 				q.UseMicrosoftDependencyInjectionJobFactory();
@@ -87,14 +88,14 @@ namespace API
 						x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")))
 					.WithDescription("Managing creating new wallet and expire old wallet"));
 			});
-			
+
 			// ASP.NET Core hosting
 			services.AddQuartzServer(quartzHostedServiceOptions =>
 			{
 				// when shutting down we want jobs to complete gracefully
 				quartzHostedServiceOptions.WaitForJobsToComplete = true;
 			});
-			
+
 			services.AddMediatR(typeof(HistoryList.Handler).Assembly);
 			services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 			services.AddScoped(typeof(Hashing));
@@ -119,7 +120,7 @@ namespace API
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-			
+
 			logger.LogInformation("App start at {Time}", DateTime.UtcNow.AddHours(7));
 		}
 	}
