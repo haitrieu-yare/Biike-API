@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -21,7 +23,7 @@ namespace Application
 		{
 			try
 			{
-				var usersFromDb = await _context.User.ToListAsync();
+				List<User> usersFromDb = await _context.User.ToListAsync();
 
 				if (usersFromDb.Count == 0) return;
 
@@ -31,7 +33,7 @@ namespace Application
 					user.PasswordHash = passwordHash;
 				}
 
-				var result = await _context.SaveChangesAsync() > 0;
+				bool result = await _context.SaveChangesAsync() > 0;
 
 				if (!result) throw new Exception("Failed to create hashed password for users.");
 			}

@@ -15,8 +15,7 @@ namespace Application.Trips
 		private readonly DataContext _context;
 		private readonly ILogger<AutoTripCancellation> _logger;
 
-		public AutoTripCancellation(DataContext context,
-			ILogger<AutoTripCancellation> logger)
+		public AutoTripCancellation(DataContext context, ILogger<AutoTripCancellation> logger)
 		{
 			_context = context;
 			_logger = logger;

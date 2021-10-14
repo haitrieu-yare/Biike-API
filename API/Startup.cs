@@ -82,11 +82,17 @@ namespace API
 			services.AddQuartz(q =>
 			{
 				q.UseMicrosoftDependencyInjectionJobFactory();
+
 				q.ScheduleJob<WalletJob>(trigger => trigger.WithIdentity("WalletJob", ConstantString.ReoccurredJob)
 					.StartNow()
 					.WithCronSchedule("0 0 0 1 1/4 ? *",
 						x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")))
 					.WithDescription("Managing creating new wallet and expire old wallet"));
+
+				q.ScheduleJob<StartupTripAutoCancellation>(trigger =>
+					trigger.WithIdentity("StartupTripAutoCancellation", ConstantString.OneTimeJob)
+						.StartNow()
+						.WithDescription("Managing creating auto trip cancellation on startup"));
 			});
 
 			// ASP.NET Core hosting
