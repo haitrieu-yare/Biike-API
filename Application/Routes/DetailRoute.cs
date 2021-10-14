@@ -53,7 +53,7 @@ namespace Application.Routes
 							_logger.LogInformation("Route doesn't exist");
 							return Result<RouteDto>.NotFound("Route doesn't exist.");
 						}
-						
+
 						_mapper.Map(routeDb, route);
 					}
 					else
@@ -63,13 +63,13 @@ namespace Application.Routes
 							.Where(r => r.IsDeleted != true)
 							.ProjectTo<RouteDto>(_mapper.ConfigurationProvider)
 							.SingleOrDefaultAsync(cancellationToken);
-						
+
 						if (route == null)
 						{
 							_logger.LogInformation("Route doesn't exist");
 							return Result<RouteDto>.NotFound("Route doesn't exist.");
 						}
-						
+
 						// Set to null to make unnecessary fields excluded from the response body.
 						route.CreatedDate = null;
 						route.IsDeleted = null;

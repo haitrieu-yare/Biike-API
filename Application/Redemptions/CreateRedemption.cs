@@ -40,10 +40,10 @@ namespace Application.Redemptions
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
-					
+
 					User user = await _context.User.FindAsync(new object[] { request.RedemptionCreateDto.UserId! },
 						cancellationToken);
-					
+
 					if (user == null)
 					{
 						_logger.LogInformation("User with UserId {UserId} doesn't exist",
@@ -129,13 +129,13 @@ namespace Application.Redemptions
 						{
 							// Set the current walletId
 							newRedemption.WalletId = currentWallet.WalletId;
-							
+
 							// Use point of old wallet
 							oldWallet.Point -= voucher.AmountOfPoint;
-							
+
 							// Use point of current wallet
 							currentWallet.Point += oldWallet.Point;
-							
+
 							// Set point of old wallet back to 0
 							oldWallet.Point = 0;
 						}

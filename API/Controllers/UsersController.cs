@@ -22,8 +22,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(new ListAllUsers.Query { Page = page, Limit = limit }, ct));
 		}
 
@@ -55,7 +55,7 @@ namespace API.Controllers
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
-			
+
 			return HandleResult(await Mediator.Send(
 				new DetailUser.Query { IsAdmin = validationDto.IsAdmin, UserId = userId }, ct));
 		}
@@ -75,7 +75,7 @@ namespace API.Controllers
 			return HandleResult(await Mediator.Send(
 				new CreateUser.Command { UserCreateDto = userCreateDto }, ct));
 		}
-	
+
 		// TODO: When a user can modify account activation?
 		[AllowAnonymous]
 		[HttpPut("{userId:int}/activation")]
@@ -106,7 +106,7 @@ namespace API.Controllers
 			if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
 				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Keer.ToString()) + " " +
 				                        ConstantStringApi.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
-			
+
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound)
@@ -130,7 +130,7 @@ namespace API.Controllers
 			if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
 				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Keer.ToString()) + " " +
 				                        ConstantStringApi.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
-			
+
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
@@ -149,7 +149,7 @@ namespace API.Controllers
 
 			if (role != (int) RoleStatus.Admin)
 				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
-			
+
 			return HandleResult(await Mediator.Send(new EditStatus.Command { UserId = userId }, ct));
 		}
 
@@ -165,7 +165,7 @@ namespace API.Controllers
 			if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
 				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Keer.ToString()) + " " +
 				                        ConstantStringApi.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
-			
+
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
 			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
@@ -198,7 +198,7 @@ namespace API.Controllers
 
 			if (role != (int) RoleStatus.Admin)
 				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
-			
+
 			return HandleResult(await Mediator.Send(new DeleteUser.Command { UserId = userId }, ct));
 		}
 
@@ -212,7 +212,7 @@ namespace API.Controllers
 
 			if (role != (int) RoleStatus.Admin)
 				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
-			
+
 			return HandleResult(await Mediator.Send(new DeleteFireBaseUser.Command(), ct));
 		}
 	}

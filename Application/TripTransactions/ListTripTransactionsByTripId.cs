@@ -42,7 +42,7 @@ namespace Application.TripTransactions
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
-					
+
 					if (request.Page <= 0)
 					{
 						_logger.LogInformation("Page must be larger than 0");
@@ -54,7 +54,7 @@ namespace Application.TripTransactions
 						_logger.LogInformation("Limit must be larger than 0");
 						return Result<List<TripTransactionDto>>.Failure("Limit must be larger than 0.");
 					}
-					
+
 					int totalRecord = await _context.TripTransaction
 						.Where(t => t.TripId == request.TripId)
 						.CountAsync(cancellationToken);
@@ -64,12 +64,10 @@ namespace Application.TripTransactions
 					List<TripTransactionDto> tripTransaction = new();
 
 					if (request.Page <= lastPage)
-					{
 						tripTransaction = await _context.TripTransaction
 							.Where(t => t.TripId == request.TripId)
 							.ProjectTo<TripTransactionDto>(_mapper.ConfigurationProvider)
 							.ToListAsync(cancellationToken);
-					}
 
 					_logger.LogInformation("Successfully retrieved trip transaction " +
 					                       "based on tripId {request.TripId}", request.TripId);

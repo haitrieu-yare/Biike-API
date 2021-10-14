@@ -49,7 +49,7 @@ namespace Application.Users
 					};
 
 					#region Delete on Firebase
-					
+
 					try
 					{
 						await FirebaseAuth.DefaultInstance.UpdateUserAsync(userRecordArgs, cancellationToken);
@@ -61,7 +61,7 @@ namespace Application.Users
 						return Result<Unit>.Failure(
 							$"Error delete user on Firebase. {e.InnerException?.Message ?? e.Message}");
 					}
-					
+
 					#endregion
 
 					user.IsDeleted = !user.IsDeleted;

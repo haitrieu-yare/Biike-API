@@ -24,11 +24,12 @@ namespace Application.Trips
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
+			private readonly ILogger<Handler> _logger;
 			private readonly IMapper _mapper;
 			private readonly ISchedulerFactory _schedulerFactory;
-			private readonly ILogger<Handler> _logger;
 
-			public Handler(DataContext context, IMapper mapper, ISchedulerFactory schedulerFactory, ILogger<Handler> logger)
+			public Handler(DataContext context, IMapper mapper, ISchedulerFactory schedulerFactory,
+				ILogger<Handler> logger)
 			{
 				_context = context;
 				_mapper = mapper;
@@ -55,7 +56,7 @@ namespace Application.Trips
 						_logger.LogInformation("Failed to create new trip");
 						return Result<Unit>.Failure("Failed to create new trip.");
 					}
-					
+
 					string jobName = ConstantString.GetJobNameAutoCancellation(newTrip.TripId);
 
 					IJobDetail job = JobBuilder.Create<AutoTripCancellation>()
@@ -70,7 +71,7 @@ namespace Application.Trips
 						.WithIdentity(triggerName, ConstantString.OneTimeJob)
 						.StartAt(newTrip.BookTime)
 						.Build();
-					
+
 					// Tell quartz to schedule the job using the trigger
 					IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
 					await scheduler.ScheduleJob(job, trigger, cancellationToken);

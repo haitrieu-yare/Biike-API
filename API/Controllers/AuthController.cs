@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace API.Controllers
 {
@@ -18,7 +19,7 @@ namespace API.Controllers
 			bool isBiker = user.IsInRole("2");
 			bool isAdmin = user.IsInRole("3");
 
-			HttpContext.Request.Headers.TryGetValue("Authorization", out var tokenHeaders);
+			HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues tokenHeaders);
 			FirebaseToken decodedToken =
 				await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(tokenHeaders.ToString().Split(" ")[1]);
 

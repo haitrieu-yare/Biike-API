@@ -47,7 +47,7 @@ namespace Application.Stations
 					{
 						Station stationDb = await _context.Station
 							.FindAsync(new object[] { request.StationId }, cancellationToken);
-						
+
 						if (stationDb == null)
 						{
 							_logger.LogInformation("Station doesn't exist");
@@ -63,19 +63,20 @@ namespace Application.Stations
 							.Where(s => s.IsDeleted != true)
 							.ProjectTo<StationDto>(_mapper.ConfigurationProvider)
 							.SingleOrDefaultAsync(cancellationToken);
-						
+
 						if (station == null)
 						{
 							_logger.LogInformation("Station doesn't exist");
 							return Result<StationDto>.NotFound("Station doesn't exist.");
 						}
-						
+
 						// Set to null to make unnecessary fields excluded from the response body.
 						station.CreatedDate = null;
 						station.IsDeleted = null;
 					}
 
-					_logger.LogInformation("Successfully retrieved station by stationId {request.StationId}", request.StationId);
+					_logger.LogInformation("Successfully retrieved station by stationId {request.StationId}",
+						request.StationId);
 					return Result<StationDto>.Success(
 						station, $"Successfully retrieved station by stationId {request.StationId}.");
 				}

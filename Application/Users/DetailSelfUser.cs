@@ -44,13 +44,13 @@ namespace Application.Users
 						.Where(u => u.IsDeleted != true)
 						.ProjectTo<UserDto>(_mapper.ConfigurationProvider)
 						.SingleOrDefaultAsync(cancellationToken);
-					
+
 					if (userProfile == null)
 					{
 						_logger.LogInformation("User doesn't exist");
 						return Result<UserDto>.NotFound("User doesn't exist.");
 					}
-					
+
 					// Set to null to make unnecessary fields excluded from the response body.
 					userProfile.Role = null;
 					userProfile.UserStatus = null;

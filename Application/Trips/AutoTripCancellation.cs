@@ -34,13 +34,13 @@ namespace Application.Trips
 			}
 
 			Trip trip = await _context.Trip.FindAsync(tripId);
-			
+
 			if (trip == null)
 			{
 				_logger.LogError("Trip with {TripId} doesn't exist", tripId);
 				return;
 			}
-			
+
 			switch (trip.Status)
 			{
 				case (int) TripStatus.Finished:
@@ -57,7 +57,7 @@ namespace Application.Trips
 			}
 
 			bool result = await _context.SaveChangesAsync() > 0;
-			
+
 			if (!result)
 			{
 				_logger.LogError("Failed to automatically cancel trip with TripId {TripId}", tripId);

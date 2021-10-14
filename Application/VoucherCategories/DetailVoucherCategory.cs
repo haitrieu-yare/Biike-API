@@ -36,22 +36,23 @@ namespace Application.VoucherCategories
 				try
 				{
 					cancellationToken.ThrowIfCancellationRequested();
-					
+
 					VoucherCategory voucherCategoryDb = await _context.VoucherCategory
 						.FindAsync(new object[] { request.VoucherCategoryId }, cancellationToken);
-					
+
 					if (voucherCategoryDb == null)
 					{
 						_logger.LogInformation("Voucher category doesn't exist");
 						return Result<VoucherCategoryDto>.NotFound("Voucher category doesn't exist.");
 					}
-					
+
 					VoucherCategoryDto voucherCategory = new();
 
 					_mapper.Map(voucherCategoryDb, voucherCategory);
 
 					_logger.LogInformation("Successfully retrieved voucherCategory " +
-					                       "by voucherCategoryId {request.VoucherCategoryId}", request.VoucherCategoryId);
+					                       "by voucherCategoryId {request.VoucherCategoryId}",
+						request.VoucherCategoryId);
 					return Result<VoucherCategoryDto>.Success(voucherCategory,
 						$"Successfully retrieved voucherCategory by voucherCategoryId {request.VoucherCategoryId}.");
 				}

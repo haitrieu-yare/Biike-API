@@ -19,8 +19,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new ListTripTransactions.Query { Page = page, Limit = limit }, ct));
 		}
@@ -34,23 +34,24 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new DetailTripTransaction.Query { TripTransactionId = tripTransactionId }, ct));
 		}
 
 		// Admin
 		[HttpGet("trips/{tripId:int}")]
-		public async Task<IActionResult> GetTripTransactionsByTripId(int tripId, int page, int limit, CancellationToken ct)
+		public async Task<IActionResult> GetTripTransactionsByTripId(int tripId, int page, int limit,
+			CancellationToken ct)
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new ListTripTransactionsByTripId.Query { TripId = tripId, Page = page, Limit = limit }, ct));
 		}

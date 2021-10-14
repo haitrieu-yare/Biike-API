@@ -20,8 +20,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(new ListWallets.Query { Page = page, Limit = limit }, ct));
 		}
 
@@ -48,8 +48,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(new DetailWallet.Query { WalletId = walletId }, ct));
 		}
 
@@ -62,8 +62,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new CreateWallet.Command { WalletCreateDto = walletCreateDto }, ct));
 		}
@@ -78,8 +78,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new EditWallet.Command { WalletId = walletId, NewWalletDto = newWalletDto }, ct));
 		}
@@ -93,8 +93,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-				
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(new DeleteWallet.Command { WalletId = walletId }, ct));
 		}
 	}

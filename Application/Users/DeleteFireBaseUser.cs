@@ -36,7 +36,7 @@ namespace Application.Users
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					List<User> users = await _context.User.ToListAsync(cancellationToken: cancellationToken);
+					List<User> users = await _context.User.ToListAsync(cancellationToken);
 
 					if (users.Count == 0)
 					{

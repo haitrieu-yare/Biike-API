@@ -40,7 +40,7 @@ namespace Application.Routes
 					if (route == null)
 					{
 						_logger.LogInformation("Route doesn't exist");
-						return Result<Unit>.NotFound($"Route doesn't exist.");
+						return Result<Unit>.NotFound("Route doesn't exist.");
 					}
 
 					route.IsDeleted = !route.IsDeleted;

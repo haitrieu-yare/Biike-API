@@ -33,7 +33,7 @@ namespace API.Controllers
 
 			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
 
-			if (!validationDto.IsAuthorized) 
+			if (!validationDto.IsAuthorized)
 				return new ObjectResult(ConstantStringApi.DidNotHavePermissionToAccess) { StatusCode = 403 };
 
 			return HandleResult(await Mediator.Send(

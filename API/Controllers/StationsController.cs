@@ -30,17 +30,17 @@ namespace API.Controllers
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
-			
+
 			return HandleResult(await Mediator.Send(
 				new DetailStation.Query { StationId = stationId, IsAdmin = validationDto.IsAdmin }, ct));
 		}
 
 		// Admin
 		/// <summary>
-		///	Yoooo
+		///     Yoooo
 		/// </summary>
 		/// <returns>
-		/// 201
+		///     201
 		/// </returns>
 		[HttpPost]
 		public async Task<IActionResult> CreateStation(StationCreateDto stationCreateDto, CancellationToken ct)
@@ -50,8 +50,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new CreateStation.Command { StationCreateDto = stationCreateDto }, ct));
 		}
@@ -65,8 +65,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new EditStation.Command { StationId = stationId, NewStationDto = newStationDto }, ct));
 		}
@@ -80,8 +80,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(new DeleteStation.Command { StationId = stationId }, ct));
 		}
 	}

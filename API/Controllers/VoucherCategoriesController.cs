@@ -18,7 +18,7 @@ namespace API.Controllers
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
-			
+
 			return HandleResult(await Mediator.Send(new ListVoucherCategory.Query { Page = page, Limit = limit }, ct));
 		}
 
@@ -29,7 +29,7 @@ namespace API.Controllers
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
 			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
-			
+
 			return HandleResult(await Mediator.Send(
 				new DetailVoucherCategory.Query { VoucherCategoryId = voucherCategoryId }, ct));
 		}
@@ -44,8 +44,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new CreateVoucherCategory.Command { VoucherCategoryCreateDto = voucherCategoryCreateDto }, ct));
 		}
@@ -60,8 +60,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new EditVoucherCategory.Command
 				{
@@ -79,8 +79,8 @@ namespace API.Controllers
 			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-			
+				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+
 			return HandleResult(await Mediator.Send(
 				new DeleteVoucherCategory.Command { VoucherCategoryId = voucherCategoryId }, ct));
 		}

@@ -39,12 +39,13 @@ namespace Application.Routes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					Route oldRoute = await _context.Route.FindAsync(new object[] {request.RouteId}, cancellationToken);
+					Route oldRoute =
+						await _context.Route.FindAsync(new object[] { request.RouteId }, cancellationToken);
 
 					if (oldRoute == null)
 					{
 						_logger.LogInformation("Route doesn't exist");
-						return Result<Unit>.NotFound($"Route doesn't exist.");
+						return Result<Unit>.NotFound("Route doesn't exist.");
 					}
 
 					if (oldRoute.IsDeleted)

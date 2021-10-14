@@ -21,8 +21,8 @@ namespace Application.TripTransactions
 		public class Handler : IRequestHandler<Query, Result<TripTransactionDto>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
 			private readonly ILogger<Handler> _logger;
+			private readonly IMapper _mapper;
 
 			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{

@@ -28,8 +28,8 @@ namespace Application.Trips
 		public class Handler : IRequestHandler<Command, Result<Unit>>
 		{
 			private readonly DataContext _context;
-			private readonly IMapper _mapper;
 			private readonly ILogger<Handler> _logger;
+			private readonly IMapper _mapper;
 
 			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
 			{
@@ -91,7 +91,8 @@ namespace Application.Trips
 					}
 
 					_logger.LogInformation("Successfully cancelled trip with TripId {request.TripId}", request.TripId);
-					return Result<Unit>.Success(Unit.Value, $"Successfully cancelled trip with TripId {request.TripId}.");
+					return Result<Unit>.Success(Unit.Value,
+						$"Successfully cancelled trip with TripId {request.TripId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{
