@@ -35,13 +35,6 @@ namespace API.Controllers
 				new DetailStation.Query { StationId = stationId, IsAdmin = validationDto.IsAdmin }, ct));
 		}
 
-		// Admin
-		/// <summary>
-		///     Yoooo
-		/// </summary>
-		/// <returns>
-		///     201
-		/// </returns>
 		[HttpPost]
 		public async Task<IActionResult> CreateStation(StationCreateDto stationCreateDto, CancellationToken ct)
 		{

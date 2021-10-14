@@ -69,7 +69,7 @@ namespace Application.Trips
 					// Trigger the job to run now, and then repeat every 3 seconds
 					ITrigger trigger = TriggerBuilder.Create()
 						.WithIdentity(triggerName, ConstantString.OneTimeJob)
-						.StartAt(newTrip.BookTime)
+						.StartAt(newTrip.BookTime.AddHours(-7))
 						.Build();
 
 					// Tell quartz to schedule the job using the trigger
