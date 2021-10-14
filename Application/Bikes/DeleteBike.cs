@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Domain.Entities;
+using Domain.Enums;
+using FirebaseAdmin.Auth;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -35,8 +38,7 @@ namespace Application.Bikes
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					User user = await _context.User
-						.FindAsync(new object[] { request.UserId }, cancellationToken);
+					User user = await _context.User.FindAsync(new object[] { request.UserId }, cancellationToken);
 
 					if (user == null || user.IsDeleted)
 					{
@@ -44,10 +46,16 @@ namespace Application.Bikes
 						return Result<Unit>.NotFound("User to delete bike does not exist.");
 					}
 
-					user.IsBikeVerified = false;
+					if (user.Role != (int) RoleStatus.Biker)
+					{
+						_logger.LogInformation("User to delete bike does not exist");
+						return Result<Unit>.Unauthorized(ConstantString.OnlyRole(RoleStatus.Biker.ToString()));
+					}
 
-					Bike bike = await _context.Bike
-						.Where(b => b.UserId == request.UserId)
+					user.IsBikeVerified = false;
+					user.Role = (int) RoleStatus.Keer;
+
+					Bike bike = await _context.Bike.Where(b => b.UserId == request.UserId)
 						.SingleOrDefaultAsync(cancellationToken);
 
 					if (bike == null)
@@ -66,9 +74,27 @@ namespace Application.Bikes
 						return Result<Unit>.Failure($"Failed to delete bike by userId {request.UserId}.");
 					}
 
+					try
+					{
+						#region Import user's role to Firebase
+
+						var claims = new Dictionary<string, object> { { "role", user.Role } };
+
+						await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(user.UserId.ToString(), claims,
+							cancellationToken);
+
+						#endregion
+					}
+					catch (FirebaseAuthException e)
+					{
+						_logger.LogError("Error create user on Firebase. {Error}",
+							e.InnerException?.Message ?? e.Message);
+						return Result<Unit>.Failure("Error create user on Firebase. " +
+						                            $"{e.InnerException?.Message ?? e.Message}");
+					}
+
 					_logger.LogInformation("Successfully deleted bike by userId {request.UserId}", request.UserId);
-					return Result<Unit>.Success(
-						Unit.Value, $"Successfully deleted bike by userId {request.UserId}.");
+					return Result<Unit>.Success(Unit.Value, $"Successfully deleted bike by userId {request.UserId}.");
 				}
 				catch (Exception ex) when (ex is TaskCanceledException)
 				{

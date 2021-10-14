@@ -27,7 +27,7 @@ namespace API.Controllers
 				case false when !string.IsNullOrEmpty(result.NotFoundMessage):
 					return NotFound(result.NotFoundMessage);
 				case false when result.IsUnauthorized:
-					return new ObjectResult(ConstantStringApi.DidNotHavePermissionToMakeRequest) { StatusCode = 403 };
+					return new ObjectResult(result.UnauthorizedMessage) { StatusCode = 403 };
 				case true when result.Value != null:
 				{
 					#region CREATED - 201

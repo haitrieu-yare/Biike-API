@@ -8,6 +8,7 @@ namespace Application.Core
 		public bool IsUnauthorized { get; set; }
 		public T? Value { get; set; }
 		public string? ErrorMessage { get; set; }
+		public string? UnauthorizedMessage { get; set; }
 		public string? NotFoundMessage { get; set; }
 		public string? SuccessMessage { get; set; }
 
@@ -43,9 +44,9 @@ namespace Application.Core
 			return new Result<T> { IsSuccess = false, ErrorMessage = errorMessage };
 		}
 
-		public static Result<T> Unauthorized()
+		public static Result<T> Unauthorized(string unauthorizedMessage)
 		{
-			return new Result<T> { IsSuccess = false, IsUnauthorized = true };
+			return new Result<T> { IsSuccess = false, IsUnauthorized = true, UnauthorizedMessage = unauthorizedMessage};
 		}
 
 		public static Result<T> NotFound(string notFoundMessage)

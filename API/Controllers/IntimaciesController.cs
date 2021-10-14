@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Application;
 using Application.Intimacies;
 using Application.Intimacies.DTOs;
 using Domain.Enums;
@@ -17,10 +18,10 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Admin)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) { StatusCode = 403 };
 
 			return HandleResult(await Mediator.Send(new ListIntimacies.Query { Page = page, Limit = limit }, ct));
 		}
@@ -31,10 +32,10 @@ namespace API.Controllers
 		{
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userOneId);
 
-			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
 			if (!validationDto.IsAuthorized)
-				return new ObjectResult(ConstantStringApi.DidNotHavePermissionToAccess) { StatusCode = 403 };
+				return new ObjectResult(ConstantString.DidNotHavePermissionToAccess) { StatusCode = 403 };
 
 			return HandleResult(await Mediator.Send(
 				new ListIntimaciesByUserId.Query { Page = page, Limit = limit, UserOneId = userOneId }, ct));
@@ -47,17 +48,17 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Keer.ToString()) + " " +
-				                        ConstantStringApi.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+				                        ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
 
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, intimacyCreateEditDto.UserOneId);
 
-			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
-			if (!validationDto.IsAuthorized) return BadRequest(ConstantStringApi.NotSameUserId);
+			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
 			return HandleResult(await Mediator.Send(
 				new CreateIntimacy.Command { IntimacyCreateEditDto = intimacyCreateEditDto }, ct));
@@ -70,17 +71,17 @@ namespace API.Controllers
 		{
 			int role = ControllerUtils.GetRole(HttpContext);
 
-			if (role == 0) return Unauthorized(ConstantStringApi.CouldNotGetUserRole);
+			if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
 
 			if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
-				return new ObjectResult(ConstantStringApi.OnlyRole(RoleStatus.Keer.ToString()) + " " +
-				                        ConstantStringApi.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
+				return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+				                        ConstantString.OnlyRole(RoleStatus.Biker.ToString())) { StatusCode = 403 };
 
 			ValidationDto validationDto = ControllerUtils.Validate(HttpContext, intimacyCreateEditDto.UserOneId);
 
-			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
+			if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
-			if (!validationDto.IsAuthorized) return BadRequest(ConstantStringApi.NotSameUserId);
+			if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
 			return HandleResult(await Mediator.Send(
 				new EditIntimacy.Command { IntimacyCreateEditDto = intimacyCreateEditDto }, ct));

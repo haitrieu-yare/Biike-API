@@ -13,6 +13,7 @@ using Persistence;
 
 namespace Application.Users
 {
+	// ReSharper disable once ClassNeverInstantiated.Global
 	public class EditRole
 	{
 		public class Command : IRequest<Result<Unit>>
@@ -54,7 +55,7 @@ namespace Application.Users
 						                            "Please reactivate it if you want to edit it.");
 					}
 
-					if (!user.IsBikeVerified)
+					if (user.Role == (int) RoleStatus.Keer && !user.IsBikeVerified)
 					{
 						_logger.LogInformation("User does not have bike");
 						return Result<Unit>.Failure("User does not have bike.");
