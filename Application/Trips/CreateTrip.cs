@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
+using Domain;
 using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -69,7 +70,7 @@ namespace Application.Trips
 					// Trigger the job to run now, and then repeat every 3 seconds
 					ITrigger trigger = TriggerBuilder.Create()
 						.WithIdentity(triggerName, ConstantString.OneTimeJob)
-						.StartAt(newTrip.BookTime.AddHours(-7))
+						.StartAt(CurrentTime.ToLocalTime(newTrip.BookTime))
 						.Build();
 
 					// Tell quartz to schedule the job using the trigger
