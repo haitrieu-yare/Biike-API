@@ -124,7 +124,7 @@ namespace API.Controllers
 			if (!validationDto.IsUserFound) return BadRequest(ConstantStringApi.CouldNotGetIdOfUserSentRequest);
 
 			return HandleResult(await Mediator.Send(
-				new DetailTripInfo.Query { TripId = tripId, Role = role, UserRequestId = validationDto.UserRequestId },
+				new DetailTripInfo.Query { TripId = tripId, UserRequestId = validationDto.UserRequestId },
 				ct));
 		}
 

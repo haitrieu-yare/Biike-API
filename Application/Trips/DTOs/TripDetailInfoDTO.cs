@@ -8,6 +8,7 @@ namespace Application.Trips.DTOs
 	{
 		public int? TripId { get; set; }
 		public int? UserId { get; set; }
+		public int? KeerId { get; set; }
 		public string? UserPhoneNumber { get; set; }
 		public string? UserFullname { get; set; }
 		public double? UserStar { get; set; }

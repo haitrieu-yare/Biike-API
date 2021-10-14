@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +13,12 @@ using Persistence;
 
 namespace Application.Trips
 {
+	// ReSharper disable once ClassNeverInstantiated.Global
 	public class DetailTripInfo
 	{
 		public class Query : IRequest<Result<TripDetailInfoDto>>
 		{
 			public int TripId { get; init; }
-			public int Role { get; init; }
 			public int UserRequestId { get; init; }
 		}
 
@@ -42,12 +41,28 @@ namespace Application.Trips
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					Trip tripDb = await _context.Trip.FindAsync(new object[] { request.TripId }, cancellationToken);
+					User user = await _context.User.FindAsync(new object[] { request.UserRequestId },
+						cancellationToken);
+
+					if (user == null)
+					{
+						_logger.LogInformation("User who sent request doesn't exist");
+						return Result<TripDetailInfoDto>.NotFound("User who sent request doesn't exist.");
+					}
+
+					Trip tripDb = await _context.Trip
+						.Where(t => t.TripId == request.TripId)
+						.Include(t => t.Keer)
+						.Include(t => t.Biker)
+						.Include(t => t.Route).ThenInclude(r => r.Departure)
+						.Include(t => t.Route).ThenInclude(r => r.Destination)
+						.Include(t => t.FeedbackList)
+						.SingleOrDefaultAsync(cancellationToken);
 
 					if (tripDb == null)
 					{
-						_logger.LogInformation("Trip doesn't exist");
-						return Result<TripDetailInfoDto>.NotFound("Trip doesn't exist.");
+						_logger.LogInformation("Trip with {TripId} doesn't exist", request.TripId);
+						return Result<TripDetailInfoDto>.NotFound($"Trip with {request.TripId} doesn't exist.");
 					}
 
 					var isRequestUserInTrip = true;
@@ -67,10 +82,12 @@ namespace Application.Trips
 						                                         $"request an unauthorized content of trip with TripId {request.TripId}");
 					}
 
-					TripDetailInfoDto trip = await _context.Trip.Where(t => t.TripId == request.TripId)
-						.ProjectTo<TripDetailInfoDto>(_mapper.ConfigurationProvider, new { role = request.Role })
-						.SingleOrDefaultAsync(cancellationToken);
+					TripDetailInfoDto trip = new();
 
+					bool isKeer = request.UserRequestId == tripDb.KeerId;
+					
+					_mapper.Map(tripDb, trip, o => o.Items["isKeer"] = isKeer);
+					
 					// Set to null to make unnecessary fields excluded from the response body.
 					trip.Feedbacks.ForEach(feedback =>
 					{

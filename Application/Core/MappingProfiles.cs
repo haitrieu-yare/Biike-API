@@ -13,7 +13,6 @@ using Application.Vouchers.DTOs;
 using Application.Wallets.DTOs;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Enums;
 
 namespace Application.Core
 {
@@ -83,8 +82,7 @@ namespace Application.Core
 				.ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
 				.ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
 			// Create
-			CreateMap<UserCreateDto, User>()
-				.ForMember(u => u.PasswordHash, o => o.MapFrom(u => u.Password));
+			CreateMap<UserCreateDto, User>().ForMember(u => u.PasswordHash, o => o.MapFrom(u => u.Password));
 			// Edit Profile
 			CreateMap<UserProfileEditDto, User>()
 				.ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname))
@@ -98,22 +96,22 @@ namespace Application.Core
 			#region Trip
 
 			// History Trips & Upcoming Trips
-			bool isKeer = true;
+			// ReSharper disable once ConvertToConstant.Local
+			var isKeer = true;
 			CreateMap<Trip, TripDto>()
-				.ForMember(t => t.UserId, o =>
-					o.MapFrom(t => isKeer ? t.BikerId : t.KeerId))
-				.ForMember(t => t.Avatar, o =>
-					o.MapFrom(t =>
+				.ForMember(t => t.UserId, o => o.MapFrom(t => isKeer ? t.BikerId : t.KeerId))
+				.ForMember(t => t.Avatar,
+					o => o.MapFrom(t =>
 						t.Biker == null && isKeer ? null :
 						t.Biker == null && !isKeer ? t.Keer.Avatar :
 						t.Biker != null && isKeer ? t.Biker.Avatar : t.Keer.Avatar))
-				.ForMember(t => t.UserFullname, o =>
-					o.MapFrom(t =>
+				.ForMember(t => t.UserFullname,
+					o => o.MapFrom(t =>
 						t.Biker == null && isKeer ? null :
 						t.Biker == null && !isKeer ? t.Keer.FullName :
 						t.Biker != null && isKeer ? t.Biker.FullName : t.Keer.FullName))
-				.ForMember(t => t.UserPhoneNumber, o =>
-					o.MapFrom(t =>
+				.ForMember(t => t.UserPhoneNumber,
+					o => o.MapFrom(t =>
 						t.Biker == null && isKeer ? null :
 						t.Biker == null && !isKeer ? t.Keer.PhoneNumber :
 						t.Biker != null && isKeer ? t.Biker.PhoneNumber : t.Keer.PhoneNumber))
@@ -123,35 +121,30 @@ namespace Application.Core
 				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
 
 			// TripHistoryPair
-			int userTwoId = 0;
+			// ReSharper disable once ConvertToConstant.Local
+			var userTwoId = 0;
 			CreateMap<Trip, TripPairDto>()
-				.ForMember(t => t.UserId, o =>
-					o.MapFrom(t => userTwoId == t.BikerId ? t.BikerId : t.KeerId))
-				.ForMember(t => t.Avatar, o =>
-					o.MapFrom(t => userTwoId == t.BikerId ? t.Biker!.Avatar : t.Keer.Avatar))
-				.ForMember(t => t.UserFullname, o =>
-					o.MapFrom(t => userTwoId == t.BikerId ? t.Biker!.FullName : t.Keer.FullName))
+				.ForMember(t => t.UserId, o => o.MapFrom(t => userTwoId == t.BikerId ? t.BikerId : t.KeerId))
+				.ForMember(t => t.Avatar, o => o.MapFrom(t => userTwoId == t.BikerId ? t.Biker!.Avatar : t.Keer.Avatar))
+				.ForMember(t => t.UserFullname,
+					o => o.MapFrom(t => userTwoId == t.BikerId ? t.Biker!.FullName : t.Keer.FullName))
 				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
 				.ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
 				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))
 				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
 
-			// Detail
-			int role = 0;
+			// Detail Info
 			CreateMap<Trip, TripDetailInfoDto>()
-				.ForMember(t => t.UserId, o =>
-					o.MapFrom(t => role == (int) RoleStatus.Keer ? t.BikerId : t.KeerId))
-				.ForMember(t => t.Avatar, o =>
-					o.MapFrom(t => t.Biker == null ? null :
-						role == (int) RoleStatus.Keer ? t.Biker.Avatar : t.Keer.Avatar))
-				.ForMember(t => t.UserFullname, o =>
-					o.MapFrom(t => t.Biker == null ? null :
-						role == (int) RoleStatus.Keer ? t.Biker.FullName : t.Keer.FullName))
-				.ForMember(t => t.UserPhoneNumber, o =>
-					o.MapFrom(t => t.Biker == null ? null :
-						role == (int) RoleStatus.Keer ? t.Biker.PhoneNumber : t.Keer.PhoneNumber))
-				.ForMember(t => t.UserStar, o => o.MapFrom(t => t.Biker == null ? new double?() :
-					role == (int) RoleStatus.Keer ? t.Biker.Star : t.Keer.Star))
+				.ForMember(t => t.UserId, o => o.MapFrom(t => isKeer ? t.BikerId : t.KeerId))
+				.ForMember(t => t.KeerId, o => o.MapFrom(t => t.KeerId))
+				.ForMember(t => t.Avatar,
+					o => o.MapFrom(t => t.Biker == null ? null : isKeer ? t.Biker.Avatar : t.Keer.Avatar))
+				.ForMember(t => t.UserFullname,
+					o => o.MapFrom(t => t.Biker == null ? null : isKeer ? t.Biker.FullName : t.Keer.FullName))
+				.ForMember(t => t.UserPhoneNumber,
+					o => o.MapFrom(t => t.Biker == null ? null : isKeer ? t.Biker.PhoneNumber : t.Keer.PhoneNumber))
+				.ForMember(t => t.UserStar,
+					o => o.MapFrom(t => t.Biker == null ? new double?() : isKeer ? t.Biker.Star : t.Keer.Star))
 				.ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
 				.ForMember(t => t.CreatedTime, o => o.MapFrom(t => t.CreatedDate))
 				.ForMember(t => t.TimeFinished, o => o.MapFrom(t => t.FinishedTime))
@@ -159,38 +152,33 @@ namespace Application.Core
 				.ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))
 				.ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name))
 				.ForMember(t => t.Feedbacks, o => o.MapFrom(t => t.FeedbackList));
-			// Detail Info
+
+			// Detail 
 			CreateMap<Trip, TripDetailDto>();
 			// Create
 			CreateMap<TripCreateDto, Trip>();
 			// Edit BikerInfo
-			CreateMap<TripBikerInfoDto, Trip>()
-				.ForMember(t => t.PlateNumber, o => o.MapFrom(t => t.NumberPlate));
+			CreateMap<TripBikerInfoDto, Trip>().ForMember(t => t.PlateNumber, o => o.MapFrom(t => t.NumberPlate));
 			// Cancel Trip
-			CreateMap<TripCancellationDto, Trip>()
-				.ForMember(t => t.FinishedTime, o => o.MapFrom(t => t.TimeFinished));
+			CreateMap<TripCancellationDto, Trip>().ForMember(t => t.FinishedTime, o => o.MapFrom(t => t.TimeFinished));
 
 			#endregion
 
 			#region Feedback
 
 			// ListAll, List
-			CreateMap<Feedback, FeedbackDto>()
-				.ForMember(f => f.TripStar, o => o.MapFrom(f => f.Star));
+			CreateMap<Feedback, FeedbackDto>().ForMember(f => f.TripStar, o => o.MapFrom(f => f.Star));
 			// Create
-			CreateMap<FeedbackCreateDto, Feedback>()
-				.ForMember(f => f.Star, o => o.MapFrom(f => f.TripStar));
+			CreateMap<FeedbackCreateDto, Feedback>().ForMember(f => f.Star, o => o.MapFrom(f => f.TripStar));
 
 			#endregion
 
 			#region Bike
 
 			// List, Detail
-			CreateMap<Bike, BikeDto>()
-				.ForMember(b => b.NumberPlate, o => o.MapFrom(b => b.PlateNumber));
+			CreateMap<Bike, BikeDto>().ForMember(b => b.NumberPlate, o => o.MapFrom(b => b.PlateNumber));
 			// Create
-			CreateMap<BikeCreateDto, Bike>()
-				.ForMember(b => b.PlateNumber, o => o.MapFrom(b => b.NumberPlate));
+			CreateMap<BikeCreateDto, Bike>().ForMember(b => b.PlateNumber, o => o.MapFrom(b => b.NumberPlate));
 
 			#endregion
 
