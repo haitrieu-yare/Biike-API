@@ -17,6 +17,7 @@ using Persistence;
 
 namespace Application.Users
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class CreateUser
     {
         public class Command : IRequest<Result<Unit>>
@@ -27,15 +28,13 @@ namespace Application.Users
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
-            private readonly Hashing _hashing;
             private readonly ILogger<Handler> _logger;
             private readonly IMapper _mapper;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger, Hashing hashing)
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
             {
                 _context = context;
                 _mapper = mapper;
-                _hashing = hashing;
                 _logger = logger;
             }
 
@@ -69,7 +68,7 @@ namespace Application.Users
                                      "&background=random&rounded=true&size=128";
 
                     // Hash password
-                    newUser.PasswordHash = _hashing.HashPassword(newUser.PasswordHash);
+                    newUser.PasswordHash = Hashing.HashPassword(newUser.PasswordHash);
 
                     #region Create Wallet
 

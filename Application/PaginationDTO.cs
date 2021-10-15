@@ -2,10 +2,6 @@ namespace Application
 {
     public class PaginationDto
     {
-        public PaginationDto()
-        {
-        }
-
         public PaginationDto(int page, int limit, int count, int lastPage, int totalRecord)
         {
             Page = page;
@@ -15,10 +11,10 @@ namespace Application
             TotalRecord = totalRecord;
         }
 
-        public int Page { get; set; }
-        public int Limit { get; set; }
-        public int Count { get; set; }
-        public int LastPage { get; set; }
-        public int TotalRecord { get; set; }
+        public int Page { get; }
+        public int Limit { get; }
+        public int Count { get; }
+        public int LastPage { get; }
+        public int TotalRecord { get; }
     }
 }
