@@ -11,48 +11,48 @@ using Persistence;
 
 namespace API
 {
-	public class Firebase
-	{
-		private readonly DataContext _context;
-		private readonly ILogger<Firebase> _logger;
+    public class Firebase
+    {
+        private readonly DataContext _context;
+        private readonly ILogger<Firebase> _logger;
 
-		public Firebase(DataContext context, ILogger<Firebase> logger)
-		{
-			_context = context;
-			_logger = logger;
-		}
+        public Firebase(DataContext context, ILogger<Firebase> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
 
-		public async Task ImportUserFromDatabaseToFirebase()
-		{
-			try
-			{
-				List<User> usersFromDb = await _context.User.ToListAsync();
-				var usersToFireBase = new List<ImportUserRecordArgs>();
+        public async Task ImportUserFromDatabaseToFirebase()
+        {
+            try
+            {
+                List<User> usersFromDb = await _context.User.ToListAsync();
+                var usersToFireBase = new List<ImportUserRecordArgs>();
 
-				if (usersFromDb.Count > 0)
-					usersToFireBase.AddRange(usersFromDb.Select(user => new ImportUserRecordArgs
-					{
-						Uid = user.UserId.ToString(),
-						Email = user.Email,
-						PhoneNumber = user.PhoneNumber,
-						DisplayName = user.FullName,
-						PhotoUrl = user.Avatar,
-						Disabled = false,
-						CustomClaims = new Dictionary<string, object> { { "role", user.Role } },
-						PasswordHash = Encoding.ASCII.GetBytes(user.PasswordHash)
-					}));
+                if (usersFromDb.Count > 0)
+                    usersToFireBase.AddRange(usersFromDb.Select(user => new ImportUserRecordArgs
+                    {
+                        Uid = user.UserId.ToString(),
+                        Email = user.Email,
+                        PhoneNumber = user.PhoneNumber,
+                        DisplayName = user.FullName,
+                        PhotoUrl = user.Avatar,
+                        Disabled = false,
+                        CustomClaims = new Dictionary<string, object> {{"role", user.Role}},
+                        PasswordHash = Encoding.ASCII.GetBytes(user.PasswordHash)
+                    }));
 
-				var options = new UserImportOptions { Hash = new Bcrypt() };
+                var options = new UserImportOptions {Hash = new Bcrypt()};
 
-				UserImportResult result = await FirebaseAuth.DefaultInstance.ImportUsersAsync(usersToFireBase, options);
+                UserImportResult result = await FirebaseAuth.DefaultInstance.ImportUsersAsync(usersToFireBase, options);
 
-				foreach (ErrorInfo indexedError in result.Errors)
-					_logger.LogError("Failed to import user: {indexedError.Reason}", indexedError.Reason);
-			}
-			catch (FirebaseAuthException e)
-			{
-				_logger.LogError("Error importing users: {e.Message}", e.Message);
-			}
-		}
-	}
+                foreach (ErrorInfo indexedError in result.Errors)
+                    _logger.LogError("Failed to import user: {indexedError.Reason}", indexedError.Reason);
+            }
+            catch (FirebaseAuthException e)
+            {
+                _logger.LogError("Error importing users: {e.Message}", e.Message);
+            }
+        }
+    }
 }

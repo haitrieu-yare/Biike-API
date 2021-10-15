@@ -14,73 +14,73 @@ using Persistence;
 
 namespace Application.Trips
 {
-	public class ListTrips
-	{
-		public class Query : IRequest<Result<List<TripDetailDto>>>
-		{
-			public int Page { get; init; }
-			public int Limit { get; init; }
-		}
+    public class ListTrips
+    {
+        public class Query : IRequest<Result<List<TripDetailDto>>>
+        {
+            public int Page { get; init; }
+            public int Limit { get; init; }
+        }
 
-		public class Handler : IRequestHandler<Query, Result<List<TripDetailDto>>>
-		{
-			private readonly DataContext _context;
-			private readonly ILogger<Handler> _logger;
-			private readonly IMapper _mapper;
+        public class Handler : IRequestHandler<Query, Result<List<TripDetailDto>>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<Handler> _logger;
+            private readonly IMapper _mapper;
 
-			public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
-			{
-				_context = context;
-				_mapper = mapper;
-				_logger = logger;
-			}
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            {
+                _context = context;
+                _mapper = mapper;
+                _logger = logger;
+            }
 
-			public async Task<Result<List<TripDetailDto>>> Handle(Query request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public async Task<Result<List<TripDetailDto>>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					if (request.Page <= 0)
-					{
-						_logger.LogInformation("Page must be larger than 0");
-						return Result<List<TripDetailDto>>.Failure("Page must be larger than 0.");
-					}
+                    if (request.Page <= 0)
+                    {
+                        _logger.LogInformation("Page must be larger than 0");
+                        return Result<List<TripDetailDto>>.Failure("Page must be larger than 0.");
+                    }
 
-					if (request.Limit <= 0)
-					{
-						_logger.LogInformation("Limit must be larger than 0");
-						return Result<List<TripDetailDto>>.Failure("Limit must be larger than 0.");
-					}
+                    if (request.Limit <= 0)
+                    {
+                        _logger.LogInformation("Limit must be larger than 0");
+                        return Result<List<TripDetailDto>>.Failure("Limit must be larger than 0.");
+                    }
 
-					int totalRecord = await _context.Trip.CountAsync(cancellationToken);
+                    var totalRecord = await _context.Trip.CountAsync(cancellationToken);
 
-					int lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
 
-					List<TripDetailDto> trips = new();
+                    List<TripDetailDto> trips = new();
 
-					if (request.Page <= lastPage)
-						trips = await _context.Trip
-							.OrderBy(t => t.TripId)
-							.Skip((request.Page - 1) * request.Limit)
-							.Take(request.Limit)
-							.ProjectTo<TripDetailDto>(_mapper.ConfigurationProvider)
-							.ToListAsync(cancellationToken);
+                    if (request.Page <= lastPage)
+                        trips = await _context.Trip
+                            .OrderBy(t => t.TripId)
+                            .Skip((request.Page - 1) * request.Limit)
+                            .Take(request.Limit)
+                            .ProjectTo<TripDetailDto>(_mapper.ConfigurationProvider)
+                            .ToListAsync(cancellationToken);
 
-					PaginationDto paginationDto = new(
-						request.Page, request.Limit, trips.Count, lastPage, totalRecord
-					);
+                    PaginationDto paginationDto = new(
+                        request.Page, request.Limit, trips.Count, lastPage, totalRecord
+                    );
 
-					_logger.LogInformation("Successfully retrieved list of all trips");
-					return Result<List<TripDetailDto>>.Success(
-						trips, "Successfully retrieved list of all trips.", paginationDto);
-				}
-				catch (Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<List<TripDetailDto>>.Failure("Request was cancelled.");
-				}
-			}
-		}
-	}
+                    _logger.LogInformation("Successfully retrieved list of all trips");
+                    return Result<List<TripDetailDto>>.Success(
+                        trips, "Successfully retrieved list of all trips.", paginationDto);
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled");
+                    return Result<List<TripDetailDto>>.Failure("Request was cancelled.");
+                }
+            }
+        }
+    }
 }

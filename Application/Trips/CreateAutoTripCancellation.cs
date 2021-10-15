@@ -5,32 +5,29 @@ using Quartz;
 
 namespace Application.Trips
 {
-	public static class CreateAutoTripCancellation
-	{
-		public static async Task Run(ISchedulerFactory? schedulerFactory, Trip? trip)
-		{
-			if (trip == null || schedulerFactory == null)
-			{
-				return;
-			}
+    public static class CreateAutoTripCancellation
+    {
+        public static async Task Run(ISchedulerFactory? schedulerFactory, Trip? trip)
+        {
+            if (trip == null || schedulerFactory == null) return;
 
-			IScheduler scheduler = await schedulerFactory.GetScheduler();
+            IScheduler scheduler = await schedulerFactory.GetScheduler();
 
-			string jobName = ConstantString.GetJobNameAutoCancellation(trip.TripId);
+            string jobName = ConstantString.GetJobNameAutoCancellation(trip.TripId);
 
-			IJobDetail job = JobBuilder.Create<AutoTripCancellation>()
-				.WithIdentity(jobName, ConstantString.OneTimeJob)
-				.UsingJobData("TripId", $"{trip.TripId}")
-				.Build();
+            IJobDetail job = JobBuilder.Create<AutoTripCancellation>()
+                .WithIdentity(jobName, ConstantString.OneTimeJob)
+                .UsingJobData("TripId", $"{trip.TripId}")
+                .Build();
 
-			string triggerName = ConstantString.GetTriggerNameAutoCancellation(trip.TripId);
+            string triggerName = ConstantString.GetTriggerNameAutoCancellation(trip.TripId);
 
-			ITrigger trigger = TriggerBuilder.Create()
-				.WithIdentity(triggerName, ConstantString.OneTimeJob)
-				.StartAt(CurrentTime.ToLocalTime(trip.BookTime))
-				.Build();
+            ITrigger trigger = TriggerBuilder.Create()
+                .WithIdentity(triggerName, ConstantString.OneTimeJob)
+                .StartAt(CurrentTime.ToLocalTime(trip.BookTime))
+                .Build();
 
-			await scheduler.ScheduleJob(job, trigger);
-		}
-	}
+            await scheduler.ScheduleJob(job, trigger);
+        }
+    }
 }

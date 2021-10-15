@@ -12,50 +12,50 @@ using Persistence;
 
 namespace Application.Users
 {
-	public class CheckExistUser
-	{
-		public class Command : IRequest<Result<Unit>>
-		{
-			public UserExistDto UserExistDto { get; init; } = null!;
-		}
+    public class CheckExistUser
+    {
+        public class Command : IRequest<Result<Unit>>
+        {
+            public UserExistDto UserExistDto { get; init; } = null!;
+        }
 
-		public class Handler : IRequestHandler<Command, Result<Unit>>
-		{
-			private readonly DataContext _context;
-			private readonly ILogger<Handler> _logger;
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext _context;
+            private readonly ILogger<Handler> _logger;
 
-			public Handler(DataContext context, ILogger<Handler> logger)
-			{
-				_context = context;
-				_logger = logger;
-			}
+            public Handler(DataContext context, ILogger<Handler> logger)
+            {
+                _context = context;
+                _logger = logger;
+            }
 
-			public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-			{
-				try
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-					User user = await _context.User
-						.Where(u => u.Email == request.UserExistDto.Email ||
-						            u.PhoneNumber == request.UserExistDto.PhoneNumber)
-						.SingleOrDefaultAsync(cancellationToken);
+                    User user = await _context.User
+                        .Where(u => u.Email == request.UserExistDto.Email ||
+                                    u.PhoneNumber == request.UserExistDto.PhoneNumber)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-					if (user != null)
-					{
-						_logger.LogInformation("User with the same email or phone number has already existed");
-						return Result<Unit>.Failure("User with the same email or phone number has already existed.");
-					}
+                    if (user != null)
+                    {
+                        _logger.LogInformation("User with the same email or phone number has already existed");
+                        return Result<Unit>.Failure("User with the same email or phone number has already existed.");
+                    }
 
-					_logger.LogInformation("User doesn't exist");
-					return Result<Unit>.Success(Unit.Value, "User doesn't exist.");
-				}
-				catch (Exception ex) when (ex is TaskCanceledException)
-				{
-					_logger.LogInformation("Request was cancelled");
-					return Result<Unit>.Failure("Request was cancelled.");
-				}
-			}
-		}
-	}
+                    _logger.LogInformation("User doesn't exist");
+                    return Result<Unit>.Success(Unit.Value, "User doesn't exist.");
+                }
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled");
+                    return Result<Unit>.Failure("Request was cancelled.");
+                }
+            }
+        }
+    }
 }

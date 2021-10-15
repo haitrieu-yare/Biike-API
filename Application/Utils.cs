@@ -1,15 +1,15 @@
 namespace Application
 {
-	public static class Utils
-	{
-		public static int CalculateLastPage(int totalRecord, int limit)
-		{
-			int remain = totalRecord % limit;
-			int lastPage = (totalRecord - remain) / limit;
+    public static class Utils
+    {
+        public static int CalculateLastPage(int totalRecord, int limit)
+        {
+            var remain = totalRecord % limit;
+            var lastPage = (totalRecord - remain) / limit;
 
-			if (remain > 0) lastPage++;
+            if (remain > 0) lastPage++;
 
-			return lastPage;
-		}
-	}
+            return lastPage;
+        }
+    }
 }
