@@ -6,6 +6,7 @@ using Application.Core;
 using Application.Routes.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -45,7 +46,7 @@ namespace Application.Routes
 
                     if (request.IsAdmin)
                     {
-                        Domain.Entities.Route routeDb = await _context.Route
+                        Route routeDb = await _context.Route
                             .FindAsync(new object[] {request.RouteId}, cancellationToken);
 
                         if (routeDb == null)

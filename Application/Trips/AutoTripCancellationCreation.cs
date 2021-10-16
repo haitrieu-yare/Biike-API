@@ -1,12 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Domain;
+using Domain.Entities;
 using Quartz;
 
 namespace Application.Trips
 {
     public static class AutoTripCancellationCreation
     {
-        public static async Task Run(ISchedulerFactory? schedulerFactory, Domain.Entities.Trip? trip)
+        public static async Task Run(ISchedulerFactory? schedulerFactory, Trip? trip)
         {
             if (trip == null || schedulerFactory == null) return;
 

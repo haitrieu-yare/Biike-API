@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -42,7 +43,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Trip newTrip = new();
+                    Trip newTrip = new();
 
                     _mapper.Map(request.TripCreationDto, newTrip);
 

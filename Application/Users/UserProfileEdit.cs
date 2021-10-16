@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null)
                     {

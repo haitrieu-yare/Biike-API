@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -40,7 +41,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.User user = await _context.User.FindAsync(new object[] {request.UserRequestId},
+                    User user = await _context.User.FindAsync(new object[] {request.UserRequestId},
                         cancellationToken);
 
                     if (user == null)
@@ -49,7 +50,7 @@ namespace Application.Trips
                         return Result<TripDetailsFullDto>.NotFound("User who sent request doesn't exist.");
                     }
 
-                    Domain.Entities.Trip tripDb = await _context.Trip
+                    Trip tripDb = await _context.Trip
                         .Where(t => t.TripId == request.TripId)
                         .Include(t => t.Keer)
                         .Include(t => t.Biker)

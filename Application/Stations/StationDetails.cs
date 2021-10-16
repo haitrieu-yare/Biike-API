@@ -6,6 +6,7 @@ using Application.Core;
 using Application.Stations.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -45,7 +46,7 @@ namespace Application.Stations
 
                     if (request.IsAdmin)
                     {
-                        Domain.Entities.Station stationDb = await _context.Station
+                        Station stationDb = await _context.Station
                             .FindAsync(new object[] {request.StationId}, cancellationToken);
 
                         if (stationDb == null)

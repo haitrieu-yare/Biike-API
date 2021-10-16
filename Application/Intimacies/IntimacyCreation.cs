@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Intimacies.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ namespace Application.Intimacies
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
+                    Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
                         new object[]
                         {
                             request.IntimacyModificationDto.UserOneId!, request.IntimacyModificationDto.UserTwoId!
@@ -50,7 +51,7 @@ namespace Application.Intimacies
                         return Result<Unit>.Failure("Intimacy has already existed.");
                     }
 
-                    Domain.Entities.Intimacy newIntimacy = new();
+                    Intimacy newIntimacy = new();
 
                     _mapper.Map(request.IntimacyModificationDto, newIntimacy);
 

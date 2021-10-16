@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using Domain.Enums;
 using FirebaseAdmin.Auth;
 using MediatR;
@@ -43,7 +44,7 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.User userDb = await _context.User
+                    User userDb = await _context.User
                         .Where(u => u.Email == request.UserCreationDto.Email ||
                                     u.PhoneNumber == request.UserCreationDto.PhoneNumber)
                         .SingleOrDefaultAsync(cancellationToken);
@@ -54,7 +55,7 @@ namespace Application.Users
                         return Result<Unit>.Failure("User with the same email or phone number has already existed.");
                     }
 
-                    Domain.Entities.User newUser = new();
+                    User newUser = new();
 
                     _mapper.Map(request.UserCreationDto, newUser);
 
@@ -87,7 +88,7 @@ namespace Application.Users
                             break;
                     }
 
-                    Domain.Entities.Wallet newWallet = new() {User = newUser, ToDate = toDate};
+                    Wallet newWallet = new() {User = newUser, ToDate = toDate};
 
                     #endregion
 

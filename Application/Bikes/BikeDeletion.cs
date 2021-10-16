@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using Domain.Enums;
 using FirebaseAdmin.Auth;
 using MediatR;
@@ -38,7 +39,7 @@ namespace Application.Bikes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null || user.IsDeleted)
                     {
@@ -55,7 +56,7 @@ namespace Application.Bikes
                     user.IsBikeVerified = false;
                     user.Role = (int) RoleStatus.Keer;
 
-                    Domain.Entities.Bike bike = await _context.Bike.Where(b => b.UserId == request.UserId)
+                    Bike bike = await _context.Bike.Where(b => b.UserId == request.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (bike == null)

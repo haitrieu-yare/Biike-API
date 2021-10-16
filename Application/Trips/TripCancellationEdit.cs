@@ -5,6 +5,7 @@ using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
 using Domain;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +44,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Trip oldTrip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+                    Trip oldTrip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
 
                     if (oldTrip == null)
                     {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -37,7 +38,7 @@ namespace Application.Redemptions
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    List<Domain.Entities.Redemption> redemptionsByUserId = await _context.Redemption
+                    List<Redemption> redemptionsByUserId = await _context.Redemption
                         .Where(r => r.Wallet.User.UserId == request.UserRequestId)
                         .ToListAsync(cancellationToken);
 

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Wallets.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace Application.Wallets
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Wallet oldWallet =
+                    Wallet oldWallet =
                         await _context.Wallet.FindAsync(new object[] {request.WalletId}, cancellationToken);
 
                     if (oldWallet == null)

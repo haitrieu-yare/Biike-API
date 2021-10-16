@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Vouchers.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ namespace Application.Vouchers
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Voucher newVoucher = new();
+                    Voucher newVoucher = new();
 
                     _mapper.Map(request.VoucherCreationDto, newVoucher);
 

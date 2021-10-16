@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.TripTransactions;
 using Domain;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Trip oldTrip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+                    Trip oldTrip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
 
                     if (oldTrip == null)
                     {
@@ -86,7 +87,6 @@ namespace Application.Trips
 
                     try
                     {
-                        // TODO: Point based on Kilometer
                         if (oldTrip.Status == (int) TripStatus.Finished)
                         {
                             await _auto.Run(oldTrip, 10, cancellationToken);

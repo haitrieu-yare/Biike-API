@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.TripTransactions.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -37,7 +38,7 @@ namespace Application.TripTransactions
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.TripTransaction tripTransactionDb =
+                    TripTransaction tripTransactionDb =
                         await _context.TripTransaction.FindAsync(new object[] {request.TripTransactionId},
                             cancellationToken);
 

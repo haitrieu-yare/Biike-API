@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Redemptions.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -41,7 +42,7 @@ namespace Application.Redemptions
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Redemption redemptionDb = await _context.Redemption.Include(r => r.Wallet.User)
+                    Redemption redemptionDb = await _context.Redemption.Include(r => r.Wallet.User)
                         .Where(r => r.RedemptionId == request.RedemptionId)
                         .SingleOrDefaultAsync(cancellationToken);
 

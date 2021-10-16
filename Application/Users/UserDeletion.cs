@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using FirebaseAdmin.Auth;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,7 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null)
                     {

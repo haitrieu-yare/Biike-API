@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.User user = await _context.User
+                    User user = await _context.User
                         .Where(u => u.Email == request.UserExistenceDto.Email ||
                                     u.PhoneNumber == request.UserExistenceDto.PhoneNumber)
                         .SingleOrDefaultAsync(cancellationToken);

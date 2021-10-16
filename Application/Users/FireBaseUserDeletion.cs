@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using FirebaseAdmin.Auth;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,7 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    List<Domain.Entities.User> users = await _context.User.ToListAsync(cancellationToken);
+                    List<User> users = await _context.User.ToListAsync(cancellationToken);
 
                     if (users.Count == 0)
                     {

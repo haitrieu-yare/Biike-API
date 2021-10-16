@@ -7,6 +7,7 @@ using Application.Core;
 using Application.Feedbacks.DTOs;
 using Application.TripTransactions;
 using AutoMapper;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -45,7 +46,7 @@ namespace Application.Feedbacks
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Trip trip = await _context.Trip.FindAsync(new object[] {request.FeedbackCreationDto.TripId!},
+                    Trip trip = await _context.Trip.FindAsync(new object[] {request.FeedbackCreationDto.TripId!},
                         cancellationToken);
 
                     if (trip == null) return Result<Unit>.NotFound("Trip doesn't exist.");
@@ -71,7 +72,7 @@ namespace Application.Feedbacks
                         return Result<Unit>.Failure("Can't create feedback because trip hasn't finished yet.");
                     }
 
-                    List<Domain.Entities.Feedback> feedbacks = await _context.Feedback
+                    List<Feedback> feedbacks = await _context.Feedback
                         .Where(f => f.TripId == request.FeedbackCreationDto.TripId)
                         .ToListAsync(cancellationToken);
 
@@ -83,7 +84,7 @@ namespace Application.Feedbacks
                         return Result<Unit>.Failure("Trip feedback is already existed.");
                     }
 
-                    Domain.Entities.Feedback newFeedback = new();
+                    Feedback newFeedback = new();
 
                     _mapper.Map(request.FeedbackCreationDto, newFeedback);
 

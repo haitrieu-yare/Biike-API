@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain;
+using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -28,7 +29,7 @@ namespace Application.Wallets
             _logger.LogInformation("[Start] Wallet Job at time: {Time}",
                 CurrentTime.GetCurrentTime().ToString("MM/dd/yyyy hh:mm:ss.fff"));
 
-            List<Domain.Entities.Wallet> wallets = await _context.Wallet.Include(w => w.User)
+            List<Wallet> wallets = await _context.Wallet.Include(w => w.User)
                 .Where(w => w.Status != (int) WalletStatus.Expired)
                 .ToListAsync();
 
@@ -42,7 +43,7 @@ namespace Application.Wallets
                 if (w.Status == (int) WalletStatus.Current) w.Status = (int) WalletStatus.Old;
             });
 
-            List<Domain.Entities.Wallet> newWallets = new();
+            List<Wallet> newWallets = new();
 
             wallets.ForEach(w =>
             {
@@ -64,7 +65,7 @@ namespace Application.Wallets
                         break;
                 }
 
-                newWallets.Add(new Domain.Entities.Wallet {User = w.User, ToDate = toDate});
+                newWallets.Add(new Wallet {User = w.User, ToDate = toDate});
             });
 
             await _context.Wallet.AddRangeAsync(newWallets);

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Stations.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Station oldStation = await _context.Station
+                    Station oldStation = await _context.Station
                         .FindAsync(new object[] {request.StationId}, cancellationToken);
 
                     if (oldStation == null)

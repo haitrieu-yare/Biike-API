@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace Application.Bikes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.User user = await _context.User
+                    User user = await _context.User
                         .FindAsync(new object[] {request.BikeCreationDto.UserId!}, cancellationToken);
 
                     if (user == null || user.IsDeleted)
@@ -50,7 +51,7 @@ namespace Application.Bikes
 
                     user.IsBikeVerified = true;
 
-                    Domain.Entities.Bike oldBike = await _context.Bike
+                    Bike oldBike = await _context.Bike
                         .Where(b => b.UserId == request.BikeCreationDto.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -60,7 +61,7 @@ namespace Application.Bikes
                         return Result<Unit>.Failure("User already has a bike.");
                     }
 
-                    Domain.Entities.Bike newBike = new();
+                    Bike newBike = new();
 
                     _mapper.Map(request.BikeCreationDto, newBike);
 

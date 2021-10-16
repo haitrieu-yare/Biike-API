@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Station station = await _context.Station
+                    Station station = await _context.Station
                         .FindAsync(new object[] {request.StationId}, cancellationToken);
 
                     if (station == null)

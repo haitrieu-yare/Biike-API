@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Feedbacks.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -37,7 +38,7 @@ namespace Application.Feedbacks
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Feedback feedbackDb =
+                    Feedback feedbackDb =
                         await _context.Feedback.FindAsync(new object[] {request.FeedbackId}, cancellationToken);
 
                     FeedbackDto feedback = new();

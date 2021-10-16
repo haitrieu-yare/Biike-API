@@ -6,6 +6,7 @@ using Application.Core;
 using Application.Redemptions.DTOs;
 using AutoMapper;
 using Domain;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ namespace Application.Redemptions
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.User user = await _context.User.FindAsync(new object[] {request.RedemptionCreationDto.UserId!},
+                    User user = await _context.User.FindAsync(new object[] {request.RedemptionCreationDto.UserId!},
                         cancellationToken);
 
                     if (user == null)
@@ -52,7 +53,7 @@ namespace Application.Redemptions
                             $"User with UserId {request.RedemptionCreationDto.UserId} doesn't exist.");
                     }
 
-                    Domain.Entities.Voucher voucher =
+                    Voucher voucher =
                         await _context.Voucher.FindAsync(new object[] {request.RedemptionCreationDto.VoucherId!},
                             cancellationToken);
 
@@ -78,12 +79,12 @@ namespace Application.Redemptions
 
                     // Max number of active wallets is 2 for each user
                     // Current Wallet
-                    Domain.Entities.Wallet currentWallet = await _context.Wallet
+                    Wallet currentWallet = await _context.Wallet
                         .Where(w => w.UserId == request.RedemptionCreationDto.UserId)
                         .Where(w => w.Status == (int) WalletStatus.Current)
                         .SingleOrDefaultAsync(cancellationToken);
                     // Old Wallet
-                    Domain.Entities.Wallet oldWallet = await _context.Wallet.Where(w => w.UserId == request.RedemptionCreationDto.UserId)
+                    Wallet oldWallet = await _context.Wallet.Where(w => w.UserId == request.RedemptionCreationDto.UserId)
                         .Where(w => w.Status == (int) WalletStatus.Old)
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -93,7 +94,7 @@ namespace Application.Redemptions
                         return Result<Unit>.Failure("User doesn't have wallet.");
                     }
 
-                    Domain.Entities.Redemption newRedemption = new();
+                    Redemption newRedemption = new();
 
                     _mapper.Map(request.RedemptionCreationDto, newRedemption);
 

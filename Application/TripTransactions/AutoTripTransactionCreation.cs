@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain;
+using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,7 @@ namespace Application.TripTransactions
             _logger = logger;
         }
 
-        public async Task Run(Domain.Entities.Trip trip, int newPoint, CancellationToken cancellationToken)
+        public async Task Run(Trip trip, int newPoint, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -31,7 +32,7 @@ namespace Application.TripTransactions
                 throw new Exception($"Trip with TripId {trip.TripId} doesn't have Biker.");
             }
 
-            Domain.Entities.User user = await _context.User.FindAsync(new object[] {trip.BikerId}, cancellationToken);
+            User user = await _context.User.FindAsync(new object[] {trip.BikerId}, cancellationToken);
 
             if (user == null)
             {
@@ -39,7 +40,7 @@ namespace Application.TripTransactions
                 throw new Exception($"User with UserId {trip.BikerId} doesn't exist.");
             }
 
-            Domain.Entities.Wallet currentWallet = await _context.Wallet.Where(w => w.UserId == trip.BikerId)
+            Wallet currentWallet = await _context.Wallet.Where(w => w.UserId == trip.BikerId)
                 .Where(w => w.Status == (int) WalletStatus.Current)
                 .SingleOrDefaultAsync(cancellationToken);
 
@@ -49,7 +50,7 @@ namespace Application.TripTransactions
                 throw new Exception($"Biker with UserId {trip.BikerId} doesn't have wallet.");
             }
 
-            var tripTransaction = new Domain.Entities.TripTransaction
+            var tripTransaction = new TripTransaction
             {
                 TripId = trip.TripId,
                 TransactionDate = CurrentTime.GetCurrentTime(),

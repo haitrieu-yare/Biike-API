@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ namespace Application.Routes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Route route = await _context.Route
+                    Route route = await _context.Route
                         .FindAsync(new object[] {request.RouteId}, cancellationToken);
 
                     if (route == null)

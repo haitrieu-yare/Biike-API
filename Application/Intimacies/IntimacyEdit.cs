@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Intimacies.DTOs;
 using Domain;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ namespace Application.Intimacies
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
+                    Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
                         new object[]
                         {
                             request.IntimacyModificationDto.UserOneId!, request.IntimacyModificationDto.UserTwoId!

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Routes.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace Application.Routes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Task<Domain.Entities.Route> oldRoute = _context.Route
+                    Task<Route> oldRoute = _context.Route
                         .Where(r => r.DepartureId == request.RouteCreationDto.DepartureId)
                         .Where(r => r.DestinationId == request.RouteCreationDto.DestinationId)
                         .SingleOrDefaultAsync(cancellationToken);
@@ -53,7 +54,7 @@ namespace Application.Routes
                             $"Route with departureId {request.RouteCreationDto.DepartureId} and destinationId {request.RouteCreationDto.DestinationId} is already existed.");
                     }
 
-                    var newRoute = new Domain.Entities.Route();
+                    var newRoute = new Route();
                     _mapper.Map(request.RouteCreationDto, newRoute);
                     await _context.Route.AddAsync(newRoute, cancellationToken);
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;

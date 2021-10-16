@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Vouchers.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace Application.Vouchers
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Voucher oldVoucher =
+                    Voucher oldVoucher =
                         await _context.Voucher.FindAsync(new object[] {request.VoucherId}, cancellationToken);
 
                     if (oldVoucher == null)

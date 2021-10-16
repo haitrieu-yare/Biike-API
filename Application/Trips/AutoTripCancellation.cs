@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Domain;
+using Domain.Entities;
 using Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -31,7 +32,7 @@ namespace Application.Trips
                 return;
             }
 
-            Domain.Entities.Trip trip = await _context.Trip.FindAsync(tripId);
+            Trip trip = await _context.Trip.FindAsync(tripId);
 
             if (trip == null)
             {

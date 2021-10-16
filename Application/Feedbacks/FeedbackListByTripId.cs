@@ -7,6 +7,7 @@ using Application.Core;
 using Application.Feedbacks.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +45,7 @@ namespace Application.Feedbacks
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Trip trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+                    Trip trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
 
                     if (trip == null) return Result<List<FeedbackDto>>.NotFound("Trip doesn't exist.");
 

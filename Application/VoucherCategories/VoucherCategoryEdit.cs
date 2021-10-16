@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.VoucherCategories.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace Application.VoucherCategories
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.VoucherCategory oldVoucherCategory =
+                    VoucherCategory oldVoucherCategory =
                         await _context.VoucherCategory.FindAsync(new object[] {request.VoucherCategoryId},
                             cancellationToken);
 

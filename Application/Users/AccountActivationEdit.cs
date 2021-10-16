@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null)
                     {

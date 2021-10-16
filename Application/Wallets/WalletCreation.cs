@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Wallets.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ namespace Application.Wallets
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Wallet newWallet = new();
+                    Wallet newWallet = new();
 
                     _mapper.Map(request.WalletCreationDto, newWallet);
 

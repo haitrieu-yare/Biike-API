@@ -6,6 +6,7 @@ using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -45,7 +46,7 @@ namespace Application.Users
 
                     if (request.IsAdmin)
                     {
-                        Domain.Entities.User userProfileDb =
+                        User userProfileDb =
                             await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                         if (userProfileDb == null)

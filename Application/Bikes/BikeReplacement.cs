@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Bikes.DTOs;
 using Application.Core;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace Application.Bikes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Bike oldBike = await _context.Bike
+                    Bike oldBike = await _context.Bike
                         .Where(b => b.UserId == request.BikeCreationDto.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -51,7 +52,7 @@ namespace Application.Bikes
 
                     _context.Bike.Remove(oldBike);
 
-                    Domain.Entities.Bike newBike = new();
+                    Bike newBike = new();
 
                     _mapper.Map(request.BikeCreationDto, newBike);
 

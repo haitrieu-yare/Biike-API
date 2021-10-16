@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ namespace Application.VoucherCategories
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.VoucherCategory voucherCategory =
+                    VoucherCategory voucherCategory =
                         await _context.VoucherCategory.FindAsync(new object[] {request.VoucherCategoryId},
                             cancellationToken);
 

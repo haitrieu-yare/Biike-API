@@ -54,7 +54,6 @@ namespace API.Controllers
                 new UpcomingList.Query {Page = page, Limit = limit, UserId = userId}, ct));
         }
 
-        // TODO: Search based on date, time, departureId, destinationId
         // Biker, Admin
         [HttpGet("newlyCreatedTrip")]
         public async Task<IActionResult> SearchNewlyCreatedTripList(int page, int limit,

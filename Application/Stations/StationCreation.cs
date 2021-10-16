@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Stations.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Station newStation = new();
+                    Station newStation = new();
 
                     _mapper.Map(request.StationCreationDto, newStation);
 

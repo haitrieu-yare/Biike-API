@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Trip oldTrip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+                    Trip oldTrip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
 
                     if (oldTrip == null)
                     {
@@ -54,7 +55,7 @@ namespace Application.Trips
                         return Result<Unit>.Failure("Biker and Keer can't be the same person.");
                     }
 
-                    Domain.Entities.User biker = await _context.User.FindAsync(new object[] {request.BikerId}, cancellationToken);
+                    User biker = await _context.User.FindAsync(new object[] {request.BikerId}, cancellationToken);
 
                     if (biker == null)
                     {
@@ -68,7 +69,7 @@ namespace Application.Trips
                         return Result<Unit>.Failure("Biker doesn't have verified bike yet.");
                     }
 
-                    Domain.Entities.Bike bike = await _context.Bike.Where(b => b.UserId == biker.UserId)
+                    Bike bike = await _context.Bike.Where(b => b.UserId == biker.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (bike == null)
