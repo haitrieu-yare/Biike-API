@@ -93,15 +93,15 @@ namespace Application.Users
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to update user's role by userId {request.UserId}",
-                            request.UserId);
-                        return Result<Unit>.Failure($"Failed to update user's role by userId {request.UserId}.");
+                        _logger.LogInformation("Failed to update user's role by userId {request.UserId} to {userRole}",
+                            request.UserId, user.Role);
+                        return Result<Unit>.Failure($"Failed to update user's role by userId {request.UserId} to {user.Role}.");
                     }
 
-                    _logger.LogInformation("Successfully updated user's role by userId {request.UserId}",
-                        request.UserId);
+                    _logger.LogInformation("Successfully updated user's role by userId {request.UserId} to {userRole}",
+                        request.UserId, user.Role);
                     return Result<Unit>.Success(Unit.Value,
-                        $"Successfully updated user's role by userId {request.UserId}.");
+                        $"Successfully updated user's role by userId {request.UserId} to {user.Role}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

@@ -27,7 +27,7 @@ namespace API.Controllers
         }
 
         // Keer, Biker, Admin
-        [HttpGet("{userId:int}/history")]
+        [HttpGet("history/users/{userId:int}")]
         public async Task<IActionResult> GetHistoryTrips(int userId, int page, int limit, CancellationToken ct)
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
@@ -41,7 +41,7 @@ namespace API.Controllers
         }
 
         // Keer, Biker, Admin
-        [HttpGet("{userId:int}/upcoming")]
+        [HttpGet("upcoming/users/{userId:int}")]
         public async Task<IActionResult> GetUpcomingTrips(int userId, int page, int limit, CancellationToken ct)
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
@@ -56,8 +56,8 @@ namespace API.Controllers
 
         // TODO: Search based on date, fromTime, toTime, departureId, destinationId
         // Biker, Admin
-        [HttpGet("upcomingBiker")]
-        public async Task<IActionResult> GetUpcomingTripsForBiker(int page, int limit, CancellationToken ct)
+        [HttpGet("newlyCreatedTrip")]
+        public async Task<IActionResult> SearchNewlyCreatedTripList(int page, int limit, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -72,7 +72,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new SpecificSearchList.Query {Page = page, Limit = limit, UserId = validationDto.UserRequestId},
+                new NewlyCreatedTripList.Query {Page = page, Limit = limit, UserId = validationDto.UserRequestId},
                 ct));
         }
 

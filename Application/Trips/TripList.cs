@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,8 @@ using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Firebase.Auth;
+using Firebase.Storage;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -55,7 +58,6 @@ namespace Application.Trips
                     }
 
                     var totalRecord = await _context.Trip.CountAsync(cancellationToken);
-
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<TripDetailsDto> trips = new();

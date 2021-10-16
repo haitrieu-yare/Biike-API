@@ -56,7 +56,7 @@ namespace Application.Trips
                         return Result<List<TripDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    Domain.Entities.User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    var user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null)
                     {

@@ -16,7 +16,7 @@ using Persistence;
 namespace Application.Trips
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class SpecificSearchList
+    public class NewlyCreatedTripList
     {
         public class Query : IRequest<Result<List<TripDto>>>
         {
