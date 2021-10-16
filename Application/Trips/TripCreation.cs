@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -43,9 +44,25 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
+                    var route = await _context.Route
+                        .Where(r => r.DepartureId == request.TripCreationDto.DepartureId)
+                        .Where(r => r.DestinationId == request.TripCreationDto.DestinationId)
+                        .SingleOrDefaultAsync(cancellationToken);
+                    
+                    if (route == null)
+                    {
+                        _logger.LogInformation(
+                            "Route with DepartureId {DepartureId} and DestinationId {DestinationId} doesn't exist",
+                            request.TripCreationDto.DepartureId, request.TripCreationDto.DestinationId);
+                        return Result<Unit>.NotFound(
+                            $"Route with DepartureId {request.TripCreationDto.DepartureId} and " +
+                            $"DestinationId {request.TripCreationDto.DestinationId} doesn't exist.");
+                    }
+
                     Trip newTrip = new();
 
                     _mapper.Map(request.TripCreationDto, newTrip);
+                    newTrip.RouteId = route.RouteId;
 
                     await _context.Trip.AddAsync(newTrip, cancellationToken);
 

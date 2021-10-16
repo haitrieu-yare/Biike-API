@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Domain.Enums;
 
+// ReSharper disable CollectionNeverUpdated.Global
+
 namespace Domain.Entities
 {
     public class Trip
