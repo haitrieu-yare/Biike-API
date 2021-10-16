@@ -241,7 +241,7 @@ namespace Application.Core
                 .ForMember(r => r.Description, o => o.MapFrom(u => u.Voucher.Description))
                 .ForMember(r => r.TermsAndConditions, o => o.MapFrom(u => u.Voucher.TermsAndConditions));
             // Create
-            CreateMap<RedemptionCreateDto, Redemption>();
+            CreateMap<RedemptionCreationDto, Redemption>();
 
             #endregion
 

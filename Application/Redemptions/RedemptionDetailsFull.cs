@@ -14,7 +14,7 @@ using Persistence;
 namespace Application.Redemptions
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class DetailRedemptionFull
+    public class RedemptionDetailsFull
     {
         public class Query : IRequest<Result<RedemptionAndVoucherDto>>
         {

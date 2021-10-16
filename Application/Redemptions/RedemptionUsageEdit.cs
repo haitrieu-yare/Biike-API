@@ -12,7 +12,8 @@ using Persistence;
 
 namespace Application.Redemptions
 {
-    public class EditUsageRedemption
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class RedemptionUsageEdit
     {
         public class Command : IRequest<Result<Unit>>
         {

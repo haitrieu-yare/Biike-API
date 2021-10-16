@@ -14,7 +14,8 @@ using Persistence;
 
 namespace Application.Redemptions
 {
-    public class ListRedemption
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class RedemptionList
     {
         public class Query : IRequest<Result<List<RedemptionDto>>>
         {

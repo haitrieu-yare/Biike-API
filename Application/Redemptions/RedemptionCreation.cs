@@ -15,11 +15,12 @@ using Persistence;
 
 namespace Application.Redemptions
 {
-    public class CreateRedemption
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class RedemptionCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public RedemptionCreateDto RedemptionCreateDto { get; set; } = null!;
+            public RedemptionCreationDto RedemptionCreationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -41,19 +42,19 @@ namespace Application.Redemptions
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User.FindAsync(new object[] {request.RedemptionCreateDto.UserId!},
+                    User user = await _context.User.FindAsync(new object[] {request.RedemptionCreationDto.UserId!},
                         cancellationToken);
 
                     if (user == null)
                     {
                         _logger.LogInformation("User with UserId {UserId} doesn't exist",
-                            request.RedemptionCreateDto.UserId);
+                            request.RedemptionCreationDto.UserId);
                         return Result<Unit>.NotFound(
-                            $"User with UserId {request.RedemptionCreateDto.UserId} doesn't exist.");
+                            $"User with UserId {request.RedemptionCreationDto.UserId} doesn't exist.");
                     }
 
                     Voucher voucher =
-                        await _context.Voucher.FindAsync(new object[] {request.RedemptionCreateDto.VoucherId!},
+                        await _context.Voucher.FindAsync(new object[] {request.RedemptionCreationDto.VoucherId!},
                             cancellationToken);
 
                     if (voucher == null)
@@ -79,11 +80,11 @@ namespace Application.Redemptions
                     // Max number of active wallets is 2 for each user
                     // Current Wallet
                     Wallet currentWallet = await _context.Wallet
-                        .Where(w => w.UserId == request.RedemptionCreateDto.UserId)
+                        .Where(w => w.UserId == request.RedemptionCreationDto.UserId)
                         .Where(w => w.Status == (int) WalletStatus.Current)
                         .SingleOrDefaultAsync(cancellationToken);
                     // Old Wallet
-                    Wallet oldWallet = await _context.Wallet.Where(w => w.UserId == request.RedemptionCreateDto.UserId)
+                    Wallet oldWallet = await _context.Wallet.Where(w => w.UserId == request.RedemptionCreationDto.UserId)
                         .Where(w => w.Status == (int) WalletStatus.Old)
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -95,7 +96,7 @@ namespace Application.Redemptions
 
                     Redemption newRedemption = new();
 
-                    _mapper.Map(request.RedemptionCreateDto, newRedemption);
+                    _mapper.Map(request.RedemptionCreationDto, newRedemption);
 
                     // Set voucherPoint
                     newRedemption.VoucherPoint = voucher.AmountOfPoint;
