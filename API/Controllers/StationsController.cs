@@ -21,7 +21,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new ListStations.Query {Page = page, Limit = limit, IsAdmin = validationDto.IsAdmin}, ct));
+                new StationList.Query {Page = page, Limit = limit, IsAdmin = validationDto.IsAdmin}, ct));
         }
 
         // Keer, Biker, Admin
@@ -33,11 +33,11 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new DetailStation.Query {StationId = stationId, IsAdmin = validationDto.IsAdmin}, ct));
+                new StationDetails.Query {StationId = stationId, IsAdmin = validationDto.IsAdmin}, ct));
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateStation(StationCreateDto stationCreateDto, CancellationToken ct)
+        public async Task<IActionResult> CreateStation(StationCreationDto stationCreationDto, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -47,7 +47,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new CreateStation.Command {StationCreateDto = stationCreateDto}, ct));
+                new StationCreation.Command {StationCreationDto = stationCreationDto}, ct));
         }
 
         // Admin
@@ -62,7 +62,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new EditStation.Command {StationId = stationId, NewStationDto = newStationDto}, ct));
+                new StationEdit.Command {StationId = stationId, NewStationDto = newStationDto}, ct));
         }
 
         // Admin
@@ -76,7 +76,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DeleteStation.Command {StationId = stationId}, ct));
+            return HandleResult(await Mediator.Send(new StationDeletion.Command {StationId = stationId}, ct));
         }
     }
 }

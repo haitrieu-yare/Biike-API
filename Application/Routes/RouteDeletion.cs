@@ -8,13 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Stations
+namespace Application.Routes
 {
-    public class DeleteStation
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class RouteDeletion
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int StationId { get; init; }
+            public int RouteId { get; init; }
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -34,30 +35,28 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Station station = await _context.Station
-                        .FindAsync(new object[] {request.StationId}, cancellationToken);
+                    Route route = await _context.Route
+                        .FindAsync(new object[] {request.RouteId}, cancellationToken);
 
-                    if (station == null)
+                    if (route == null)
                     {
-                        _logger.LogInformation("Station doesn't exist");
-                        return Result<Unit>.NotFound("Station doesn't exist.");
+                        _logger.LogInformation("Route doesn't exist");
+                        return Result<Unit>.NotFound("Route doesn't exist.");
                     }
 
-                    station.IsDeleted = !station.IsDeleted;
+                    route.IsDeleted = !route.IsDeleted;
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to delete station by stationId {request.StationId}",
-                            request.StationId);
-                        return Result<Unit>.Failure($"Failed to delete station by stationId {request.StationId}.");
+                        _logger.LogInformation("Failed to delete route by routeId {request.RouteId}", request.RouteId);
+                        return Result<Unit>.Failure($"Failed to delete route by routeId {request.RouteId}.");
                     }
 
-                    _logger.LogInformation("Successfully deleted station by stationId {request.StationId}",
-                        request.StationId);
+                    _logger.LogInformation("Successfully deleted route by routeId {request.RouteId}", request.RouteId);
                     return Result<Unit>.Success(
-                        Unit.Value, $"Successfully deleted station by stationId {request.StationId}.");
+                        Unit.Value, $"Successfully deleted route by routeId {request.RouteId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

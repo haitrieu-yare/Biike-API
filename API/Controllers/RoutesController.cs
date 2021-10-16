@@ -21,7 +21,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new ListRoutes.Query {Page = page, Limit = limit, IsAdmin = validationDto.IsAdmin}, ct));
+                new RouteList.Query {Page = page, Limit = limit, IsAdmin = validationDto.IsAdmin}, ct));
         }
 
         // Keer, Biker, Admin
@@ -33,12 +33,12 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new DetailRoute.Query {RouteId = routeId, IsAdmin = validationDto.IsAdmin}, ct));
+                new RouteDetails.Query {RouteId = routeId, IsAdmin = validationDto.IsAdmin}, ct));
         }
 
         // Admin
         [HttpPost]
-        public async Task<IActionResult> CreateRoute(RouteCreateDto routeCreateDto, CancellationToken ct)
+        public async Task<IActionResult> CreateRoute(RouteCreationDto routeCreationDto, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -47,7 +47,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new CreateRoute.Command {RouteCreateDto = routeCreateDto}, ct));
+            return HandleResult(await Mediator.Send(new RouteCreation.Command {RouteCreationDto = routeCreationDto}, ct));
         }
 
         // Admin
@@ -61,7 +61,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new EditRoute.Command {RouteId = routeId, RouteDto = routeDto},
+            return HandleResult(await Mediator.Send(new RouteEdit.Command {RouteId = routeId, RouteDto = routeDto},
                 ct));
         }
 
@@ -76,7 +76,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DeleteRoute.Command {RouteId = routeId}, ct));
+            return HandleResult(await Mediator.Send(new RouteDeletion.Command {RouteId = routeId}, ct));
         }
     }
 }

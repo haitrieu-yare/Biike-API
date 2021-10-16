@@ -12,11 +12,13 @@ using Persistence;
 
 namespace Application.Stations
 {
-    public class CreateStation
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class StationEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public StationCreateDto StationCreateDto { get; init; } = null!;
+            public int StationId { get; init; }
+            public StationDto NewStationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,23 +40,38 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Station newStation = new();
+                    Station oldStation = await _context.Station
+                        .FindAsync(new object[] {request.StationId}, cancellationToken);
 
-                    _mapper.Map(request.StationCreateDto, newStation);
+                    if (oldStation == null)
+                    {
+                        _logger.LogInformation("Station doesn't exist");
+                        return Result<Unit>.NotFound("Station doesn't exist.");
+                    }
 
-                    await _context.Station.AddAsync(newStation, cancellationToken);
+                    if (oldStation.IsDeleted)
+                    {
+                        _logger.LogInformation("Station with StationId {request.StationId} has been deleted. " +
+                                               "Please reactivate it if you want to edit it", request.StationId);
+                        return Result<Unit>.Failure($"Station with StationId {request.StationId} has been deleted. " +
+                                                    "Please reactivate it if you want to edit it.");
+                    }
+
+                    _mapper.Map(request.NewStationDto, oldStation);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to create new station");
-                        return Result<Unit>.Failure("Failed to create new station.");
+                        _logger.LogInformation("Failed to update station by stationId {request.StationId}",
+                            request.StationId);
+                        return Result<Unit>.Failure($"Failed to update station by stationId {request.StationId}.");
                     }
 
-                    _logger.LogInformation("Successfully created new station");
-                    return Result<Unit>.Success(Unit.Value, "Successfully created new station.",
-                        newStation.StationId.ToString());
+                    _logger.LogInformation("Successfully updated station by stationId {request.StationId}",
+                        request.StationId);
+                    return Result<Unit>.Success(
+                        Unit.Value, $"Successfully updated station by stationId {request.StationId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

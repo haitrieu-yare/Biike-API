@@ -57,7 +57,7 @@ namespace Application.Core
                 .ForMember(s => s.IsDeleted, opt => opt.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
-            CreateMap<StationCreateDto, Station>();
+            CreateMap<StationCreationDto, Station>();
 
             #endregion
 
@@ -72,7 +72,7 @@ namespace Application.Core
                 .ForMember(r => r.IsDeleted, opt => opt.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
-            CreateMap<RouteCreateDto, Route>();
+            CreateMap<RouteCreationDto, Route>();
 
             #endregion
 

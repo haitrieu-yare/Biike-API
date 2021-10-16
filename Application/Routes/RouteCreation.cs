@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -12,12 +13,12 @@ using Persistence;
 
 namespace Application.Routes
 {
-    public class EditRoute
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class RouteCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int RouteId { get; init; }
-            public RouteDto RouteDto { get; init; } = null!;
+            public RouteCreationDto RouteCreationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -39,37 +40,33 @@ namespace Application.Routes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Route oldRoute =
-                        await _context.Route.FindAsync(new object[] {request.RouteId}, cancellationToken);
+                    Task<Route> oldRoute = _context.Route
+                        .Where(r => r.DepartureId == request.RouteCreationDto.DepartureId)
+                        .Where(r => r.DestinationId == request.RouteCreationDto.DestinationId)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-                    if (oldRoute == null)
-                    {
-                        _logger.LogInformation("Route doesn't exist");
-                        return Result<Unit>.NotFound("Route doesn't exist.");
-                    }
-
-                    if (oldRoute.IsDeleted)
+                    if (oldRoute != null)
                     {
                         _logger.LogInformation(
-                            "Route with RouteId {request.RouteId} has been deleted. " +
-                            "Please reactivate it if you want to edit it", request.RouteId);
-                        return Result<Unit>.Failure($"Route with RouteId {request.RouteId} has been deleted. " +
-                                                    "Please reactivate it if you want to edit it.");
+                            "Route with departureId {DepartureId} and destinationId {DestinationId} is already existed",
+                            request.RouteCreationDto.DepartureId, request.RouteCreationDto.DestinationId);
+                        return Result<Unit>.Failure(
+                            $"Route with departureId {request.RouteCreationDto.DepartureId} and destinationId {request.RouteCreationDto.DestinationId} is already existed.");
                     }
 
-                    _mapper.Map(request.RouteDto, oldRoute);
-
+                    var newRoute = new Route();
+                    _mapper.Map(request.RouteCreationDto, newRoute);
+                    await _context.Route.AddAsync(newRoute, cancellationToken);
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to update route by routeId {request.RouteId}", request.RouteId);
-                        return Result<Unit>.Failure($"Failed to update route by routeId {request.RouteId}.");
+                        _logger.LogInformation("Failed to create new route");
+                        return Result<Unit>.Failure("Failed to create new route.");
                     }
 
-                    _logger.LogInformation("Successfully updated route by routeId {request.RouteId}", request.RouteId);
-                    return Result<Unit>.Success(Unit.Value,
-                        $"Successfully updated route by routeId {request.RouteId}.");
+                    _logger.LogInformation("Successfully created route");
+                    return Result<Unit>.Success(Unit.Value, "Successfully created route.", newRoute.RouteId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

@@ -1,9 +1,8 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Routes.DTOs;
+using Application.Stations.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
@@ -11,13 +10,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Routes
+namespace Application.Stations
 {
-    public class CreateRoute
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class StationCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public RouteCreateDto RouteCreateDto { get; init; } = null!;
+            public StationCreationDto StationCreationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -39,33 +39,23 @@ namespace Application.Routes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Task<Route> oldRoute = _context.Route
-                        .Where(r => r.DepartureId == request.RouteCreateDto.DepartureId)
-                        .Where(r => r.DestinationId == request.RouteCreateDto.DestinationId)
-                        .SingleOrDefaultAsync(cancellationToken);
+                    Station newStation = new();
 
-                    if (oldRoute != null)
-                    {
-                        _logger.LogInformation(
-                            "Route with departureId {DepartureId} and destinationId {DestinationId} is already existed",
-                            request.RouteCreateDto.DepartureId, request.RouteCreateDto.DestinationId);
-                        return Result<Unit>.Failure(
-                            $"Route with departureId {request.RouteCreateDto.DepartureId} and destinationId {request.RouteCreateDto.DestinationId} is already existed.");
-                    }
+                    _mapper.Map(request.StationCreationDto, newStation);
 
-                    var newRoute = new Route();
-                    _mapper.Map(request.RouteCreateDto, newRoute);
-                    await _context.Route.AddAsync(newRoute, cancellationToken);
+                    await _context.Station.AddAsync(newStation, cancellationToken);
+
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to create new route");
-                        return Result<Unit>.Failure("Failed to create new route.");
+                        _logger.LogInformation("Failed to create new station");
+                        return Result<Unit>.Failure("Failed to create new station.");
                     }
 
-                    _logger.LogInformation("Successfully created route");
-                    return Result<Unit>.Success(Unit.Value, "Successfully created route.", newRoute.RouteId.ToString());
+                    _logger.LogInformation("Successfully created new station");
+                    return Result<Unit>.Success(Unit.Value, "Successfully created new station.",
+                        newStation.StationId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

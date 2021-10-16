@@ -14,7 +14,8 @@ using Persistence;
 
 namespace Application.Routes
 {
-    public class DetailRoute
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class RouteDetails
     {
         public class Query : IRequest<Result<RouteDto>>
         {

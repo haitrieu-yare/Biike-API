@@ -14,7 +14,8 @@ using Persistence;
 
 namespace Application.Stations
 {
-    public class DetailStation
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class StationDetails
     {
         public class Query : IRequest<Result<StationDto>>
         {
