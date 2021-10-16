@@ -208,7 +208,7 @@ namespace Application.Core
                 .ForMember(v => v.VoucherCategoryId, o => o.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
-            CreateMap<VoucherCategoryCreateDto, VoucherCategory>();
+            CreateMap<VoucherCategoryCreationDto, VoucherCategory>();
 
             #endregion
 
@@ -221,7 +221,7 @@ namespace Application.Core
                 .ForMember(v => v.VoucherId, o => o.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
-            CreateMap<VoucherCreateDto, Voucher>();
+            CreateMap<VoucherCreationDto, Voucher>();
 
             #endregion
 
@@ -252,7 +252,7 @@ namespace Application.Core
                 .ForMember(w => w.WalletId, o => o.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
-            CreateMap<WalletCreateDto, Wallet>();
+            CreateMap<WalletCreationDto, Wallet>();
 
             #endregion
         }

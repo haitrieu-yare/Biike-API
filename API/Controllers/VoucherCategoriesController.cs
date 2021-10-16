@@ -20,7 +20,7 @@ namespace API.Controllers
 
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
-            return HandleResult(await Mediator.Send(new ListVoucherCategory.Query {Page = page, Limit = limit}, ct));
+            return HandleResult(await Mediator.Send(new VoucherCategoryList.Query {Page = page, Limit = limit}, ct));
         }
 
         // Keer, Biker, Admin
@@ -32,13 +32,13 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new DetailVoucherCategory.Query {VoucherCategoryId = voucherCategoryId}, ct));
+                new VoucherCategoryDetails.Query {VoucherCategoryId = voucherCategoryId}, ct));
         }
 
         // Admin
         [HttpPost]
         public async Task<IActionResult> CreateVoucherCategory(
-            VoucherCategoryCreateDto voucherCategoryCreateDto, CancellationToken ct)
+            VoucherCategoryCreationDto voucherCategoryCreationDto, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -48,7 +48,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new CreateVoucherCategory.Command {VoucherCategoryCreateDto = voucherCategoryCreateDto}, ct));
+                new VoucherCategoryCreation.Command {VoucherCategoryCreationDto = voucherCategoryCreationDto}, ct));
         }
 
         // Admin
@@ -64,7 +64,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new EditVoucherCategory.Command
+                new VoucherCategoryEdit.Command
                 {
                     VoucherCategoryId = voucherCategoryId,
                     NewVoucherCategoryDto = newVoucherCategoryDto
@@ -83,7 +83,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new DeleteVoucherCategory.Command {VoucherCategoryId = voucherCategoryId}, ct));
+                new VoucherCategoryDeletion.Command {VoucherCategoryId = voucherCategoryId}, ct));
         }
     }
 }

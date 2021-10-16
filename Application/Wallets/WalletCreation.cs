@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Vouchers.DTOs;
+using Application.Wallets.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
@@ -10,13 +10,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Vouchers
+namespace Application.Wallets
 {
-    public class CreateVoucher
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class WalletCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public VoucherCreateDto VoucherCreateDto { get; init; } = null!;
+            public WalletCreationDto WalletCreationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,31 +39,23 @@ namespace Application.Vouchers
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Voucher newVoucher = new();
+                    Wallet newWallet = new();
 
-                    _mapper.Map(request.VoucherCreateDto, newVoucher);
+                    _mapper.Map(request.WalletCreationDto, newWallet);
 
-                    if (newVoucher.EndDate.CompareTo(newVoucher.StartDate) < 0)
-                    {
-                        _logger.LogInformation("EndDate must be set later than StartDate");
-                        return Result<Unit>.Failure("EndDate must be set later than StartDate.");
-                    }
-
-                    newVoucher.Remaining = newVoucher.Quantity;
-
-                    await _context.Voucher.AddAsync(newVoucher, cancellationToken);
+                    await _context.Wallet.AddAsync(newWallet, cancellationToken);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to create new voucher");
-                        return Result<Unit>.Failure("Failed to create new voucher.");
+                        _logger.LogInformation("Failed to create new wallet");
+                        return Result<Unit>.Failure("Failed to create new wallet.");
                     }
 
-                    _logger.LogInformation("Successfully created new voucher");
+                    _logger.LogInformation("Successfully created wallet");
                     return Result<Unit>.Success(
-                        Unit.Value, "Successfully created new voucher.", newVoucher.VoucherId.ToString());
+                        Unit.Value, "Successfully created wallet.", newWallet.WalletId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

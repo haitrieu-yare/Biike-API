@@ -8,13 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Wallets
+namespace Application.VoucherCategories
 {
-    public class DeleteWallet
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class VoucherCategoryDeletion
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int WalletId { get; init; }
+            public int VoucherCategoryId { get; init; }
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -34,30 +35,35 @@ namespace Application.Wallets
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Wallet wallet =
-                        await _context.Wallet.FindAsync(new object[] {request.WalletId}, cancellationToken);
+                    VoucherCategory voucherCategory =
+                        await _context.VoucherCategory.FindAsync(new object[] {request.VoucherCategoryId},
+                            cancellationToken);
 
-                    if (wallet == null)
+                    if (voucherCategory == null)
                     {
-                        _logger.LogInformation("Wallet doesn't exist");
-                        return Result<Unit>.NotFound("Wallet doesn't exist.");
+                        _logger.LogInformation("Voucher category doesn't exist");
+                        return Result<Unit>.NotFound("Voucher category doesn't exist.");
                     }
 
-                    _context.Wallet.Remove(wallet);
+                    _context.VoucherCategory.Remove(voucherCategory);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to delete wallet by walletId {request.WalletId}",
-                            request.WalletId);
-                        return Result<Unit>.Failure($"Failed to delete wallet by walletId {request.WalletId}.");
+                        _logger.LogInformation(
+                            "Failed to delete voucher's category " + "by voucherCategoryId {request.VoucherCategoryId}",
+                            request.VoucherCategoryId);
+                        return Result<Unit>.Failure("Failed to delete voucher's category " +
+                                                    $"by voucherCategoryId {request.VoucherCategoryId}.");
                     }
 
-                    _logger.LogInformation("Successfully deleted wallet by walletId {request.WalletId}",
-                        request.WalletId);
+                    _logger.LogInformation(
+                        "Successfully deleted voucher's category " + "by voucherCategoryId {request.VoucherCategoryId}",
+                        request.VoucherCategoryId);
                     return Result<Unit>.Success(Unit.Value,
-                        $"Successfully deleted wallet by walletId {request.WalletId}.");
+                        "Successfully deleted voucher's category " +
+                        $"by voucherCategoryId {request.VoucherCategoryId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

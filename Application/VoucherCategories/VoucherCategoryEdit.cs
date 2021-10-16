@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Wallets.DTOs;
+using Application.VoucherCategories.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
@@ -10,13 +10,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Wallets
+namespace Application.VoucherCategories
 {
-    public class CreateWallet
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class VoucherCategoryEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public WalletCreateDto WalletCreateDto { get; init; } = null!;
+            public int VoucherCategoryId { get; init; }
+            public VoucherCategoryDto NewVoucherCategoryDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -38,23 +40,35 @@ namespace Application.Wallets
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Wallet newWallet = new();
+                    VoucherCategory oldVoucherCategory =
+                        await _context.VoucherCategory.FindAsync(new object[] {request.VoucherCategoryId},
+                            cancellationToken);
 
-                    _mapper.Map(request.WalletCreateDto, newWallet);
+                    if (oldVoucherCategory == null)
+                    {
+                        _logger.LogInformation("Voucher category doesn't exist");
+                        return Result<Unit>.NotFound("Voucher category doesn't exist.");
+                    }
 
-                    await _context.Wallet.AddAsync(newWallet, cancellationToken);
+                    _mapper.Map(request.NewVoucherCategoryDto, oldVoucherCategory);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to create new wallet");
-                        return Result<Unit>.Failure("Failed to create new wallet.");
+                        _logger.LogInformation(
+                            "Failed to update voucher's category " + "by VoucherCategoryId {request.VoucherCategoryId}",
+                            request.VoucherCategoryId);
+                        return Result<Unit>.Failure("Failed to update voucher's category " +
+                                                    $"by VoucherCategoryId {request.VoucherCategoryId}.");
                     }
 
-                    _logger.LogInformation("Successfully created wallet");
-                    return Result<Unit>.Success(
-                        Unit.Value, "Successfully created wallet.", newWallet.WalletId.ToString());
+                    _logger.LogInformation(
+                        "Successfully updated voucher's category " + "by VoucherCategoryId {request.VoucherCategoryId}",
+                        request.VoucherCategoryId);
+                    return Result<Unit>.Success(Unit.Value,
+                        "Successfully updated voucher's category " +
+                        $"by VoucherCategoryId {request.VoucherCategoryId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.VoucherCategories.DTOs;
+using Application.Vouchers.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
@@ -10,14 +10,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.VoucherCategories
+namespace Application.Vouchers
 {
-    public class EditVoucherCategory
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class VoucherCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int VoucherCategoryId { get; init; }
-            public VoucherCategoryDto NewVoucherCategoryDto { get; init; } = null!;
+            public VoucherCreationDto VoucherCreationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -39,35 +39,31 @@ namespace Application.VoucherCategories
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    VoucherCategory oldVoucherCategory =
-                        await _context.VoucherCategory.FindAsync(new object[] {request.VoucherCategoryId},
-                            cancellationToken);
+                    Voucher newVoucher = new();
 
-                    if (oldVoucherCategory == null)
+                    _mapper.Map(request.VoucherCreationDto, newVoucher);
+
+                    if (newVoucher.EndDate.CompareTo(newVoucher.StartDate) < 0)
                     {
-                        _logger.LogInformation("Voucher category doesn't exist");
-                        return Result<Unit>.NotFound("Voucher category doesn't exist.");
+                        _logger.LogInformation("EndDate must be set later than StartDate");
+                        return Result<Unit>.Failure("EndDate must be set later than StartDate.");
                     }
 
-                    _mapper.Map(request.NewVoucherCategoryDto, oldVoucherCategory);
+                    newVoucher.Remaining = newVoucher.Quantity;
+
+                    await _context.Voucher.AddAsync(newVoucher, cancellationToken);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation(
-                            "Failed to update voucher's category " + "by VoucherCategoryId {request.VoucherCategoryId}",
-                            request.VoucherCategoryId);
-                        return Result<Unit>.Failure("Failed to update voucher's category " +
-                                                    $"by VoucherCategoryId {request.VoucherCategoryId}.");
+                        _logger.LogInformation("Failed to create new voucher");
+                        return Result<Unit>.Failure("Failed to create new voucher.");
                     }
 
-                    _logger.LogInformation(
-                        "Successfully updated voucher's category " + "by VoucherCategoryId {request.VoucherCategoryId}",
-                        request.VoucherCategoryId);
-                    return Result<Unit>.Success(Unit.Value,
-                        "Successfully updated voucher's category " +
-                        $"by VoucherCategoryId {request.VoucherCategoryId}.");
+                    _logger.LogInformation("Successfully created new voucher");
+                    return Result<Unit>.Success(
+                        Unit.Value, "Successfully created new voucher.", newVoucher.VoucherId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

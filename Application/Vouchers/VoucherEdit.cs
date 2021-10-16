@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Wallets.DTOs;
+using Application.Vouchers.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
@@ -10,14 +10,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Wallets
+namespace Application.Vouchers
 {
-    public class EditWallet
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class VoucherEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int WalletId { get; init; }
-            public WalletDto NewWalletDto { get; init; } = null!;
+            public int VoucherId { get; init; }
+            public VoucherEditDto NewVoucher { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -39,30 +40,36 @@ namespace Application.Wallets
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Wallet oldWallet =
-                        await _context.Wallet.FindAsync(new object[] {request.WalletId}, cancellationToken);
+                    Voucher oldVoucher =
+                        await _context.Voucher.FindAsync(new object[] {request.VoucherId}, cancellationToken);
 
-                    if (oldWallet == null)
+                    if (oldVoucher == null)
                     {
-                        _logger.LogInformation("Wallet doesn't exist");
-                        return Result<Unit>.NotFound("Wallet doesn't exist.");
+                        _logger.LogInformation("Voucher doesn't exist");
+                        return Result<Unit>.NotFound("Voucher doesn't exist.");
                     }
 
-                    _mapper.Map(request.NewWalletDto, oldWallet);
+                    _mapper.Map(request.NewVoucher, oldVoucher);
+
+                    if (oldVoucher.EndDate.CompareTo(oldVoucher.StartDate) < 0)
+                    {
+                        _logger.LogInformation("EndDate must be set later than StartDate");
+                        return Result<Unit>.Failure("EndDate must be set later than StartDate.");
+                    }
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to update wallet by walletId {request.WalletId}",
-                            request.WalletId);
-                        return Result<Unit>.Failure($"Failed to update wallet by walletId {request.WalletId}.");
+                        _logger.LogInformation("Failed to update voucher by voucherId {request.VoucherId}",
+                            request.VoucherId);
+                        return Result<Unit>.Failure($"Failed to update voucher by voucherId {request.VoucherId}.");
                     }
 
-                    _logger.LogInformation("Successfully updated wallet by walletId {request.WalletId}",
-                        request.WalletId);
+                    _logger.LogInformation("Successfully updated voucher by voucherId {request.VoucherId}",
+                        request.VoucherId);
                     return Result<Unit>.Success(Unit.Value,
-                        $"Successfully updated wallet by walletId {request.WalletId}.");
+                        $"Successfully updated voucher by voucherId {request.VoucherId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

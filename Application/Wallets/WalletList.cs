@@ -14,7 +14,8 @@ using Persistence;
 
 namespace Application.Wallets
 {
-    public class ListWallets
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class WalletList
     {
         public class Query : IRequest<Result<List<WalletDto>>>
         {

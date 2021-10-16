@@ -12,6 +12,7 @@ using Quartz;
 
 namespace Application.Wallets
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class WalletJob : IJob
     {
         private readonly DataContext _context;

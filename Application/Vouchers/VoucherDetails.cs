@@ -11,7 +11,8 @@ using Persistence;
 
 namespace Application.Vouchers
 {
-    public class DetailVoucher
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class VoucherDetails
     {
         public class Query : IRequest<Result<VoucherDto>>
         {

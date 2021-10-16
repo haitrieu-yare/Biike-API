@@ -23,7 +23,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new ListWallets.Query {Page = page, Limit = limit}, ct));
+            return HandleResult(await Mediator.Send(new WalletList.Query {Page = page, Limit = limit}, ct));
         }
 
         // Keer, Biker, Admin
@@ -37,7 +37,7 @@ namespace API.Controllers
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.DidNotHavePermissionToAccess);
 
             return HandleResult(await Mediator.Send(
-                new ListWalletsByUserId.Query {Page = page, Limit = limit, UserId = userId}, ct));
+                new WalletListByUserId.Query {Page = page, Limit = limit, UserId = userId}, ct));
         }
 
         // Admin
@@ -51,12 +51,12 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DetailWallet.Query {WalletId = walletId}, ct));
+            return HandleResult(await Mediator.Send(new WalletDetails.Query {WalletId = walletId}, ct));
         }
 
         // Admin
         [HttpPost]
-        public async Task<IActionResult> CreateWallet(WalletCreateDto walletCreateDto, CancellationToken ct)
+        public async Task<IActionResult> CreateWallet(WalletCreationDto walletCreationDto, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -66,7 +66,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new CreateWallet.Command {WalletCreateDto = walletCreateDto}, ct));
+                new WalletCreation.Command {WalletCreationDto = walletCreationDto}, ct));
         }
 
         // Admin
@@ -82,7 +82,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new EditWallet.Command {WalletId = walletId, NewWalletDto = newWalletDto}, ct));
+                new WalletEdit.Command {WalletId = walletId, NewWalletDto = newWalletDto}, ct));
         }
 
         // Admin
@@ -96,7 +96,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DeleteWallet.Command {WalletId = walletId}, ct));
+            return HandleResult(await Mediator.Send(new WalletDeletion.Command {WalletId = walletId}, ct));
         }
     }
 }

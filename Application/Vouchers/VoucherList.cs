@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Wallets.DTOs;
+using Application.Vouchers.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -12,18 +12,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Wallets
+namespace Application.Vouchers
 {
-    public class ListWalletsByUserId
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class VoucherList
     {
-        public class Query : IRequest<Result<List<WalletDto>>>
+        public class Query : IRequest<Result<List<VoucherDto>>>
         {
-            public int UserId { get; init; }
             public int Page { get; init; }
             public int Limit { get; init; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<List<WalletDto>>>
+        public class Handler : IRequestHandler<Query, Result<List<VoucherDto>>>
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
@@ -36,7 +36,7 @@ namespace Application.Wallets
                 _logger = logger;
             }
 
-            public async Task<Result<List<WalletDto>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<List<VoucherDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
                 try
                 {
@@ -45,44 +45,41 @@ namespace Application.Wallets
                     if (request.Page <= 0)
                     {
                         _logger.LogInformation("Page must be larger than 0");
-                        return Result<List<WalletDto>>.Failure("Page must be larger than 0.");
+                        return Result<List<VoucherDto>>.Failure("Page must be larger than 0.");
                     }
 
                     if (request.Limit <= 0)
                     {
                         _logger.LogInformation("Limit must be larger than 0");
-                        return Result<List<WalletDto>>.Failure("Limit must be larger than 0.");
+                        return Result<List<VoucherDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    var totalRecord = await _context.Wallet
-                        .Where(w => w.UserId == request.UserId)
-                        .CountAsync(cancellationToken);
+                    var totalRecord = await _context.Voucher.CountAsync(cancellationToken);
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
-                    List<WalletDto> wallets = new();
+                    List<VoucherDto> vouchers = new();
 
                     if (request.Page <= lastPage)
-                        wallets = await _context.Wallet
-                            .Where(w => w.UserId == request.UserId)
-                            .OrderByDescending(w => w.Status)
+                        vouchers = await _context.Voucher
+                            .OrderBy(v => v.VoucherId)
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
-                            .ProjectTo<WalletDto>(_mapper.ConfigurationProvider)
+                            .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
                             .ToListAsync(cancellationToken);
 
                     PaginationDto paginationDto = new(
-                        request.Page, request.Limit, wallets.Count, lastPage, totalRecord
+                        request.Page, request.Limit, vouchers.Count, lastPage, totalRecord
                     );
 
-                    _logger.LogInformation("Successfully retrieved list of all user's wallets");
-                    return Result<List<WalletDto>>.Success(
-                        wallets, "Successfully retrieved list of all user's wallets.", paginationDto);
+                    _logger.LogInformation("Successfully retrieved list of all vouchers");
+                    return Result<List<VoucherDto>>.Success(
+                        vouchers, "Successfully retrieved list of all vouchers.", paginationDto);
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
                     _logger.LogInformation("Request was cancelled");
-                    return Result<List<WalletDto>>.Failure("Request was cancelled.");
+                    return Result<List<VoucherDto>>.Failure("Request was cancelled.");
                 }
             }
         }

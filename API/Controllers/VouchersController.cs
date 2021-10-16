@@ -20,7 +20,7 @@ namespace API.Controllers
 
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
-            return HandleResult(await Mediator.Send(new ListVouchers.Query {Page = page, Limit = limit}, ct));
+            return HandleResult(await Mediator.Send(new VoucherList.Query {Page = page, Limit = limit}, ct));
         }
 
         // Keer, Biker, Admin
@@ -31,12 +31,12 @@ namespace API.Controllers
 
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
-            return HandleResult(await Mediator.Send(new DetailVoucher.Query {VoucherId = voucherId}, ct));
+            return HandleResult(await Mediator.Send(new VoucherDetails.Query {VoucherId = voucherId}, ct));
         }
 
         // Admin
         [HttpPost]
-        public async Task<IActionResult> CreateVoucher(VoucherCreateDto voucherCreateDto,
+        public async Task<IActionResult> CreateVoucher(VoucherCreationDto voucherCreationDto,
             CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
@@ -47,7 +47,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new CreateVoucher.Command {VoucherCreateDto = voucherCreateDto}, ct));
+                new VoucherCreation.Command {VoucherCreationDto = voucherCreationDto}, ct));
         }
 
         // Admin
@@ -62,7 +62,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new EditVoucher.Command {VoucherId = voucherId, NewVoucher = newVoucher}, ct));
+                new VoucherEdit.Command {VoucherId = voucherId, NewVoucher = newVoucher}, ct));
         }
     }
 }

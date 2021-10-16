@@ -2,29 +2,35 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Wallets.DTOs;
+using AutoMapper;
 using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.VoucherCategories
+namespace Application.Wallets
 {
-    public class DeleteVoucherCategory
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class WalletEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int VoucherCategoryId { get; init; }
+            public int WalletId { get; init; }
+            public WalletDto NewWalletDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
+            private readonly IMapper _mapper;
 
-            public Handler(DataContext context, ILogger<Handler> logger)
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
             {
                 _context = context;
+                _mapper = mapper;
                 _logger = logger;
             }
 
@@ -34,35 +40,30 @@ namespace Application.VoucherCategories
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    VoucherCategory voucherCategory =
-                        await _context.VoucherCategory.FindAsync(new object[] {request.VoucherCategoryId},
-                            cancellationToken);
+                    Wallet oldWallet =
+                        await _context.Wallet.FindAsync(new object[] {request.WalletId}, cancellationToken);
 
-                    if (voucherCategory == null)
+                    if (oldWallet == null)
                     {
-                        _logger.LogInformation("Voucher category doesn't exist");
-                        return Result<Unit>.NotFound("Voucher category doesn't exist.");
+                        _logger.LogInformation("Wallet doesn't exist");
+                        return Result<Unit>.NotFound("Wallet doesn't exist.");
                     }
 
-                    _context.VoucherCategory.Remove(voucherCategory);
+                    _mapper.Map(request.NewWalletDto, oldWallet);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation(
-                            "Failed to delete voucher's category " + "by voucherCategoryId {request.VoucherCategoryId}",
-                            request.VoucherCategoryId);
-                        return Result<Unit>.Failure("Failed to delete voucher's category " +
-                                                    $"by voucherCategoryId {request.VoucherCategoryId}.");
+                        _logger.LogInformation("Failed to update wallet by walletId {request.WalletId}",
+                            request.WalletId);
+                        return Result<Unit>.Failure($"Failed to update wallet by walletId {request.WalletId}.");
                     }
 
-                    _logger.LogInformation(
-                        "Successfully deleted voucher's category " + "by voucherCategoryId {request.VoucherCategoryId}",
-                        request.VoucherCategoryId);
+                    _logger.LogInformation("Successfully updated wallet by walletId {request.WalletId}",
+                        request.WalletId);
                     return Result<Unit>.Success(Unit.Value,
-                        "Successfully deleted voucher's category " +
-                        $"by voucherCategoryId {request.VoucherCategoryId}.");
+                        $"Successfully updated wallet by walletId {request.WalletId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
