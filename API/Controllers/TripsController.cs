@@ -54,10 +54,11 @@ namespace API.Controllers
                 new UpcomingList.Query {Page = page, Limit = limit, UserId = userId}, ct));
         }
 
-        // TODO: Search based on date, fromTime, toTime, departureId, destinationId
+        // TODO: Search based on date, time, departureId, destinationId
         // Biker, Admin
         [HttpGet("newlyCreatedTrip")]
-        public async Task<IActionResult> SearchNewlyCreatedTripList(int page, int limit, CancellationToken ct)
+        public async Task<IActionResult> SearchNewlyCreatedTripList(int page, int limit,
+            string dateTime, int departureId, int destinationId, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -72,8 +73,15 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new NewlyCreatedTripList.Query {Page = page, Limit = limit, UserId = validationDto.UserRequestId},
-                ct));
+                new NewlyCreatedTripList.Query
+                {
+                    Page = page,
+                    Limit = limit,
+                    UserId = validationDto.UserRequestId,
+                    DateTime = dateTime,
+                    DepartureId = departureId,
+                    DestinationId = destinationId
+                }, ct));
         }
 
         // TODO: Search Ke Now Trip
