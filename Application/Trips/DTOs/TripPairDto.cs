@@ -8,9 +8,9 @@ namespace Application.Trips.DTOs
         public int? UserId { get; set; }
         public string? Avatar { get; set; }
         public string? UserFullname { get; set; }
-        public DateTime? TimeBook { get; set; }
+        public DateTime? BookTime{ get; set; }
         public int? TripStatus { get; set; }
-        public string? StartingPointName { get; set; }
+        public string? DepartureName { get; set; }
         public string? DestinationName { get; set; }
     }
 }

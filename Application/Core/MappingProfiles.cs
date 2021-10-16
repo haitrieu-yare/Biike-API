@@ -117,9 +117,8 @@ namespace Application.Core
                         t.Biker == null && isKeer ? null :
                         t.Biker == null && !isKeer ? t.Keer.PhoneNumber :
                         t.Biker != null && isKeer ? t.Biker.PhoneNumber : t.Keer.PhoneNumber))
-                .ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
                 .ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
-                .ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))
+                .ForMember(t => t.DepartureName, o => o.MapFrom(t => t.Route.Departure.Name))
                 .ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
 
             // TripHistoryPair
@@ -130,9 +129,8 @@ namespace Application.Core
                 .ForMember(t => t.Avatar, o => o.MapFrom(t => userTwoId == t.BikerId ? t.Biker!.Avatar : t.Keer.Avatar))
                 .ForMember(t => t.UserFullname,
                     o => o.MapFrom(t => userTwoId == t.BikerId ? t.Biker!.FullName : t.Keer.FullName))
-                .ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
                 .ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
-                .ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))
+                .ForMember(t => t.DepartureName, o => o.MapFrom(t => t.Route.Departure.Name))
                 .ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
 
             // Detail Info
@@ -147,12 +145,11 @@ namespace Application.Core
                     o => o.MapFrom(t => t.Biker == null ? null : isKeer ? t.Biker.PhoneNumber : t.Keer.PhoneNumber))
                 .ForMember(t => t.UserStar,
                     o => o.MapFrom(t => t.Biker == null ? new double?() : isKeer ? t.Biker.Star : t.Keer.Star))
-                .ForMember(t => t.TimeBook, o => o.MapFrom(t => t.BookTime))
-                .ForMember(t => t.CreatedTime, o => o.MapFrom(t => t.CreatedDate))
-                .ForMember(t => t.TimeFinished, o => o.MapFrom(t => t.FinishedTime))
                 .ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
-                .ForMember(t => t.StartingPointName, o => o.MapFrom(t => t.Route.Departure.Name))
+                .ForMember(t => t.DepartureName, o => o.MapFrom(t => t.Route.Departure.Name))
+                .ForMember(t => t.DepartureCoordinate, o => o.MapFrom(t => t.Route.Departure.Coordinate))
                 .ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name))
+                .ForMember(t => t.DestinationCoordinate, o => o.MapFrom(t => t.Route.Destination.Coordinate))
                 .ForMember(t => t.Feedbacks, o => o.MapFrom(t => t.FeedbackList));
 
             // Detail 
@@ -160,7 +157,7 @@ namespace Application.Core
             // Create
             CreateMap<TripCreationDto, Trip>();
             // Cancel Trip
-            CreateMap<TripCancellationDto, Trip>().ForMember(t => t.FinishedTime, o => o.MapFrom(t => t.TimeFinished));
+            CreateMap<TripCancellationDto, Trip>();
 
             #endregion
 
@@ -176,17 +173,16 @@ namespace Application.Core
             #region Bike
 
             // List, Detail
-            CreateMap<Bike, BikeDto>().ForMember(b => b.NumberPlate, o => o.MapFrom(b => b.PlateNumber));
+            CreateMap<Bike, BikeDto>();
             // Create
-            CreateMap<BikeCreationDto, Bike>().ForMember(b => b.PlateNumber, o => o.MapFrom(b => b.NumberPlate));
+            CreateMap<BikeCreationDto, Bike>();
 
             #endregion
 
             #region Trip Transaction
 
             // List, Detail, DetailTrip
-            CreateMap<TripTransaction, TripTransactionDto>()
-                .ForMember(t => t.AmountPoint, o => o.MapFrom(t => t.AmountOfPoint));
+            CreateMap<TripTransaction, TripTransactionDto>();
 
             #endregion
 

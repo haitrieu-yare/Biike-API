@@ -15,6 +15,6 @@ namespace Application.Bikes.DTOs
         [Required] public string? Color { get; init; }
 
         [Required] public string? Brand { get; init; }
-        [Required] [MinLength(4)] public string? NumberPlate { get; init; }
+        [Required] [MinLength(4)] public string? PlateNumber { get; init; }
     }
 }

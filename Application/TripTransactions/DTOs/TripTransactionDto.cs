@@ -7,7 +7,7 @@ namespace Application.TripTransactions.DTOs
         public int? TripTransactionId { get; set; }
         public int? TripId { get; set; }
         public int? WalletId { get; set; }
-        public int? AmountPoint { get; set; }
+        public int? AmountOfPoint { get; set; }
         public DateTime? TransactionDate { get; set; }
     }
 }

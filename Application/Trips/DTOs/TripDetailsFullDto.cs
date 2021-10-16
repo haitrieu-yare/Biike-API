@@ -13,12 +13,14 @@ namespace Application.Trips.DTOs
         public string? UserFullname { get; set; }
         public double? UserStar { get; set; }
         public string? Avatar { get; set; }
-        public DateTime? CreatedTime { get; set; }
-        public DateTime? TimeBook { get; set; }
-        public DateTime? TimeFinished { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? BookTime{ get; set; }
+        public DateTime? FinishedTime { get; set; }
         public int? TripStatus { get; set; }
-        public string? StartingPointName { get; set; }
+        public string? DepartureName { get; set; }
+        public string? DepartureCoordinate { get; set; }
         public string? DestinationName { get; set; }
+        public string? DestinationCoordinate { get; set; }
         public List<FeedbackDto> Feedbacks { get; set; } = new();
     }
 }
