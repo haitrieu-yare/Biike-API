@@ -11,7 +11,8 @@ using Persistence;
 
 namespace Application.TripTransactions
 {
-    public class DetailTripTransaction
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class TripTransactionDetails
     {
         public class Query : IRequest<Result<TripTransactionDto>>
         {

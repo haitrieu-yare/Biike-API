@@ -15,6 +15,7 @@ using Persistence;
 
 namespace Application.Trips
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class HistoryPairList
     {
         public class Query : IRequest<Result<List<TripPairDto>>>

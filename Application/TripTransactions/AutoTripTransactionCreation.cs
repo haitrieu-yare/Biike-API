@@ -11,12 +11,12 @@ using Persistence;
 
 namespace Application.TripTransactions
 {
-    public class AutoCreateTripTransaction
+    public class AutoTripTransactionCreation
     {
         private readonly DataContext _context;
-        private readonly ILogger<AutoCreateTripTransaction> _logger;
+        private readonly ILogger<AutoTripTransactionCreation> _logger;
 
-        public AutoCreateTripTransaction(DataContext context, ILogger<AutoCreateTripTransaction> logger)
+        public AutoTripTransactionCreation(DataContext context, ILogger<AutoTripTransactionCreation> logger)
         {
             _context = context;
             _logger = logger;

@@ -14,10 +14,12 @@ using Persistence;
 
 namespace Application.TripTransactions
 {
-    public class ListTripTransactions
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class TripTransactionListByTripId
     {
         public class Query : IRequest<Result<List<TripTransactionDto>>>
         {
+            public int TripId { get; init; }
             public int Page { get; init; }
             public int Limit { get; init; }
         }
@@ -54,27 +56,25 @@ namespace Application.TripTransactions
                         return Result<List<TripTransactionDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    var totalRecord = await _context.TripTransaction.CountAsync(cancellationToken);
+                    var totalRecord = await _context.TripTransaction
+                        .Where(t => t.TripId == request.TripId)
+                        .CountAsync(cancellationToken);
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
-                    List<TripTransactionDto> tripTransactions = new();
+                    List<TripTransactionDto> tripTransaction = new();
 
                     if (request.Page <= lastPage)
-                        tripTransactions = await _context.TripTransaction
-                            .OrderBy(t => t.TripTransactionId)
-                            .Skip((request.Page - 1) * request.Limit)
-                            .Take(request.Limit)
+                        tripTransaction = await _context.TripTransaction
+                            .Where(t => t.TripId == request.TripId)
                             .ProjectTo<TripTransactionDto>(_mapper.ConfigurationProvider)
                             .ToListAsync(cancellationToken);
 
-                    PaginationDto paginationDto = new(
-                        request.Page, request.Limit, tripTransactions.Count, lastPage, totalRecord
-                    );
-
-                    _logger.LogInformation("Successfully retrieved list of all trip transaction");
+                    _logger.LogInformation("Successfully retrieved trip transaction " +
+                                           "based on tripId {request.TripId}", request.TripId);
                     return Result<List<TripTransactionDto>>.Success(
-                        tripTransactions, "Successfully retrieved list of all trip transaction.", paginationDto);
+                        tripTransaction, "Successfully retrieved trip transaction " +
+                                         $"based on tripId {request.TripId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

@@ -23,7 +23,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new ListTrips.Query {Page = page, Limit = limit}, ct));
+            return HandleResult(await Mediator.Send(new TripList.Query {Page = page, Limit = limit}, ct));
         }
 
         // Keer, Biker, Admin
@@ -72,7 +72,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new UpcomingListForBiker.Query {Page = page, Limit = limit, UserId = validationDto.UserRequestId},
+                new SpecificSearchList.Query {Page = page, Limit = limit, UserId = validationDto.UserRequestId},
                 ct));
         }
 
@@ -105,7 +105,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DetailTrip.Query {TripId = tripId}, ct));
+            return HandleResult(await Mediator.Send(new TripDetails.Query {TripId = tripId}, ct));
         }
 
         // Keer, Biker
@@ -125,13 +125,13 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new DetailTripInfo.Query {TripId = tripId, UserRequestId = validationDto.UserRequestId},
+                new TripDetailsFull.Query {TripId = tripId, UserRequestId = validationDto.UserRequestId},
                 ct));
         }
 
         // Keer
         [HttpPost]
-        public async Task<IActionResult> CreateTrip(TripCreateDto tripCreateDto, CancellationToken ct)
+        public async Task<IActionResult> CreateTrip(TripCreationDto tripCreationDto, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -140,13 +140,13 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Keer)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, tripCreateDto.KeerId);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, tripCreationDto.KeerId);
 
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
-            return HandleResult(await Mediator.Send(new CreateTrip.Command {TripCreateDto = tripCreateDto}, ct));
+            return HandleResult(await Mediator.Send(new TripCreation.Command {TripCreationDto = tripCreationDto}, ct));
         }
 
         // Biker
@@ -166,7 +166,7 @@ namespace API.Controllers
 
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
-            return HandleResult(await Mediator.Send(new EditTripBiker.Command {TripId = tripId, BikerId = bikerId},
+            return HandleResult(await Mediator.Send(new TripBikerEdit.Command {TripId = tripId, BikerId = bikerId},
                 ct));
         }
 
@@ -187,7 +187,7 @@ namespace API.Controllers
 
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
-            return HandleResult(await Mediator.Send(new EditTripProcess.Command {TripId = tripId, BikerId = bikerId},
+            return HandleResult(await Mediator.Send(new TripProcessEdit.Command {TripId = tripId, BikerId = bikerId},
                 ct));
         }
 
@@ -201,7 +201,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new EditTripCancellation.Command
+                new TripCancellationEdit.Command
                 {
                     TripId = tripId,
                     UserId = validationDto.UserRequestId,

@@ -89,7 +89,7 @@ namespace API
                         x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")))
                     .WithDescription("Managing creating new wallet and expire old wallet"));
 
-                q.ScheduleJob<StartupTripAutoCancellation>(trigger =>
+                q.ScheduleJob<AutoTripCancellationStartup>(trigger =>
                     trigger.WithIdentity("StartupTripAutoCancellation", ConstantString.OneTimeJob)
                         .StartNow()
                         .WithDescription("Managing creating auto trip cancellation on startup"));
@@ -105,7 +105,7 @@ namespace API
             services.AddMediatR(typeof(HistoryList.Handler).Assembly);
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             services.AddScoped(typeof(Hashing));
-            services.AddScoped(typeof(AutoCreateTripTransaction));
+            services.AddScoped(typeof(AutoTripTransactionCreation));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

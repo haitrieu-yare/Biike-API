@@ -23,7 +23,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new ListTripTransactions.Query {Page = page, Limit = limit}, ct));
+                new TripTransactionList.Query {Page = page, Limit = limit}, ct));
         }
 
         // Admin
@@ -38,7 +38,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new DetailTripTransaction.Query {TripTransactionId = tripTransactionId}, ct));
+                new TripTransactionDetails.Query {TripTransactionId = tripTransactionId}, ct));
         }
 
         // Admin
@@ -54,7 +54,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new ListTripTransactionsByTripId.Query {TripId = tripId, Page = page, Limit = limit}, ct));
+                new TripTransactionListByTripId.Query {TripId = tripId, Page = page, Limit = limit}, ct));
         }
     }
 }

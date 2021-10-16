@@ -26,17 +26,17 @@ namespace Application.Feedbacks
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly AutoCreateTripTransaction _autoCreate;
+            private readonly AutoTripTransactionCreation _auto;
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
             private readonly IMapper _mapper;
 
             public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger,
-                AutoCreateTripTransaction autoCreate)
+                AutoTripTransactionCreation auto)
             {
                 _context = context;
                 _mapper = mapper;
-                _autoCreate = autoCreate;
+                _auto = auto;
                 _logger = logger;
             }
 
@@ -97,10 +97,10 @@ namespace Application.Feedbacks
                             switch (newFeedback.Star)
                             {
                                 case 4:
-                                    await _autoCreate.Run(trip, 5, cancellationToken);
+                                    await _auto.Run(trip, 5, cancellationToken);
                                     break;
                                 case 5:
-                                    await _autoCreate.Run(trip, 10, cancellationToken);
+                                    await _auto.Run(trip, 10, cancellationToken);
                                     break;
                             }
 

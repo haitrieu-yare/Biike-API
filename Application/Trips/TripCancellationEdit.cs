@@ -15,7 +15,7 @@ using Persistence;
 namespace Application.Trips
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class EditTripCancellation
+    public class TripCancellationEdit
     {
         public class Command : IRequest<Result<Unit>>
         {

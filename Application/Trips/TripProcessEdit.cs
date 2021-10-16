@@ -14,7 +14,7 @@ using Persistence;
 namespace Application.Trips
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class EditTripProcess
+    public class TripProcessEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
@@ -24,14 +24,14 @@ namespace Application.Trips
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
-            private readonly AutoCreateTripTransaction _autoCreate;
+            private readonly AutoTripTransactionCreation _auto;
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
 
-            public Handler(DataContext context, ILogger<Handler> logger, AutoCreateTripTransaction autoCreate)
+            public Handler(DataContext context, ILogger<Handler> logger, AutoTripTransactionCreation auto)
             {
                 _context = context;
-                _autoCreate = autoCreate;
+                _auto = auto;
                 _logger = logger;
             }
 
@@ -90,7 +90,7 @@ namespace Application.Trips
                         // TODO: Point based on Kilometer
                         if (oldTrip.Status == (int) TripStatus.Finished)
                         {
-                            await _autoCreate.Run(oldTrip, 10, cancellationToken);
+                            await _auto.Run(oldTrip, 10, cancellationToken);
                         }
                         else
                         {

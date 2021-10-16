@@ -14,15 +14,15 @@ using Persistence;
 namespace Application.Trips
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class DetailTripInfo
+    public class TripDetailsFull
     {
-        public class Query : IRequest<Result<TripDetailInfoDto>>
+        public class Query : IRequest<Result<TripDetailsFullDto>>
         {
             public int TripId { get; init; }
             public int UserRequestId { get; init; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<TripDetailInfoDto>>
+        public class Handler : IRequestHandler<Query, Result<TripDetailsFullDto>>
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
@@ -35,7 +35,7 @@ namespace Application.Trips
                 _logger = logger;
             }
 
-            public async Task<Result<TripDetailInfoDto>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<TripDetailsFullDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 try
                 {
@@ -47,7 +47,7 @@ namespace Application.Trips
                     if (user == null)
                     {
                         _logger.LogInformation("User who sent request doesn't exist");
-                        return Result<TripDetailInfoDto>.NotFound("User who sent request doesn't exist.");
+                        return Result<TripDetailsFullDto>.NotFound("User who sent request doesn't exist.");
                     }
 
                     Trip tripDb = await _context.Trip
@@ -62,7 +62,7 @@ namespace Application.Trips
                     if (tripDb == null)
                     {
                         _logger.LogInformation("Trip with {TripId} doesn't exist", request.TripId);
-                        return Result<TripDetailInfoDto>.NotFound($"Trip with {request.TripId} doesn't exist.");
+                        return Result<TripDetailsFullDto>.NotFound($"Trip with {request.TripId} doesn't exist.");
                     }
 
                     var isRequestUserInTrip = true;
@@ -78,11 +78,11 @@ namespace Application.Trips
                             "User with UserId {request.UserRequestId} " +
                             "request an unauthorized content of trip with TripId {request.TripId}",
                             request.UserRequestId, request.TripId);
-                        return Result<TripDetailInfoDto>.Failure($"User with UserId {request.UserRequestId} " +
+                        return Result<TripDetailsFullDto>.Failure($"User with UserId {request.UserRequestId} " +
                                                                  $"request an unauthorized content of trip with TripId {request.TripId}");
                     }
 
-                    TripDetailInfoDto trip = new();
+                    TripDetailsFullDto trip = new();
 
                     var isKeer = request.UserRequestId == tripDb.KeerId;
 
@@ -96,13 +96,13 @@ namespace Application.Trips
                     });
 
                     _logger.LogInformation("Successfully retrieved trip by TripId {request.TripId}", request.TripId);
-                    return Result<TripDetailInfoDto>.Success(trip,
+                    return Result<TripDetailsFullDto>.Success(trip,
                         $"Successfully retrieved trip by TripId {request.TripId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
                     _logger.LogInformation("Request was cancelled");
-                    return Result<TripDetailInfoDto>.Failure("Request was cancelled.");
+                    return Result<TripDetailsFullDto>.Failure("Request was cancelled.");
                 }
             }
         }

@@ -2,7 +2,7 @@ using System;
 
 namespace Application.Trips.DTOs
 {
-    public class TripDetailDto
+    public class TripDetailsDto
     {
         public int? TripId { get; set; }
         public int? KeerId { get; set; }

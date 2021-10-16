@@ -136,7 +136,7 @@ namespace Application.Core
                 .ForMember(t => t.DestinationName, o => o.MapFrom(t => t.Route.Destination.Name));
 
             // Detail Info
-            CreateMap<Trip, TripDetailInfoDto>()
+            CreateMap<Trip, TripDetailsFullDto>()
                 .ForMember(t => t.UserId, o => o.MapFrom(t => isKeer ? t.BikerId : t.KeerId))
                 .ForMember(t => t.KeerId, o => o.MapFrom(t => t.KeerId))
                 .ForMember(t => t.Avatar,
@@ -156,11 +156,9 @@ namespace Application.Core
                 .ForMember(t => t.Feedbacks, o => o.MapFrom(t => t.FeedbackList));
 
             // Detail 
-            CreateMap<Trip, TripDetailDto>();
+            CreateMap<Trip, TripDetailsDto>();
             // Create
-            CreateMap<TripCreateDto, Trip>();
-            // Edit BikerInfo
-            CreateMap<TripBikerInfoDto, Trip>().ForMember(t => t.PlateNumber, o => o.MapFrom(t => t.NumberPlate));
+            CreateMap<TripCreationDto, Trip>();
             // Cancel Trip
             CreateMap<TripCancellationDto, Trip>().ForMember(t => t.FinishedTime, o => o.MapFrom(t => t.TimeFinished));
 

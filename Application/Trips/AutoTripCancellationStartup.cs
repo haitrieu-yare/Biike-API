@@ -10,12 +10,12 @@ using Quartz;
 namespace Application.Trips
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class StartupTripAutoCancellation : IJob
+    public class AutoTripCancellationStartup : IJob
     {
         private readonly DataContext _context;
         private readonly ISchedulerFactory _schedulerFactory;
 
-        public StartupTripAutoCancellation(DataContext context, ISchedulerFactory schedulerFactory)
+        public AutoTripCancellationStartup(DataContext context, ISchedulerFactory schedulerFactory)
         {
             _context = context;
             _schedulerFactory = schedulerFactory;
@@ -25,7 +25,7 @@ namespace Application.Trips
         {
             List<Trip> trips = await _context.Trip.Where(t => t.Status == (int) TripStatus.Finding).ToListAsync();
 
-            foreach (var trip in trips) await CreateAutoTripCancellation.Run(_schedulerFactory, trip);
+            foreach (var trip in trips) await AutoTripCancellationCreation.Run(_schedulerFactory, trip);
         }
     }
 }

@@ -5,7 +5,7 @@ using Quartz;
 
 namespace Application.Trips
 {
-    public static class CreateAutoTripCancellation
+    public static class AutoTripCancellationCreation
     {
         public static async Task Run(ISchedulerFactory? schedulerFactory, Trip? trip)
         {

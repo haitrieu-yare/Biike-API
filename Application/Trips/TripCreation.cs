@@ -14,11 +14,11 @@ using Quartz;
 namespace Application.Trips
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class CreateTrip
+    public class TripCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public TripCreateDto TripCreateDto { get; init; } = null!;
+            public TripCreationDto TripCreationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -45,7 +45,7 @@ namespace Application.Trips
 
                     Trip newTrip = new();
 
-                    _mapper.Map(request.TripCreateDto, newTrip);
+                    _mapper.Map(request.TripCreationDto, newTrip);
 
                     await _context.Trip.AddAsync(newTrip, cancellationToken);
 
@@ -57,7 +57,7 @@ namespace Application.Trips
                         return Result<Unit>.Failure("Failed to create new trip.");
                     }
 
-                    await CreateAutoTripCancellation.Run(_schedulerFactory, newTrip);
+                    await AutoTripCancellationCreation.Run(_schedulerFactory, newTrip);
 
                     _logger.LogInformation("Successfully created trip");
                     return Result<Unit>.Success(Unit.Value, "Successfully created trip.", newTrip.TripId.ToString());

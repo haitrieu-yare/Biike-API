@@ -13,14 +13,15 @@ using Persistence;
 
 namespace Application.Trips
 {
-    public class DetailTrip
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class TripDetails
     {
-        public class Query : IRequest<Result<TripDetailDto>>
+        public class Query : IRequest<Result<TripDetailsDto>>
         {
             public int TripId { get; init; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<TripDetailDto>>
+        public class Handler : IRequestHandler<Query, Result<TripDetailsDto>>
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
@@ -33,30 +34,30 @@ namespace Application.Trips
                 _logger = logger;
             }
 
-            public async Task<Result<TripDetailDto>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<TripDetailsDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 try
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    TripDetailDto trip = await _context.Trip.Where(t => t.TripId == request.TripId)
-                        .ProjectTo<TripDetailDto>(_mapper.ConfigurationProvider)
+                    TripDetailsDto trip = await _context.Trip.Where(t => t.TripId == request.TripId)
+                        .ProjectTo<TripDetailsDto>(_mapper.ConfigurationProvider)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (trip == null)
                     {
                         _logger.LogInformation("Trip doesn't exist");
-                        return Result<TripDetailDto>.NotFound("Trip doesn't exist");
+                        return Result<TripDetailsDto>.NotFound("Trip doesn't exist");
                     }
 
                     _logger.LogInformation("Successfully retrieved trip by TripId {request.TripId}", request.TripId);
-                    return Result<TripDetailDto>.Success(trip,
+                    return Result<TripDetailsDto>.Success(trip,
                         $"Successfully retrieved trip by TripId {request.TripId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
                     _logger.LogInformation("Request was cancelled");
-                    return Result<TripDetailDto>.Failure("Request was cancelled.");
+                    return Result<TripDetailsDto>.Failure("Request was cancelled.");
                 }
             }
         }

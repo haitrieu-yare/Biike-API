@@ -13,7 +13,8 @@ using Quartz;
 
 namespace Application.Trips
 {
-    public class EditTripBiker
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class TripBikerEdit
     {
         public class Command : IRequest<Result<Unit>>
         {

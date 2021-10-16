@@ -6,7 +6,7 @@ namespace Application.Trips.DTOs
 {
     public class TripCancellationDto
     {
-        [Required] public string? CancelReason { get; set; }
-        public DateTime TimeFinished { get; set; } = CurrentTime.GetCurrentTime();
+        [Required] public string? CancelReason { get; init; }
+        public DateTime TimeFinished { get; } = CurrentTime.GetCurrentTime();
     }
 }
