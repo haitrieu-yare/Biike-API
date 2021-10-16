@@ -13,7 +13,8 @@ using Persistence;
 
 namespace Application.Users
 {
-    public class DetailSelfUser
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class UserSelfDetails
     {
         public class Query : IRequest<Result<UserDto>>
         {

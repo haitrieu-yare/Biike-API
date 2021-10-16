@@ -11,7 +11,8 @@ using Persistence;
 
 namespace Application.Users
 {
-    public class EditStatus
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class UserStatusEdit
     {
         public class Command : IRequest<Result<Unit>>
         {

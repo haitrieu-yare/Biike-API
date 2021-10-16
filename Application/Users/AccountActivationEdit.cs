@@ -11,7 +11,8 @@ using Persistence;
 
 namespace Application.Users
 {
-    public class ModifyAccountActivation
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class AccountActivationEdit
     {
         public class Command : IRequest<Result<Unit>>
         {

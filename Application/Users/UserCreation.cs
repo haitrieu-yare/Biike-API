@@ -18,11 +18,11 @@ using Persistence;
 namespace Application.Users
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class CreateUser
+    public class UserCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public UserCreateDto UserCreateDto { get; init; } = null!;
+            public UserCreationDto UserCreationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -45,8 +45,8 @@ namespace Application.Users
                     cancellationToken.ThrowIfCancellationRequested();
 
                     User userDb = await _context.User
-                        .Where(u => u.Email == request.UserCreateDto.Email ||
-                                    u.PhoneNumber == request.UserCreateDto.PhoneNumber)
+                        .Where(u => u.Email == request.UserCreationDto.Email ||
+                                    u.PhoneNumber == request.UserCreationDto.PhoneNumber)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (userDb != null)
@@ -57,7 +57,7 @@ namespace Application.Users
 
                     User newUser = new();
 
-                    _mapper.Map(request.UserCreateDto, newUser);
+                    _mapper.Map(request.UserCreationDto, newUser);
 
                     // Setup email, avatar
                     newUser.Email = newUser.Email.ToLower();
@@ -117,7 +117,7 @@ namespace Application.Users
                         {
                             Uid = newUser.UserId.ToString(),
                             Email = newUser.Email,
-                            Password = request.UserCreateDto.Password,
+                            Password = request.UserCreationDto.Password,
                             PhoneNumber = newUser.PhoneNumber,
                             DisplayName = newUser.FullName,
                             PhotoUrl = newUser.Avatar

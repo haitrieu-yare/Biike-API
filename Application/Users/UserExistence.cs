@@ -12,11 +12,12 @@ using Persistence;
 
 namespace Application.Users
 {
-    public class CheckExistUser
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class UserExistence
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public UserExistDto UserExistDto { get; init; } = null!;
+            public UserExistenceDto UserExistenceDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -37,8 +38,8 @@ namespace Application.Users
                     cancellationToken.ThrowIfCancellationRequested();
 
                     User user = await _context.User
-                        .Where(u => u.Email == request.UserExistDto.Email ||
-                                    u.PhoneNumber == request.UserExistDto.PhoneNumber)
+                        .Where(u => u.Email == request.UserExistenceDto.Email ||
+                                    u.PhoneNumber == request.UserExistenceDto.PhoneNumber)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (user != null)

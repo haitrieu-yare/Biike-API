@@ -11,7 +11,8 @@ using Persistence;
 
 namespace Application.Users
 {
-    public class CheckAccountActivation
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class AccountActivation
     {
         public class Query : IRequest<Result<UserActivationDto>>
         {

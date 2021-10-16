@@ -13,7 +13,8 @@ using Persistence;
 
 namespace Application.Users
 {
-    public class DeleteFireBaseUser
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class FireBaseUserDeletion
     {
         public class Command : IRequest<Result<Unit>>
         {

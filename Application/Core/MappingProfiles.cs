@@ -84,7 +84,7 @@ namespace Application.Core
                 .ForMember(u => u.UserFullname, o => o.MapFrom(u => u.FullName))
                 .ForMember(u => u.UserStar, o => o.MapFrom(u => u.Star));
             // Create
-            CreateMap<UserCreateDto, User>().ForMember(u => u.PasswordHash, o => o.MapFrom(u => u.Password));
+            CreateMap<UserCreationDto, User>().ForMember(u => u.PasswordHash, o => o.MapFrom(u => u.Password));
             // Edit Profile
             CreateMap<UserProfileEditDto, User>()
                 .ForMember(u => u.FullName, o => o.MapFrom(u => u.UserFullname))

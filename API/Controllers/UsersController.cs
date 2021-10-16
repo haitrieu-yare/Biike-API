@@ -24,7 +24,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new ListAllUsers.Query {Page = page, Limit = limit}, ct));
+            return HandleResult(await Mediator.Send(new UserList.Query {Page = page, Limit = limit}, ct));
         }
 
         // Keer, Biker
@@ -45,7 +45,7 @@ namespace API.Controllers
 
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.DidNotHavePermissionToAccess);
 
-            return HandleResult(await Mediator.Send(new DetailSelfUser.Query {UserId = userId}, ct));
+            return HandleResult(await Mediator.Send(new UserSelfDetails.Query {UserId = userId}, ct));
         }
 
         // Keer, Biker, Admin
@@ -57,23 +57,23 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new DetailUser.Query {IsAdmin = validationDto.IsAdmin, UserId = userId}, ct));
+                new UserDetails.Query {IsAdmin = validationDto.IsAdmin, UserId = userId}, ct));
         }
 
         [AllowAnonymous]
         [HttpPost("checkExist")]
-        public async Task<IActionResult> CheckExistUser(UserExistDto userExistDto, CancellationToken ct)
+        public async Task<IActionResult> CheckExistUser(UserExistenceDto userExistenceDto, CancellationToken ct)
         {
             return HandleResult(await Mediator.Send(
-                new CheckExistUser.Command {UserExistDto = userExistDto}, ct));
+                new UserExistence.Command {UserExistenceDto = userExistenceDto}, ct));
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> SignUp(UserCreateDto userCreateDto, CancellationToken ct)
+        public async Task<IActionResult> SignUp(UserCreationDto userCreationDto, CancellationToken ct)
         {
             return HandleResult(await Mediator.Send(
-                new CreateUser.Command {UserCreateDto = userCreateDto}, ct));
+                new UserCreation.Command {UserCreationDto = userCreationDto}, ct));
         }
 
         // TODO: When a user can modify account activation?
@@ -83,7 +83,7 @@ namespace API.Controllers
             int userId, UserActivationDto userActivationDto, CancellationToken ct)
         {
             return HandleResult(await Mediator.Send(
-                new ModifyAccountActivation.Command {UserId = userId, UserActivationDto = userActivationDto}, ct));
+                new AccountActivationEdit.Command {UserId = userId, UserActivationDto = userActivationDto}, ct));
         }
 
         [AllowAnonymous]
@@ -91,7 +91,7 @@ namespace API.Controllers
         public async Task<IActionResult> CheckAccountActivation(int userId, CancellationToken ct)
         {
             return HandleResult(await Mediator.Send(
-                new CheckAccountActivation.Query {UserId = userId}, ct));
+                new AccountActivation.Query {UserId = userId}, ct));
         }
 
         // Keer, Biker
@@ -116,7 +116,7 @@ namespace API.Controllers
                 return BadRequest(ConstantString.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
-                new EditProfile.Command {UserId = userId, UserProfileEditDto = userProfileEditDto}, ct));
+                new UserProfileEdit.Command {UserId = userId, UserProfileEditDto = userProfileEditDto}, ct));
         }
 
         // Keer, Biker
@@ -136,7 +136,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new EditRole.Command {UserId = validationDto.UserRequestId}, ct));
+                new UserRoleEdit.Command {UserId = validationDto.UserRequestId}, ct));
         }
 
         // Admin
@@ -150,7 +150,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new EditStatus.Command {UserId = userId}, ct));
+            return HandleResult(await Mediator.Send(new UserStatusEdit.Command {UserId = userId}, ct));
         }
 
         // Keer, Biker
@@ -185,7 +185,7 @@ namespace API.Controllers
             userLoginDeviceDto.LastTimeLogin = currentTimeUtc7;
 
             return HandleResult(await Mediator.Send(
-                new EditLoginDevice.Command {UserId = userId, UserLoginDeviceDto = userLoginDeviceDto}, ct));
+                new LoginDeviceEdit.Command {UserId = userId, UserLoginDeviceDto = userLoginDeviceDto}, ct));
         }
 
         // Admin
@@ -199,7 +199,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DeleteUser.Command {UserId = userId}, ct));
+            return HandleResult(await Mediator.Send(new UserDeletion.Command {UserId = userId}, ct));
         }
 
         // Admin
@@ -213,7 +213,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DeleteFireBaseUser.Command(), ct));
+            return HandleResult(await Mediator.Send(new FireBaseUserDeletion.Command(), ct));
         }
     }
 }
