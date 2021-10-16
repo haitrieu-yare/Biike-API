@@ -16,7 +16,8 @@ using Persistence;
 
 namespace Application.Feedbacks
 {
-    public class ListFeedbacksByTrip
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class FeedbackListByTripId
     {
         public class Query : IRequest<Result<List<FeedbackDto>>>
         {

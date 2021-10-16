@@ -14,7 +14,8 @@ using Persistence;
 
 namespace Application.Intimacies
 {
-    public class ListIntimaciesByUserId
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class IntimacyListByUserId
     {
         public class Query : IRequest<Result<List<IntimacyDto>>>
         {

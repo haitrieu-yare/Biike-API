@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Feedbacks.DTOs;
+using Application.Intimacies.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -12,17 +12,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Feedbacks
+namespace Application.Intimacies
 {
-    public class ListAllFeedbacks
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class IntimacyList
     {
-        public class Query : IRequest<Result<List<FeedbackDto>>>
+        public class Query : IRequest<Result<List<IntimacyDto>>>
         {
             public int Page { get; init; }
             public int Limit { get; init; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<List<FeedbackDto>>>
+        public class Handler : IRequestHandler<Query, Result<List<IntimacyDto>>>
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
@@ -35,7 +36,7 @@ namespace Application.Feedbacks
                 _logger = logger;
             }
 
-            public async Task<Result<List<FeedbackDto>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<List<IntimacyDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
                 try
                 {
@@ -44,39 +45,39 @@ namespace Application.Feedbacks
                     if (request.Page <= 0)
                     {
                         _logger.LogInformation("Page must be larger than 0");
-                        return Result<List<FeedbackDto>>.Failure("Page must be larger than 0.");
+                        return Result<List<IntimacyDto>>.Failure("Page must be larger than 0.");
                     }
 
                     if (request.Limit <= 0)
                     {
                         _logger.LogInformation("Limit must be larger than 0");
-                        return Result<List<FeedbackDto>>.Failure("Limit must be larger than 0.");
+                        return Result<List<IntimacyDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    var totalRecord = await _context.Feedback.CountAsync(cancellationToken);
+                    var totalRecord = await _context.Intimacy.CountAsync(cancellationToken);
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
-                    List<FeedbackDto> feedbacks = new();
+                    List<IntimacyDto> intimacies = new();
 
                     if (request.Page <= lastPage)
-                        feedbacks = await _context.Feedback.OrderBy(f => f.FeedbackId)
+                        intimacies = await _context.Intimacy.OrderBy(i => i.UserOneId)
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
-                            .ProjectTo<FeedbackDto>(_mapper.ConfigurationProvider)
+                            .ProjectTo<IntimacyDto>(_mapper.ConfigurationProvider)
                             .ToListAsync(cancellationToken);
 
                     PaginationDto paginationDto = new(
-                        request.Page, request.Limit, feedbacks.Count, lastPage, totalRecord);
+                        request.Page, request.Limit, intimacies.Count, lastPage, totalRecord);
 
-                    _logger.LogInformation("Successfully retrieved all trip's feedbacks");
-                    return Result<List<FeedbackDto>>.Success(feedbacks, "Successfully retrieved all trip's feedbacks.",
-                        paginationDto);
+                    _logger.LogInformation("Successfully retrieved list of all intimacies");
+                    return Result<List<IntimacyDto>>.Success(intimacies,
+                        "Successfully retrieved list of all intimacies.", paginationDto);
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
                     _logger.LogInformation("Request was cancelled");
-                    return Result<List<FeedbackDto>>.Failure("Request was cancelled.");
+                    return Result<List<IntimacyDto>>.Failure("Request was cancelled.");
                 }
             }
         }

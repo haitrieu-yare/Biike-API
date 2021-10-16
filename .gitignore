@@ -9,6 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+Deployment.run.xml
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -371,7 +372,6 @@ FodyWeavers.xsd
 
 # globs
 Makefile.in
-*.userprefs
 *.usertasks
 config.make
 config.status

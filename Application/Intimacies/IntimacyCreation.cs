@@ -12,11 +12,12 @@ using Persistence;
 
 namespace Application.Intimacies
 {
-    public class CreateIntimacy
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class IntimacyCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public IntimacyCreateEditDto IntimacyCreateEditDto { get; init; } = null!;
+            public IntimacyModificationDto IntimacyModificationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -41,7 +42,7 @@ namespace Application.Intimacies
                     Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
                         new object[]
                         {
-                            request.IntimacyCreateEditDto.UserOneId!, request.IntimacyCreateEditDto.UserTwoId!
+                            request.IntimacyModificationDto.UserOneId!, request.IntimacyModificationDto.UserTwoId!
                         }, cancellationToken);
 
                     if (oldIntimacy != null)
@@ -52,7 +53,7 @@ namespace Application.Intimacies
 
                     Intimacy newIntimacy = new();
 
-                    _mapper.Map(request.IntimacyCreateEditDto, newIntimacy);
+                    _mapper.Map(request.IntimacyModificationDto, newIntimacy);
 
                     await _context.Intimacy.AddAsync(newIntimacy, cancellationToken);
 

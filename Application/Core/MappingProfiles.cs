@@ -197,7 +197,7 @@ namespace Application.Core
             // List, Detail
             CreateMap<Intimacy, IntimacyDto>();
             // Edit, Create
-            CreateMap<IntimacyCreateEditDto, Intimacy>();
+            CreateMap<IntimacyModificationDto, Intimacy>();
 
             #endregion
 

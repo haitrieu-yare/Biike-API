@@ -23,7 +23,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new ListAllFeedbacks.Query {Page = page, Limit = limit}, ct));
+            return HandleResult(await Mediator.Send(new FeedbackList.Query {Page = page, Limit = limit}, ct));
         }
 
         // Admin
@@ -37,7 +37,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DetailFeedback.Query {FeedbackId = feedbackId}, ct));
+            return HandleResult(await Mediator.Send(new FeedbackDetails.Query {FeedbackId = feedbackId}, ct));
         }
 
         // Keer, Biker, Admin
@@ -49,7 +49,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new ListFeedbacksByTrip.Query
+                new FeedbackListByTripId.Query
                 {
                     IsAdmin = validationDto.IsAdmin, TripId = tripId, UserRequestId = validationDto.UserRequestId
                 }, ct));
@@ -74,7 +74,7 @@ namespace API.Controllers
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
-                new CreateFeedback.Command {FeedbackCreationDto = feedbackCreationDto}, ct));
+                new FeedbackCreation.Command {FeedbackCreationDto = feedbackCreationDto}, ct));
         }
     }
 }

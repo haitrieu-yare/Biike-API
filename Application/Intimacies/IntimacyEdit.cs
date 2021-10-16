@@ -12,11 +12,12 @@ using Persistence;
 
 namespace Application.Intimacies
 {
-    public class EditIntimacy
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class IntimacyEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public IntimacyCreateEditDto IntimacyCreateEditDto { get; init; } = null!;
+            public IntimacyModificationDto IntimacyModificationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -39,7 +40,7 @@ namespace Application.Intimacies
                     Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
                         new object[]
                         {
-                            request.IntimacyCreateEditDto.UserOneId!, request.IntimacyCreateEditDto.UserTwoId!
+                            request.IntimacyModificationDto.UserOneId!, request.IntimacyModificationDto.UserTwoId!
                         }, cancellationToken);
 
                     if (oldIntimacy == null)
@@ -68,21 +69,21 @@ namespace Application.Intimacies
                             "Failed to update intimacy of " +
                             "userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
                             "userTwoId {request.IntimacyCreateEditDto.UserTwoId}",
-                            request.IntimacyCreateEditDto.UserOneId, request.IntimacyCreateEditDto.UserTwoId);
+                            request.IntimacyModificationDto.UserOneId, request.IntimacyModificationDto.UserTwoId);
                         return Result<Unit>.Failure("Failed to update intimacy of " +
-                                                    $"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
-                                                    $"userTwoId {request.IntimacyCreateEditDto.UserTwoId}.");
+                                                    $"userOneId {request.IntimacyModificationDto.UserOneId} and " +
+                                                    $"userTwoId {request.IntimacyModificationDto.UserTwoId}.");
                     }
 
                     _logger.LogInformation(
                         "Successfully updated intimacy of " +
                         "userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
-                        "userTwoId {request.IntimacyCreateEditDto.UserTwoId}", request.IntimacyCreateEditDto.UserOneId,
-                        request.IntimacyCreateEditDto.UserTwoId);
+                        "userTwoId {request.IntimacyCreateEditDto.UserTwoId}", request.IntimacyModificationDto.UserOneId,
+                        request.IntimacyModificationDto.UserTwoId);
                     return Result<Unit>.Success(Unit.Value,
                         "Successfully updated intimacy of " +
-                        $"userOneId {request.IntimacyCreateEditDto.UserOneId} and " +
-                        $"userTwoId {request.IntimacyCreateEditDto.UserTwoId}.");
+                        $"userOneId {request.IntimacyModificationDto.UserOneId} and " +
+                        $"userTwoId {request.IntimacyModificationDto.UserTwoId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

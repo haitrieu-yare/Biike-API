@@ -23,7 +23,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new ListIntimacies.Query {Page = page, Limit = limit}, ct));
+            return HandleResult(await Mediator.Send(new IntimacyList.Query {Page = page, Limit = limit}, ct));
         }
 
         // Keer, Biker, Admin
@@ -38,12 +38,12 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.DidNotHavePermissionToAccess) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new ListIntimaciesByUserId.Query {Page = page, Limit = limit, UserOneId = userOneId}, ct));
+                new IntimacyListByUserId.Query {Page = page, Limit = limit, UserOneId = userOneId}, ct));
         }
 
         // Keer, Biker
         [HttpPost]
-        public async Task<IActionResult> CreateIntimacy(IntimacyCreateEditDto intimacyCreateEditDto,
+        public async Task<IActionResult> CreateIntimacy(IntimacyModificationDto intimacyModificationDto,
             CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
@@ -54,19 +54,19 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
                                         ConstantString.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, intimacyCreateEditDto.UserOneId);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, intimacyModificationDto.UserOneId);
 
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
-                new CreateIntimacy.Command {IntimacyCreateEditDto = intimacyCreateEditDto}, ct));
+                new IntimacyCreation.Command {IntimacyModificationDto = intimacyModificationDto}, ct));
         }
 
         // Keer, Biker
         [HttpPut]
-        public async Task<IActionResult> EditIntimacies(IntimacyCreateEditDto intimacyCreateEditDto,
+        public async Task<IActionResult> EditIntimacies(IntimacyModificationDto intimacyModificationDto,
             CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
@@ -77,14 +77,14 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
                                         ConstantString.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, intimacyCreateEditDto.UserOneId);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, intimacyModificationDto.UserOneId);
 
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
-                new EditIntimacy.Command {IntimacyCreateEditDto = intimacyCreateEditDto}, ct));
+                new IntimacyEdit.Command {IntimacyModificationDto = intimacyModificationDto}, ct));
         }
     }
 }

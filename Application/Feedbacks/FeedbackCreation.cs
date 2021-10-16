@@ -16,7 +16,8 @@ using Persistence;
 
 namespace Application.Feedbacks
 {
-    public class CreateFeedback
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class FeedbackCreation
     {
         public class Command : IRequest<Result<Unit>>
         {

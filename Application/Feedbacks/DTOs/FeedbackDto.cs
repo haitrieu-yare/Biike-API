@@ -12,8 +12,8 @@ namespace Application.Feedbacks.DTOs
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public int? TripId { get; set; }
 
-        public string? FeedbackContent { get; set; }
         [Range(1, 5)] public int? TripStar { get; set; }
+        public string? FeedbackContent { get; set; }
 
         public string? Criteria { get; set; }
 
