@@ -2,15 +2,15 @@ namespace Application.Core
 {
     public class Result<T>
     {
-        public bool IsSuccess { get; set; }
-        public string NewResourceId { get; set; } = string.Empty;
-        public PaginationDto? PaginationDto { get; set; }
-        public bool IsUnauthorized { get; set; }
-        public T? Value { get; set; }
-        public string? ErrorMessage { get; set; }
-        public string? UnauthorizedMessage { get; set; }
-        public string? NotFoundMessage { get; set; }
-        public string? SuccessMessage { get; set; }
+        public bool IsSuccess { get; private init; }
+        public PaginationDto? PaginationDto { get; private init; }
+        public string? NewResourceId { get; private init; }
+        public bool IsUnauthorized { get; private init; }
+        public T? Value { get; private init; }
+        public string? ErrorMessage { get; private init; }
+        public string? UnauthorizedMessage { get; private init; }
+        public string? NotFoundMessage { get; private init; }
+        public string? SuccessMessage { get; private init; }
 
         public static Result<T> Success(T value, string successMessage)
         {

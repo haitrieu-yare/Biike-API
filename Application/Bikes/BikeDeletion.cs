@@ -14,7 +14,8 @@ using Persistence;
 
 namespace Application.Bikes
 {
-    public class DeleteBike
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class BikeDeletion
     {
         public class Command : IRequest<Result<Unit>>
         {

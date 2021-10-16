@@ -59,7 +59,7 @@ namespace Application.TripTransactions
                         .Where(t => t.TripId == request.TripId)
                         .CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<TripTransactionDto> tripTransaction = new();
 

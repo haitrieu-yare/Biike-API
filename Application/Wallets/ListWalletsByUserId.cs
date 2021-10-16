@@ -58,7 +58,7 @@ namespace Application.Wallets
                         .Where(w => w.UserId == request.UserId)
                         .CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<WalletDto> wallets = new();
 

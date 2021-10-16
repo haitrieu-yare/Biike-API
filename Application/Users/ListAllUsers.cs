@@ -54,7 +54,7 @@ namespace Application.Users
                     }
 
                     var totalRecord = await _context.User.CountAsync(cancellationToken);
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<UserDto> users = new();
 

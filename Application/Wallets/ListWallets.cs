@@ -55,7 +55,7 @@ namespace Application.Wallets
 
                     var totalRecord = await _context.Wallet.CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<WalletDto> wallets = new();
 

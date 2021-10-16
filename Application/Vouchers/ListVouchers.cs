@@ -55,7 +55,7 @@ namespace Application.Vouchers
 
                     var totalRecord = await _context.Voucher.CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<VoucherDto> vouchers = new();
 

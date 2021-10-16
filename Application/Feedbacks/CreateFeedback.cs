@@ -20,7 +20,7 @@ namespace Application.Feedbacks
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public FeedbackCreateDto FeedbackCreateDto { get; init; } = null!;
+            public FeedbackCreationDto FeedbackCreationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -45,13 +45,13 @@ namespace Application.Feedbacks
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip trip = await _context.Trip.FindAsync(new object[] {request.FeedbackCreateDto.TripId!},
+                    Trip trip = await _context.Trip.FindAsync(new object[] {request.FeedbackCreationDto.TripId!},
                         cancellationToken);
 
                     if (trip == null) return Result<Unit>.NotFound("Trip doesn't exist.");
 
-                    if (request.FeedbackCreateDto.UserId != trip.KeerId &&
-                        request.FeedbackCreateDto.UserId != trip.BikerId)
+                    if (request.FeedbackCreationDto.UserId != trip.KeerId &&
+                        request.FeedbackCreationDto.UserId != trip.BikerId)
                     {
                         _logger.LogInformation("User send feedback must be in the trip with tripId {trip.TripId}",
                             trip.TripId);
@@ -72,10 +72,10 @@ namespace Application.Feedbacks
                     }
 
                     List<Feedback> feedbacks = await _context.Feedback
-                        .Where(f => f.TripId == request.FeedbackCreateDto.TripId)
+                        .Where(f => f.TripId == request.FeedbackCreationDto.TripId)
                         .ToListAsync(cancellationToken);
 
-                    var existedFeedback = feedbacks.Find(f => f.UserId == request.FeedbackCreateDto.UserId);
+                    var existedFeedback = feedbacks.Find(f => f.UserId == request.FeedbackCreationDto.UserId);
 
                     if (existedFeedback != null)
                     {
@@ -85,14 +85,14 @@ namespace Application.Feedbacks
 
                     Feedback newFeedback = new();
 
-                    _mapper.Map(request.FeedbackCreateDto, newFeedback);
+                    _mapper.Map(request.FeedbackCreationDto, newFeedback);
 
                     await _context.Feedback.AddAsync(newFeedback, cancellationToken);
 
                     try
                     {
                         // Create new transaction to add more point to Biker
-                        if (request.FeedbackCreateDto.UserId == trip.KeerId)
+                        if (request.FeedbackCreationDto.UserId == trip.KeerId)
                             switch (newFeedback.Star)
                             {
                                 case 4:

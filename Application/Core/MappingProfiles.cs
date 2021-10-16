@@ -21,7 +21,8 @@ namespace Application.Core
         public MappingProfiles()
         {
             #region Fix Type Conversion
-
+            // ReSharper disable CommentTypo
+            
             // Mặc định khi kiểu int? có giá trị null thì 
             // map qua kiểu int sẽ bị chuyển thành 0.
             // Nhưng chúng ta thường sẽ muốn ignore biến int? nếu
@@ -42,6 +43,7 @@ namespace Application.Core
             // Tương tự int?, chúng ta tạo map cho double?
             CreateMap<double?, double>().ConvertUsing((src, dest) => src ?? dest);
 
+            // ReSharper restore CommentTypo
             #endregion
 
             #region Station
@@ -169,7 +171,7 @@ namespace Application.Core
             // ListAll, List
             CreateMap<Feedback, FeedbackDto>().ForMember(f => f.TripStar, o => o.MapFrom(f => f.Star));
             // Create
-            CreateMap<FeedbackCreateDto, Feedback>().ForMember(f => f.Star, o => o.MapFrom(f => f.TripStar));
+            CreateMap<FeedbackCreationDto, Feedback>().ForMember(f => f.Star, o => o.MapFrom(f => f.TripStar));
 
             #endregion
 
@@ -178,7 +180,7 @@ namespace Application.Core
             // List, Detail
             CreateMap<Bike, BikeDto>().ForMember(b => b.NumberPlate, o => o.MapFrom(b => b.PlateNumber));
             // Create
-            CreateMap<BikeCreateDto, Bike>().ForMember(b => b.PlateNumber, o => o.MapFrom(b => b.NumberPlate));
+            CreateMap<BikeCreationDto, Bike>().ForMember(b => b.PlateNumber, o => o.MapFrom(b => b.NumberPlate));
 
             #endregion
 

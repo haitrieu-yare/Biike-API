@@ -14,7 +14,8 @@ using Persistence;
 
 namespace Application.Bikes
 {
-    public class ListBikes
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class BikeList
     {
         public class Query : IRequest<Result<List<BikeDto>>>
         {
@@ -55,7 +56,7 @@ namespace Application.Bikes
 
                     var totalRecord = await _context.Bike.CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<BikeDto> bikes = new();
 

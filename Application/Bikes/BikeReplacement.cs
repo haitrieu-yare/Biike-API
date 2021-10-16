@@ -13,11 +13,12 @@ using Persistence;
 
 namespace Application.Bikes
 {
-    public class CreateBike
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class BikeReplacement
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public BikeCreateDto BikeCreateDto { get; init; } = null!;
+            public BikeCreationDto BikeCreationDto { get; init; } = null!;
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -39,30 +40,21 @@ namespace Application.Bikes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User
-                        .FindAsync(new object[] {request.BikeCreateDto.UserId!}, cancellationToken);
-
-                    if (user == null || user.IsDeleted)
-                    {
-                        _logger.LogInformation("User to create bike does not exist");
-                        return Result<Unit>.NotFound("User to create bike does not exist.");
-                    }
-
-                    user.IsBikeVerified = true;
-
                     Bike oldBike = await _context.Bike
-                        .Where(b => b.UserId == request.BikeCreateDto.UserId)
+                        .Where(b => b.UserId == request.BikeCreationDto.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 
-                    if (oldBike != null)
+                    if (oldBike == null)
                     {
-                        _logger.LogInformation("User already has a bike");
-                        return Result<Unit>.Failure("User already has a bike.");
+                        _logger.LogInformation("User doesn't have a bike");
+                        return Result<Unit>.Failure("User doesn't have a bike.");
                     }
+
+                    _context.Bike.Remove(oldBike);
 
                     Bike newBike = new();
 
-                    _mapper.Map(request.BikeCreateDto, newBike);
+                    _mapper.Map(request.BikeCreationDto, newBike);
 
                     await _context.Bike.AddAsync(newBike, cancellationToken);
 
@@ -70,13 +62,13 @@ namespace Application.Bikes
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to create new bike");
-                        return Result<Unit>.Failure("Failed to create new bike.");
+                        _logger.LogInformation("Failed to replace old bike with new bike");
+                        return Result<Unit>.Failure("Failed to replace old bike with new bike.");
                     }
 
-                    _logger.LogInformation("Successfully created new bike");
+                    _logger.LogInformation("Successfully replace old bike with new bike");
                     return Result<Unit>.Success(
-                        Unit.Value, "Successfully created new bike.", newBike.BikeId.ToString());
+                        Unit.Value, "Successfully replace old bike with new bike.", newBike.BikeId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

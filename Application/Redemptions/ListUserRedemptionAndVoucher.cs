@@ -73,7 +73,7 @@ namespace Application.Redemptions
                                     r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId))
                         .CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<RedemptionAndVoucherDto> redemptions = new();
 

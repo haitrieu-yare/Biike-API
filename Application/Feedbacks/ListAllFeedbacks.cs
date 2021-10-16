@@ -55,7 +55,7 @@ namespace Application.Feedbacks
 
                     var totalRecord = await _context.Feedback.CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<FeedbackDto> feedbacks = new();
 

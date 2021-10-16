@@ -1,6 +1,6 @@
 namespace Application
 {
-    public static class Utils
+    public static class ApplicationUtils
     {
         public static int CalculateLastPage(int totalRecord, int limit)
         {

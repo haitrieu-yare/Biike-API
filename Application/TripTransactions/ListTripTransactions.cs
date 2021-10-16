@@ -56,7 +56,7 @@ namespace Application.TripTransactions
 
                     var totalRecord = await _context.TripTransaction.CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<TripTransactionDto> tripTransactions = new();
 

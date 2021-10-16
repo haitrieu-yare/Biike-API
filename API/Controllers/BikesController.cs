@@ -23,7 +23,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new ListBikes.Query {Page = page, Limit = limit}, ct));
+            return HandleResult(await Mediator.Send(new BikeList.Query {Page = page, Limit = limit}, ct));
         }
 
         // Admin
@@ -37,7 +37,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DetailBikeByBikeId.Query {BikeId = bikeId}, ct));
+            return HandleResult(await Mediator.Send(new BikeDetailsByBikeId.Query {BikeId = bikeId}, ct));
         }
 
         // Keer, Biker, Admin
@@ -52,13 +52,13 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.DidNotHavePermissionToAccess) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new DetailBikeByUserId.Query {IsAdmin = validationDto.IsAdmin, UserId = validationDto.UserRequestId},
+                new BikeDetailsByUserId.Query {IsAdmin = validationDto.IsAdmin, UserId = validationDto.UserRequestId},
                 ct));
         }
 
         // Keer
         [HttpPost]
-        public async Task<IActionResult> CreateBike(BikeCreateDto bikeCreateDto, CancellationToken ct)
+        public async Task<IActionResult> CreateBike(BikeCreationDto bikeCreationDto, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -67,18 +67,18 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Keer)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikeCreateDto.UserId);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikeCreationDto.UserId);
 
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
-            return HandleResult(await Mediator.Send(new CreateBike.Command {BikeCreateDto = bikeCreateDto}, ct));
+            return HandleResult(await Mediator.Send(new BikeCreation.Command {BikeCreationDto = bikeCreationDto}, ct));
         }
 
         // Biker
         [HttpPost("bikeReplacement")]
-        public async Task<IActionResult> ReplaceBike(BikeCreateDto bikeCreateDto, CancellationToken ct)
+        public async Task<IActionResult> ReplaceBike(BikeCreationDto bikeCreationDto, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -87,13 +87,13 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Biker)
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikeCreateDto.UserId);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikeCreationDto.UserId);
 
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
-            return HandleResult(await Mediator.Send(new ReplaceBike.Command {BikeCreateDto = bikeCreateDto}, ct));
+            return HandleResult(await Mediator.Send(new BikeReplacement.Command {BikeCreationDto = bikeCreationDto}, ct));
         }
 
         // Biker
@@ -114,7 +114,7 @@ namespace API.Controllers
             if (!validationDto.IsAuthorized)
                 return new ObjectResult(ConstantString.DidNotHavePermissionToMakeRequest) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new DeleteBike.Command {UserId = userId}, ct));
+            return HandleResult(await Mediator.Send(new BikeDeletion.Command {UserId = userId}, ct));
         }
     }
 }

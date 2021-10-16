@@ -56,7 +56,7 @@ namespace Application.Routes
 
                     var totalRecord = await _context.Route.CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<RouteDto> routes = new();
 

@@ -55,7 +55,7 @@ namespace Application.Intimacies
 
                     var totalRecord = await _context.Intimacy.CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<IntimacyDto> intimacies = new();
 

@@ -57,7 +57,7 @@ namespace API.Controllers
 
         // Keer, Biker
         [HttpPost]
-        public async Task<IActionResult> CreateFeedBack(FeedbackCreateDto feedbackCreateDto, CancellationToken ct)
+        public async Task<IActionResult> CreateFeedBack(FeedbackCreationDto feedbackCreationDto, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -67,14 +67,14 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
                                         ConstantString.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, feedbackCreateDto.UserId);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, feedbackCreationDto.UserId);
 
             if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
 
             if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
-                new CreateFeedback.Command {FeedbackCreateDto = feedbackCreateDto}, ct));
+                new CreateFeedback.Command {FeedbackCreationDto = feedbackCreationDto}, ct));
         }
     }
 }

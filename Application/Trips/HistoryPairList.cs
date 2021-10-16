@@ -62,7 +62,7 @@ namespace Application.Trips
                         .Where(t => t.Status == (int) TripStatus.Finished || t.Status == (int) TripStatus.Cancelled)
                         .CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<TripPairDto> trips = new();
 

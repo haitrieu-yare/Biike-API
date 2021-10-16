@@ -74,7 +74,7 @@ namespace Application.Trips
                             t.Status == (int) TripStatus.Cancelled)
                         .CountAsync(cancellationToken);
 
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<TripDto> trips = new();
 

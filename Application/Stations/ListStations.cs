@@ -55,7 +55,7 @@ namespace Application.Stations
                     }
 
                     var totalRecord = await _context.Station.CountAsync(cancellationToken);
-                    var lastPage = Utils.CalculateLastPage(totalRecord, request.Limit);
+                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
                     List<StationDto> stations = new();
 
                     if (request.Page <= lastPage)

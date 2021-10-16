@@ -13,7 +13,8 @@ using Persistence;
 
 namespace Application.Bikes
 {
-    public class DetailBikeByUserId
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class BikeDetailsByUserId
     {
         public class Query : IRequest<Result<BikeDto>>
         {
