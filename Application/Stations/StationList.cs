@@ -55,7 +55,18 @@ namespace Application.Stations
                         return Result<List<StationDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    var totalRecord = await _context.Station.CountAsync(cancellationToken);
+                    int totalRecord;
+
+                    if (request.IsAdmin)
+                    {
+                        totalRecord = await _context.Station.CountAsync(cancellationToken);
+                    }
+                    else
+                    {
+                        totalRecord = await _context.Station.Where(s => s.IsDeleted != true)
+                            .CountAsync(cancellationToken);
+                    }
+                    
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
                     List<StationDto> stations = new();
 

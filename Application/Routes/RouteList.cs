@@ -54,8 +54,18 @@ namespace Application.Routes
                         _logger.LogInformation("Limit must be larger than 0");
                         return Result<List<RouteDto>>.Failure("Limit must be larger than 0.");
                     }
+                    
+                    int totalRecord;
 
-                    var totalRecord = await _context.Route.CountAsync(cancellationToken);
+                    if (request.IsAdmin)
+                    {
+                        totalRecord = await _context.Route.CountAsync(cancellationToken);
+                    }
+                    else
+                    {
+                        totalRecord = await _context.Route.Where(s => s.IsDeleted != true)
+                            .CountAsync(cancellationToken);
+                    }
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 

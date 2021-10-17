@@ -25,6 +25,26 @@ namespace API.Controllers
         }
 
         // Keer, Biker, Admin
+        [HttpGet("relatedStations")]
+        public async Task<IActionResult> GetAllStationsByStationId(int page, int limit, int departureId,
+            int destinationId, CancellationToken ct)
+        {
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+
+            return HandleResult(await Mediator.Send(
+                new StationListByStationId.Query
+                {
+                    Page = page,
+                    Limit = limit,
+                    IsAdmin = validationDto.IsAdmin,
+                    DepartureId = departureId,
+                    DestinationId = destinationId
+                }, ct));
+        }
+
+        // Keer, Biker, Admin
         [HttpGet("{stationId:int}")]
         public async Task<IActionResult> GetStationByStationId(int stationId, CancellationToken ct)
         {
