@@ -28,7 +28,8 @@ namespace Application.Trips
             public int Limit { get; init; }
             public int DepartureId { get; init; }
             public int DestinationId { get; init; }
-            public string? DateTime { get; init; }
+            public string? Date { get; init; }
+            public string? Time { get; init; }
         }
 
         public class Handler : IRequestHandler<Query, Result<List<TripDto>>>
@@ -50,22 +51,14 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (string.IsNullOrEmpty(request.DateTime))
+                    if (string.IsNullOrEmpty(request.Date) && string.IsNullOrEmpty(request.Time) &&
+                        request.DepartureId <= 0 && request.DestinationId <= 0)
                     {
-                        _logger.LogInformation("DateTime must be provided");
-                        return Result<List<TripDto>>.Failure("DateTime must be provided.");
-                    }
-
-                    if (request.DepartureId <= 0)
-                    {
-                        _logger.LogInformation("DepartureId must be larger than 0");
-                        return Result<List<TripDto>>.Failure("DepartureId must be larger than 0.");
-                    }
-                    
-                    if (request.DestinationId <= 0)
-                    {
-                        _logger.LogInformation("DestinationId must be larger than 0");
-                        return Result<List<TripDto>>.Failure("DestinationId must be larger than 0.");
+                        _logger.LogInformation("No parameter provided. Request must have one of these parameter " +
+                                               "Date, Time, DepartureId, DestinationId");
+                        return Result<List<TripDto>>.Failure(
+                            "No parameter provided. Request must have one of these parameter " +
+                            "Date, Time, DepartureId, DestinationId");
                     }
 
                     if (request.Page <= 0)
@@ -80,63 +73,105 @@ namespace Application.Trips
                         return Result<List<TripDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    if (!DateTime.TryParse(request.DateTime, out var dateTime))
+                    var isDateProvided = !string.IsNullOrEmpty(request.Date);
+                    var isTimeProvided = !string.IsNullOrEmpty(request.Time);
+                    var isDepartureIdProvided = request.DepartureId > 0;
+                    var isDestinationIdProvided = request.DestinationId > 0;
+
+                    var date = CurrentTime.GetCurrentTime();
+                    var time = date;
+                    var currentTime = date;
+
+                    if (isDateProvided && !DateTime.TryParse(request.Date, out date))
                     {
-                        _logger.LogInformation("DateTime parameter format is invalid");
-                        return Result<List<TripDto>>.Failure("DateTime parameter format is invalid.");
+                        _logger.LogInformation("Date parameter format is invalid");
+                        return Result<List<TripDto>>.Failure("Date parameter format is invalid.");
                     }
 
-                    var currentTime = CurrentTime.GetCurrentTime();
-                    
-                    if (dateTime.CompareTo(currentTime) < 0)
+                    if (isTimeProvided && !DateTime.TryParse(request.Time, out time))
                     {
-                        _logger.LogInformation("DateTime parameter value must be later than current time {currentTime}",
+                        _logger.LogInformation("Time parameter format is invalid");
+                        return Result<List<TripDto>>.Failure("Time parameter format is invalid.");
+                    }
+
+                    if (isDateProvided && date.CompareTo(currentTime.Date) < 0)
+                    {
+                        _logger.LogInformation("Date parameter value must be later than current time {currentTime}",
                             currentTime);
                         return Result<List<TripDto>>.Failure(
-                            $"DateTime parameter value must be later than current time {currentTime}.");
-                    }
-                    
-                    if (dateTime.TimeOfDay.CompareTo(new TimeSpan(5,0,0)) < 0 ||
-                        dateTime.TimeOfDay.CompareTo(new TimeSpan(21,0,0)) > 0)
-                    {
-                        _logger.LogInformation("DateTime parameter value must be later than 5AM and before 21PM");
-                        return Result<List<TripDto>>.Failure(
-                            "DateTime parameter value must be later than 5AM and before 21PM.");
+                            $"Date parameter value must be later than current time {currentTime}.");
                     }
 
-                    var totalRecord = await _context.Trip
-                        .Where(t => t.KeerId != request.UserId)
+                    if (isTimeProvided && (time.TimeOfDay.CompareTo(new TimeSpan(5, 0, 0)) < 0 ||
+                                           time.TimeOfDay.CompareTo(new TimeSpan(21, 0, 0)) > 0))
+                    {
+                        _logger.LogInformation("Time parameter value must be later than 5AM and before 21PM");
+                        return Result<List<TripDto>>.Failure(
+                            "Time parameter value must be later than 5AM and before 21PM.");
+                    }
+
+                    var dateTime = date;
+                    List<TripDto> trips = new();
+
+                    if (isDateProvided && isTimeProvided)
+                        dateTime = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second);
+
+                    var totalRecord = await _context.Trip.Where(t => t.KeerId != request.UserId)
                         .Where(t => t.Status == (int) TripStatus.Finding)
-                        .Where(t => t.BookTime >= dateTime.AddMinutes(-15) && t.BookTime <= dateTime.AddMinutes(15))
-                        .Where(t => t.Route.DepartureId == request.DepartureId)
-                        .Where(t => t.Route.DestinationId == request.DestinationId)
+                        .Where(t => (isDateProvided && isTimeProvided)
+                            ?
+                            t.BookTime >= dateTime.AddMinutes(-15) && t.BookTime <= dateTime.AddMinutes(15)
+                            : (!isDateProvided && isTimeProvided)
+                                ? (t.BookTime.TimeOfDay >= time.AddMinutes(-15).TimeOfDay &&
+                                   t.BookTime.TimeOfDay <= time.AddMinutes(15).TimeOfDay)
+                                : (isDateProvided && !isTimeProvided)
+                                    ? (t.BookTime >= date.Date && t.BookTime <= date.Date.AddDays(1))
+                                    : t.BookTime >= currentTime)
+                        .Where(t => (isDepartureIdProvided && isDestinationIdProvided)
+                            ?
+                            (t.Route.DepartureId == request.DepartureId &&
+                             t.Route.DestinationId == request.DestinationId)
+                            : (isDepartureIdProvided && !isDestinationIdProvided)
+                                ? t.Route.DepartureId == request.DepartureId
+                                : (!isDepartureIdProvided && isDestinationIdProvided)
+                                    ? t.Route.DestinationId == request.DestinationId
+                                    : (t.Route.DestinationId > 0 && t.Route.DestinationId > 0))
                         .CountAsync(cancellationToken);
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
-                    List<TripDto> trips = new();
-
                     if (request.Page <= lastPage)
-                        trips = await _context.Trip
-                            .Where(t => t.KeerId != request.UserId)
+                        trips = await _context.Trip.Where(t => t.KeerId != request.UserId)
                             .Where(t => t.Status == (int) TripStatus.Finding)
-                            .Where(t => t.BookTime >= dateTime.AddMinutes(-15) && t.BookTime <= dateTime.AddMinutes(15))
-                            .Where(t => t.Route.DepartureId == request.DepartureId)
-                            .Where(t => t.Route.DestinationId == request.DestinationId)
+                            .Where(t => (isDateProvided && isTimeProvided)
+                                ?
+                                t.BookTime >= dateTime.AddMinutes(-15) && t.BookTime <= dateTime.AddMinutes(15)
+                                : (!isDateProvided && isTimeProvided)
+                                    ? (t.BookTime.TimeOfDay >= time.AddMinutes(-15).TimeOfDay &&
+                                      t.BookTime.TimeOfDay <= time.AddMinutes(15).TimeOfDay)
+                                    : (isDateProvided && !isTimeProvided)
+                                        ? (t.BookTime >= date.Date && t.BookTime <= date.Date.AddDays(1))
+                                        : t.BookTime >= currentTime)
+                            .Where(t => (isDepartureIdProvided && isDestinationIdProvided)
+                                ?
+                                (t.Route.DepartureId == request.DepartureId &&
+                                 t.Route.DestinationId == request.DestinationId)
+                                : (isDepartureIdProvided && !isDestinationIdProvided)
+                                    ? t.Route.DepartureId == request.DepartureId
+                                    : (!isDepartureIdProvided && isDestinationIdProvided)
+                                        ? t.Route.DestinationId == request.DestinationId
+                                        : (t.Route.DestinationId > 0 && t.Route.DestinationId > 0))
                             .OrderBy(t => t.BookTime)
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
-                            .ProjectTo<TripDto>(_mapper.ConfigurationProvider,
-                                new {isKeer = false})
+                            .ProjectTo<TripDto>(_mapper.ConfigurationProvider, new {isKeer = false})
                             .ToListAsync(cancellationToken);
 
-                    PaginationDto paginationDto = new(
-                        request.Page, request.Limit, trips.Count, lastPage, totalRecord
-                    );
+                    PaginationDto paginationDto = new(request.Page, request.Limit, trips.Count, lastPage, totalRecord);
 
-                    _logger.LogInformation("Successfully retrieved list of all upcoming trips for biker");
-                    return Result<List<TripDto>>.Success(
-                        trips, "Successfully retrieved list of all upcoming trips for biker.", paginationDto);
+                    _logger.LogInformation("Successfully retrieved list of newly created trips for biker");
+                    return Result<List<TripDto>>.Success(trips,
+                        "Successfully retrieved list of all newly created trips for biker.", paginationDto);
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

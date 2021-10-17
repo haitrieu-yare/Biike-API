@@ -56,8 +56,8 @@ namespace API.Controllers
 
         // Biker, Admin
         [HttpGet("newlyCreatedTrip")]
-        public async Task<IActionResult> SearchNewlyCreatedTripList(int page, int limit,
-            string dateTime, int departureId, int destinationId, CancellationToken ct)
+        public async Task<IActionResult> SearchNewlyCreatedTripList(int page, int limit, string? date, string? time,
+            int departureId, int destinationId, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -77,7 +77,8 @@ namespace API.Controllers
                     Page = page,
                     Limit = limit,
                     UserId = validationDto.UserRequestId,
-                    DateTime = dateTime,
+                    Date = date,
+                    Time = time,
                     DepartureId = departureId,
                     DestinationId = destinationId
                 }, ct));
