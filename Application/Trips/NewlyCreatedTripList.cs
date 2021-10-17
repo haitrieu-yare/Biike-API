@@ -51,16 +51,6 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (string.IsNullOrEmpty(request.Date) && string.IsNullOrEmpty(request.Time) &&
-                        request.DepartureId <= 0 && request.DestinationId <= 0)
-                    {
-                        _logger.LogInformation("No parameter provided. Request must have one of these parameter " +
-                                               "Date, Time, DepartureId, DestinationId");
-                        return Result<List<TripDto>>.Failure(
-                            "No parameter provided. Request must have one of these parameter " +
-                            "Date, Time, DepartureId, DestinationId");
-                    }
-
                     if (request.Page <= 0)
                     {
                         _logger.LogInformation("Page must be larger than 0");
@@ -125,7 +115,7 @@ namespace Application.Trips
                                 ? (t.BookTime.TimeOfDay >= time.AddMinutes(-15).TimeOfDay &&
                                    t.BookTime.TimeOfDay <= time.AddMinutes(15).TimeOfDay)
                                 : (isDateProvided && !isTimeProvided)
-                                    ? (t.BookTime >= date.Date && t.BookTime <= date.Date.AddDays(1))
+                                    ? (t.BookTime >= currentTime && t.BookTime <= date.Date.AddDays(1))
                                     : t.BookTime >= currentTime)
                         .Where(t => (isDepartureIdProvided && isDestinationIdProvided)
                             ?
@@ -150,7 +140,7 @@ namespace Application.Trips
                                     ? (t.BookTime.TimeOfDay >= time.AddMinutes(-15).TimeOfDay &&
                                       t.BookTime.TimeOfDay <= time.AddMinutes(15).TimeOfDay)
                                     : (isDateProvided && !isTimeProvided)
-                                        ? (t.BookTime >= date.Date && t.BookTime <= date.Date.AddDays(1))
+                                        ? (t.BookTime >= currentTime && t.BookTime <= date.Date.AddDays(1))
                                         : t.BookTime >= currentTime)
                             .Where(t => (isDepartureIdProvided && isDestinationIdProvided)
                                 ?
