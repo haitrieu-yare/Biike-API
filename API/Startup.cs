@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using API.SignalR;
 using Application;
 using Application.Core;
 using Application.Trips;
@@ -61,6 +62,8 @@ namespace API
             var options = new AppOptions {Credential = GoogleCredential.FromFile(pathToKey)};
             FirebaseApp.Create(options);
 
+            services.AddSignalR();
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
                 {
@@ -74,6 +77,19 @@ namespace API
                         ValidIssuer = _config["Jwt:Firebase:ValidIssuer"],
                         ValidAudience = _config["Jwt:Firebase:ValidAudience"]
                     };
+                    // opt.Events = new JwtBearerEvents()
+                    // {
+                    //     OnMessageReceived = context =>
+                    //     {
+                    //         var idToken = context.Request.Query["idToken"];
+                    //         var path = context.HttpContext.Request.Path;
+                    //         if (!string.IsNullOrEmpty(idToken) && path.StartsWithSegments("/notification"))
+                    //         {
+                    //             context.Token = idToken;
+                    //         }
+                    //         return  Task.CompletedTask;
+                    //     }
+                    // };
                 });
 
             services.AddAuthorization()
@@ -111,12 +127,17 @@ namespace API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else if (env.IsProduction())
+            {
+                app.UseHttpsRedirection();
+            }
 
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 
@@ -125,7 +146,11 @@ namespace API
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<LocationHub>("/location");
+            });
 
             logger.LogInformation("App start at {Time}", DateTime.UtcNow.AddHours(7));
         }
