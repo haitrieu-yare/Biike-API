@@ -94,7 +94,7 @@ namespace Application.Feedbacks
                     {
                         // Create new transaction to add more point to Biker
                         if (request.FeedbackCreationDto.UserId == trip.KeerId)
-                            switch (newFeedback.Star)
+                            switch (newFeedback.TripStar)
                             {
                                 case 4:
                                     await _auto.Run(trip, 5, cancellationToken);

@@ -21,7 +21,7 @@ namespace Persistence.Data
                     UserId = 1,
                     TripId = 1,
                     FeedbackContent = "Chuyến đi rất là thoải mái luôn.",
-                    Star = 5,
+                    TripStar = 5,
                     Criteria = "Dịch Vụ Tốt",
                     CreatedDate = currentTime.AddDays(-9).AddSeconds(900)
                 },
@@ -30,7 +30,7 @@ namespace Persistence.Data
                     UserId = 3,
                     TripId = 1,
                     FeedbackContent = "Mọi chuyện suôn sẻ, thuận lợi.",
-                    Star = 5,
+                    TripStar = 5,
                     Criteria = "Đúng Giờ",
                     CreatedDate = currentTime.AddDays(-9).AddSeconds(800)
                 },
@@ -39,7 +39,7 @@ namespace Persistence.Data
                     UserId = 2,
                     TripId = 6,
                     FeedbackContent = "Tài xế đến hơi trễ xíu.",
-                    Star = 4,
+                    TripStar = 4,
                     Criteria = "Cần Đến Đúng Giờ",
                     CreatedDate = currentTime.AddDays(-2).AddSeconds(420 + 600 + 300)
                 },
@@ -48,7 +48,7 @@ namespace Persistence.Data
                     UserId = 3,
                     TripId = 6,
                     FeedbackContent = "Bạn dễ thương.",
-                    Star = 5,
+                    TripStar = 5,
                     Criteria = "Thân Thiện",
                     CreatedDate = currentTime.AddDays(-2).AddSeconds(420 + 600 + 400)
                 }

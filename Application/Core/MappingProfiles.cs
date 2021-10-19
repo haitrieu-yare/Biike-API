@@ -164,9 +164,9 @@ namespace Application.Core
             #region Feedback
 
             // ListAll, List
-            CreateMap<Feedback, FeedbackDto>().ForMember(f => f.TripStar, o => o.MapFrom(f => f.Star));
+            CreateMap<Feedback, FeedbackDto>();
             // Create
-            CreateMap<FeedbackCreationDto, Feedback>().ForMember(f => f.Star, o => o.MapFrom(f => f.TripStar));
+            CreateMap<FeedbackCreationDto, Feedback>();
 
             #endregion
 

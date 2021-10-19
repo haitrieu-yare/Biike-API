@@ -10,8 +10,8 @@ namespace Application.Feedbacks.DTOs
         [Required] public int? TripId { get; init; }
         [Required] [Range(1, 5)] public int? TripStar { get; init; }
 
-        [Required] public string? FeedbackContent { get; init; }
+        public string? FeedbackContent { get; init; }
 
-        [Required] public string? Criteria { get; init; }
+        public string? Criteria { get; init; }
     }
 }

@@ -11,7 +11,7 @@ namespace Domain.Entities
         public int TripId { get; set; }
         public Trip Trip { get; set; } = null!;
         public string? FeedbackContent { get; set; } 
-        [Range(1, 5)] public int Star { get; set; }
+        [Range(1, 5)] public int TripStar { get; set; }
         public string? Criteria { get; set; }
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
     }
