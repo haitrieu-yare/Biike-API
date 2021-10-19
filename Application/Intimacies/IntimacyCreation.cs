@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -51,9 +52,24 @@ namespace Application.Intimacies
                         return Result<Unit>.Failure("Intimacy has already existed.");
                     }
 
+                    User userTwo = await _context.User
+                        .Where(u => u.UserId == request.IntimacyModificationDto.UserTwoId)
+                        .Where(u => u.IsDeleted != true)
+                        .SingleOrDefaultAsync(cancellationToken);
+                    
+                    if (userTwo == null)
+                    {
+                        _logger.LogInformation("User two with UserId {UserId} doesn't exist",
+                            request.IntimacyModificationDto.UserTwoId);
+                        return Result<Unit>.NotFound(
+                            $"User two with UserId {request.IntimacyModificationDto.UserTwoId} doesn't exist.");
+                    }
+                    
                     Intimacy newIntimacy = new();
 
                     _mapper.Map(request.IntimacyModificationDto, newIntimacy);
+
+                    newIntimacy.UserName = userTwo.FullName;
 
                     await _context.Intimacy.AddAsync(newIntimacy, cancellationToken);
 

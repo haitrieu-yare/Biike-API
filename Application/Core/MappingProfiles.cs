@@ -189,7 +189,8 @@ namespace Application.Core
             #region Intimacy
 
             // List, Detail
-            CreateMap<Intimacy, IntimacyDto>();
+            CreateMap<Intimacy, IntimacyDto>()
+                .ForMember(i => i.UserName, o => o.MapFrom(i => i.UserTwo.FullName));
             // Edit, Create
             CreateMap<IntimacyModificationDto, Intimacy>();
 

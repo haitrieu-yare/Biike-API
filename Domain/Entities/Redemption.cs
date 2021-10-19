@@ -11,7 +11,7 @@ namespace Domain.Entities
         public Voucher Voucher { get; set; } = null!;
         public string VoucherCode { get; set; } = string.Empty;
         public int VoucherPoint { get; set; }
-        public bool IsUsed { get; set; } = false;
+        public bool IsUsed { get; set; }
         public DateTime RedemptionDate { get; set; } = CurrentTime.GetCurrentTime();
     }
 }
