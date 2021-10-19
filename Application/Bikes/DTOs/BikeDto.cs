@@ -9,7 +9,9 @@ namespace Application.Bikes.DTOs
         public int? UserId { get; set; }
         public string? PlateNumber { get; set; }
         public string? BikeOwner { get; set; }
-        public string? Picture { get; set; }
+        public string? BikePicture { get; set; }
+        public string? BikeLicensePicture { get; set; }
+        public string? PlateNumberPicture { get; set; }
         public string? Color { get; set; }
         public string? Brand { get; set; }
 

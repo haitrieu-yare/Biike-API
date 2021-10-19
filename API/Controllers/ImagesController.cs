@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.Core;
 using Domain;
+using Domain.Enums;
 using Firebase.Storage;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -40,7 +44,8 @@ namespace API.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> UploadImage()
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadImage([FromForm] ImageUploadDto imageUploadDto)
         {
             _logger.LogInformation("Start uploading images to Firebase");
             var ct = HttpContext.RequestAborted;
@@ -56,55 +61,97 @@ namespace API.Controllers
                 return new UnsupportedMediaTypeResult();
             }
 
-            var reader = new MultipartReader(mediaTypeHeader.Boundary.Value, request.Body);
-            var section = await reader.ReadNextSectionAsync(ct);
-            List<string> downloadUrl = new();
-            List<string> pathList = new();
-
-            // Get the all file from request and save it
-            while (section != null)
+            if (imageUploadDto.ImageList!.Count == 0)
             {
-                var hasContentDispositionHeader = ContentDispositionHeaderValue.TryParse(section.ContentDisposition,
-                    out var contentDisposition);
-
-                if (contentDisposition != null && hasContentDispositionHeader &&
-                    contentDisposition.DispositionType.Equals("form-data") &&
-                    !string.IsNullOrEmpty(contentDisposition.FileName.Value))
-                {
-                    var fileName = "image_" + CurrentTime.GetCurrentTime().ToString("yyyyMMdd_HHmmss_ffffff") + ".jpg";
-                    var saveToPath = Path.Combine(Path.GetTempPath(), fileName);
-                    pathList.Add(saveToPath);
-                    await using var targetStream = System.IO.File.Create(saveToPath);
-                    await section.Body.CopyToAsync(targetStream, ct);
-                }
-
-                section = await reader.ReadNextSectionAsync(ct);
+                _logger.LogInformation("No image found");
+                return HandleResult(Result<List<string>>.Failure("No image found."));
             }
 
-            foreach (var path in pathList)
+            if (imageUploadDto.ImageList.Any(image => image.Length > 5242880))
             {
-                await using (var stream = System.IO.File.Open(path, FileMode.Open))
+                _logger.LogInformation("Image size is too large, must be less than 5MB");
+                return HandleResult(Result<List<string>>.Failure("Image size is too large, must be less than 5MB."));
+            }
+
+            List<string> downloadUrl = new();
+
+            foreach (var image in imageUploadDto.ImageList)
+            {
+                string extension = image.ContentType.Split(@"/").Last();
+                switch (extension)
                 {
-                    var accessToken = await HttpContext.GetTokenAsync("access_token");
-
-                    // Construct FirebaseStorage, path to where you want to upload the file and Put it there
-                    var task = new FirebaseStorage(_configuration["Firebase:BucketPath"],
-                            new FirebaseStorageOptions
-                            {
-                                AuthTokenAsyncFactory = () => Task.FromResult(accessToken), ThrowOnCancel = true,
-                            }).Child(path.Split(@"\").Last())
-                        .PutAsync(stream);
-
-                    // await the task to wait until upload completes and get the download url
-                    downloadUrl.Add(await task);
+                    case "png":
+                        extension = ".png";
+                        break;
+                    default:
+                        extension = ".jpg";
+                        break;
                 }
 
-                // Delete file after upload
-                System.IO.File.Delete(path);
+                string folderName;
+                switch (imageUploadDto.ImageType)
+                {
+                    case (int) ImageType.Bike:
+                        folderName = "bike";
+                        break;
+                    case (int) ImageType.User:
+                        folderName = "user";
+                        break;
+                    case (int) ImageType.Voucher:
+                        folderName = "voucher";
+                        break;
+                    default:
+                        _logger.LogInformation("No image type found");
+                        return HandleResult(Result<List<string>>.Failure("No image type found."));
+                }
+
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                try
+                {
+                    FirebaseToken _ = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(accessToken, ct);
+                }
+                catch (FirebaseAuthException e)
+                {
+                    _logger.LogInformation("{Error}", e.InnerException?.Message ?? e.Message);
+                    return HandleResult(Result<List<string>>.Failure(e.InnerException?.Message ?? e.Message));
+                }
+
+                // ReSharper disable StringLiteralTypo
+                var fileName = "image_" + CurrentTime.GetCurrentTime().ToString("yyyyMMdd_HHmmss_ffffff") + extension;
+                // ReSharper restore StringLiteralTypo
+                // Construct FirebaseStorage, path to where you want to upload the file and Put it there
+                var task = new FirebaseStorage(_configuration["Firebase:BucketPath"],
+                        new FirebaseStorageOptions
+                        {
+                            AuthTokenAsyncFactory = () => Task.FromResult(accessToken), ThrowOnCancel = true
+                        }).Child(folderName)
+                    .Child(fileName)
+                    .PutAsync(image.OpenReadStream(), ct);
+
+                try
+                {
+                    downloadUrl.Add(await task);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogInformation("{Error}", e.InnerException?.Message ?? e.Message);
+                    return HandleResult(Result<List<string>>.Failure(e.InnerException?.Message ?? e.Message));
+                }
             }
 
             _logger.LogInformation("End uploading images to Firebase");
             return HandleResult(Result<List<string>>.Success(downloadUrl, "Successfully upload images to Firebase."));
         }
+    }
+
+    public class ImageUploadDto
+    {
+        [Required]
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+        public int? ImageType { get; init; }
+
+        [Required]
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+        public List<IFormFile>? ImageList { get; init; }
     }
 }

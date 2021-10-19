@@ -9,10 +9,11 @@ namespace Domain.Entities
         public int UserId { get; set; }
         public User User { get; set; } = null!;
         public string BikeOwner { get; set; } = string.Empty;
-        public string Picture { get; set; } = string.Empty;
-
+        public string BikePicture { get; set; } = string.Empty;
+        public string BikeLicensePicture { get; set; } = string.Empty;
+        public string PlateNumberPicture { get; set; } = string.Empty;
+        
         [MinLength(4)] public string PlateNumber { get; set; } = "5X55";
-
         public string Color { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
