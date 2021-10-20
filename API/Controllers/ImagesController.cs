@@ -34,15 +34,12 @@ namespace API.Controllers
             _configuration = configuration;
         }
 
-        // Keer, Biker, Admin
         /// <summary>
-        /// Action for upload large file
+        /// Action for upload images to Firebase.
         /// </summary>
-        /// <remarks>
-        /// Request to this action will not trigger any model binding or model validation,
-        /// because this is a no-argument action
-        /// </remarks>
-        /// <returns></returns>
+        /// <param name="imageUploadDto">This Dto contains an int ImageType
+        /// and a list of IFormFile which is list of images.</param>
+        /// <returns>List of download url string.</returns>
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadImage([FromForm] ImageUploadDto imageUploadDto)
@@ -51,9 +48,9 @@ namespace API.Controllers
             var ct = HttpContext.RequestAborted;
             var request = HttpContext.Request;
 
-            // validation of Content-Type
-            // 1. first, it must be a form-data request
-            // 2. a boundary should be found in the Content-Type
+            // Validation of Content-Type
+            // 1. First, it must be a form-data request
+            // 2. A boundary should be found in the Content-Type
             if (!request.HasFormContentType ||
                 !MediaTypeHeaderValue.TryParse(request.ContentType, out var mediaTypeHeader) ||
                 string.IsNullOrEmpty(mediaTypeHeader.Boundary.Value))
