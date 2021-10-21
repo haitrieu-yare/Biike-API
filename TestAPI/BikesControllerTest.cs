@@ -2,10 +2,12 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using API;
+using Application.Bikes.DTOs;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
@@ -18,7 +20,9 @@ namespace TestAPI
         private readonly HttpClient _client;
         private static string _adminToken = string.Empty;
         private static string _keerToken = string.Empty;
+        private static string _keer2Token = string.Empty;
         private static string _bikerToken = string.Empty;
+        private static string _biker2Token = string.Empty;
         
         public BikesControllerTest(WebApplicationFactory<Startup> fixture)
         {
@@ -53,10 +57,11 @@ namespace TestAPI
                 "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyB1aW0yKA1ACzjVjqhiECryNSkt6gqksQM";
 
             var options = new JsonSerializerOptions {WriteIndented = true};
-            string loginRequestString = JsonSerializer.Serialize(loginDto, options);
+            string loginRequestBody = JsonSerializer.Serialize(loginDto, options);
+            HttpContent stringContent = new StringContent(loginRequestBody, Encoding.UTF8, "application/json");
 
             HttpClient client = new();
-            HttpResponseMessage loginTask = await client.PostAsync(loginUrl, new StringContent(loginRequestString));
+            HttpResponseMessage loginTask = await client.PostAsync(loginUrl, stringContent);
 
             if (!loginTask.IsSuccessStatusCode) return token;
 
@@ -86,10 +91,100 @@ namespace TestAPI
             _keerToken = await Login(new LoginDto("haitrieu@fpt.edu.vn", "092021"));
             _keerToken.Should().HaveLength(1098);
             
+            _keer2Token = await Login(new LoginDto("thanhtam@fpt.edu.vn", "092021"));
+            _keer2Token.Should().HaveLength(1100);
+            
             _bikerToken = await Login(new LoginDto("phuonguyen@fpt.edu.vn", "092021"));
             _bikerToken.Should().HaveLength(1110);
+            
+            _biker2Token = await Login(new LoginDto("huuphat@fpt.edu.vn", "092021"));
+            _biker2Token.Should().HaveLength(1085);
         }
+        
+        [Fact]
+        public async Task GetDetailsByBikeId()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _adminToken);
 
+            HttpResponseMessage responseAdmin = await _client.GetAsync("api/biike/v1/bikes/1");
+            responseAdmin.StatusCode.Should().Be(HttpStatusCode.OK);
+            string resultAdmin = await responseAdmin.Content.ReadAsStringAsync();
+            const string expectationAdmin = "{\"message\":\"Successfully retrieved bike by BikeId 1.\",\"data\":{\"bikeId\":1,\"userId\":3,\"plateNumber\":\"7000\",\"bikeOwner\":\"Phương Uyên\",\"bikePicture\":\"\",\"bikeLicensePicture\":\"\",\"plateNumberPicture\":\"\",\"color\":\"Gold\",\"brand\":\"Honda\",\"createdDate\":\"2021-09-01T00:00:00\"}}";
+            resultAdmin.Should().Be(expectationAdmin);
+            
+            HttpResponseMessage responseAdmin2 = await _client.GetAsync("api/biike/v1/bikes/-1");
+            responseAdmin2.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            string resultAdmin2 = await responseAdmin2.Content.ReadAsStringAsync();
+            const string expectationAdmin2 = "Could not found bike with BikeId -1.";
+            resultAdmin2.Should().Be(expectationAdmin2);
+
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _keerToken);
+            
+            HttpResponseMessage responseKeer = await _client.GetAsync("api/biike/v1/bikes/1");
+            responseKeer.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+            string resultKeer = await responseKeer.Content.ReadAsStringAsync();
+            const string expectationKeer = "Only Admin can send request to this endpoint.";
+            resultKeer.Should().Be(expectationKeer);
+            
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bikerToken);
+            
+            HttpResponseMessage responseBiker = await _client.GetAsync("api/biike/v1/bikes/1");
+            responseBiker.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+            string resultBiker = await responseBiker.Content.ReadAsStringAsync();
+            const string expectationBiker = "Only Admin can send request to this endpoint.";
+            resultBiker.Should().Be(expectationBiker);
+            
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
+        }
+        
+        [Fact]
+        public async Task GetDetailsByUserId()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _adminToken);
+
+            HttpResponseMessage responseAdmin = await _client.GetAsync("api/biike/v1/bikes/users/1");
+            responseAdmin.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            string resultAdmin = await responseAdmin.Content.ReadAsStringAsync();
+            const string expectationAdmin = "Could not found bike with UserId 1.";
+            resultAdmin.Should().Be(expectationAdmin);
+            
+            HttpResponseMessage responseAdmin2 = await _client.GetAsync("api/biike/v1/bikes/users/3");
+            responseAdmin2.StatusCode.Should().Be(HttpStatusCode.OK);
+            string resultAdmin2 = await responseAdmin2.Content.ReadAsStringAsync();
+            const string expectationAdmin2 = "{\"message\":\"Successfully retrieved bike by UserId 3.\",\"data\":{\"bikeId\":1,\"userId\":3,\"plateNumber\":\"7000\",\"bikeOwner\":\"Phương Uyên\",\"bikePicture\":\"\",\"bikeLicensePicture\":\"\",\"plateNumberPicture\":\"\",\"color\":\"Gold\",\"brand\":\"Honda\",\"createdDate\":\"2021-09-01T00:00:00\"}}";
+            resultAdmin2.Should().Be(expectationAdmin2);
+
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _keerToken);
+            
+            HttpResponseMessage responseKeer = await _client.GetAsync("api/biike/v1/bikes/users/1");
+            responseKeer.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            string resultKeer = await responseKeer.Content.ReadAsStringAsync();
+            const string expectationKeer = "Could not found bike with UserId 1.";
+            resultKeer.Should().Be(expectationKeer);
+            
+            HttpResponseMessage responseKeer2 = await _client.GetAsync("api/biike/v1/bikes/users/3");
+            responseKeer2.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+            string resultKeer2 = await responseKeer2.Content.ReadAsStringAsync();
+            const string expectationKeer2 = "User did not have permission to access this resource.";
+            resultKeer2.Should().Be(expectationKeer2);
+            
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bikerToken);
+            
+            HttpResponseMessage responseBiker = await _client.GetAsync("api/biike/v1/bikes/users/1");
+            responseBiker.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+            string resultBiker = await responseBiker.Content.ReadAsStringAsync();
+            const string expectationBiker = "User did not have permission to access this resource.";
+            resultBiker.Should().Be(expectationBiker);
+            
+            HttpResponseMessage responseBiker2 = await _client.GetAsync("api/biike/v1/bikes/users/3");
+            responseBiker2.StatusCode.Should().Be(HttpStatusCode.OK);
+            string resultBiker2 = await responseBiker2.Content.ReadAsStringAsync();
+            const string expectationBiker2 = "{\"message\":\"Successfully retrieved bike by UserId 3.\",\"data\":{\"bikeId\":1,\"userId\":3,\"plateNumber\":\"7000\",\"bikeOwner\":\"Phương Uyên\",\"bikePicture\":\"\",\"bikeLicensePicture\":\"\",\"plateNumberPicture\":\"\",\"color\":\"Gold\",\"brand\":\"Honda\"}}";
+            resultBiker2.Should().Be(expectationBiker2);
+            
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
+        }
+        
         [Fact]
         public async Task ListAllBikes()
         {
@@ -173,89 +268,66 @@ namespace TestAPI
             
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
         }
-        
+
         [Fact]
-        public async Task DetailsByBikeId()
+        public async Task PostBike()
         {
+            if (string.IsNullOrEmpty(_adminToken))
+                _adminToken = await Login(new LoginDto("dangkhoa@fpt.edu.vn", "092021"));
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _adminToken);
 
-            HttpResponseMessage responseAdmin = await _client.GetAsync("api/biike/v1/bikes/1");
-            responseAdmin.StatusCode.Should().Be(HttpStatusCode.OK);
+            BikeCreationDto bikeCreationDto = new BikeCreationDto
+            {
+                UserId = 1,
+                Brand = "Honda",
+                Color = "Red",
+                BikeOwner = "Hải Triều",
+                BikePicture = "thisispicturelink",
+                BikeLicensePicture = "thisispicturelink",
+                PlateNumberPicture = "thisispicturelink",
+                PlateNumber = "5X55",
+            };
+            
+            var options = new JsonSerializerOptions {WriteIndented = true};
+            string requestBody = JsonSerializer.Serialize(bikeCreationDto, options);
+            HttpContent stringContent = new StringContent(requestBody, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage responseAdmin = await _client.PostAsync("api/biike/v1/bikes", stringContent);
+            responseAdmin.StatusCode.Should().Be(HttpStatusCode.Forbidden);
             string resultAdmin = await responseAdmin.Content.ReadAsStringAsync();
-            const string expectationAdmin = "{\"message\":\"Successfully retrieved bike by BikeId 1.\",\"data\":{\"bikeId\":1,\"userId\":3,\"plateNumber\":\"7000\",\"bikeOwner\":\"Phương Uyên\",\"bikePicture\":\"\",\"bikeLicensePicture\":\"\",\"plateNumberPicture\":\"\",\"color\":\"Gold\",\"brand\":\"Honda\",\"createdDate\":\"2021-09-01T00:00:00\"}}";
+            const string expectationAdmin = "Only Keer can send request to this endpoint.";
             resultAdmin.Should().Be(expectationAdmin);
             
-            HttpResponseMessage responseAdmin2 = await _client.GetAsync("api/biike/v1/bikes/-1");
-            responseAdmin2.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            string resultAdmin2 = await responseAdmin2.Content.ReadAsStringAsync();
-            const string expectationAdmin2 = "Could not found bike with BikeId -1.";
-            resultAdmin2.Should().Be(expectationAdmin2);
-
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _keerToken);
-            
-            HttpResponseMessage responseKeer = await _client.GetAsync("api/biike/v1/bikes/1");
-            responseKeer.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-            string resultKeer = await responseKeer.Content.ReadAsStringAsync();
-            const string expectationKeer = "Only Admin can send request to this endpoint.";
-            resultKeer.Should().Be(expectationKeer);
-            
+            if (string.IsNullOrEmpty(_bikerToken))
+                _bikerToken = await Login(new LoginDto("phuonguyen@fpt.edu.vn", "092021"));
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bikerToken);
             
-            HttpResponseMessage responseBiker = await _client.GetAsync("api/biike/v1/bikes/1");
+            HttpResponseMessage responseBiker = await _client.PostAsync("api/biike/v1/bikes", stringContent);
             responseBiker.StatusCode.Should().Be(HttpStatusCode.Forbidden);
             string resultBiker = await responseBiker.Content.ReadAsStringAsync();
-            const string expectationBiker = "Only Admin can send request to this endpoint.";
+            const string expectationBiker = "Only Keer can send request to this endpoint.";
             resultBiker.Should().Be(expectationBiker);
-            
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
-        }
-        
-        [Fact]
-        public async Task DetailsByUserId()
-        {
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _adminToken);
 
-            HttpResponseMessage responseAdmin = await _client.GetAsync("api/biike/v1/bikes/users/1");
-            responseAdmin.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            string resultAdmin = await responseAdmin.Content.ReadAsStringAsync();
-            const string expectationAdmin = "Could not found bike with UserId 1.";
-            resultAdmin.Should().Be(expectationAdmin);
-            
-            HttpResponseMessage responseAdmin2 = await _client.GetAsync("api/biike/v1/bikes/users/3");
-            responseAdmin2.StatusCode.Should().Be(HttpStatusCode.OK);
-            string resultAdmin2 = await responseAdmin2.Content.ReadAsStringAsync();
-            const string expectationAdmin2 = "{\"message\":\"Successfully retrieved bike by UserId 3.\",\"data\":{\"bikeId\":1,\"userId\":3,\"plateNumber\":\"7000\",\"bikeOwner\":\"Phương Uyên\",\"bikePicture\":\"\",\"bikeLicensePicture\":\"\",\"plateNumberPicture\":\"\",\"color\":\"Gold\",\"brand\":\"Honda\",\"createdDate\":\"2021-09-01T00:00:00\"}}";
-            resultAdmin2.Should().Be(expectationAdmin2);
-
+            if (string.IsNullOrEmpty(_keerToken))
+                _keerToken = await Login(new LoginDto("haitrieu@fpt.edu.vn", "092021"));
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _keerToken);
             
-            HttpResponseMessage responseKeer = await _client.GetAsync("api/biike/v1/bikes/users/1");
-            responseKeer.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            HttpResponseMessage responseKeer = await _client.PostAsync("api/biike/v1/bikes", stringContent);
+            responseKeer.StatusCode.Should().Be(HttpStatusCode.Created);
+            responseKeer.Headers.Location.Should().Be("http://localhost/api/biike/v1/bikes/4");
             string resultKeer = await responseKeer.Content.ReadAsStringAsync();
-            const string expectationKeer = "Could not found bike with UserId 1.";
+            const string expectationKeer = "{\"message\":\"Successfully created new bike.\",\"data\":{}}";
             resultKeer.Should().Be(expectationKeer);
             
-            HttpResponseMessage responseKeer2 = await _client.GetAsync("api/biike/v1/bikes/users/3");
-            responseKeer2.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+            if (string.IsNullOrEmpty(_keer2Token))
+                _keer2Token = await Login(new LoginDto("thanhtam@fpt.edu.vn", "092021"));
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _keer2Token);
+            
+            HttpResponseMessage responseKeer2 = await _client.PostAsync("api/biike/v1/bikes", stringContent);
+            responseKeer2.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             string resultKeer2 = await responseKeer2.Content.ReadAsStringAsync();
-            const string expectationKeer2 = "User did not have permission to access this resource.";
+            const string expectationKeer2 = "ID of the user sent the request is not the same as ID of the user in the request's body.";
             resultKeer2.Should().Be(expectationKeer2);
-            
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bikerToken);
-            
-            HttpResponseMessage responseBiker = await _client.GetAsync("api/biike/v1/bikes/users/1");
-            responseBiker.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-            string resultBiker = await responseBiker.Content.ReadAsStringAsync();
-            const string expectationBiker = "User did not have permission to access this resource.";
-            resultBiker.Should().Be(expectationBiker);
-            
-            HttpResponseMessage responseBiker2 = await _client.GetAsync("api/biike/v1/bikes/users/3");
-            responseBiker2.StatusCode.Should().Be(HttpStatusCode.OK);
-            string resultBiker2 = await responseBiker2.Content.ReadAsStringAsync();
-            const string expectationBiker2 = "{\"message\":\"Successfully retrieved bike by UserId 3.\",\"data\":{\"bikeId\":1,\"userId\":3,\"plateNumber\":\"7000\",\"bikeOwner\":\"Phương Uyên\",\"bikePicture\":\"\",\"bikeLicensePicture\":\"\",\"plateNumberPicture\":\"\",\"color\":\"Gold\",\"brand\":\"Honda\"}}";
-            resultBiker2.Should().Be(expectationBiker2);
-            
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
         }
     }
 }
