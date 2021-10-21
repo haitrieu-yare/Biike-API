@@ -69,7 +69,7 @@ namespace TestAPI
 
             return token;
         }
-
+        
         // This test must run first to check login and also prepare tokens for other tests.
         [Fact]
         public async Task ATestLogin()
