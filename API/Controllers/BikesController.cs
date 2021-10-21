@@ -52,7 +52,7 @@ namespace API.Controllers
                 return new ObjectResult(ConstantString.DidNotHavePermissionToAccess) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new BikeDetailsByUserId.Query {IsAdmin = validationDto.IsAdmin, UserId = validationDto.UserRequestId},
+                new BikeDetailsByUserId.Query {IsAdmin = validationDto.IsAdmin, UserId = userId},
                 ct));
         }
 
