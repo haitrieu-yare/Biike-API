@@ -1,5 +1,6 @@
 using System;
 
+// ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Application.Users.DTOs

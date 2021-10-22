@@ -26,6 +26,7 @@ namespace Persistence.Data
                     Gender = (int) GenderStatus.Male,
                     Status = (int) UserStatus.Active,
                     TotalPoint = 5000,
+                    MaxTotalPoint = 5000,
                     IsEmailVerified = true,
                     IsPhoneVerified = true,
                     CreatedDate = createdDate
@@ -39,6 +40,7 @@ namespace Persistence.Data
                     Gender = (int) GenderStatus.Female,
                     Status = (int) UserStatus.Active,
                     TotalPoint = 5000,
+                    MaxTotalPoint = 5000,
                     IsEmailVerified = true,
                     IsPhoneVerified = true,
                     CreatedDate = createdDate
@@ -53,6 +55,7 @@ namespace Persistence.Data
                     Status = (int) UserStatus.Active,
                     Role = (int) RoleStatus.Biker,
                     TotalPoint = 5000,
+                    MaxTotalPoint = 5000,
                     IsEmailVerified = true,
                     IsPhoneVerified = true,
                     IsBikeVerified = true,
@@ -68,6 +71,7 @@ namespace Persistence.Data
                     Status = (int) UserStatus.Active,
                     Role = (int) RoleStatus.Biker,
                     TotalPoint = 5000,
+                    MaxTotalPoint = 5000,
                     IsEmailVerified = true,
                     IsPhoneVerified = true,
                     IsBikeVerified = true,
@@ -82,6 +86,7 @@ namespace Persistence.Data
                     Gender = (int) GenderStatus.Female,
                     Status = (int) UserStatus.Active,
                     Role = (int) RoleStatus.Admin,
+                    Star = 0,
                     CreatedDate = createdDate
                 },
                 new()
@@ -93,6 +98,7 @@ namespace Persistence.Data
                     Gender = (int) GenderStatus.Male,
                     Status = (int) UserStatus.Active,
                     Role = (int) RoleStatus.Admin,
+                    Star = 0,
                     CreatedDate = createdDate
                 },
                 new()
@@ -104,6 +110,7 @@ namespace Persistence.Data
                     Gender = (int) GenderStatus.Male,
                     Status = (int) UserStatus.Active,
                     TotalPoint = 5000,
+                    MaxTotalPoint = 5000,
                     IsEmailVerified = true,
                     IsPhoneVerified = true,
                     CreatedDate = createdDate
@@ -118,6 +125,7 @@ namespace Persistence.Data
                     Status = (int) UserStatus.Active,
                     Role = (int) RoleStatus.Biker,
                     TotalPoint = 5000,
+                    MaxTotalPoint = 5000,
                     IsEmailVerified = true,
                     IsPhoneVerified = true,
                     IsBikeVerified = true,

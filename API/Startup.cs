@@ -5,6 +5,7 @@ using Application;
 using Application.Core;
 using Application.Trips;
 using Application.TripTransactions;
+using Application.Users;
 using Application.Wallets;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
@@ -109,6 +110,12 @@ namespace API
                     trigger.WithIdentity("StartupTripAutoCancellation", ConstantString.OneTimeJob)
                         .StartNow()
                         .WithDescription("Managing creating auto trip cancellation on startup"));
+                
+                q.ScheduleJob<AutoMaxPointReset>(trigger => trigger.WithIdentity("AutoMaxPointResetJob", ConstantString.ReoccurredJob)
+                    .StartNow()
+                    .WithCronSchedule("0 0 0 1 1/1 ? *",
+                        x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")))
+                    .WithDescription("Managing resetting biker max total point"));
             });
 
             // ASP.NET Core hosting

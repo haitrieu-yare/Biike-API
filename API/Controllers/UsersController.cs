@@ -26,6 +26,13 @@ namespace API.Controllers
 
             return HandleResult(await Mediator.Send(new UserList.Query {Page = page, Limit = limit}, ct));
         }
+        
+        // Keer, Biker, Admin
+        [HttpGet("topBiker")]
+        public async Task<IActionResult> GetTopBiker(CancellationToken ct)
+        {
+            return HandleResult(await Mediator.Send(new TopBiker.Query(), ct));
+        }
 
         // Keer, Biker
         [HttpGet("{userId:int}/profile")]

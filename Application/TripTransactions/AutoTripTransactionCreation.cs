@@ -65,6 +65,7 @@ namespace Application.TripTransactions
 
             // Update user total point
             user.TotalPoint += newPoint;
+            user.MaxTotalPoint += newPoint;
 
             // Save change to 4 tables: feedback, tripTransaction, wallet, user
             var result = await _context.SaveChangesAsync(cancellationToken) > 0;

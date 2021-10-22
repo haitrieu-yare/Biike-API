@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Enums;
 
+// ReSharper disable CollectionNeverUpdated.Global
+
 namespace Domain.Entities
 {
     public class User
@@ -14,9 +16,7 @@ namespace Domain.Entities
         public string PhoneNumber { get; set; } = string.Empty;
 
         [EmailAddress] public string Email { get; set; } = "thisisadefaultmail@gmail.com";
-
         [MinLength(6)] public string PasswordHash { get; set; } = "092021";
-
         public int Role { get; set; } = (int) RoleStatus.Keer;
         public string FullName { get; set; } = string.Empty;
         public string Avatar { get; set; } = string.Empty;
@@ -25,16 +25,15 @@ namespace Domain.Entities
         public string? LastLoginDevice { get; set; }
         public DateTime? LastTimeLogin { get; set; }
         public double Star { get; set; } = 4;
-        public int TotalPoint { get; set; } = 0;
-        public bool IsEmailVerified { get; set; } = false;
-        public bool IsPhoneVerified { get; set; } = false;
-        public bool IsBikeVerified { get; set; } = false;
+        public int TotalPoint { get; set; }
+        public int MaxTotalPoint { get; set; }
+        public bool IsEmailVerified { get; set; }
+        public bool IsPhoneVerified { get; set; }
+        public bool IsBikeVerified { get; set; }
         public DateTime? BirthDate { get; set; }
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
-        public bool IsDeleted { get; set; } = false;
-
+        public bool IsDeleted { get; set; }
         [InverseProperty("Keer")] public ICollection<Trip> KeerTrips { get; set; } = new List<Trip>();
-
         [InverseProperty("Biker")] public ICollection<Trip> BikerTrips { get; set; } = new List<Trip>();
 
         [InverseProperty("UserOne")]
