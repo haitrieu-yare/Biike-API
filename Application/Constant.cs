@@ -1,7 +1,8 @@
 ﻿namespace Application
 {
-    public static class ConstantString
+    public static class Constant
     {
+        public const int MaxTripCount = 30;
         public const string CouldNotGetUserRole = "Could not get user's role.";
 
         public const string CouldNotGetIdOfUserSentRequest = "Could not get the ID of the user that sent the request.";

@@ -17,10 +17,10 @@ namespace API.Controllers
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
             if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
                 new TripTransactionList.Query {Page = page, Limit = limit}, ct));
@@ -32,10 +32,10 @@ namespace API.Controllers
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
             if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
                 new TripTransactionDetails.Query {TripTransactionId = tripTransactionId}, ct));
@@ -48,10 +48,10 @@ namespace API.Controllers
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
             if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
                 new TripTransactionListByTripId.Query {TripId = tripId, Page = page, Limit = limit}, ct));

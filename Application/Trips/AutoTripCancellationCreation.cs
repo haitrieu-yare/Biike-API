@@ -13,17 +13,17 @@ namespace Application.Trips
 
             IScheduler scheduler = await schedulerFactory.GetScheduler();
 
-            string jobName = ConstantString.GetJobNameAutoCancellation(trip.TripId);
+            string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
 
             IJobDetail job = JobBuilder.Create<AutoTripCancellation>()
-                .WithIdentity(jobName, ConstantString.OneTimeJob)
+                .WithIdentity(jobName, Constant.OneTimeJob)
                 .UsingJobData("TripId", $"{trip.TripId}")
                 .Build();
 
-            string triggerName = ConstantString.GetTriggerNameAutoCancellation(trip.TripId);
+            string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId);
 
             ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity(triggerName, ConstantString.OneTimeJob)
+                .WithIdentity(triggerName, Constant.OneTimeJob)
                 .StartAt(CurrentTime.ToLocalTime(trip.BookTime))
                 .Build();
 

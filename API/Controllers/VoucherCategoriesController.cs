@@ -18,7 +18,7 @@ namespace API.Controllers
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
-            if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(new VoucherCategoryList.Query {Page = page, Limit = limit}, ct));
         }
@@ -29,7 +29,7 @@ namespace API.Controllers
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
-            if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
                 new VoucherCategoryDetails.Query {VoucherCategoryId = voucherCategoryId}, ct));
@@ -42,10 +42,10 @@ namespace API.Controllers
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
             if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
                 new VoucherCategoryCreation.Command {VoucherCategoryCreationDto = voucherCategoryCreationDto}, ct));
@@ -58,10 +58,10 @@ namespace API.Controllers
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
             if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
                 new VoucherCategoryEdit.Command
@@ -77,10 +77,10 @@ namespace API.Controllers
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
             if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
                 new VoucherCategoryDeletion.Command {VoucherCategoryId = voucherCategoryId}, ct));

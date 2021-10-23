@@ -18,10 +18,10 @@ namespace API.Controllers
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
             if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(new RedemptionList.Query {Page = page, Limit = limit}, ct));
         }
@@ -32,7 +32,7 @@ namespace API.Controllers
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
-            if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
                 new RedemptionDetails.Query
@@ -49,7 +49,7 @@ namespace API.Controllers
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
-            if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
                 new RedemptionDetailsFull.Query
@@ -66,9 +66,9 @@ namespace API.Controllers
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
-            if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
+            if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
                 new RedemptionListByUseId.Query {Page = page, Limit = limit, UserId = userId}, ct));
@@ -81,9 +81,9 @@ namespace API.Controllers
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
-            if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
+            if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
                 new RedemptionAndVoucherListByUserId.Query {Page = page, Limit = limit, UserId = userId}, ct));
@@ -95,17 +95,17 @@ namespace API.Controllers
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
             if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
-                return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
-                                        ConstantString.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+                                        Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext, redemptionCreationDto.UserId);
 
-            if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            if (!validationDto.IsAuthorized) return BadRequest(ConstantString.NotSameUserId);
+            if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
                 new RedemptionCreation.Command {RedemptionCreationDto = redemptionCreationDto}, ct));
@@ -117,15 +117,15 @@ namespace API.Controllers
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(ConstantString.CouldNotGetUserRole);
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
             if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
-                return new ObjectResult(ConstantString.OnlyRole(RoleStatus.Keer.ToString()) + " " +
-                                        ConstantString.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+                                        Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
-            if (!validationDto.IsUserFound) return BadRequest(ConstantString.CouldNotGetIdOfUserSentRequest);
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
                 new RedemptionUsageEdit.Command

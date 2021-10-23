@@ -93,9 +93,9 @@ namespace Application.Trips
                     // Delete job after cancelling successfully
                     IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
 
-                    string jobName = ConstantString.GetJobNameAutoCancellation(oldTrip.TripId);
+                    string jobName = Constant.GetJobNameAutoCancellation(oldTrip.TripId);
                     var jobDeletionResult =
-                        await scheduler.DeleteJob(JobKey.Create(jobName, ConstantString.OneTimeJob),
+                        await scheduler.DeleteJob(JobKey.Create(jobName, Constant.OneTimeJob),
                             CancellationToken.None);
                     _logger.LogInformation("Successfully deleted cancellation job");
 

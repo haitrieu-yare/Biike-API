@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 // ReSharper disable UnusedMember.Global
@@ -6,12 +7,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Trips.DTOs
 {
-    public class TripCreationDto
+    public class TripScheduleCreationDto
     {
         [Required] public int? KeerId { get; init; }
         [Required] public int? DepartureId { get; init; }
         [Required] public int? DestinationId { get; init; }
-        [Required] public DateTime? BookTime { get; init; }
+        [Required] public List<DateTime>? BookTime { get; init; }
         [Required] public bool? IsScheduled { get; init; }
     }
 }

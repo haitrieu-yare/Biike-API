@@ -50,7 +50,7 @@ namespace Application.Bikes
                     if (user.Role != (int) RoleStatus.Biker)
                     {
                         _logger.LogInformation("User to delete bike does not exist");
-                        return Result<Unit>.Unauthorized(ConstantString.OnlyRole(RoleStatus.Biker.ToString()));
+                        return Result<Unit>.Unauthorized(Constant.OnlyRole(RoleStatus.Biker.ToString()));
                     }
 
                     user.IsBikeVerified = false;

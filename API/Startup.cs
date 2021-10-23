@@ -100,18 +100,18 @@ namespace API
             {
                 q.UseMicrosoftDependencyInjectionJobFactory();
 
-                q.ScheduleJob<WalletJob>(trigger => trigger.WithIdentity("WalletJob", ConstantString.ReoccurredJob)
+                q.ScheduleJob<WalletJob>(trigger => trigger.WithIdentity("WalletJob", Constant.ReoccurredJob)
                     .StartNow()
                     .WithCronSchedule("0 0 0 1 1/4 ? *",
                         x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")))
                     .WithDescription("Managing creating new wallet and expire old wallet"));
 
                 q.ScheduleJob<AutoTripCancellationStartup>(trigger =>
-                    trigger.WithIdentity("StartupTripAutoCancellation", ConstantString.OneTimeJob)
+                    trigger.WithIdentity("StartupTripAutoCancellation", Constant.OneTimeJob)
                         .StartNow()
                         .WithDescription("Managing creating auto trip cancellation on startup"));
                 
-                q.ScheduleJob<AutoMaxPointReset>(trigger => trigger.WithIdentity("AutoMaxPointResetJob", ConstantString.ReoccurredJob)
+                q.ScheduleJob<AutoMaxPointReset>(trigger => trigger.WithIdentity("AutoMaxPointResetJob", Constant.ReoccurredJob)
                     .StartNow()
                     .WithCronSchedule("0 0 0 1 1/1 ? *",
                         x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")))

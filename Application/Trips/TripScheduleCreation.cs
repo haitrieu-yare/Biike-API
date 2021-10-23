@@ -1,10 +1,10 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Trips.DTOs;
-using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
@@ -16,11 +16,11 @@ using Quartz;
 namespace Application.Trips
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class TripCreation
+    public class TripScheduleCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public TripCreationDto TripCreationDto { get; init; } = null!;
+            public TripScheduleCreationDto TripScheduleCreationDto { get; init; } = null!;
         }
 
         // ReSharper disable once UnusedType.Global
@@ -28,14 +28,12 @@ namespace Application.Trips
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
-            private readonly IMapper _mapper;
             private readonly ISchedulerFactory _schedulerFactory;
 
-            public Handler(DataContext context, IMapper mapper, ISchedulerFactory schedulerFactory,
+            public Handler(DataContext context, ISchedulerFactory schedulerFactory,
                 ILogger<Handler> logger)
             {
                 _context = context;
-                _mapper = mapper;
                 _schedulerFactory = schedulerFactory;
                 _logger = logger;
             }
@@ -46,38 +44,54 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var route = await _context.Route.Where(r => r.DepartureId == request.TripCreationDto.DepartureId)
-                        .Where(r => r.DestinationId == request.TripCreationDto.DestinationId)
+                    var route = await _context.Route
+                        .Where(r => r.DepartureId == request.TripScheduleCreationDto.DepartureId)
+                        .Where(r => r.DestinationId == request.TripScheduleCreationDto.DestinationId)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (route == null)
                     {
                         _logger.LogInformation(
                             "Route with DepartureId {DepartureId} and DestinationId {DestinationId} doesn't exist",
-                            request.TripCreationDto.DepartureId, request.TripCreationDto.DestinationId);
+                            request.TripScheduleCreationDto.DepartureId, request.TripScheduleCreationDto.DestinationId);
                         return Result<Unit>.NotFound(
-                            $"Route with DepartureId {request.TripCreationDto.DepartureId} and " +
-                            $"DestinationId {request.TripCreationDto.DestinationId} doesn't exist.");
+                            $"Route with DepartureId {request.TripScheduleCreationDto.DepartureId} and " +
+                            $"DestinationId {request.TripScheduleCreationDto.DestinationId} doesn't exist.");
                     }
-                    
-                    var tripWithBookTime = await _context.Trip
-                        .Where(t => t.BookTime == request.TripCreationDto.BookTime)
-                        .SingleOrDefaultAsync(cancellationToken);
 
+                    HashSet<DateTime> listBookTime = new();
+                    foreach (var bookTime in request.TripScheduleCreationDto.BookTime!)
+                    {
+                        listBookTime.Add(bookTime);
+                    }
+
+                    if (listBookTime.Count != request.TripScheduleCreationDto.BookTime.Count)
+                    {
+                        _logger.LogInformation(
+                            "Failed to create new trip schedule because list bookTime has a duplicate bookTime");
+                        return Result<Unit>.Failure(
+                            "Failed to create new trip schedule because list bookTime has a duplicate bookTime.");
+                    }
+
+                    var tripWithBookTime = await _context.Trip
+                        .Where(t => t.BookTime == request.TripScheduleCreationDto.BookTime!.First())
+                        .SingleOrDefaultAsync(cancellationToken);
+                    
                     if (tripWithBookTime != null)
                     {
                         _logger.LogInformation(
                             "Failed to create new trip schedule because trip with bookTime {BookTime} " +
-                            "is already existed", request.TripCreationDto.BookTime);
+                            "is already existed", request.TripScheduleCreationDto.BookTime!.First());
                         return Result<Unit>.Failure("Failed to create new trip schedule because trip with bookTime " +
-                                                    $"{request.TripCreationDto.BookTime} is already existed.");
+                                                    $"{request.TripScheduleCreationDto.BookTime!.First()} is already existed.");
                     }
 
-                    var existingTripsCount = await _context.Trip.Where(t => t.KeerId == request.TripCreationDto.KeerId)
+                    var existingTripsCount = await _context.Trip
+                        .Where(t => t.KeerId == request.TripScheduleCreationDto.KeerId)
                         .Where(t => t.Status == (int) TripStatus.Finding || t.Status == (int) TripStatus.Waiting)
                         .CountAsync(cancellationToken);
 
-                    if (existingTripsCount + 1 > Constant.MaxTripCount)
+                    if (existingTripsCount + request.TripScheduleCreationDto.BookTime!.Count > Constant.MaxTripCount)
                     {
                         _logger.LogInformation(
                             "Failed to create new trip schedule because exceeding max number of trips ({MaxTripCount})",
@@ -86,25 +100,33 @@ namespace Application.Trips
                             $"Failed to create new trip schedule because exceeding max number of trips ({Constant.MaxTripCount}).");
                     }
 
-                    Trip newTrip = new();
+                    List<Trip> newTrips = request.TripScheduleCreationDto.BookTime!.Select(bookTime =>
+                            new Trip
+                            {
+                                RouteId = route.RouteId,
+                                KeerId = (int) request.TripScheduleCreationDto.KeerId!,
+                                BookTime = bookTime,
+                                IsScheduled = (bool) request.TripScheduleCreationDto.IsScheduled!
+                            })
+                        .ToList();
 
-                    _mapper.Map(request.TripCreationDto, newTrip);
-                    newTrip.RouteId = route.RouteId;
-
-                    await _context.Trip.AddAsync(newTrip, cancellationToken);
+                    await _context.Trip.AddRangeAsync(newTrips, cancellationToken);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to create new trip");
-                        return Result<Unit>.Failure("Failed to create new trip.");
+                        _logger.LogInformation("Failed to create new trip schedule");
+                        return Result<Unit>.Failure("Failed to create new trip schedule.");
                     }
 
-                    await AutoTripCancellationCreation.Run(_schedulerFactory, newTrip);
+                    foreach (var newTrip in newTrips)
+                    {
+                        await AutoTripCancellationCreation.Run(_schedulerFactory, newTrip);
+                    }
 
-                    _logger.LogInformation("Successfully created trip");
-                    return Result<Unit>.Success(Unit.Value, "Successfully created trip.", newTrip.TripId.ToString());
+                    _logger.LogInformation("Successfully created multiple trips");
+                    return Result<Unit>.Success(Unit.Value, "Successfully created multiple trips.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
