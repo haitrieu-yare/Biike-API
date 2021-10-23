@@ -12,6 +12,7 @@ namespace Application.Trips.DTOs
         public DateTime BookTime { get; set; }
         public DateTime? PickupTime { get; set; }
         public DateTime? FinishedTime { get; set; }
+        public DateTime? CancelTime { get; set; }
         public int? Status { get; set; }
         public string? PlateNumber { get; set; }
         public bool? IsScheduled { get; set; }

@@ -51,7 +51,7 @@ namespace Application.Trips
                 case (int) TripStatus.Finding:
                     trip.CancelReason = "Tự động hủy vì đã quá giờ khởi hành.";
                     trip.Status = (int) TripStatus.Cancelled;
-                    trip.FinishedTime = CurrentTime.GetCurrentTime();
+                    trip.CancelTime = CurrentTime.GetCurrentTime();
                     break;
             }
 

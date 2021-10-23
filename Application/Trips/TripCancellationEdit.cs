@@ -25,6 +25,7 @@ namespace Application.Trips
             public TripCancellationDto TripCancellationDto { get; init; } = null!;
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
@@ -80,7 +81,7 @@ namespace Application.Trips
 
                     oldTrip.CancelPersonId = request.UserId;
                     oldTrip.Status = (int) TripStatus.Cancelled;
-                    oldTrip.FinishedTime = CurrentTime.GetCurrentTime();
+                    oldTrip.CancelTime = CurrentTime.GetCurrentTime();
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

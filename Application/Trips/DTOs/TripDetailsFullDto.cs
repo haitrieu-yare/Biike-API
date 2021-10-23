@@ -16,6 +16,7 @@ namespace Application.Trips.DTOs
         public DateTime? CreatedDate { get; set; }
         public DateTime? BookTime{ get; set; }
         public DateTime? FinishedTime { get; set; }
+        public DateTime? CancelTime { get; set; }
         public int? TripStatus { get; set; }
         public string? DepartureName { get; set; }
         public string? DepartureCoordinate { get; set; }
