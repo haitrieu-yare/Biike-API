@@ -52,6 +52,12 @@ namespace Persistence
                 .WithMany(s => s.DestinationRoutes)
                 .HasForeignKey(r => r.DestinationId)
                 .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<Route>()
+                .HasOne(r => r.Area)
+                .WithMany(a => a.Routes)
+                .HasForeignKey(s => s.AreaId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
 

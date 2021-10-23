@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20211023055540_DatabaseV1.5")]
+    partial class DatabaseV15
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -197,7 +199,7 @@ namespace Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AreaId")
+                    b.Property<int?>("AreaId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
@@ -596,11 +598,9 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Route", b =>
                 {
-                    b.HasOne("Domain.Entities.Area", "Area")
+                    b.HasOne("Domain.Entities.Area", null)
                         .WithMany("Routes")
-                        .HasForeignKey("AreaId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .HasForeignKey("AreaId");
 
                     b.HasOne("Domain.Entities.Station", "Departure")
                         .WithMany("DepartureRoutes")
@@ -613,8 +613,6 @@ namespace Persistence.Migrations
                         .HasForeignKey("DestinationId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("Area");
 
                     b.Navigation("Departure");
 

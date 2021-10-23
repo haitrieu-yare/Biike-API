@@ -64,10 +64,13 @@ namespace Application.Core
             #region Route
 
             // List, Detail 
-            CreateMap<Route, RouteDto>();
+            CreateMap<Route, RouteDto>()
+                .ForMember(r => r.DepartureName, o => o.MapFrom(r => r.Departure.Name))
+                .ForMember(r => r.DestinationName, o => o.MapFrom(r => r.Destination.Name));
             // Edit 
             CreateMap<RouteDto, Route>()
                 .ForMember(r => r.RouteId, opt => opt.Ignore())
+                .ForMember(r => r.AreaId, opt => opt.Ignore())
                 .ForMember(r => r.CreatedDate, opt => opt.Ignore())
                 .ForMember(r => r.IsDeleted, opt => opt.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));

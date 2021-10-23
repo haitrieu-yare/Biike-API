@@ -8,6 +8,10 @@ namespace Application.Routes.DTOs
         public int? RouteId { get; set; }
         public int? DepartureId { get; set; }
         public int? DestinationId { get; set; }
+        public int? AreaId { get; set; }
+        public string? DepartureName { get; set; }
+        public string? DestinationName { get; set; }
+        
         public int? DefaultPoint { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

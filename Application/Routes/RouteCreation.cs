@@ -21,6 +21,7 @@ namespace Application.Routes
             public RouteCreationDto RouteCreationDto { get; init; } = null!;
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
@@ -39,6 +40,38 @@ namespace Application.Routes
                 try
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+
+                    var departure =
+                        await _context.Station.FindAsync(new object[] {request.RouteCreationDto.DepartureId!},
+                            cancellationToken);
+
+                    if (departure == null)
+                    {
+                        _logger.LogInformation("Could not find departure station with StationId {StationId}",
+                            request.RouteCreationDto.DepartureId);
+                        return Result<Unit>.Failure(
+                            $"Could not find departure station with StationId {request.RouteCreationDto.DepartureId}.");
+                    }
+
+                    var destination =
+                        await _context.Station.FindAsync(new object[] {request.RouteCreationDto.DestinationId!},
+                            cancellationToken);
+
+                    if (destination == null)
+                    {
+                        _logger.LogInformation("Could not find destination station with StationId {StationId}",
+                            request.RouteCreationDto.DestinationId);
+                        return Result<Unit>.Failure(
+                            $"Could not find destination station with StationId {request.RouteCreationDto.DestinationId}.");
+                    }
+
+                    if (departure.AreaId != destination.AreaId)
+                    {
+                        _logger.LogInformation(
+                            "Departure station and destination station does not belong to the same area");
+                        return Result<Unit>.Failure(
+                            "Departure station and destination station does not belong to the same area.");
+                    }
 
                     Task<Route> oldRoute = _context.Route
                         .Where(r => r.DepartureId == request.RouteCreationDto.DepartureId)

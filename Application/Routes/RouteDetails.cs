@@ -6,7 +6,6 @@ using Application.Core;
 using Application.Routes.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -23,6 +22,7 @@ namespace Application.Routes
             public bool IsAdmin { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<RouteDto>>
         {
             private readonly DataContext _context;
@@ -42,20 +42,14 @@ namespace Application.Routes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    RouteDto route = new();
+                    RouteDto route;
 
                     if (request.IsAdmin)
                     {
-                        Route routeDb = await _context.Route
-                            .FindAsync(new object[] {request.RouteId}, cancellationToken);
-
-                        if (routeDb == null)
-                        {
-                            _logger.LogInformation("Route doesn't exist");
-                            return Result<RouteDto>.NotFound("Route doesn't exist.");
-                        }
-
-                        _mapper.Map(routeDb, route);
+                        route = await _context.Route
+                            .Where(r => r.RouteId == request.RouteId)
+                            .ProjectTo<RouteDto>(_mapper.ConfigurationProvider)
+                            .SingleOrDefaultAsync(cancellationToken);
                     }
                     else
                     {

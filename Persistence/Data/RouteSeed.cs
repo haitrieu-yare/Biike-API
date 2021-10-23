@@ -21,6 +21,7 @@ namespace Persistence.Data
                     DepartureId = 1,
                     DestinationId = 2,
                     DefaultPoint = 10,
+                    AreaId = 1,
                     CreatedDate = createdDate
                 },
                 new()
@@ -28,6 +29,7 @@ namespace Persistence.Data
                     DepartureId = 2,
                     DestinationId = 1,
                     DefaultPoint = 10,
+                    AreaId = 1,
                     CreatedDate = createdDate
                 },
                 new()
@@ -35,6 +37,7 @@ namespace Persistence.Data
                     DepartureId = 1,
                     DestinationId = 3,
                     DefaultPoint = 15,
+                    AreaId = 1,
                     CreatedDate = createdDate
                 },
                 new()
@@ -42,6 +45,7 @@ namespace Persistence.Data
                     DepartureId = 3,
                     DestinationId = 1,
                     DefaultPoint = 15,
+                    AreaId = 1,
                     CreatedDate = createdDate
                 },
                 new()
@@ -49,6 +53,7 @@ namespace Persistence.Data
                     DepartureId = 1,
                     DestinationId = 4,
                     DefaultPoint = 12,
+                    AreaId = 1,
                     CreatedDate = createdDate
                 },
                 new()
@@ -56,6 +61,7 @@ namespace Persistence.Data
                     DepartureId = 4,
                     DestinationId = 1,
                     DefaultPoint = 12,
+                    AreaId = 1,
                     CreatedDate = createdDate
                 }
             };

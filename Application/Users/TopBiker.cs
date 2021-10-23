@@ -21,8 +21,8 @@ namespace Application.Users
         {
         }
 
-        // ReSharper disable once UnusedType.Local
-        private class Handler : IRequestHandler<Query, Result<List<UserDto>>>
+        // ReSharper disable once UnusedType.Global
+        public class Handler : IRequestHandler<Query, Result<List<UserDto>>>
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
