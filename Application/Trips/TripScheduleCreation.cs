@@ -44,6 +44,14 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
+                    if (request.TripScheduleCreationDto.BookTime!.Count == 0)
+                    {
+                        _logger.LogInformation(
+                            "Failed to create new trip schedule because list bookTime is empty");
+                        return Result<Unit>.Failure(
+                            "Failed to create new trip schedule because list bookTime is empty.");
+                    }
+
                     var route = await _context.Route
                         .Where(r => r.DepartureId == request.TripScheduleCreationDto.DepartureId)
                         .Where(r => r.DestinationId == request.TripScheduleCreationDto.DestinationId)
@@ -126,7 +134,8 @@ namespace Application.Trips
                     }
 
                     _logger.LogInformation("Successfully created multiple trips");
-                    return Result<Unit>.Success(Unit.Value, "Successfully created multiple trips.");
+                    return Result<Unit>.Success(Unit.Value, "Successfully created multiple trips.",
+                        newTrips.First().TripId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

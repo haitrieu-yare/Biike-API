@@ -21,6 +21,7 @@ namespace Persistence.Data
                     UserOneId = 7,
                     UserTwoId = 8,
                     IsBlock = true,
+                    UserName = "Nguyễn Minh Tường",
                     BlockTime = currentTime.AddDays(-1)
                 },
                 new()
@@ -28,6 +29,7 @@ namespace Persistence.Data
                     UserOneId = 8,
                     UserTwoId = 7,
                     IsBlock = false,
+                    UserName = "Trương Minh Phú",
                     BlockTime = currentTime.AddDays(-3),
                     UnblockTime = currentTime.AddDays(-2)
                 }

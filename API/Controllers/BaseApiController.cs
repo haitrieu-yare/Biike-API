@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Application;
 using Application.Core;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,6 @@ namespace API.Controllers
 
         protected ActionResult HandleResult<T>(Result<T> result)
         {
-            string baseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
             string controllerName = Request.Path.ToString().Split("v1/").Last();
 
             switch (result.IsSuccess)
@@ -34,6 +34,7 @@ namespace API.Controllers
 
                     if (!string.IsNullOrEmpty(result.NewResourceId))
                     {
+                        string baseUrl = $"{Request.Scheme}://{Request.Host}/api/biike/v1/{controllerName.Split("/").First()}";
                         string newResourceUrl = baseUrl + "/" + result.NewResourceId;
                         return Created(newResourceUrl, new {message = result.SuccessMessage, data = result.Value});
                     }
