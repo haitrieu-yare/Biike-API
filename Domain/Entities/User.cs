@@ -45,5 +45,6 @@ namespace Domain.Entities
         public ICollection<Feedback> FeedBackList { get; set; } = new List<Feedback>();
         public ICollection<Bike> Bikes { get; set; } = new List<Bike>();
         public ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
+        public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
     }
 }

@@ -12,6 +12,11 @@ namespace Persistence
         public DbSet<Area> Area => Set<Area>();
         public DbSet<Station> Station => Set<Station>();
         public DbSet<Route> Route => Set<Route>();
+        public DbSet<Address> Address => Set<Address>();
+        public DbSet<UserAddress> UserAddress => Set<UserAddress>();
+        public DbSet<AdvertisingAddress> AdvertisingAddress => Set<AdvertisingAddress>();
+        public DbSet<Image> Image => Set<Image>();
+        public DbSet<AdvertisingImage> AdvertisingImage => Set<AdvertisingImage>();
         public DbSet<User> User => Set<User>();
         public DbSet<Intimacy> Intimacy => Set<Intimacy>();
         public DbSet<Bike> Bike => Set<Bike>();
@@ -72,6 +77,22 @@ namespace Persistence
                 .HasIndex(u => u.PhoneNumber).IsUnique();
 
             #endregion
+            
+            #region UserAddress
+
+            modelBuilder.Entity<UserAddress>()
+                .HasOne(a => a.User)
+                .WithMany(a => a.UserAddresses)
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<UserAddress>()
+                .HasOne(a => a.Address)
+                .WithMany(a => a.UserAddresses)
+                .HasForeignKey(a => a.AddressId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
 
             #region Bike
 
@@ -82,6 +103,38 @@ namespace Persistence
                 .HasOne(b => b.User)
                 .WithMany(u => u.Bikes)
                 .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+
+            #region AdvertisingAddress
+
+            modelBuilder.Entity<AdvertisingAddress>()
+                .HasOne(a => a.Advertising)
+                .WithMany(a => a.AdvertisingAddresses)
+                .HasForeignKey(a => a.AdvertisingId)
+                .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<AdvertisingAddress>()
+                .HasOne(a => a.Address)
+                .WithMany(a => a.AdvertisingAddresses)
+                .HasForeignKey(a => a.AddressId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+            
+            #region AdvertisingImage
+
+            modelBuilder.Entity<AdvertisingImage>()
+                .HasOne(a => a.Advertising)
+                .WithMany(a => a.AdvertisingImages)
+                .HasForeignKey(a => a.AdvertisingId)
+                .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<AdvertisingImage>()
+                .HasOne(a => a.Image)
+                .WithMany(a => a.AdvertisingImages)
+                .HasForeignKey(a => a.ImageId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion

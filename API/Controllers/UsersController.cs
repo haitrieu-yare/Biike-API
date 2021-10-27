@@ -159,6 +159,26 @@ namespace API.Controllers
 
             return HandleResult(await Mediator.Send(new UserStatusEdit.Command {UserId = userId}, ct));
         }
+        
+        // Keer, Biker
+        [HttpPost("addresses")]
+        public async Task<IActionResult> EditUserAddress(UserAddressDto userAddressDto, CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+                                        Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
+            
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            return HandleResult(
+                await Mediator.Send(new UserAddressEdit.Command(validationDto.UserRequestId, userAddressDto), ct));
+        }
 
         // Keer, Biker
         [HttpPut("{userId:int}/login-device")]
