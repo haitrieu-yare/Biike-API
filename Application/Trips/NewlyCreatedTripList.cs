@@ -86,7 +86,7 @@ namespace Application.Trips
 
                     if (isDateProvided && date.CompareTo(currentTime.Date) < 0)
                     {
-                        _logger.LogInformation("Date parameter value must be later than current time {currentTime}",
+                        _logger.LogInformation("Date parameter value must be later than current time {CurrentTime}",
                             currentTime);
                         return Result<List<TripDto>>.Failure(
                             $"Date parameter value must be later than current time {currentTime}.");
