@@ -1,5 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Domain.Entities;
+
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable UnusedMember.Global
 
 namespace Application.Vouchers.DTOs
 {
@@ -22,5 +27,6 @@ namespace Application.Vouchers.DTOs
         [Required] public string? Description { get; set; }
 
         [Required] public string? TermsAndConditions { get; set; }
+        [Required] public List<VoucherAddressCreationDto>? VoucherAddresses { get; set; }
     }
 }

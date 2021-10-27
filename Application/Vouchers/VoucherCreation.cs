@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -7,6 +9,7 @@ using AutoMapper;
 using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -20,6 +23,7 @@ namespace Application.Vouchers
             public VoucherCreationDto VoucherCreationDto { get; init; } = null!;
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
@@ -39,6 +43,15 @@ namespace Application.Vouchers
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
+                    await using IDbContextTransaction transaction =
+                        await _context.Database.BeginTransactionAsync(cancellationToken);
+
+                    if (request.VoucherCreationDto.VoucherAddresses!.Count == 0)
+                    {
+                        _logger.LogInformation("Location list must be provided");
+                        return Result<Unit>.Failure("Location list must be provided.");
+                    }
+
                     Voucher newVoucher = new();
 
                     _mapper.Map(request.VoucherCreationDto, newVoucher);
@@ -52,18 +65,35 @@ namespace Application.Vouchers
                     newVoucher.Remaining = newVoucher.Quantity;
 
                     await _context.Voucher.AddAsync(newVoucher, cancellationToken);
+                    var voucherResult = await _context.SaveChangesAsync(cancellationToken) > 0;
 
-                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    List<Address> addresses = request.VoucherCreationDto.VoucherAddresses.Select(address =>
+                            new Address {AddressName = address.AddressName!, AddressDetail = address.AddressDetail!})
+                        .ToList();
 
-                    if (!result)
+                    await _context.Address.AddRangeAsync(addresses, cancellationToken);
+                    var addressResult = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    List<VoucherAddress> voucherAddresses = addresses.Select(address =>
+                            new VoucherAddress {AddressId = address.AddressId, VoucherId = newVoucher.VoucherId})
+                        .ToList();
+
+                    await _context.VoucherAddress.AddRangeAsync(voucherAddresses, cancellationToken);
+                    var voucherAddressResult = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    // Commit transaction if all commands succeed, transaction will auto-rollback
+                    // when disposed if either commands fails
+                    await transaction.CommitAsync(cancellationToken);
+
+                    if (!voucherResult || !addressResult || !voucherAddressResult)
                     {
                         _logger.LogInformation("Failed to create new voucher");
                         return Result<Unit>.Failure("Failed to create new voucher.");
                     }
 
                     _logger.LogInformation("Successfully created new voucher");
-                    return Result<Unit>.Success(
-                        Unit.Value, "Successfully created new voucher.", newVoucher.VoucherId.ToString());
+                    return Result<Unit>.Success(Unit.Value, "Successfully created new voucher.",
+                        newVoucher.VoucherId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

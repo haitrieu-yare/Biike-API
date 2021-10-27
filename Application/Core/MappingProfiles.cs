@@ -221,7 +221,8 @@ namespace Application.Core
                 .ForMember(v => v.VoucherId, o => o.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
-            CreateMap<VoucherCreationDto, Voucher>();
+            CreateMap<VoucherCreationDto, Voucher>()
+                .ForMember(v => v.VoucherAddresses, opt => opt.Ignore());
 
             #endregion
 

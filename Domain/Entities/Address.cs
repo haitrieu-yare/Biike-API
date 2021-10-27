@@ -14,7 +14,8 @@ namespace Domain.Entities
         public string AddressDetail { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         
-        public AdvertisingAddress? AdvertisingAddress { get; set; }
         public UserAddress? UserAddress { get; set; }
+        public VoucherAddress? VoucherAddress { get; set; }
+        public AdvertisingAddress? AdvertisingAddress { get; set; }
     }
 }

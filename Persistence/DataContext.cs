@@ -15,6 +15,7 @@ namespace Persistence
         public DbSet<Address> Address => Set<Address>();
         public DbSet<UserAddress> UserAddress => Set<UserAddress>();
         public DbSet<AdvertisingAddress> AdvertisingAddress => Set<AdvertisingAddress>();
+        public DbSet<VoucherAddress> VoucherAddress => Set<VoucherAddress>();
         public DbSet<Image> Image => Set<Image>();
         public DbSet<AdvertisingImage> AdvertisingImage => Set<AdvertisingImage>();
         public DbSet<User> User => Set<User>();
@@ -238,6 +239,21 @@ namespace Persistence
                 .HasOne(v => v.VoucherCategory)
                 .WithMany(vc => vc.Vouchers)
                 .HasForeignKey(v => v.VoucherCategoryId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+            
+            #region VoucherAddress
+
+            modelBuilder.Entity<VoucherAddress>()
+                .HasOne(a => a.Voucher)
+                .WithMany(a => a.VoucherAddresses)
+                .HasForeignKey(a => a.VoucherId)
+                .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<VoucherAddress>()
+                .HasOne(a => a.Address)
+                .WithOne(a => a.VoucherAddress!)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion

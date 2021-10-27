@@ -32,6 +32,7 @@ namespace Application.Trips
             public string? Time { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<List<TripDto>>>
         {
             private readonly DataContext _context;

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 
+// ReSharper disable CollectionNeverUpdated.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+
 namespace Domain.Entities
 {
     public class Voucher
@@ -18,6 +21,7 @@ namespace Domain.Entities
         public string Description { get; set; } = string.Empty;
         public string TermsAndConditions { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
+        public ICollection<VoucherAddress> VoucherAddresses { get; set; } = new List<VoucherAddress>();
         public ICollection<Redemption> Redemptions { get; set; } = new List<Redemption>();
     }
 }
