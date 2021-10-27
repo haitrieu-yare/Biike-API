@@ -162,7 +162,8 @@ namespace API.Controllers
         
         // Keer, Biker
         [HttpPost("addresses")]
-        public async Task<IActionResult> EditUserAddress(UserAddressDto userAddressDto, CancellationToken ct)
+        public async Task<IActionResult> CreateUserAddress(UserAddressCreationDto userAddressCreationDto,
+            CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -171,13 +172,35 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
                                         Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
-            
+
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(
-                await Mediator.Send(new UserAddressEdit.Command(validationDto.UserRequestId, userAddressDto), ct));
+                await Mediator.Send(new UserAddressCreation.Command(validationDto.UserRequestId, userAddressCreationDto),
+                    ct));
+        }
+        
+        // Keer, Biker
+        [HttpPut("addresses/{addressId:int}")]
+        public async Task<IActionResult> EditUserAddress(int addressId, UserAddressEditDto userAddressEditDto,
+            CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+                                        Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
+
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            return HandleResult(await Mediator.Send(
+                new UserAddressEdit.Command(validationDto.UserRequestId, addressId, userAddressEditDto), ct));
         }
 
         // Keer, Biker

@@ -1,10 +1,10 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
-using Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -16,12 +16,14 @@ namespace Application.Users
         public class Command : IRequest<Result<Unit>>
         {
             public readonly int UserId;
-            public readonly UserAddressDto UserAddressDto;
+            public readonly int AddressId;
+            public readonly UserAddressEditDto UserAddressEditDto;
 
-            public Command(int userId, UserAddressDto userAddressDto)
+            public Command(int userId, int addressId, UserAddressEditDto userAddressEditDto)
             {
                 UserId = userId;
-                UserAddressDto = userAddressDto;
+                UserAddressEditDto = userAddressEditDto;
+                AddressId = addressId;
             }
         }
 
@@ -40,40 +42,79 @@ namespace Application.Users
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await using IDbContextTransaction transaction =
-                    await _context.Database.BeginTransactionAsync(cancellationToken);
 
-                var address = new Address
+                var address = await _context.Address.Where(a => a.AddressId == request.AddressId)
+                    .Include(a => a.UserAddress)
+                    .SingleOrDefaultAsync(cancellationToken);
+
+                if (address == null)
                 {
-                    AddressName = request.UserAddressDto.AddressName!,
-                    AddressDetail = request.UserAddressDto.AddressDetail!
-                };
-
-                await _context.Address.AddAsync(address, cancellationToken);
-                var resultAddress = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                var userAddress = new UserAddress
-                {
-                    UserId = request.UserId, 
-                    AddressId = address.AddressId, 
-                    Note = request.UserAddressDto.Note
-                };
-
-                await _context.UserAddress.AddAsync(userAddress, cancellationToken);
-                var resultUserAddress = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                // Commit transaction if all commands succeed, transaction will auto-rollback
-                // when disposed if either commands fails
-                await transaction.CommitAsync(cancellationToken);
-
-                if (!resultAddress || !resultUserAddress)
-                {
-                    _logger.LogInformation("Failed to create new user address");
-                    return Result<Unit>.Success(Unit.Value, "Failed to create new user address.");
+                    _logger.LogInformation("Address doesn't exist");
+                    return Result<Unit>.NotFound("Address doesn't exist.");
                 }
 
-                _logger.LogInformation("Successfully create new user address");
-                return Result<Unit>.Success(Unit.Value, "Successfully created new user address.");
+                if (address.UserAddress == null)
+                {
+                    _logger.LogInformation("UserAddress doesn't exist");
+                    return Result<Unit>.NotFound("UserAddress doesn't exist.");
+                }
+
+                if (address.UserAddress.UserId != request.UserId)
+                {
+                    _logger.LogInformation(
+                        "Address with AddressId {AddressId} doesn't belong to user with UserId {UserId}",
+                        request.AddressId, request.UserId);
+                    return Result<Unit>.NotFound(
+                        $"Address with AddressId {request.AddressId} doesn't belong to user with UserId {request.UserId}.");
+                }
+
+                if (request.UserAddressEditDto.IsDefault == false)
+                {
+                    _logger.LogInformation("IsDefault doesn't accept false value");
+                    return Result<Unit>.NotFound("IsDefault doesn't accept false value.");
+                }
+
+                if (request.UserAddressEditDto.IsDefault != null)
+                {
+                    var defaultUserAddress = await _context.UserAddress.Where(u => u.UserId == request.UserId)
+                        .Where(u => u.IsDefault == true)
+                        .SingleOrDefaultAsync(cancellationToken);
+
+                    if (defaultUserAddress.UserAddressId == address.UserAddress.UserAddressId)
+                    {
+                        _logger.LogInformation(
+                            "Address with AddressId {AddressId} is already a default for user " +
+                            "with userId {UserId}", request.AddressId, request.UserId);
+                        return Result<Unit>.NotFound(
+                            $"Address with AddressId {request.AddressId} is already a default " +
+                            $"for with userId {request.UserId}.");
+                    }
+
+                    address.UserAddress.IsDefault = request.UserAddressEditDto.IsDefault.Value;
+                    defaultUserAddress.IsDefault = false;
+                }
+
+                if (request.UserAddressEditDto.AddressName != null)
+                    address.AddressName = request.UserAddressEditDto.AddressName;
+
+                if (request.UserAddressEditDto.AddressDetail != null)
+                    address.AddressDetail = request.UserAddressEditDto.AddressDetail;
+
+                if (request.UserAddressEditDto.Note != null) address.UserAddress.Note = request.UserAddressEditDto.Note;
+
+                var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                if (!result)
+                {
+                    _logger.LogInformation("Failed to update user address with addressId {AddressId}",
+                        request.AddressId);
+                    return Result<Unit>.Failure($"Failed to update user address with addressId {request.AddressId}.");
+                }
+
+                _logger.LogInformation("Successfully updated user address with addressId {AddressId}",
+                    request.AddressId);
+                return Result<Unit>.Success(Unit.Value,
+                    $"Successfully updated user address with addressId {request.AddressId}.");
             }
         }
     }

@@ -1,4 +1,9 @@
-﻿namespace Domain.Entities
+﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
+// ReSharper disable UnusedMember.Global
+
+namespace Domain.Entities
 {
     public class UserAddress
     {

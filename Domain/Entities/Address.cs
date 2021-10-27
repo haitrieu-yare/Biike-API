@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
@@ -14,7 +14,7 @@ namespace Domain.Entities
         public string AddressDetail { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         
-        public ICollection<AdvertisingAddress> AdvertisingAddresses { get; set; } = new List<AdvertisingAddress>();
-        public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
+        public AdvertisingAddress? AdvertisingAddress { get; set; }
+        public UserAddress? UserAddress { get; set; }
     }
 }

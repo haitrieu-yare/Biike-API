@@ -88,8 +88,7 @@ namespace Persistence
             
             modelBuilder.Entity<UserAddress>()
                 .HasOne(a => a.Address)
-                .WithMany(a => a.UserAddresses)
-                .HasForeignKey(a => a.AddressId)
+                .WithOne(a => a.UserAddress!)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
@@ -117,8 +116,7 @@ namespace Persistence
             
             modelBuilder.Entity<AdvertisingAddress>()
                 .HasOne(a => a.Address)
-                .WithMany(a => a.AdvertisingAddresses)
-                .HasForeignKey(a => a.AddressId)
+                .WithOne(a => a.AdvertisingAddress!)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
