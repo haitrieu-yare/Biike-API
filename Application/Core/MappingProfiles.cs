@@ -138,16 +138,17 @@ namespace Application.Core
 
             // Detail Info
             CreateMap<Trip, TripDetailsFullDto>()
-                .ForMember(t => t.UserId, o => o.MapFrom(t => isKeer ? t.BikerId : t.KeerId))
+                //(src, dest, destMember, resContext) => dest.UserId = resContext.Items["isKeer"] ? src.BikerId : src.KeerId)
+                .ForMember(t => t.UserId, o => o.MapFrom((src, _, _, context) => (bool) context.Items["isKeer"] ? src.BikerId : src.KeerId))
                 .ForMember(t => t.KeerId, o => o.MapFrom(t => t.KeerId))
                 .ForMember(t => t.Avatar,
-                    o => o.MapFrom(t => t.Biker == null ? null : isKeer ? t.Biker.Avatar : t.Keer.Avatar))
+                    o => o.MapFrom((src, _, _, context) => src.Biker == null ? null : (bool) context.Items["isKeer"] ? src.Biker.Avatar : src.Keer.Avatar))
                 .ForMember(t => t.UserFullname,
-                    o => o.MapFrom(t => t.Biker == null ? null : isKeer ? t.Biker.FullName : t.Keer.FullName))
+                    o => o.MapFrom((src, _, _, context) => src.Biker == null ? null : (bool) context.Items["isKeer"] ? src.Biker.FullName : src.Keer.FullName))
                 .ForMember(t => t.UserPhoneNumber,
-                    o => o.MapFrom(t => t.Biker == null ? null : isKeer ? t.Biker.PhoneNumber : t.Keer.PhoneNumber))
+                    o => o.MapFrom((src, _, _, context) => src.Biker == null ? null : (bool) context.Items["isKeer"] ? src.Biker.PhoneNumber : src.Keer.PhoneNumber))
                 .ForMember(t => t.UserStar,
-                    o => o.MapFrom(t => t.Biker == null ? new double?() : isKeer ? t.Biker.Star : t.Keer.Star))
+                    o => o.MapFrom((src, _, _, context) => src.Biker == null ? new double?() : (bool) context.Items["isKeer"] ? src.Biker.Star : src.Keer.Star))
                 .ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
                 .ForMember(t => t.DepartureName, o => o.MapFrom(t => t.Route.Departure.Name))
                 .ForMember(t => t.DepartureCoordinate, o => o.MapFrom(t => t.Route.Departure.Coordinate))

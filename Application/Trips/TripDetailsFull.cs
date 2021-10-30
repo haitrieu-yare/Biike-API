@@ -22,6 +22,7 @@ namespace Application.Trips
             public int UserRequestId { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<TripDetailsFullDto>>
         {
             private readonly DataContext _context;
