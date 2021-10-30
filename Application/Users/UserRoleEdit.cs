@@ -19,8 +19,10 @@ namespace Application.Users
         public class Command : IRequest<Result<Unit>>
         {
             public int UserId { get; init; }
+            public int StartupRole { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
@@ -55,20 +57,42 @@ namespace Application.Users
                                                     "Please reactivate it if you want to edit it.");
                     }
 
-                    if (user.Role == (int) RoleStatus.Keer && !user.IsBikeVerified)
+                    if (request.StartupRole <= 0)
                     {
-                        _logger.LogInformation("User does not have bike");
-                        return Result<Unit>.Failure("User does not have bike.");
-                    }
+                        if (user.Role == (int) RoleStatus.Keer && !user.IsBikeVerified)
+                        {
+                            _logger.LogInformation("User does not have bike");
+                            return Result<Unit>.Failure("User does not have bike.");
+                        }
 
-                    switch (user.Role)
+                        switch (user.Role)
+                        {
+                            case (int) RoleStatus.Keer:
+                                user.Role = (int) RoleStatus.Biker;
+                                break;
+                            case (int) RoleStatus.Biker:
+                                user.Role = (int) RoleStatus.Keer;
+                                break;
+                        }
+                    }
+                    else
                     {
-                        case (int) RoleStatus.Keer:
-                            user.Role = (int) RoleStatus.Biker;
-                            break;
-                        case (int) RoleStatus.Biker:
-                            user.Role = (int) RoleStatus.Keer;
-                            break;
+                        if (request.StartupRole == (int) RoleStatus.Biker && 
+                            user.Role == (int) RoleStatus.Keer && !user.IsBikeVerified)
+                        {
+                            _logger.LogInformation("User does not have bike");
+                            return Result<Unit>.Failure("User does not have bike.");
+                        }
+
+                        if (user.Role == request.StartupRole)
+                        {
+                            _logger.LogInformation("Successfully chosen user's role by userId {request.UserId}",
+                                request.UserId);
+                            return Result<Unit>.Success(Unit.Value,
+                                $"Successfully chosen user's role by userId {request.UserId}.");
+                        }
+                        
+                        user.Role = request.StartupRole;
                     }
 
                     try
@@ -94,12 +118,12 @@ namespace Application.Users
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to update user's role by userId {request.UserId} to {userRole}",
+                        _logger.LogInformation("Failed to update user's role by userId {request.UserId} to {UserRole}",
                             request.UserId, user.Role);
                         return Result<Unit>.Failure($"Failed to update user's role by userId {request.UserId} to {user.Role}.");
                     }
 
-                    _logger.LogInformation("Successfully updated user's role by userId {request.UserId} to {userRole}",
+                    _logger.LogInformation("Successfully updated user's role by userId {request.UserId} to {UserRole}",
                         request.UserId, user.Role);
                     return Result<Unit>.Success(Unit.Value,
                         $"Successfully updated user's role by userId {request.UserId} to {user.Role}.");

@@ -128,7 +128,7 @@ namespace API.Controllers
 
         // Keer, Biker
         [HttpPut("role")]
-        public async Task<IActionResult> EditUserRole(CancellationToken ct)
+        public async Task<IActionResult> EditUserRole(int startupRole, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -143,7 +143,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new UserRoleEdit.Command {UserId = validationDto.UserRequestId}, ct));
+                new UserRoleEdit.Command {UserId = validationDto.UserRequestId, StartupRole = startupRole}, ct));
         }
 
         // Admin
