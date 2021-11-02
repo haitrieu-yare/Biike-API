@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain;
 using Domain.Entities;
-using Domain.Enums;
 using Quartz;
 
 namespace Application.Trips

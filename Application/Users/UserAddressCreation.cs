@@ -49,7 +49,8 @@ namespace Application.Users
                 var address = new Address
                 {
                     AddressName = request.UserAddressCreationDto.AddressName!,
-                    AddressDetail = request.UserAddressCreationDto.AddressDetail!
+                    AddressDetail = request.UserAddressCreationDto.AddressDetail!,
+                    AddressCoordinate = request.UserAddressCreationDto.AddressCoordinate!
                 };
 
                 await _context.Address.AddAsync(address, cancellationToken);

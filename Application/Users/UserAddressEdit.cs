@@ -17,12 +17,12 @@ namespace Application.Users
         {
             public readonly int UserId;
             public readonly int AddressId;
-            public readonly UserAddressEditDto UserAddressEditDto;
+            public readonly UserAddressDto UserAddressDto;
 
-            public Command(int userId, int addressId, UserAddressEditDto userAddressEditDto)
+            public Command(int userId, int addressId, UserAddressDto userAddressDto)
             {
                 UserId = userId;
-                UserAddressEditDto = userAddressEditDto;
+                UserAddressDto = userAddressDto;
                 AddressId = addressId;
             }
         }
@@ -68,13 +68,13 @@ namespace Application.Users
                         $"Address with AddressId {request.AddressId} doesn't belong to user with UserId {request.UserId}.");
                 }
 
-                if (request.UserAddressEditDto.IsDefault == false)
+                if (request.UserAddressDto.IsDefault == false)
                 {
                     _logger.LogInformation("IsDefault doesn't accept false value");
                     return Result<Unit>.NotFound("IsDefault doesn't accept false value.");
                 }
 
-                if (request.UserAddressEditDto.IsDefault != null)
+                if (request.UserAddressDto.IsDefault != null)
                 {
                     var defaultUserAddress = await _context.UserAddress.Where(u => u.UserId == request.UserId)
                         .Where(u => u.IsDefault == true)
@@ -90,17 +90,20 @@ namespace Application.Users
                             $"for with userId {request.UserId}.");
                     }
 
-                    address.UserAddress.IsDefault = request.UserAddressEditDto.IsDefault.Value;
+                    address.UserAddress.IsDefault = request.UserAddressDto.IsDefault.Value;
                     defaultUserAddress.IsDefault = false;
                 }
 
-                if (request.UserAddressEditDto.AddressName != null)
-                    address.AddressName = request.UserAddressEditDto.AddressName;
+                if (request.UserAddressDto.AddressName != null)
+                    address.AddressName = request.UserAddressDto.AddressName;
 
-                if (request.UserAddressEditDto.AddressDetail != null)
-                    address.AddressDetail = request.UserAddressEditDto.AddressDetail;
+                if (request.UserAddressDto.AddressDetail != null)
+                    address.AddressDetail = request.UserAddressDto.AddressDetail;
+                
+                if (request.UserAddressDto.AddressCoordinate != null)
+                    address.AddressCoordinate = request.UserAddressDto.AddressCoordinate;
 
-                if (request.UserAddressEditDto.Note != null) address.UserAddress.Note = request.UserAddressEditDto.Note;
+                if (request.UserAddressDto.Note != null) address.UserAddress.Note = request.UserAddressDto.Note;
 
                 var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

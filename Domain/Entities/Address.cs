@@ -12,6 +12,7 @@ namespace Domain.Entities
         public int AddressId { get; set; }
         public string AddressName { get; set; } = string.Empty;
         public string AddressDetail { get; set; } = string.Empty;
+        public string AddressCoordinate { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         
         public UserAddress? UserAddress { get; set; }

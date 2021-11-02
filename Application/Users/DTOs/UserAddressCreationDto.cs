@@ -9,6 +9,7 @@ namespace Application.Users.DTOs
     {
         [Required] public string? AddressName { get; set; }
         [Required] public string? AddressDetail { get; set; }
+        [Required] public string? AddressCoordinate { get; set; }
         public string Note{ get; set; } = string.Empty;
     }
 }

@@ -79,6 +79,17 @@ namespace Application.Core
 
             #endregion
 
+            #region UserAddress
+
+            CreateMap<UserAddress, UserAddressDto>()
+                .ForMember(u => u.AddressName, o => o.MapFrom(u => u.Address.AddressName))
+                .ForMember(u => u.AddressDetail, o => o.MapFrom(u => u.Address.AddressDetail))
+                .ForMember(u => u.AddressCoordinate, o => o.MapFrom(u => u.Address.AddressCoordinate))
+                .ForMember(u => u.Note, o => o.MapFrom(u => u.Note))
+                .ForMember(u => u.IsDefault, o => o.MapFrom(u => u.IsDefault));
+
+            #endregion
+
             #region User
 
             // List, Detail

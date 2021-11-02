@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Application.Users.DTOs
@@ -24,7 +25,8 @@ namespace Application.Users.DTOs
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public DateTime? LastTimeLogin { get; set; }
-
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public double? UserStar { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -35,8 +37,13 @@ namespace Application.Users.DTOs
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? IsBikeVerified { get; set; }
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 
         public DateTime? BirthDate { get; set; }
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<UserAddressDto>? UserAddresses { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public DateTime? CreatedDate { get; set; }

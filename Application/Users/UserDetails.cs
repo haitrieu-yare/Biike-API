@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace Application.Users
             public bool IsAdmin { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<UserDto>>
         {
             private readonly DataContext _context;
@@ -71,6 +73,7 @@ namespace Application.Users
                         }
 
                         // Set to null to make unnecessary fields excluded from the response body.
+                        userProfile.UserAddresses = null;
                         userProfile.Role = null;
                         userProfile.TotalPoint = null;
                         userProfile.UserStatus = null;

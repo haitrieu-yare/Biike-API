@@ -184,7 +184,7 @@ namespace API.Controllers
         
         // Keer, Biker
         [HttpPut("addresses/{addressId:int}")]
-        public async Task<IActionResult> EditUserAddress(int addressId, UserAddressEditDto userAddressEditDto,
+        public async Task<IActionResult> EditUserAddress(int addressId, UserAddressDto userAddressDto,
             CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
@@ -200,7 +200,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new UserAddressEdit.Command(validationDto.UserRequestId, addressId, userAddressEditDto), ct));
+                new UserAddressEdit.Command(validationDto.UserRequestId, addressId, userAddressDto), ct));
         }
 
         // Keer, Biker
