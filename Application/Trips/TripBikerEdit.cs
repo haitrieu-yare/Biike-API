@@ -90,16 +90,17 @@ namespace Application.Trips
                         return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
                     }
 
-                    // Delete job after cancelling successfully
                     IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
 
                     string jobName = Constant.GetJobNameAutoCancellation(oldTrip.TripId);
-                    var jobDeletionResult =
-                        await scheduler.DeleteJob(JobKey.Create(jobName, Constant.OneTimeJob),
-                            CancellationToken.None);
-                    _logger.LogInformation("Successfully deleted cancellation job");
+                    string triggerName = Constant.GetTriggerNameAutoCancellation(oldTrip.TripId, "Finding");
+                    var triggerKey = new TriggerKey(triggerName, Constant.OneTimeJob);
+                    
+                    var jobTriggerDeletionResult= await scheduler.UnscheduleJob(triggerKey, cancellationToken);
+                    
+                    _logger.LogInformation("Successfully deleted cancellation job's trigger");
 
-                    if (!jobDeletionResult) _logger.LogError("Fail to delete job with job name {JobName}", jobName);
+                    if (!jobTriggerDeletionResult) _logger.LogError("Fail to delete job's trigger with job name {JobName}", jobName);
 
                     _logger.LogInformation("Successfully updated trip with TripId {request.TripId}", request.TripId);
                     return Result<Unit>.Success(Unit.Value, $"Successfully updated trip with TripId {request.TripId}.");

@@ -237,6 +237,13 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(
                 new LoginDeviceEdit.Command {UserId = userId, UserLoginDeviceDto = userLoginDeviceDto}, ct));
         }
+        
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginAdmin(UserLoginDto userLoginDto, CancellationToken ct)
+        {
+            return HandleResult(await Mediator.Send(new UserLoginRequest.Command {UserLoginDto = userLoginDto}, ct));
+        }
 
         // Admin
         [HttpDelete("{userId:int}")]

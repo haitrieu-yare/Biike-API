@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,8 @@ namespace Application.Trips
 
         public async Task Execute(IJobExecutionContext context)
         {
-            List<Trip> trips = await _context.Trip.Where(t => t.Status == (int) TripStatus.Finding).ToListAsync();
+            List<Trip> trips = await _context.Trip.Where(t => t.Status == (int) TripStatus.Finding ||
+                                                              t.Status == (int) TripStatus.Waiting).ToListAsync();
 
             foreach (var trip in trips) await AutoTripCancellationCreation.Run(_schedulerFactory, trip);
         }

@@ -30,9 +30,9 @@
             return $"Trip {tripId} Auto Cancellation";
         }
 
-        public static string GetTriggerNameAutoCancellation(int tripId)
+        public static string GetTriggerNameAutoCancellation(int tripId, string triggerPurpose)
         {
-            return $"Trip {tripId} Auto Cancellation Trigger";
+            return $"Trip {tripId} Auto Cancellation Trigger {triggerPurpose}";
         }
     }
 }

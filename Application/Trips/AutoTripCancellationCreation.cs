@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Domain;
 using Domain.Entities;
+using Domain.Enums;
 using Quartz;
 
 namespace Application.Trips
@@ -20,14 +23,25 @@ namespace Application.Trips
                 .UsingJobData("TripId", $"{trip.TripId}")
                 .Build();
 
-            string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId);
+            string triggerNameFinding = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Finding");
+            string triggerNameWaiting = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Waiting");
 
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity(triggerName, Constant.OneTimeJob)
-                .StartAt(CurrentTime.ToLocalTime(trip.BookTime))
-                .Build();
+            var bookTime = CurrentTime.ToLocalTime(trip.BookTime);
+            var bookTimeNextDay = new DateTime(bookTime.Year, bookTime.Month, bookTime.Day + 1, 0, 0, 0);
 
-            await scheduler.ScheduleJob(job, trigger);
+            IReadOnlyCollection<ITrigger> triggers = new List<ITrigger>
+            {
+                TriggerBuilder.Create()
+                    .WithIdentity(triggerNameFinding, Constant.OneTimeJob)
+                    .StartAt(bookTime)
+                    .Build(),
+                TriggerBuilder.Create()
+                    .WithIdentity(triggerNameWaiting, Constant.OneTimeJob)
+                    .StartAt(bookTimeNextDay)
+                    .Build()
+            };
+
+            await scheduler.ScheduleJob(job, triggers,true);
         }
     }
 }
