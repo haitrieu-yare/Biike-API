@@ -24,6 +24,7 @@ namespace Application.Feedbacks
             public FeedbackCreationDto FeedbackCreationDto { get; init; } = null!;
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly AutoTripTransactionCreation _auto;
@@ -49,7 +50,12 @@ namespace Application.Feedbacks
                     Trip trip = await _context.Trip.FindAsync(new object[] {request.FeedbackCreationDto.TripId!},
                         cancellationToken);
 
-                    if (trip == null) return Result<Unit>.NotFound("Trip doesn't exist.");
+                    if (trip == null)
+                    {
+                        _logger.LogInformation("Trip with tripId {TripId} doesn't exist",
+                            request.FeedbackCreationDto.TripId);
+                        return Result<Unit>.NotFound("Trip with tripId {TripId} doesn't exist.");
+                    }
 
                     if (request.FeedbackCreationDto.UserId != trip.KeerId &&
                         request.FeedbackCreationDto.UserId != trip.BikerId)
@@ -80,8 +86,53 @@ namespace Application.Feedbacks
 
                     if (existedFeedback != null)
                     {
-                        _logger.LogInformation("Trip feedback is already existed");
-                        return Result<Unit>.Failure("Trip feedback is already existed.");
+                        _logger.LogInformation("Trip's feedback is already existed");
+                        return Result<Unit>.Failure("Trip's feedback is already existed.");
+                    }
+
+                    var keer = await _context.User
+                        .Include(u => u.Wallets)
+                        .Where(u => u.UserId == trip.KeerId)
+                        .SingleOrDefaultAsync(cancellationToken);
+
+                    if (keer == null)
+                    {
+                        _logger.LogInformation("Keer with UserId {UserId} doesn't existed", trip.KeerId);
+                        return Result<Unit>.Failure($"Keer with UserId {trip.KeerId} doesn't existed.");
+                    }
+
+                    var tripTip = (int) request.FeedbackCreationDto.TripTip!;
+
+                    if (tripTip < 1 || tripTip > keer.TotalPoint)
+                    {
+                        _logger.LogInformation(
+                            "Tip point should be larger than 1 and smaller than total point of keer");
+                        return Result<Unit>.Failure(
+                            "Tip point should be larger than 1 and smaller than total point of keer.");
+                    }
+
+                    var oldWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Old);
+                    var currentWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Current);
+                    
+                    if (currentWallet == null)
+                    {
+                        _logger.LogInformation("Keer with UserId {UserId} doesn't have wallet", trip.KeerId);
+                        return Result<Unit>.Failure($"Keer with UserId {trip.KeerId} doesn't have wallet.");
+                    }
+
+                    keer.TotalPoint -= tripTip;
+                    if (oldWallet != null)
+                    {
+                        oldWallet.Point -= tripTip;
+                        
+                        if (oldWallet.Point < 0)
+                        {
+                            currentWallet.Point += oldWallet.Point;
+                        }
+                    }
+                    else
+                    {
+                        currentWallet.Point -= tripTip;
                     }
 
                     Feedback newFeedback = new();
@@ -97,10 +148,10 @@ namespace Application.Feedbacks
                             switch (newFeedback.TripStar)
                             {
                                 case 4:
-                                    await _auto.Run(trip, 5, cancellationToken);
+                                    await _auto.Run(trip, 5 + tripTip, cancellationToken);
                                     break;
                                 case 5:
-                                    await _auto.Run(trip, 10, cancellationToken);
+                                    await _auto.Run(trip, 10 + tripTip, cancellationToken);
                                     break;
                             }
 
@@ -111,10 +162,10 @@ namespace Application.Feedbacks
                     catch (Exception ex)
                     {
                         _logger.LogInformation("Failed to create new feedback");
-                        _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
+                        _logger.LogInformation("{Error}", ex.Message);
 
                         return Result<Unit>.Failure(
-                            $"Failed to create new feedback. {ex.InnerException?.Message ?? ex.Message}");
+                            $"Failed to create new feedback. {ex.Message}");
                     }
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
