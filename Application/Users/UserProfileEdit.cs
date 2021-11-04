@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
-using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
