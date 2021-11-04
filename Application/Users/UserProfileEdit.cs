@@ -21,6 +21,7 @@ namespace Application.Users
             public UserProfileEditDto UserProfileEditDto { get; init; } = null!;
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
@@ -55,6 +56,13 @@ namespace Application.Users
                             "Please reactivate it if you want to edit it", request.UserId);
                         return Result<Unit>.Failure($"User with UserId {request.UserId} has been deleted. " +
                                                     "Please reactivate it if you want to edit it.");
+                    }
+
+                    if (!string.IsNullOrEmpty(request.UserProfileEditDto.UserFullname))
+                    {
+                        string backgroundColor = Color.ColorList[new Random().Next(Color.ColorList.Count)];
+                        user.Avatar = $"https://ui-avatars.com/api/?name={request.UserProfileEditDto.UserFullname}" +
+                                      $"&background={backgroundColor}&color={Color.White}&rounded=true&size=128";
                     }
 
                     _mapper.Map(request.UserProfileEditDto, user);
