@@ -24,7 +24,7 @@ namespace Domain.Entities
         public int Status { get; set; } = (int) UserStatus.Deactive;
         public string? LastLoginDevice { get; set; }
         public DateTime? LastTimeLogin { get; set; }
-        public double Star { get; set; } = 4;
+        public double Star { get; set; } = 5;
         public int TotalPoint { get; set; }
         public int MaxTotalPoint { get; set; }
         public bool IsEmailVerified { get; set; }

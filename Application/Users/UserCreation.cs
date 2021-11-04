@@ -64,8 +64,9 @@ namespace Application.Users
                     string[] fullName = newUser.FullName.Split(" ");
                     fullName = fullName.TakeLast(2).ToArray();
                     string fullNameString = string.Join("+", fullName);
+                    string backgroundColor = Color.ColorList[new Random().Next(Color.ColorList.Count)];
                     newUser.Avatar = $"https://ui-avatars.com/api/?name={fullNameString}" +
-                                     "&background=random&rounded=true&size=128";
+                                     $"&background={backgroundColor}&color={Color.White}&rounded=true&size=128";
 
                     // Hash password
                     newUser.PasswordHash = Hashing.HashPassword(newUser.PasswordHash);
