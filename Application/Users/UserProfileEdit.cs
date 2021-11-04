@@ -17,8 +17,14 @@ namespace Application.Users
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int UserId { get; init; }
-            public UserProfileEditDto UserProfileEditDto { get; init; } = null!;
+            public Command(int userId, UserProfileEditDto userProfileEditDto)
+            {
+                UserId = userId;
+                UserProfileEditDto = userProfileEditDto;
+            }
+
+            public int UserId { get; }
+            public UserProfileEditDto UserProfileEditDto { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -41,12 +47,12 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    var user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null)
                     {
-                        _logger.LogInformation("User not found");
-                        return Result<Unit>.NotFound("User not found.");
+                        _logger.LogInformation("User doesn't exist");
+                        return Result<Unit>.NotFound("User doesn't exist.");
                     }
 
                     if (user.IsDeleted)
@@ -89,6 +95,11 @@ namespace Application.Users
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
                 catch (Exception ex) when (ex is DbUpdateException)
+                {
+                    _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
+                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
+                }
+                catch (Exception ex) 
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

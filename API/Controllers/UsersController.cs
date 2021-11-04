@@ -103,8 +103,8 @@ namespace API.Controllers
 
         // Keer, Biker
         [HttpPut("{userId:int}/profile")]
-        public async Task<IActionResult> EditUserProfile(int userId,
-            UserProfileEditDto userProfileEditDto, CancellationToken ct)
+        public async Task<IActionResult> EditUserProfile(int userId, UserProfileEditDto userProfileEditDto,
+            CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -116,14 +116,11 @@ namespace API.Controllers
 
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
-            if (!validationDto.IsUserFound)
-                return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            if (!validationDto.IsAuthorized)
-                return BadRequest(Constant.NotSameUserId);
+            if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
 
-            return HandleResult(await Mediator.Send(
-                new UserProfileEdit.Command {UserId = userId, UserProfileEditDto = userProfileEditDto}, ct));
+            return HandleResult(await Mediator.Send(new UserProfileEdit.Command(userId, userProfileEditDto), ct));
         }
 
         // Keer, Biker
