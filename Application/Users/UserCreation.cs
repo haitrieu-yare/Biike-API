@@ -61,11 +61,9 @@ namespace Application.Users
 
                     // Setup email, avatar
                     newUser.Email = newUser.Email.ToLower();
-                    string[] fullName = newUser.FullName.Split(" ");
-                    fullName = fullName.TakeLast(2).ToArray();
-                    string fullNameString = string.Join("+", fullName);
-                    string backgroundColor = Color.ColorList[new Random().Next(Color.ColorList.Count)];
-                    newUser.Avatar = $"https://ui-avatars.com/api/?name={fullNameString}" +
+                    string fullNameAbbreviation = ApplicationUtils.GetFullNameAbbreviation(newUser.FullName);
+                    string backgroundColor = ApplicationUtils.GetRandomColor();
+                    newUser.Avatar = $"https://ui-avatars.com/api/?name={fullNameAbbreviation}" +
                                      $"&background={backgroundColor}&color={Color.White}&rounded=true&size=128";
 
                     // Hash password

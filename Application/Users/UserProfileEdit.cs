@@ -60,8 +60,10 @@ namespace Application.Users
 
                     if (!string.IsNullOrEmpty(request.UserProfileEditDto.UserFullname))
                     {
-                        string backgroundColor = Color.ColorList[new Random().Next(Color.ColorList.Count)];
-                        user.Avatar = $"https://ui-avatars.com/api/?name={request.UserProfileEditDto.UserFullname}" +
+                        string fullNameAbbreviation =
+                            ApplicationUtils.GetFullNameAbbreviation(request.UserProfileEditDto.UserFullname);
+                        string backgroundColor = ApplicationUtils.GetRandomColor();
+                        user.Avatar = $"https://ui-avatars.com/api/?name={fullNameAbbreviation}" +
                                       $"&background={backgroundColor}&color={Color.White}&rounded=true&size=128";
                     }
 
