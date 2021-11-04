@@ -22,7 +22,11 @@ namespace Application.Users
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public UserCreationDto UserCreationDto { get; init; } = null!;
+            public Command(UserCreationDto userCreationDto)
+            {
+                UserCreationDto = userCreationDto;
+            }
+            public UserCreationDto UserCreationDto { get; init; }
         }
 
         // ReSharper disable once UnusedType.Global

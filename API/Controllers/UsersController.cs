@@ -79,8 +79,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> SignUp(UserCreationDto userCreationDto, CancellationToken ct)
         {
-            return HandleResult(await Mediator.Send(
-                new UserCreation.Command {UserCreationDto = userCreationDto}, ct));
+            return HandleResult(await Mediator.Send(new UserCreation.Command(userCreationDto), ct));
         }
 
         // TODO: When a user can modify account activation?

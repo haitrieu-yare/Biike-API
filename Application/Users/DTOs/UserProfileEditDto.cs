@@ -7,8 +7,21 @@ namespace Application.Users.DTOs
 {
     public class UserProfileEditDto
     {
-        public string? UserFullname { get; init; }
-        public string? Avatar { get; init; }
+        private readonly string? _userFullname;
+        private readonly string? _avatar;
+
+        public string? UserFullname
+        {
+            get => _userFullname;
+            init => _userFullname = value?.Trim();
+        }
+
+        public string? Avatar
+        {
+            get => _avatar;
+            init => _avatar = value?.Trim();
+        }
+
         public int? Gender { get; init; }
         public DateTime? BirthDate { get; init; }
     }
