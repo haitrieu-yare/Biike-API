@@ -21,7 +21,8 @@ namespace Application.Users
             {
                 UserLoginDto = userLoginDto;
             }
-            public UserLoginDto UserLoginDto { get; init; }
+
+            public UserLoginDto UserLoginDto { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -49,14 +50,21 @@ namespace Application.Users
                     var auth = await authProvider.SignInWithEmailAndPasswordAsync(request.UserLoginDto.Email,
                         request.UserLoginDto.Password);
 
-                    var user = await _context.User.FindAsync(new object[] {int.Parse(auth.User.LocalId)}, cancellationToken);
-                    
-                    if (user == null)
+                    var user = await _context.User.FindAsync(new object[] {int.Parse(auth.User.LocalId)},
+                        cancellationToken);
+
+                    if (user == null || user.IsDeleted)
                     {
-                        _logger.LogInformation("User with userId {UserId} doesn't exist in database",
-                            auth.User.LocalId);
+                        _logger.LogInformation("User with userId {UserId} doesn't exist", auth.User.LocalId);
                         return Result<UserLoginResponse>.Failure(
-                            $"User with userId {auth.User.LocalId} doesn't exist in database.");
+                            $"User with userId {auth.User.LocalId} doesn't exist.");
+                    }
+
+                    if (!user.IsEmailVerified)
+                    {
+                        _logger.LogInformation("User with userId {UserId} haven't verified email", auth.User.LocalId);
+                        return Result<UserLoginResponse>.Failure(
+                            $"User with userId {auth.User.LocalId} haven't verified email.");
                     }
 
                     var response = new UserLoginResponse

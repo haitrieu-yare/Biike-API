@@ -33,6 +33,19 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(new TopBiker.Query(), ct));
         }
+        
+        // Keer, Biker, Admin
+        [HttpGet("chartPosition")]
+        public async Task<IActionResult> GetBikerChartPosition(int userId, CancellationToken ct)
+        {
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            if (!validationDto.IsAuthorized) return BadRequest(Constant.DidNotHavePermissionToAccess);
+            
+            return HandleResult(await Mediator.Send(new BikerPosition.Query(userId), ct));
+        }
 
         // Keer, Biker
         [HttpGet("{userId:int}/profile")]
