@@ -6,7 +6,14 @@ namespace Application.Users.DTOs
 {
     public class UserLoginDto
     {
-        [Required] [EmailAddress] public string? Email { get; init; }
-        [Required] [MinLength(6)] public string? Password { get; init; }
+        [Required]
+        [EmailAddress]
+        [RegularExpression(@".*@fpt\.edu\.vn$", ErrorMessage = "Must use fpt email.")]
+        public string? Email { get; init; }
+
+        [Required]
+        [MinLength(6)]
+        [MaxLength(32)]
+        public string? Password { get; init; }
     }
 }

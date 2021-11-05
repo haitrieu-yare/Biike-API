@@ -238,7 +238,7 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginAdmin(UserLoginDto userLoginDto, CancellationToken ct)
         {
-            return HandleResult(await Mediator.Send(new UserLoginRequest.Command {UserLoginDto = userLoginDto}, ct));
+            return HandleResult(await Mediator.Send(new UserLoginRequest.Command(userLoginDto), ct));
         }
 
         // Admin

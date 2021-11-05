@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
-using Domain.Enums;
 using Firebase.Auth;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -12,13 +11,17 @@ using Persistence;
 
 namespace Application.Users
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class UserLoginRequest
     {
         // ReSharper disable once ClassNeverInstantiated.Global
         public class Command : IRequest<Result<UserLoginResponse>>
         {
-            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
-            public UserLoginDto UserLoginDto { get; init; } = null!;
+            public Command(UserLoginDto userLoginDto)
+            {
+                UserLoginDto = userLoginDto;
+            }
+            public UserLoginDto UserLoginDto { get; init; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -55,16 +58,17 @@ namespace Application.Users
                         return Result<UserLoginResponse>.Failure(
                             $"User with userId {auth.User.LocalId} doesn't exist in database.");
                     }
-                    
-                    var isAdmin = user.Role == (int) RoleStatus.Admin;
 
-                    if (!isAdmin)
+                    var response = new UserLoginResponse
                     {
-                        _logger.LogInformation("{Unauthorized}", Constant.OnlyRole(RoleStatus.Admin.ToString()));
-                        return Result<UserLoginResponse>.Unauthorized(Constant.OnlyRole(RoleStatus.Admin.ToString()));
-                    }
-
-                    var response = new UserLoginResponse {UserId = auth.User.LocalId, Token = auth.FirebaseToken};
+                        UserId = auth.User.LocalId,
+                        Email = auth.User.Email,
+                        DisplayName = auth.User.DisplayName,
+                        ProfilePicture = auth.User.PhotoUrl,
+                        IdToken = auth.FirebaseToken,
+                        RefreshToken = auth.RefreshToken,
+                        ExpiresIn = auth.ExpiresIn.ToString()
+                    };
 
                     _logger.LogInformation("Successfully retrieved list of all users");
                     return Result<UserLoginResponse>.Success(response, "Successfully retrieved list of all users.");

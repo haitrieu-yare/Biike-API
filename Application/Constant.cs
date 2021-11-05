@@ -39,17 +39,17 @@ namespace Application
     }
     public static class Color
     {
-        public const string Green = "#33691E";
-        public const string Yellow = "#FFC400";
-        public const string Purple = "#7B1FA2";
-        public const string Red = "#EF5350";
-        public const string Pink = "#FF80AB";
-        public const string Aqua = "#00838F";
-        public const string LightBlue = "#80DEEA";
-        public const string Blue = "#0288D1";
-        public const string StrongGreen = "#388E3C";
-        public const string LightGreen = "#558B2F";
-        public const string White = "#FFFFFF";
+        public const string Green = "33691E";
+        public const string Yellow = "FFC400";
+        public const string Purple = "7B1FA2";
+        public const string Red = "EF5350";
+        public const string Pink = "FF80AB";
+        public const string Aqua = "00838F";
+        public const string LightBlue = "80DEEA";
+        public const string Blue = "0288D1";
+        public const string StrongGreen = "388E3C";
+        public const string LightGreen = "558B2F";
+        public const string White = "FFFFFF";
 
         public static readonly IReadOnlyList<string> ColorList = new List<string>
         {

@@ -15,13 +15,14 @@ namespace Application.Users.DTOs
 
         [Required]
         [EmailAddress]
+        [RegularExpression(@".*@fpt\.edu\.vn$", ErrorMessage = "Must use fpt email.")]
         public string? Email
         {
             get => _email;
             init => _email = value?.Trim();
         }
 
-        [Required] [MinLength(6)] public string? Password { get; init; }
+        [Required] [MinLength(6)] [MaxLength(32)] public string? Password { get; init; }
 
         private readonly string? _fullname;
 
