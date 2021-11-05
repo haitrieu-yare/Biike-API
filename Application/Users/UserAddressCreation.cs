@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -41,48 +42,60 @@ namespace Application.Users
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                
-                await using IDbContextTransaction transaction =
-                    await _context.Database.BeginTransactionAsync(cancellationToken);
-
-                var address = new Address
+                try
                 {
-                    AddressName = request.UserAddressCreationDto.AddressName!,
-                    AddressDetail = request.UserAddressCreationDto.AddressDetail!,
-                    AddressCoordinate = request.UserAddressCreationDto.AddressCoordinate!
-                };
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                await _context.Address.AddAsync(address, cancellationToken);
-                var resultAddress = await _context.SaveChangesAsync(cancellationToken) > 0;
-                
-                var userAddressesCount = await _context.UserAddress
-                    .Where(u => u.UserId == request.UserId)
-                    .CountAsync(cancellationToken);
+                    await using IDbContextTransaction transaction =
+                        await _context.Database.BeginTransactionAsync(cancellationToken);
 
-                var userAddress = new UserAddress
-                {
-                    UserId = request.UserId, 
-                    AddressId = address.AddressId, 
-                    Note = request.UserAddressCreationDto.Note,
-                    IsDefault = userAddressesCount == 0
-                };
+                    var address = new Address
+                    {
+                        AddressName = request.UserAddressCreationDto.AddressName!,
+                        AddressDetail = request.UserAddressCreationDto.AddressDetail!,
+                        AddressCoordinate = request.UserAddressCreationDto.AddressCoordinate!
+                    };
 
-                await _context.UserAddress.AddAsync(userAddress, cancellationToken);
-                var resultUserAddress = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    await _context.Address.AddAsync(address, cancellationToken);
+                    var resultAddress = await _context.SaveChangesAsync(cancellationToken) > 0;
 
-                // Commit transaction if all commands succeed, transaction will auto-rollback
-                // when disposed if either commands fails
-                await transaction.CommitAsync(cancellationToken);
+                    var userAddressesCount = await _context.UserAddress.Where(u => u.UserId == request.UserId)
+                        .CountAsync(cancellationToken);
 
-                if (!resultAddress || !resultUserAddress)
-                {
-                    _logger.LogInformation("Failed to create new user address");
-                    return Result<Unit>.Failure("Failed to create new user address.");
+                    var userAddress = new UserAddress
+                    {
+                        UserId = request.UserId,
+                        AddressId = address.AddressId,
+                        Note = request.UserAddressCreationDto.Note,
+                        IsDefault = userAddressesCount == 0
+                    };
+
+                    await _context.UserAddress.AddAsync(userAddress, cancellationToken);
+                    var resultUserAddress = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    // Commit transaction if all commands succeed, transaction will auto-rollback
+                    // when disposed if either commands fails
+                    await transaction.CommitAsync(cancellationToken);
+
+                    if (!resultAddress || !resultUserAddress)
+                    {
+                        _logger.LogInformation("Failed to create new user address");
+                        return Result<Unit>.Failure("Failed to create new user address.");
+                    }
+
+                    _logger.LogInformation("Successfully create new user address");
+                    return Result<Unit>.Success(Unit.Value, "Successfully created new user address.");
                 }
-
-                _logger.LogInformation("Successfully create new user address");
-                return Result<Unit>.Success(Unit.Value, "Successfully created new user address.");
+                catch (Exception ex) when (ex is TaskCanceledException)
+                {
+                    _logger.LogInformation("Request was cancelled");
+                    return Result<Unit>.Failure("Request was cancelled.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
+                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
+                }
             }
         }
     }

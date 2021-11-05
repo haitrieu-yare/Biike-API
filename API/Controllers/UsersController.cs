@@ -198,6 +198,26 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(
                 new UserAddressEdit.Command(validationDto.UserRequestId, addressId, userAddressDto), ct));
         }
+        
+        // Keer, Biker
+        [HttpDelete("addresses/{addressId:int}")]
+        public async Task<IActionResult> DeleteUserAddress(int addressId, CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+                                        Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
+
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            return HandleResult(await Mediator.Send(
+                new UserAddressDeletion.Command(validationDto.UserRequestId, addressId), ct));
+        }
 
         // Keer, Biker
         [HttpPut("{userId:int}/login-device")]
