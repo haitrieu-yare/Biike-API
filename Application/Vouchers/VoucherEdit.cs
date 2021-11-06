@@ -21,6 +21,7 @@ namespace Application.Vouchers
             public VoucherEditDto NewVoucher { get; init; } = null!;
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
@@ -50,6 +51,17 @@ namespace Application.Vouchers
                     }
 
                     _mapper.Map(request.NewVoucher, oldVoucher);
+
+                    if (request.NewVoucher.VoucherAddresses != null && request.NewVoucher.VoucherAddresses.Count > 0)
+                    {
+                        foreach (var voucherAddressDto in request.NewVoucher.VoucherAddresses)
+                        {
+                            Address oldAddress =
+                                await _context.Address.FindAsync(new object[] {voucherAddressDto.AddressId!},
+                                    cancellationToken);
+                            _mapper.Map(voucherAddressDto, oldAddress);
+                        }
+                    }
 
                     if (oldVoucher.EndDate.CompareTo(oldVoucher.StartDate) < 0)
                     {

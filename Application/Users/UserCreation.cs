@@ -60,12 +60,10 @@ namespace Application.Users
 
                 try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
                     User userDb = await _context.User
                         .Where(u => u.Email == request.UserCreationDto.Email ||
                                     u.PhoneNumber == request.UserCreationDto.PhoneNumber)
-                        .SingleOrDefaultAsync(cancellationToken);
+                        .SingleOrDefaultAsync(CancellationToken.None);
 
                     if (userDb != null)
                     {
@@ -148,7 +146,7 @@ namespace Application.Users
                             PhotoUrl = newUser.Avatar
                         };
 
-                        await FirebaseAuth.DefaultInstance.CreateUserAsync(userToCreate, cancellationToken);
+                        await FirebaseAuth.DefaultInstance.CreateUserAsync(userToCreate, CancellationToken.None);
 
                         #endregion
 
@@ -157,7 +155,7 @@ namespace Application.Users
                         var claims = new Dictionary<string, object> {{"role", (int) RoleStatus.Keer}};
 
                         await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(userToCreate.Uid, claims,
-                            cancellationToken);
+                            CancellationToken.None);
 
                         #endregion
 

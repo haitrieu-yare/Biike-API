@@ -73,8 +73,6 @@ namespace Application.Users
                     await _context.UserAddress.AddAsync(userAddress, cancellationToken);
                     var resultUserAddress = await _context.SaveChangesAsync(cancellationToken) > 0;
 
-                    // Commit transaction if all commands succeed, transaction will auto-rollback
-                    // when disposed if either commands fails
                     await transaction.CommitAsync(cancellationToken);
 
                     if (!resultAddress || !resultUserAddress)

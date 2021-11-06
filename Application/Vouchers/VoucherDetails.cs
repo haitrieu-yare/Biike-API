@@ -1,11 +1,13 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Vouchers.DTOs;
 using AutoMapper;
-using Domain.Entities;
+using AutoMapper.QueryableExtensions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -19,6 +21,7 @@ namespace Application.Vouchers
             public int VoucherId { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<VoucherDto>>
         {
             private readonly DataContext _context;
@@ -38,18 +41,16 @@ namespace Application.Vouchers
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Voucher voucherDb =
-                        await _context.Voucher.FindAsync(new object[] {request.VoucherId}, cancellationToken);
+                    var voucher = await _context.Voucher
+                        .Where(v => v.VoucherId == request.VoucherId)
+                        .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-                    if (voucherDb == null)
+                    if (voucher == null)
                     {
                         _logger.LogInformation("Voucher doesn't exist");
                         return Result<VoucherDto>.NotFound("Voucher doesn't exist.");
                     }
-
-                    VoucherDto voucher = new();
-
-                    _mapper.Map(voucherDb, voucher);
 
                     _logger.LogInformation("Successfully retrieved voucher " + "by voucherId {request.VoucherId}",
                         request.VoucherId);

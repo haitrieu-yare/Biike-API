@@ -8,5 +8,6 @@ namespace Application.Vouchers.DTOs
     {
         [Required] public string? AddressName { get; set; }
         [Required] public string? AddressDetail { get; set; }
+        [Required] public string? AddressCoordinate { get; set; }
     }
 }

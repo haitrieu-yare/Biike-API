@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+
+// ReSharper disable UnusedMember.Global
 
 namespace Application.Vouchers.DTOs
 {
@@ -15,5 +18,6 @@ namespace Application.Vouchers.DTOs
         public int? AmountOfPoint { get; set; }
         public string? Description { get; set; }
         public string? TermsAndConditions { get; set; }
+        public List<VoucherAddressDto>? VoucherAddresses { get; set; }
     }
 }

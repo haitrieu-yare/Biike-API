@@ -225,6 +225,17 @@ namespace Application.Core
 
             #endregion
 
+            #region Voucher Address
+
+            CreateMap<VoucherAddress, VoucherAddressDto>()
+                .ForMember(v => v.AddressName, o => o.MapFrom(v => v.Address.AddressName))
+                .ForMember(v => v.AddressDetail, o => o.MapFrom(v => v.Address.AddressDetail))
+                .ForMember(v => v.AddressCoordinate, o => o.MapFrom(v => v.Address.AddressCoordinate));
+
+            CreateMap<VoucherAddressDto, Address>();
+            
+            #endregion
+
             #region Voucher
 
             // List, Detail
@@ -232,6 +243,7 @@ namespace Application.Core
             // Edit
             CreateMap<VoucherEditDto, Voucher>()
                 .ForMember(v => v.VoucherId, o => o.Ignore())
+                .ForMember(v => v.VoucherAddresses, o => o.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
             CreateMap<VoucherCreationDto, Voucher>()

@@ -8,7 +8,6 @@ using Application.Vouchers.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -39,13 +38,13 @@ namespace Application.Vouchers
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
+                await using IDbContextTransaction transaction =
+                    await _context.Database.BeginTransactionAsync(cancellationToken);
+                
                 try
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-
-                    await using IDbContextTransaction transaction =
-                        await _context.Database.BeginTransactionAsync(cancellationToken);
-
+                    
                     if (request.VoucherCreationDto.VoucherAddresses!.Count == 0)
                     {
                         _logger.LogInformation("Location list must be provided");
@@ -68,7 +67,12 @@ namespace Application.Vouchers
                     var voucherResult = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     List<Address> addresses = request.VoucherCreationDto.VoucherAddresses.Select(address =>
-                            new Address {AddressName = address.AddressName!, AddressDetail = address.AddressDetail!})
+                            new Address
+                            {
+                                AddressName = address.AddressName!,
+                                AddressDetail = address.AddressDetail!,
+                                AddressCoordinate = address.AddressCoordinate!
+                            })
                         .ToList();
 
                     await _context.Address.AddRangeAsync(addresses, cancellationToken);
@@ -81,15 +85,13 @@ namespace Application.Vouchers
                     await _context.VoucherAddress.AddRangeAsync(voucherAddresses, cancellationToken);
                     var voucherAddressResult = await _context.SaveChangesAsync(cancellationToken) > 0;
 
-                    // Commit transaction if all commands succeed, transaction will auto-rollback
-                    // when disposed if either commands fails
-                    await transaction.CommitAsync(cancellationToken);
-
                     if (!voucherResult || !addressResult || !voucherAddressResult)
                     {
                         _logger.LogInformation("Failed to create new voucher");
                         return Result<Unit>.Failure("Failed to create new voucher.");
                     }
+                    
+                    await transaction.CommitAsync(cancellationToken);
 
                     _logger.LogInformation("Successfully created new voucher");
                     return Result<Unit>.Success(Unit.Value, "Successfully created new voucher.",
@@ -100,7 +102,7 @@ namespace Application.Vouchers
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex) 
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

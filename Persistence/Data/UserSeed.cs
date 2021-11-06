@@ -87,6 +87,8 @@ namespace Persistence.Data
                     Status = (int) UserStatus.Active,
                     Role = (int) RoleStatus.Admin,
                     Star = 0,
+                    IsEmailVerified = true,
+                    IsPhoneVerified = true,
                     CreatedDate = createdDate
                 },
                 new()
@@ -99,6 +101,8 @@ namespace Persistence.Data
                     Status = (int) UserStatus.Active,
                     Role = (int) RoleStatus.Admin,
                     Star = 0,
+                    IsEmailVerified = true,
+                    IsPhoneVerified = true,
                     CreatedDate = createdDate
                 },
                 new()
