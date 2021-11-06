@@ -36,8 +36,7 @@ namespace API.Controllers
 
         // Admin
         [HttpPost]
-        public async Task<IActionResult> CreateVoucher(VoucherCreationDto voucherCreationDto,
-            CancellationToken ct)
+        public async Task<IActionResult> CreateVoucher(VoucherCreationDto voucherCreationDto, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -63,6 +62,22 @@ namespace API.Controllers
 
             return HandleResult(await Mediator.Send(
                 new VoucherEdit.Command {VoucherId = voucherId, NewVoucher = newVoucher}, ct));
+        }
+
+        // Admin
+        [HttpDelete("addresses")]
+        public async Task<IActionResult> DeleteVoucherAddress(VoucherAddressDeletionDto voucherAddressDeletionDto,
+            CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Admin)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(
+                new VoucherAddressDeletion.Command(voucherAddressDeletionDto), ct));
         }
     }
 }

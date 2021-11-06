@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
+using Domain.Enums;
 using Firebase.Auth;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -65,6 +66,22 @@ namespace Application.Users
                         _logger.LogInformation("User with userId {UserId} haven't verified email", auth.User.LocalId);
                         return Result<UserLoginResponse>.Failure(
                             $"User with userId {auth.User.LocalId} haven't verified email.");
+                    }
+
+                    if (request.UserLoginDto.IsAdmin!.Value && user.Role != (int) RoleStatus.Admin)
+                    {
+                        _logger.LogInformation("User with userId {UserId} is not an admin", auth.User.LocalId);
+                        return Result<UserLoginResponse>.Failure(
+                            $"User with userId {auth.User.LocalId} is not an admin.");
+                    }
+
+                    if (!request.UserLoginDto.IsAdmin!.Value && user.Role == (int) RoleStatus.Admin)
+                    {
+                        _logger.LogInformation(
+                            "User with userId {UserId} is an admin but isAdmin in request body is set to false",
+                            auth.User.LocalId);
+                        return Result<UserLoginResponse>.Failure(
+                            $"User with userId {auth.User.LocalId} is an admin but isAdmin in request body is set to false.");
                     }
 
                     var response = new UserLoginResponse
