@@ -23,6 +23,7 @@ namespace Application.Vouchers
             public int Limit { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<List<VoucherDto>>>
         {
             private readonly DataContext _context;

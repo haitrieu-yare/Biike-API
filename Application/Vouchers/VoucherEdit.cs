@@ -64,6 +64,15 @@ namespace Application.Vouchers
                             Address oldAddress =
                                 await _context.Address.FindAsync(new object[] {voucherAddressDto.AddressId!},
                                     cancellationToken);
+
+                            if (oldAddress == null)
+                            {
+                                _logger.LogInformation("Address with AddressId {AddressId} doesn't exist",
+                                    voucherAddressDto.AddressId);
+                                return Result<Unit>.NotFound(
+                                    $"Address with AddressId {voucherAddressDto.AddressId} doesn't exist.");
+                            }
+                            
                             _mapper.Map(voucherAddressDto, oldAddress);
                         }
                     }
@@ -75,6 +84,15 @@ namespace Application.Vouchers
                             Image oldImage =
                                 await _context.Image.FindAsync(new object[] {voucherImageDto.ImageId!},
                                     cancellationToken);
+                            
+                            if (oldImage == null)
+                            {
+                                _logger.LogInformation("Image with ImageId {ImageId} doesn't exist",
+                                    voucherImageDto.ImageId);
+                                return Result<Unit>.NotFound(
+                                    $"Image with ImageId {voucherImageDto.ImageId} doesn't exist.");
+                            }
+                            
                             oldImage.ImageUrl = voucherImageDto.ImageUrl!;
                         }
                     }

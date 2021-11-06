@@ -235,6 +235,13 @@ namespace Application.Core
             CreateMap<VoucherAddressDto, Address>();
             
             #endregion
+            
+            #region Voucher Image
+
+            CreateMap<VoucherImage, VoucherImageDto>()
+                .ForMember(v => v.ImageUrl, o => o.MapFrom(v => v.Image.ImageUrl));
+
+            #endregion
 
             #region Voucher
 
