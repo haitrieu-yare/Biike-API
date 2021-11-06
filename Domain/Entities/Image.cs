@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable UnusedMember.Global
@@ -13,6 +13,7 @@ namespace Domain.Entities
         public string ImageUrl { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         
-        public ICollection<AdvertisingImage> AdvertisingImages { get; set; } = new List<AdvertisingImage>();
+        public AdvertisingImage? AdvertisingImage { get; set; }
+        public VoucherImage? VoucherImage { get; set; } 
     }
 }

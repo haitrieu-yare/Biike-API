@@ -51,6 +51,12 @@ namespace Application.Vouchers
 
                     _mapper.Map(request.NewVoucher, oldVoucher);
 
+                    if (oldVoucher.EndDate.CompareTo(oldVoucher.StartDate) < 0)
+                    {
+                        _logger.LogInformation("EndDate must be set later than StartDate");
+                        return Result<Unit>.Failure("EndDate must be set later than StartDate.");
+                    }
+                    
                     if (request.NewVoucher.VoucherAddresses != null && request.NewVoucher.VoucherAddresses.Count > 0)
                     {
                         foreach (var voucherAddressDto in request.NewVoucher.VoucherAddresses)
@@ -61,11 +67,16 @@ namespace Application.Vouchers
                             _mapper.Map(voucherAddressDto, oldAddress);
                         }
                     }
-
-                    if (oldVoucher.EndDate.CompareTo(oldVoucher.StartDate) < 0)
+                    
+                    if (request.NewVoucher.VoucherImages != null && request.NewVoucher.VoucherImages.Count > 0)
                     {
-                        _logger.LogInformation("EndDate must be set later than StartDate");
-                        return Result<Unit>.Failure("EndDate must be set later than StartDate.");
+                        foreach (var voucherImageDto in request.NewVoucher.VoucherImages)
+                        {
+                            Image oldImage =
+                                await _context.Image.FindAsync(new object[] {voucherImageDto.ImageId!},
+                                    cancellationToken);
+                            oldImage.ImageUrl = voucherImageDto.ImageUrl!;
+                        }
                     }
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;

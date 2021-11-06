@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+// ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable UnusedMember.Global
 
 namespace Application.Vouchers.DTOs

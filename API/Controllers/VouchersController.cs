@@ -46,7 +46,7 @@ namespace API.Controllers
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(
-                new VoucherCreation.Command {VoucherCreationDto = voucherCreationDto}, ct));
+                new VoucherCreation.Command(voucherCreationDto), ct));
         }
 
         // Admin

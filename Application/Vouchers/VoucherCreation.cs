@@ -19,7 +19,11 @@ namespace Application.Vouchers
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public VoucherCreationDto VoucherCreationDto { get; init; } = null!;
+            public Command(VoucherCreationDto voucherCreationDto)
+            {
+                VoucherCreationDto = voucherCreationDto;
+            }
+            public VoucherCreationDto VoucherCreationDto { get; init; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -65,32 +69,64 @@ namespace Application.Vouchers
 
                     await _context.Voucher.AddAsync(newVoucher, cancellationToken);
                     var voucherResult = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                    List<Address> addresses = request.VoucherCreationDto.VoucherAddresses.Select(address =>
-                            new Address
-                            {
-                                AddressName = address.AddressName!,
-                                AddressDetail = address.AddressDetail!,
-                                AddressCoordinate = address.AddressCoordinate!
-                            })
-                        .ToList();
-
-                    await _context.Address.AddRangeAsync(addresses, cancellationToken);
-                    var addressResult = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                    List<VoucherAddress> voucherAddresses = addresses.Select(address =>
-                            new VoucherAddress {AddressId = address.AddressId, VoucherId = newVoucher.VoucherId})
-                        .ToList();
-
-                    await _context.VoucherAddress.AddRangeAsync(voucherAddresses, cancellationToken);
-                    var voucherAddressResult = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                    if (!voucherResult || !addressResult || !voucherAddressResult)
+                    
+                    if (!voucherResult)
                     {
                         _logger.LogInformation("Failed to create new voucher");
                         return Result<Unit>.Failure("Failed to create new voucher.");
                     }
-                    
+
+                    if (request.VoucherCreationDto.VoucherAddresses.Count > 0)
+                    {
+                        List<Address> addresses = request.VoucherCreationDto.VoucherAddresses.Select(address =>
+                                new Address
+                                {
+                                    AddressName = address.AddressName!,
+                                    AddressDetail = address.AddressDetail!,
+                                    AddressCoordinate = address.AddressCoordinate!
+                                })
+                            .ToList();
+
+                        await _context.Address.AddRangeAsync(addresses, cancellationToken);
+                        var addressResult = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                        List<VoucherAddress> voucherAddresses = addresses.Select(address =>
+                                new VoucherAddress {AddressId = address.AddressId, VoucherId = newVoucher.VoucherId})
+                            .ToList();
+
+                        await _context.VoucherAddress.AddRangeAsync(voucherAddresses, cancellationToken);
+                        var voucherAddressResult = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                        if (!addressResult || !voucherAddressResult)
+                        {
+                            _logger.LogInformation("Failed to create new voucher");
+                            return Result<Unit>.Failure("Failed to create new voucher.");
+                        }
+                    }
+
+                    if (request.VoucherCreationDto.VoucherImages!.Count > 0)
+                    {
+                        List<Image> images = request.VoucherCreationDto.VoucherImages.Select(v =>
+                                new Image {ImageUrl = v})
+                            .ToList();
+                        
+                        await _context.Image.AddRangeAsync(images, cancellationToken);
+                        var imageResult = await _context.SaveChangesAsync(cancellationToken) > 0;
+                        
+                        List<VoucherImage> voucherImages = images.Select(image =>
+                                new VoucherImage {ImageId = image.ImageId, VoucherId = newVoucher.VoucherId})
+                            .ToList();
+
+                        await _context.VoucherImage.AddRangeAsync(voucherImages, cancellationToken);
+                        var voucherImageResult = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                        if (!imageResult || !voucherImageResult)
+                        {
+                            _logger.LogInformation("Failed to create new voucher");
+                            return Result<Unit>.Failure("Failed to create new voucher.");
+                        }
+                    }
+
                     await transaction.CommitAsync(cancellationToken);
 
                     _logger.LogInformation("Successfully created new voucher");

@@ -18,5 +18,6 @@ namespace Application.Vouchers.DTOs
         public string? Description { get; set; }
         public string? TermsAndConditions { get; set; }
         public List<VoucherAddressDto>? VoucherAddresses { get; set; }
+        public List<VoucherImageDto>? VoucherImages { get; set; }
     }
 }
