@@ -12,6 +12,7 @@ using Persistence;
 
 namespace Application.Vouchers
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class VoucherImageDeletion
     {
         public class Command : IRequest<Result<Unit>>
@@ -71,10 +72,10 @@ namespace Application.Vouchers
                             request.VoucherImageDeletionDto.VoucherId)
                         {
                             _logger.LogInformation(
-                                "Image with ImageId {ImageId} does not belong to voucher" +
+                                "Image with ImageId {ImageId} does not belong to voucher " +
                                 "with VoucherId {VoucherId}", imageId, request.VoucherImageDeletionDto.VoucherId);
                             return Result<Unit>.NotFound(
-                                $"Image with ImageId {imageId} does not belong to voucher" +
+                                $"Image with ImageId {imageId} does not belong to voucher " +
                                 $"with VoucherId {request.VoucherImageDeletionDto.VoucherId}.");
                         }
 

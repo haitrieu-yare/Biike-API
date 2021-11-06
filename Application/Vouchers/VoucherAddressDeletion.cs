@@ -72,10 +72,10 @@ namespace Application.Vouchers
                             request.VoucherAddressDeletionDto.VoucherId)
                         {
                             _logger.LogInformation(
-                                "Address with AddressId {AddressId} does not belong to voucher" +
+                                "Address with AddressId {AddressId} does not belong to voucher " +
                                 "with VoucherId {VoucherId}", addressId, request.VoucherAddressDeletionDto.VoucherId);
                             return Result<Unit>.NotFound(
-                                $"Address with AddressId {addressId} does not belong to voucher" +
+                                $"Address with AddressId {addressId} does not belong to voucher " +
                                 $"with VoucherId {request.VoucherAddressDeletionDto.VoucherId}.");
                         }
 

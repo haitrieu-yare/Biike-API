@@ -79,5 +79,21 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(
                 new VoucherAddressDeletion.Command(voucherAddressDeletionDto), ct));
         }
+        
+        // Admin
+        [HttpDelete("images")]
+        public async Task<IActionResult> DeleteVoucherImage(VoucherImageDeletionDto voucherImageDeletionDto,
+            CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Admin)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(
+                new VoucherImageDeletion.Command(voucherImageDeletionDto), ct));
+        }
     }
 }
