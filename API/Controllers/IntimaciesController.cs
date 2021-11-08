@@ -13,7 +13,7 @@ namespace API.Controllers
     public class IntimaciesController : BaseApiController
     {
         // Admin
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllIntimacies(int page, int limit, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
@@ -39,6 +39,20 @@ namespace API.Controllers
 
             return HandleResult(await Mediator.Send(
                 new IntimacyListByUserId.Query {Page = page, Limit = limit, UserOneId = userOneId}, ct));
+        }
+
+        // Keer, Biker, Admin
+        [HttpGet]
+        public async Task<IActionResult> CheckIntimacy(int userOneId, int userTwoId, CancellationToken ct)
+        {
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userOneId);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            if (!validationDto.IsAuthorized)
+                return new ObjectResult(Constant.DidNotHavePermissionToAccess) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(new IntimacyPair.Query(userOneId, userTwoId), ct));
         }
 
         // Keer, Biker
