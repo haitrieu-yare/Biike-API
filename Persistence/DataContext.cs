@@ -12,11 +12,9 @@ namespace Persistence
         public DbSet<Area> Area => Set<Area>();
         public DbSet<Station> Station => Set<Station>();
         public DbSet<Route> Route => Set<Route>();
-        public DbSet<Address> Address => Set<Address>();
         public DbSet<UserAddress> UserAddress => Set<UserAddress>();
         public DbSet<AdvertisingAddress> AdvertisingAddress => Set<AdvertisingAddress>();
         public DbSet<VoucherAddress> VoucherAddress => Set<VoucherAddress>();
-        public DbSet<Image> Image => Set<Image>();
         public DbSet<AdvertisingImage> AdvertisingImage => Set<AdvertisingImage>();
         public DbSet<VoucherImage> VoucherImage => Set<VoucherImage>();
         public DbSet<User> User => Set<User>();
@@ -87,11 +85,6 @@ namespace Persistence
                 .WithMany(a => a.UserAddresses)
                 .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
-            
-            modelBuilder.Entity<UserAddress>()
-                .HasOne(a => a.Address)
-                .WithOne(a => a.UserAddress!)
-                .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
 
@@ -116,11 +109,6 @@ namespace Persistence
                 .HasForeignKey(a => a.AdvertisingId)
                 .OnDelete(DeleteBehavior.NoAction);
             
-            modelBuilder.Entity<AdvertisingAddress>()
-                .HasOne(a => a.Address)
-                .WithOne(a => a.AdvertisingAddress!)
-                .OnDelete(DeleteBehavior.NoAction);
-
             #endregion
             
             #region AdvertisingImage
@@ -129,11 +117,6 @@ namespace Persistence
                 .HasOne(a => a.Advertising)
                 .WithMany(a => a.AdvertisingImages)
                 .HasForeignKey(a => a.AdvertisingId)
-                .OnDelete(DeleteBehavior.NoAction);
-            
-            modelBuilder.Entity<AdvertisingImage>()
-                .HasOne(a => a.Image)
-                .WithOne(i => i.AdvertisingImage!)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
@@ -250,11 +233,6 @@ namespace Persistence
                 .WithMany(a => a.VoucherAddresses)
                 .HasForeignKey(a => a.VoucherId)
                 .OnDelete(DeleteBehavior.NoAction);
-            
-            modelBuilder.Entity<VoucherAddress>()
-                .HasOne(a => a.Address)
-                .WithOne(a => a.VoucherAddress!)
-                .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
 
@@ -264,11 +242,6 @@ namespace Persistence
                 .HasOne(v => v.Voucher)
                 .WithMany(v => v.VoucherImages)
                 .HasForeignKey(a => a.VoucherId)
-                .OnDelete(DeleteBehavior.NoAction);
-            
-            modelBuilder.Entity<VoucherImage>()
-                .HasOne(v => v.Image)
-                .WithOne(i => i.VoucherImage!)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion

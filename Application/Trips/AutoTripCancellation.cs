@@ -26,57 +26,65 @@ namespace Application.Trips
 
         public async Task Execute(IJobExecutionContext context)
         {
-            JobDataMap dataMap = context.JobDetail.JobDataMap;
-            var tripId = Convert.ToInt32(dataMap.GetString("TripId"));
-
-            if (tripId == 0)
+            try
             {
-                _logger.LogError("Could not find tripId for trip cancellation");
-                return;
-            }
+                JobDataMap dataMap = context.JobDetail.JobDataMap;
+                var tripId = Convert.ToInt32(dataMap.GetString("TripId"));
 
-            Trip trip = await _context.Trip.FindAsync(tripId);
+                if (tripId == 0)
+                {
+                    _logger.LogError("Could not find tripId for trip cancellation");
+                    return;
+                }
 
-            if (trip == null)
-            {
-                _logger.LogError("Trip with {TripId} doesn't exist", tripId);
-                return;
-            }
+                Trip trip = await _context.Trip.FindAsync(tripId);
+
+                if (trip == null)
+                {
+                    _logger.LogError("Trip with {TripId} doesn't exist", tripId);
+                    return;
+                }
             
-            IScheduler scheduler = await _schedulerFactory.GetScheduler();
-            string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
+                IScheduler scheduler = await _schedulerFactory.GetScheduler();
+                string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
 
-            switch (trip.Status)
-            {
-                case (int) TripStatus.Finished:
-                    _logger.LogInformation("Trip has already finished");
+                switch (trip.Status)
+                {
+                    case (int) TripStatus.Finished:
+                        _logger.LogInformation("Trip has already finished");
+                        return;
+                    case (int) TripStatus.Cancelled:
+                        _logger.LogInformation("Trip has already cancelled");
+                        return;
+                    case (int) TripStatus.Finding:
+                        trip.CancelReason = "Tự động hủy vì đã quá giờ khởi hành.";
+                        trip.Status = (int) TripStatus.Cancelled;
+                        trip.CancelTime = CurrentTime.GetCurrentTime();
+                        await scheduler.DeleteJob(JobKey.Create(jobName, Constant.OneTimeJob), CancellationToken.None);
+                        break;
+                    case (int) TripStatus.Waiting:
+                        trip.CancelReason = "Tự động hủy vì đã quá ngày khởi hành.";
+                        trip.Status = (int) TripStatus.Cancelled;
+                        trip.CancelTime = CurrentTime.GetCurrentTime();
+                        await scheduler.DeleteJob(JobKey.Create(jobName, Constant.OneTimeJob), CancellationToken.None);
+                        break;
+                }
+
+                var result = await _context.SaveChangesAsync() > 0;
+
+                if (!result)
+                {
+                    _logger.LogError("Failed to automatically cancel trip with TripId {TripId}", tripId);
                     return;
-                case (int) TripStatus.Cancelled:
-                    _logger.LogInformation("Trip has already cancelled");
-                    return;
-                case (int) TripStatus.Finding:
-                    trip.CancelReason = "Tự động hủy vì đã quá giờ khởi hành.";
-                    trip.Status = (int) TripStatus.Cancelled;
-                    trip.CancelTime = CurrentTime.GetCurrentTime();
-                    await scheduler.DeleteJob(JobKey.Create(jobName, Constant.OneTimeJob), CancellationToken.None);
-                    break;
-                case (int) TripStatus.Waiting:
-                    trip.CancelReason = "Tự động hủy vì đã quá ngày khởi hành.";
-                    trip.Status = (int) TripStatus.Cancelled;
-                    trip.CancelTime = CurrentTime.GetCurrentTime();
-                    await scheduler.DeleteJob(JobKey.Create(jobName, Constant.OneTimeJob), CancellationToken.None);
-                    break;
+                }
+
+                _logger.LogInformation("Successfully automatically cancelled trip with TripId {TripId}", tripId);
             }
-
-            var result = await _context.SaveChangesAsync() > 0;
-
-            if (!result)
+            catch (Exception e)
             {
-                _logger.LogError("Failed to automatically cancel trip with TripId {TripId}", tripId);
-                return;
+                Console.WriteLine(e);
+                throw;
             }
-
-            _logger.LogInformation("Successfully automatically cancelled trip with TripId {TripId}", tripId);
         }
     }
 }

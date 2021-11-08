@@ -81,13 +81,17 @@ namespace Application.Core
 
             #region UserAddress
 
-            CreateMap<UserAddress, UserAddressDto>()
-                .ForMember(u => u.AddressName, o => o.MapFrom(u => u.Address.AddressName))
-                .ForMember(u => u.AddressDetail, o => o.MapFrom(u => u.Address.AddressDetail))
-                .ForMember(u => u.AddressCoordinate, o => o.MapFrom(u => u.Address.AddressCoordinate))
-                .ForMember(u => u.Note, o => o.MapFrom(u => u.Note))
-                .ForMember(u => u.IsDefault, o => o.MapFrom(u => u.IsDefault));
-
+            // List, Details
+            CreateMap<UserAddress, UserAddressDto>();
+            // Create
+            CreateMap<UserAddressCreationDto, UserAddress>()
+                .ForMember(u => u.IsDefault, o => o.Ignore());
+            // Edit
+            CreateMap<UserAddressDto, UserAddress>()
+                .ForMember(u => u.UserAddressId, o => o.Ignore())
+                .ForMember(u => u.IsDefault, o => o.Ignore())
+                .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
+            
             #endregion
 
             #region User
@@ -226,20 +230,22 @@ namespace Application.Core
             #endregion
 
             #region Voucher Address
-
-            CreateMap<VoucherAddress, VoucherAddressDto>()
-                .ForMember(v => v.AddressName, o => o.MapFrom(v => v.Address.AddressName))
-                .ForMember(v => v.AddressDetail, o => o.MapFrom(v => v.Address.AddressDetail))
-                .ForMember(v => v.AddressCoordinate, o => o.MapFrom(v => v.Address.AddressCoordinate));
-
-            CreateMap<VoucherAddressDto, Address>();
+            
+            // List, Details
+            CreateMap<VoucherAddress, VoucherAddressDto>();
+            // Create
+            CreateMap<VoucherAddressCreationDto, VoucherAddress>();
+            // Edit
+            CreateMap<VoucherAddressDto, VoucherAddress>()
+                .ForMember(v => v.VoucherAddressId, o => o.Ignore())
+                .ForMember(v => v.CreatedDate, o => o.Ignore())
+                .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             
             #endregion
             
             #region Voucher Image
 
-            CreateMap<VoucherImage, VoucherImageDto>()
-                .ForMember(v => v.ImageUrl, o => o.MapFrom(v => v.Image.ImageUrl));
+            CreateMap<VoucherImage, VoucherImageDto>();
 
             #endregion
 

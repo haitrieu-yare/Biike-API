@@ -25,6 +25,7 @@ namespace Persistence.Migrations
                     LastTimeLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Star = table.Column<double>(type: "float", nullable: false),
                     TotalPoint = table.Column<int>(type: "int", nullable: false),
+                    MaxTotalPoint = table.Column<int>(type: "int", nullable: false),
                     IsEmailVerified = table.Column<bool>(type: "bit", nullable: false),
                     IsPhoneVerified = table.Column<bool>(type: "bit", nullable: false),
                     IsBikeVerified = table.Column<bool>(type: "bit", nullable: false),
@@ -41,7 +42,7 @@ namespace Persistence.Migrations
                 name: "Area",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    AreaId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -49,7 +50,7 @@ namespace Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Area", x => x.Id);
+                    table.PrimaryKey("PK_Area", x => x.AreaId);
                 });
 
             migrationBuilder.CreateTable(
@@ -67,6 +68,30 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Advertising",
+                columns: table => new
+                {
+                    AdvertisingId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatorId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    AdvertisingUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Advertising", x => x.AdvertisingId);
+                    table.ForeignKey(
+                        name: "FK_Advertising_AppUser_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AppUser",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Bike",
                 columns: table => new
                 {
@@ -74,7 +99,9 @@ namespace Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     BikeOwner = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Picture = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BikePicture = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BikeLicensePicture = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PlateNumberPicture = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PlateNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -96,6 +123,7 @@ namespace Persistence.Migrations
                 {
                     UserOneId = table.Column<int>(type: "int", nullable: false),
                     UserTwoId = table.Column<int>(type: "int", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsBlock = table.Column<bool>(type: "bit", nullable: false),
                     BlockTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UnblockTime = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -111,6 +139,30 @@ namespace Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_Intimacy_AppUser_UserTwoId",
                         column: x => x.UserTwoId,
+                        principalTable: "AppUser",
+                        principalColumn: "UserId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserAddress",
+                columns: table => new
+                {
+                    UserAddressId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    AddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDefault = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserAddress", x => x.UserAddressId);
+                    table.ForeignKey(
+                        name: "FK_UserAddress_AppUser_UserId",
+                        column: x => x.UserId,
                         principalTable: "AppUser",
                         principalColumn: "UserId");
                 });
@@ -157,7 +209,7 @@ namespace Persistence.Migrations
                         name: "FK_Station_Area_AreaId",
                         column: x => x.AreaId,
                         principalTable: "Area",
-                        principalColumn: "Id");
+                        principalColumn: "AreaId");
                 });
 
             migrationBuilder.CreateTable(
@@ -189,6 +241,48 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AdvertisingAddress",
+                columns: table => new
+                {
+                    AdvertisingAddressId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AdvertisingId = table.Column<int>(type: "int", nullable: false),
+                    AddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AdvertisingAddress", x => x.AdvertisingAddressId);
+                    table.ForeignKey(
+                        name: "FK_AdvertisingAddress_Advertising_AdvertisingId",
+                        column: x => x.AdvertisingId,
+                        principalTable: "Advertising",
+                        principalColumn: "AdvertisingId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AdvertisingImage",
+                columns: table => new
+                {
+                    AdvertisingImageId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AdvertisingId = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AdvertisingImage", x => x.AdvertisingImageId);
+                    table.ForeignKey(
+                        name: "FK_AdvertisingImage_Advertising_AdvertisingId",
+                        column: x => x.AdvertisingId,
+                        principalTable: "Advertising",
+                        principalColumn: "AdvertisingId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Route",
                 columns: table => new
                 {
@@ -196,6 +290,7 @@ namespace Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DepartureId = table.Column<int>(type: "int", nullable: false),
                     DestinationId = table.Column<int>(type: "int", nullable: false),
+                    AreaId = table.Column<int>(type: "int", nullable: false),
                     DefaultPoint = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -203,6 +298,11 @@ namespace Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Route", x => x.RouteId);
+                    table.ForeignKey(
+                        name: "FK_Route_Area_AreaId",
+                        column: x => x.AreaId,
+                        principalTable: "Area",
+                        principalColumn: "AreaId");
                     table.ForeignKey(
                         name: "FK_Route_Station_DepartureId",
                         column: x => x.DepartureId,
@@ -244,6 +344,48 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "VoucherAddress",
+                columns: table => new
+                {
+                    VoucherAddressId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    VoucherId = table.Column<int>(type: "int", nullable: false),
+                    AddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VoucherAddress", x => x.VoucherAddressId);
+                    table.ForeignKey(
+                        name: "FK_VoucherAddress_Voucher_VoucherId",
+                        column: x => x.VoucherId,
+                        principalTable: "Voucher",
+                        principalColumn: "VoucherId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VoucherImage",
+                columns: table => new
+                {
+                    VoucherImageId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    VoucherId = table.Column<int>(type: "int", nullable: false),
+                    VoucherImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VoucherImage", x => x.VoucherImageId);
+                    table.ForeignKey(
+                        name: "FK_VoucherImage_Voucher_VoucherId",
+                        column: x => x.VoucherId,
+                        principalTable: "Voucher",
+                        principalColumn: "VoucherId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Trip",
                 columns: table => new
                 {
@@ -255,6 +397,7 @@ namespace Persistence.Migrations
                     BookTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PickupTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FinishedTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CancelTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     PlateNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsScheduled = table.Column<bool>(type: "bit", nullable: false),
@@ -290,9 +433,10 @@ namespace Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     TripId = table.Column<int>(type: "int", nullable: false),
-                    FeedbackContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Star = table.Column<int>(type: "int", nullable: false),
-                    Criteria = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FeedbackContent = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TripStar = table.Column<int>(type: "int", nullable: false),
+                    TripTip = table.Column<int>(type: "int", nullable: false),
+                    Criteria = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -335,6 +479,21 @@ namespace Persistence.Migrations
                         principalTable: "Wallet",
                         principalColumn: "WalletId");
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Advertising_UserId",
+                table: "Advertising",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdvertisingAddress_AdvertisingId",
+                table: "AdvertisingAddress",
+                column: "AdvertisingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdvertisingImage_AdvertisingId",
+                table: "AdvertisingImage",
+                column: "AdvertisingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppUser_Email",
@@ -386,6 +545,11 @@ namespace Persistence.Migrations
                 column: "WalletId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Route_AreaId",
+                table: "Route",
+                column: "AreaId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Route_DepartureId_DestinationId",
                 table: "Route",
                 columns: new[] { "DepartureId", "DestinationId" },
@@ -427,15 +591,30 @@ namespace Persistence.Migrations
                 column: "WalletId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserAddress_UserId",
+                table: "UserAddress",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Voucher_VoucherCategoryId",
                 table: "Voucher",
                 column: "VoucherCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherAddress_VoucherId",
+                table: "VoucherAddress",
+                column: "VoucherId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VoucherCategory_CategoryName",
                 table: "VoucherCategory",
                 column: "CategoryName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherImage_VoucherId",
+                table: "VoucherImage",
+                column: "VoucherId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Wallet_UserId",
@@ -445,6 +624,12 @@ namespace Persistence.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AdvertisingAddress");
+
+            migrationBuilder.DropTable(
+                name: "AdvertisingImage");
+
             migrationBuilder.DropTable(
                 name: "Bike");
 
@@ -461,7 +646,16 @@ namespace Persistence.Migrations
                 name: "TripTransaction");
 
             migrationBuilder.DropTable(
-                name: "Voucher");
+                name: "UserAddress");
+
+            migrationBuilder.DropTable(
+                name: "VoucherAddress");
+
+            migrationBuilder.DropTable(
+                name: "VoucherImage");
+
+            migrationBuilder.DropTable(
+                name: "Advertising");
 
             migrationBuilder.DropTable(
                 name: "Trip");
@@ -470,13 +664,16 @@ namespace Persistence.Migrations
                 name: "Wallet");
 
             migrationBuilder.DropTable(
-                name: "VoucherCategory");
+                name: "Voucher");
 
             migrationBuilder.DropTable(
                 name: "Route");
 
             migrationBuilder.DropTable(
                 name: "AppUser");
+
+            migrationBuilder.DropTable(
+                name: "VoucherCategory");
 
             migrationBuilder.DropTable(
                 name: "Station");

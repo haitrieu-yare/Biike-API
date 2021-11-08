@@ -16,12 +16,12 @@ namespace Application.Users
         public class Command : IRequest<Result<Unit>>
         {
             public readonly int UserId;
-            public readonly int AddressId;
+            public readonly int UserAddressId;
 
-            public Command(int userId, int addressId)
+            public Command(int userId, int userAddressId)
             {
                 UserId = userId;
-                AddressId = addressId;
+                UserAddressId = userAddressId;
             }
         }
 
@@ -43,47 +43,40 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var address = await _context.Address.Where(a => a.AddressId == request.AddressId)
-                        .Include(a => a.UserAddress)
+                    var userAddress = await _context.UserAddress.Where(u => u.UserAddressId == request.UserAddressId)
                         .SingleOrDefaultAsync(cancellationToken);
 
-                    if (address == null)
+                    if (userAddress == null)
                     {
                         _logger.LogInformation("Address doesn't exist");
                         return Result<Unit>.NotFound("Address doesn't exist.");
                     }
 
-                    if (address.UserAddress == null)
-                    {
-                        _logger.LogInformation("UserAddress doesn't exist");
-                        return Result<Unit>.NotFound("UserAddress doesn't exist.");
-                    }
-
-                    if (address.UserAddress.UserId != request.UserId)
+                    if (userAddress.UserId != request.UserId)
                     {
                         _logger.LogInformation(
-                            "Address with AddressId {AddressId} doesn't belong to user with UserId {UserId}",
-                            request.AddressId, request.UserId);
+                            "UserAddress with UserAddressId {UserAddressId} doesn't belong to user with UserId {UserId}",
+                            request.UserAddressId, request.UserId);
                         return Result<Unit>.NotFound(
-                            $"Address with AddressId {request.AddressId} doesn't belong to user with UserId {request.UserId}.");
+                            $"UserAddress with UserAddressId {request.UserAddressId} doesn't belong to user with UserId {request.UserId}");
                     }
 
-                    _context.UserAddress.Remove(address.UserAddress);
-                    _context.Address.Remove(address);
+                    _context.UserAddress.Remove(userAddress);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to delete user address with addressId {AddressId}",
-                            request.AddressId);
-                        return Result<Unit>.Failure($"Failed to delete user address with addressId {request.AddressId}.");
+                        _logger.LogInformation("Failed to delete user address with UserAddressId {UserAddressId}",
+                            request.UserAddressId);
+                        return Result<Unit>.Failure(
+                            $"Failed to delete user address with UserAddressId {request.UserAddressId}.");
                     }
 
-                    _logger.LogInformation("Successfully deleted user address with addressId {AddressId}",
-                        request.AddressId);
+                    _logger.LogInformation("Successfully deleted user address with UserAddressId {UserAddressId}",
+                        request.UserAddressId);
                     return Result<Unit>.Success(Unit.Value,
-                        $"Successfully deleted user address with addressId {request.AddressId}.");
+                        $"Successfully deleted user address with UserAddressId {request.UserAddressId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

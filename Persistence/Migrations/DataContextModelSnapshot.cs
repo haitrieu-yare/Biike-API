@@ -19,33 +19,6 @@ namespace Persistence.Migrations
                 .HasAnnotation("ProductVersion", "5.0.11")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Domain.Entities.Address", b =>
-                {
-                    b.Property<int>("AddressId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AddressCoordinate")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AddressDetail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AddressName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AddressId");
-
-                    b.ToTable("Address");
-                });
-
             modelBuilder.Entity("Domain.Entities.Advertising", b =>
                 {
                     b.Property<int>("AdvertisingId")
@@ -86,16 +59,25 @@ namespace Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AddressId")
-                        .HasColumnType("int");
+                    b.Property<string>("AddressCoordinate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressDetail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("AdvertisingId")
                         .HasColumnType("int");
 
-                    b.HasKey("AdvertisingAddressId");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("AddressId")
-                        .IsUnique();
+                    b.HasKey("AdvertisingAddressId");
 
                     b.HasIndex("AdvertisingId");
 
@@ -112,15 +94,16 @@ namespace Persistence.Migrations
                     b.Property<int>("AdvertisingId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ImageId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AdvertisingImageId");
 
                     b.HasIndex("AdvertisingId");
-
-                    b.HasIndex("ImageId")
-                        .IsUnique();
 
                     b.ToTable("AdvertisingImage");
                 });
@@ -234,25 +217,6 @@ namespace Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Feedback");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Image", b =>
-                {
-                    b.Property<int>("ImageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ImageId");
-
-                    b.ToTable("Image");
                 });
 
             modelBuilder.Entity("Domain.Entities.Intimacy", b =>
@@ -562,8 +526,20 @@ namespace Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AddressId")
-                        .HasColumnType("int");
+                    b.Property<string>("AddressCoordinate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressDetail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
@@ -576,9 +552,6 @@ namespace Persistence.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("UserAddressId");
-
-                    b.HasIndex("AddressId")
-                        .IsUnique();
 
                     b.HasIndex("UserId");
 
@@ -643,16 +616,25 @@ namespace Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AddressId")
-                        .HasColumnType("int");
+                    b.Property<string>("AddressCoordinate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressDetail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("VoucherId")
                         .HasColumnType("int");
 
                     b.HasKey("VoucherAddressId");
-
-                    b.HasIndex("AddressId")
-                        .IsUnique();
 
                     b.HasIndex("VoucherId");
 
@@ -688,16 +670,17 @@ namespace Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ImageId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("VoucherId")
                         .HasColumnType("int");
 
-                    b.HasKey("VoucherImageId");
+                    b.Property<string>("VoucherImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("ImageId")
-                        .IsUnique();
+                    b.HasKey("VoucherImageId");
 
                     b.HasIndex("VoucherId");
 
@@ -744,19 +727,11 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.AdvertisingAddress", b =>
                 {
-                    b.HasOne("Domain.Entities.Address", "Address")
-                        .WithOne("AdvertisingAddress")
-                        .HasForeignKey("Domain.Entities.AdvertisingAddress", "AddressId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Advertising", "Advertising")
                         .WithMany("AdvertisingAddresses")
                         .HasForeignKey("AdvertisingId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("Address");
 
                     b.Navigation("Advertising");
                 });
@@ -769,15 +744,7 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Image", "Image")
-                        .WithOne("AdvertisingImage")
-                        .HasForeignKey("Domain.Entities.AdvertisingImage", "ImageId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.Navigation("Advertising");
-
-                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("Domain.Entities.Bike", b =>
@@ -933,19 +900,11 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.UserAddress", b =>
                 {
-                    b.HasOne("Domain.Entities.Address", "Address")
-                        .WithOne("UserAddress")
-                        .HasForeignKey("Domain.Entities.UserAddress", "AddressId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany("UserAddresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("Address");
 
                     b.Navigation("User");
                 });
@@ -963,38 +922,22 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.VoucherAddress", b =>
                 {
-                    b.HasOne("Domain.Entities.Address", "Address")
-                        .WithOne("VoucherAddress")
-                        .HasForeignKey("Domain.Entities.VoucherAddress", "AddressId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Voucher", "Voucher")
                         .WithMany("VoucherAddresses")
                         .HasForeignKey("VoucherId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Address");
-
                     b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("Domain.Entities.VoucherImage", b =>
                 {
-                    b.HasOne("Domain.Entities.Image", "Image")
-                        .WithOne("VoucherImage")
-                        .HasForeignKey("Domain.Entities.VoucherImage", "ImageId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Voucher", "Voucher")
                         .WithMany("VoucherImages")
                         .HasForeignKey("VoucherId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("Image");
 
                     b.Navigation("Voucher");
                 });
@@ -1010,15 +953,6 @@ namespace Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Address", b =>
-                {
-                    b.Navigation("AdvertisingAddress");
-
-                    b.Navigation("UserAddress");
-
-                    b.Navigation("VoucherAddress");
-                });
-
             modelBuilder.Entity("Domain.Entities.Advertising", b =>
                 {
                     b.Navigation("AdvertisingAddresses");
@@ -1031,13 +965,6 @@ namespace Persistence.Migrations
                     b.Navigation("Routes");
 
                     b.Navigation("Stations");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Image", b =>
-                {
-                    b.Navigation("AdvertisingImage");
-
-                    b.Navigation("VoucherImage");
                 });
 
             modelBuilder.Entity("Domain.Entities.Route", b =>

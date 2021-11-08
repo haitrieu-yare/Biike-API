@@ -53,34 +53,33 @@ namespace Application.Vouchers
                         return Result<Unit>.NotFound("Voucher doesn't exist.");
                     }
 
-                    if (request.VoucherAddressDeletionDto.AddressIds!.Count == 0)
+                    if (request.VoucherAddressDeletionDto.VoucherAddressIds!.Count == 0)
                     {
-                        _logger.LogInformation("There are no addressId in request");
-                        return Result<Unit>.NotFound("There are no addressId in request.");
+                        _logger.LogInformation("There are no voucherAddressId in request body");
+                        return Result<Unit>.NotFound("There are no voucherAddressId in request body.");
                     }
 
-                    foreach (var addressId in request.VoucherAddressDeletionDto.AddressIds)
+                    foreach (var voucherAddressId in request.VoucherAddressDeletionDto.VoucherAddressIds)
                     {
-                        var address = await _context.Address
-                            .Where(a => a.AddressId == int.Parse(addressId))
-                            .Include(a => a.VoucherAddress)
+                        var voucherAddress = await _context.VoucherAddress
+                            .Where(a => a.VoucherAddressId == int.Parse(voucherAddressId))
                             .SingleOrDefaultAsync(cancellationToken);
-                        
-                        if (address == null) continue;
 
-                        if (address.VoucherAddress == null || address.VoucherAddress.VoucherId !=
-                            request.VoucherAddressDeletionDto.VoucherId)
+                        if (voucherAddress == null) continue;
+
+                        if (voucherAddress.VoucherId != request.VoucherAddressDeletionDto.VoucherId)
                         {
                             _logger.LogInformation(
-                                "Address with AddressId {AddressId} does not belong to voucher " +
-                                "with VoucherId {VoucherId}", addressId, request.VoucherAddressDeletionDto.VoucherId);
+                                "VoucherAddress with VoucherAddressId {VoucherAddressId} does not belong to voucher " +
+                                "with VoucherId {VoucherId}", request.VoucherAddressDeletionDto.VoucherAddressIds,
+                                request.VoucherAddressDeletionDto.VoucherId);
                             return Result<Unit>.NotFound(
-                                $"Address with AddressId {addressId} does not belong to voucher " +
+                                $"VoucherAddress with VoucherAddressId {request.VoucherAddressDeletionDto.VoucherAddressIds} " +
+                                $"does not belong to voucher " +
                                 $"with VoucherId {request.VoucherAddressDeletionDto.VoucherId}.");
                         }
 
-                        _context.VoucherAddress.Remove(address.VoucherAddress);
-                        _context.Address.Remove(address);
+                        _context.VoucherAddress.Remove(voucherAddress);
                     }
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;

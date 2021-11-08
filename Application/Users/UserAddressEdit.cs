@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -16,15 +17,13 @@ namespace Application.Users
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public readonly int UserId;
-            public readonly int AddressId;
+            public readonly int UserAddressId;
             public readonly UserAddressDto UserAddressDto;
 
-            public Command(int userId, int addressId, UserAddressDto userAddressDto)
+            public Command(int userAddressId, UserAddressDto userAddressDto)
             {
-                UserId = userId;
+                UserAddressId = userAddressId;
                 UserAddressDto = userAddressDto;
-                AddressId = addressId;
             }
         }
 
@@ -32,11 +31,13 @@ namespace Application.Users
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
+            private readonly IMapper _mapper;
             private readonly ILogger<Handler> _logger;
 
-            public Handler(DataContext context, ILogger<Handler> logger)
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
             {
                 _context = context;
+                _mapper = mapper;
                 _logger = logger;
             }
 
@@ -46,82 +47,60 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var address = await _context.Address.Where(a => a.AddressId == request.AddressId)
-                        .Include(a => a.UserAddress)
+                    var userAddress = await _context.UserAddress
+                        .Where(a => a.UserAddressId == request.UserAddressId)
                         .SingleOrDefaultAsync(cancellationToken);
 
-                    if (address == null)
-                    {
-                        _logger.LogInformation("Address doesn't exist");
-                        return Result<Unit>.NotFound("Address doesn't exist.");
-                    }
-
-                    if (address.UserAddress == null)
+                    if (userAddress == null)
                     {
                         _logger.LogInformation("UserAddress doesn't exist");
                         return Result<Unit>.NotFound("UserAddress doesn't exist.");
                     }
 
-                    if (address.UserAddress.UserId != request.UserId)
-                    {
-                        _logger.LogInformation(
-                            "Address with AddressId {AddressId} doesn't belong to user with UserId {UserId}",
-                            request.AddressId, request.UserId);
-                        return Result<Unit>.NotFound(
-                            $"Address with AddressId {request.AddressId} doesn't belong to user with UserId {request.UserId}.");
-                    }
-
-                    if (request.UserAddressDto.IsDefault == false)
-                    {
-                        _logger.LogInformation("IsDefault doesn't accept false value");
-                        return Result<Unit>.NotFound("IsDefault doesn't accept false value.");
-                    }
-
                     if (request.UserAddressDto.IsDefault != null)
                     {
-                        var defaultUserAddress = await _context.UserAddress.Where(u => u.UserId == request.UserId)
+                        if (request.UserAddressDto.IsDefault == false)
+                        {
+                            _logger.LogInformation("IsDefault doesn't accept false value");
+                            return Result<Unit>.NotFound("IsDefault doesn't accept false value.");
+                        }
+
+                        var defaultUserAddress = await _context.UserAddress
+                            .Where(u => u.UserId == request.UserAddressDto.UserId)
                             .Where(u => u.IsDefault == true)
                             .SingleOrDefaultAsync(cancellationToken);
 
-                        if (defaultUserAddress.UserAddressId == address.UserAddress.UserAddressId)
+                        if (defaultUserAddress.UserAddressId == request.UserAddressId)
                         {
                             _logger.LogInformation(
-                                "Address with AddressId {AddressId} is already a default for user " +
-                                "with userId {UserId}", request.AddressId, request.UserId);
+                                "UserAddress with UserAddressId {AddressId} is already a default for user " +
+                                "with UserId {UserId}", request.UserAddressId,
+                                request.UserAddressDto.UserId);
                             return Result<Unit>.NotFound(
-                                $"Address with AddressId {request.AddressId} is already a default " +
-                                $"for with userId {request.UserId}.");
+                                $"Address with AddressId {request.UserAddressId} is already a default " +
+                                $"for with UserId {request.UserAddressDto.UserId}.");
                         }
 
-                        address.UserAddress.IsDefault = request.UserAddressDto.IsDefault.Value;
+                        userAddress.IsDefault = request.UserAddressDto.IsDefault.Value;
                         defaultUserAddress.IsDefault = false;
                     }
 
-                    if (request.UserAddressDto.AddressName != null)
-                        address.AddressName = request.UserAddressDto.AddressName;
-
-                    if (request.UserAddressDto.AddressDetail != null)
-                        address.AddressDetail = request.UserAddressDto.AddressDetail;
-
-                    if (request.UserAddressDto.AddressCoordinate != null)
-                        address.AddressCoordinate = request.UserAddressDto.AddressCoordinate;
-
-                    if (request.UserAddressDto.Note != null) address.UserAddress.Note = request.UserAddressDto.Note;
+                    _mapper.Map(request.UserAddressDto, userAddress);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to update user address with addressId {AddressId}",
-                            request.AddressId);
+                        _logger.LogInformation("Failed to update user address with UserAddressId {UserAddressId}",
+                            request.UserAddressId);
                         return Result<Unit>.Failure(
-                            $"Failed to update user address with addressId {request.AddressId}.");
+                            $"Failed to update user address with UserAddressId {request.UserAddressId}.");
                     }
 
-                    _logger.LogInformation("Successfully updated user address with addressId {AddressId}",
-                        request.AddressId);
+                    _logger.LogInformation("Successfully updated user address with UserAddressId {UserAddressId}",
+                        request.UserAddressId);
                     return Result<Unit>.Success(Unit.Value,
-                        $"Successfully updated user address with addressId {request.AddressId}.");
+                        $"Successfully updated user address with UserAddressId {request.UserAddressId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

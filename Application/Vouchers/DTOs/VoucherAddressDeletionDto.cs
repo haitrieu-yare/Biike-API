@@ -8,6 +8,6 @@ namespace Application.Vouchers.DTOs
     public class VoucherAddressDeletionDto
     {
         [Required] public int? VoucherId { get; init; }
-        [Required] public List<string>? AddressIds { get; init; }
+        [Required] public List<string>? VoucherAddressIds { get; init; }
     }
 }

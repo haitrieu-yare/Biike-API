@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities;
@@ -23,10 +24,18 @@ namespace Application.Trips
 
         public async Task Execute(IJobExecutionContext context)
         {
-            List<Trip> trips = await _context.Trip.Where(t => t.Status == (int) TripStatus.Finding ||
-                                                              t.Status == (int) TripStatus.Waiting).ToListAsync();
+            try
+            {
+                List<Trip> trips = await _context.Trip.Where(t => t.Status == (int) TripStatus.Finding ||
+                                                                  t.Status == (int) TripStatus.Waiting).ToListAsync();
 
-            foreach (var trip in trips) await AutoTripCancellationCreation.Run(_schedulerFactory, trip);
+                foreach (var trip in trips) await AutoTripCancellationCreation.Run(_schedulerFactory, trip);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

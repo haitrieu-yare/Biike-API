@@ -61,19 +61,19 @@ namespace Application.Vouchers
                     {
                         foreach (var voucherAddressDto in request.NewVoucher.VoucherAddresses)
                         {
-                            Address oldAddress =
-                                await _context.Address.FindAsync(new object[] {voucherAddressDto.AddressId!},
+                            VoucherAddress oldVoucherAddress =
+                                await _context.VoucherAddress.FindAsync(new object[] {voucherAddressDto.VoucherAddressId!},
                                     cancellationToken);
 
-                            if (oldAddress == null)
+                            if (oldVoucherAddress == null)
                             {
                                 _logger.LogInformation("Address with AddressId {AddressId} doesn't exist",
-                                    voucherAddressDto.AddressId);
+                                    voucherAddressDto.VoucherAddressId);
                                 return Result<Unit>.NotFound(
-                                    $"Address with AddressId {voucherAddressDto.AddressId} doesn't exist.");
+                                    $"Address with AddressId {voucherAddressDto.VoucherAddressId} doesn't exist.");
                             }
                             
-                            _mapper.Map(voucherAddressDto, oldAddress);
+                            _mapper.Map(voucherAddressDto, oldVoucherAddress);
                         }
                     }
                     
@@ -81,19 +81,19 @@ namespace Application.Vouchers
                     {
                         foreach (var voucherImageDto in request.NewVoucher.VoucherImages)
                         {
-                            Image oldImage =
-                                await _context.Image.FindAsync(new object[] {voucherImageDto.ImageId!},
+                            VoucherImage oldVoucherImage =
+                                await _context.VoucherImage.FindAsync(new object[] {voucherImageDto.VoucherImageId!},
                                     cancellationToken);
                             
-                            if (oldImage == null)
+                            if (oldVoucherImage == null)
                             {
-                                _logger.LogInformation("Image with ImageId {ImageId} doesn't exist",
-                                    voucherImageDto.ImageId);
+                                _logger.LogInformation("VoucherImage with VoucherImageId {VoucherImageId} doesn't exist",
+                                    voucherImageDto.VoucherImageId);
                                 return Result<Unit>.NotFound(
-                                    $"Image with ImageId {voucherImageDto.ImageId} doesn't exist.");
+                                    $"VoucherImage with VoucherImageId {voucherImageDto.VoucherImageId} doesn't exist.");
                             }
                             
-                            oldImage.ImageUrl = voucherImageDto.ImageUrl!;
+                            oldVoucherImage.VoucherImageUrl = voucherImageDto.VoucherImageUrl!;
                         }
                     }
 

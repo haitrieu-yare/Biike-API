@@ -182,18 +182,20 @@ namespace API.Controllers
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
                                         Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userAddressCreationDto.UserId);
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+            
+            if (!validationDto.IsAuthorized) return BadRequest(Constant.DidNotHavePermissionToMakeRequest);
 
             return HandleResult(
-                await Mediator.Send(new UserAddressCreation.Command(validationDto.UserRequestId, userAddressCreationDto),
+                await Mediator.Send(new UserAddressCreation.Command(userAddressCreationDto),
                     ct));
         }
         
         // Keer, Biker
-        [HttpPut("addresses/{addressId:int}")]
-        public async Task<IActionResult> EditUserAddress(int addressId, UserAddressDto userAddressDto,
+        [HttpPut("addresses/{userAddressId:int}")]
+        public async Task<IActionResult> EditUserAddress(int userAddressId, UserAddressDto userAddressDto,
             CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
@@ -204,12 +206,14 @@ namespace API.Controllers
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
                                         Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userAddressDto.UserId);
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+            
+            if (!validationDto.IsAuthorized) return BadRequest(Constant.DidNotHavePermissionToMakeRequest);
 
             return HandleResult(await Mediator.Send(
-                new UserAddressEdit.Command(validationDto.UserRequestId, addressId, userAddressDto), ct));
+                new UserAddressEdit.Command(userAddressId, userAddressDto), ct));
         }
         
         // Keer, Biker

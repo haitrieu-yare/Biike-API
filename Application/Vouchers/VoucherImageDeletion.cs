@@ -53,34 +53,32 @@ namespace Application.Vouchers
                         return Result<Unit>.NotFound("Voucher doesn't exist.");
                     }
 
-                    if (request.VoucherImageDeletionDto.ImageIds!.Count == 0)
+                    if (request.VoucherImageDeletionDto.VoucherImageIds!.Count == 0)
                     {
                         _logger.LogInformation("There are no imageId in request");
                         return Result<Unit>.NotFound("There are no imageId in request.");
                     }
 
-                    foreach (var imageId in request.VoucherImageDeletionDto.ImageIds)
+                    foreach (var voucherImageId in request.VoucherImageDeletionDto.VoucherImageIds)
                     {
-                        var image = await _context.Image
-                            .Where(a => a.ImageId == int.Parse(imageId))
-                            .Include(a => a.VoucherImage)
+                        var voucherImage = await _context.VoucherImage
+                            .Where(a => a.VoucherImageId == int.Parse(voucherImageId))
                             .SingleOrDefaultAsync(cancellationToken);
-                        
-                        if (image == null) continue;
 
-                        if (image.VoucherImage == null || image.VoucherImage.VoucherId !=
-                            request.VoucherImageDeletionDto.VoucherId)
+                        if (voucherImage == null) continue;
+
+                        if (voucherImage.VoucherId != request.VoucherImageDeletionDto.VoucherId)
                         {
                             _logger.LogInformation(
-                                "Image with ImageId {ImageId} does not belong to voucher " +
-                                "with VoucherId {VoucherId}", imageId, request.VoucherImageDeletionDto.VoucherId);
+                                "VoucherImage with VoucherImageId {VoucherImageId} does not belong to voucher " +
+                                "with VoucherId {VoucherId}", voucherImageId,
+                                request.VoucherImageDeletionDto.VoucherId);
                             return Result<Unit>.NotFound(
-                                $"Image with ImageId {imageId} does not belong to voucher " +
+                                $"VoucherImage with VoucherImageId {voucherImageId} does not belong to voucher " +
                                 $"with VoucherId {request.VoucherImageDeletionDto.VoucherId}.");
                         }
 
-                        _context.VoucherImage.Remove(image.VoucherImage);
-                        _context.Image.Remove(image);
+                        _context.VoucherImage.Remove(voucherImage);
                     }
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;

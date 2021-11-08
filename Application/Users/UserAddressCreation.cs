@@ -4,10 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
+using AutoMapper;
 using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -18,12 +18,10 @@ namespace Application.Users
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public readonly int UserId;
             public readonly UserAddressCreationDto UserAddressCreationDto;
 
-            public Command(int userId, UserAddressCreationDto userAddressCreationDto)
+            public Command(UserAddressCreationDto userAddressCreationDto)
             {
-                UserId = userId;
                 UserAddressCreationDto = userAddressCreationDto;
             }
         }
@@ -32,11 +30,13 @@ namespace Application.Users
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
+            private readonly IMapper _mapper;
             private readonly ILogger<Handler> _logger;
 
-            public Handler(DataContext context, ILogger<Handler> logger)
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
             {
                 _context = context;
+                _mapper = mapper;
                 _logger = logger;
             }
 
@@ -46,36 +46,21 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await using IDbContextTransaction transaction =
-                        await _context.Database.BeginTransactionAsync(cancellationToken);
-
-                    var address = new Address
-                    {
-                        AddressName = request.UserAddressCreationDto.AddressName!,
-                        AddressDetail = request.UserAddressCreationDto.AddressDetail!,
-                        AddressCoordinate = request.UserAddressCreationDto.AddressCoordinate!
-                    };
-
-                    await _context.Address.AddAsync(address, cancellationToken);
-                    var resultAddress = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                    var userAddressesCount = await _context.UserAddress.Where(u => u.UserId == request.UserId)
+                    var userAddressesCount = await _context.UserAddress
+                        .Where(u => u.UserId == request.UserAddressCreationDto.UserId)
                         .CountAsync(cancellationToken);
 
                     var userAddress = new UserAddress
                     {
-                        UserId = request.UserId,
-                        AddressId = address.AddressId,
-                        Note = request.UserAddressCreationDto.Note,
                         IsDefault = userAddressesCount == 0
                     };
 
+                    _mapper.Map(request.UserAddressCreationDto, userAddress);
+
                     await _context.UserAddress.AddAsync(userAddress, cancellationToken);
-                    var resultUserAddress = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
-                    await transaction.CommitAsync(cancellationToken);
-
-                    if (!resultAddress || !resultUserAddress)
+                    if (!result)
                     {
                         _logger.LogInformation("Failed to create new user address");
                         return Result<Unit>.Failure("Failed to create new user address.");
