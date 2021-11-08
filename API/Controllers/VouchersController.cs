@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Application;
@@ -62,6 +63,22 @@ namespace API.Controllers
 
             return HandleResult(await Mediator.Send(
                 new VoucherEdit.Command {VoucherId = voucherId, NewVoucher = newVoucher}, ct));
+        }
+        
+        // Admin
+        [HttpPost("{voucherId:int}/addresses")]
+        public async Task<IActionResult> CreateVoucherAddress(int voucherId,[FromBody] List<VoucherAddressCreationDto> 
+            voucherAddresses,CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Admin)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(
+                new VoucherAddressCreation.Command(voucherId, voucherAddresses), ct));
         }
 
         // Admin
