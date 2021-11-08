@@ -1,11 +1,13 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Feedbacks.DTOs;
 using AutoMapper;
-using Domain.Entities;
+using AutoMapper.QueryableExtensions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -19,6 +21,7 @@ namespace Application.Feedbacks
             public int FeedbackId { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<FeedbackDto>>
         {
             private readonly DataContext _context;
@@ -38,12 +41,15 @@ namespace Application.Feedbacks
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Feedback feedbackDb =
-                        await _context.Feedback.FindAsync(new object[] {request.FeedbackId}, cancellationToken);
+                    FeedbackDto feedback = await _context.Feedback.Where(f => f.FeedbackId == request.FeedbackId)
+                        .ProjectTo<FeedbackDto>(_mapper.ConfigurationProvider)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-                    FeedbackDto feedback = new();
-
-                    _mapper.Map(feedbackDb, feedback);
+                    if (feedback == null)
+                    {
+                        _logger.LogInformation("Feedback doesn't exist");
+                        return Result<FeedbackDto>.NotFound("Feedback doesn't exist.");
+                    }
 
                     _logger.LogInformation("Successfully retrieved feedback by FeedbackId {request.FeedbackId}",
                         request.FeedbackId);

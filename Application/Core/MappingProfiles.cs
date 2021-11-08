@@ -174,7 +174,16 @@ namespace Application.Core
                 .ForMember(t => t.Feedbacks, o => o.MapFrom(t => t.FeedbackList));
 
             // Detail 
-            CreateMap<Trip, TripDetailsDto>();
+            CreateMap<Trip, TripDetailsDto>()
+                .ForMember(t => t.KeerFullname, o => o.MapFrom(t => t.Keer.FullName))
+                .ForMember(t => t.BikerFullname, o => o.MapFrom(t => t.Biker == null ? null : t.Biker.FullName))
+                .ForMember(t => t.CancelPersonFullname,
+                    o => o.MapFrom(t =>
+                        t.CancelPersonId == null ? null :
+                        t.CancelPersonId == t.KeerId ? t.Keer.FullName :
+                        t.Biker == null ? null : t.Biker.FullName))
+                .ForMember(t => t.DepartureStationName, o => o.MapFrom(t => t.Route.Departure.Name))
+                .ForMember(t => t.DestinationStationName, o => o.MapFrom(t => t.Route.Destination.Name));
             // Create
             CreateMap<TripCreationDto, Trip>();
             // Cancel Trip
@@ -185,7 +194,8 @@ namespace Application.Core
             #region Feedback
 
             // ListAll, List
-            CreateMap<Feedback, FeedbackDto>();
+            CreateMap<Feedback, FeedbackDto>()
+                .ForMember(f => f.UserFullname, o => o.MapFrom(f => f.User.FullName));
             // Create
             CreateMap<FeedbackCreationDto, Feedback>();
 
@@ -253,7 +263,8 @@ namespace Application.Core
             #region Voucher
 
             // List, Detail
-            CreateMap<Voucher, VoucherDto>();
+            CreateMap<Voucher, VoucherDto>()
+                .ForMember(v => v.VoucherCategoryName, o => o.MapFrom(v => v.VoucherCategory.CategoryName));
             // Edit
             CreateMap<VoucherEditDto, Voucher>()
                 .ForMember(v => v.VoucherId, o => o.Ignore())
