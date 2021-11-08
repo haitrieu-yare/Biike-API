@@ -11,9 +11,9 @@ namespace Domain.Entities
         public int AdvertisingAddressId { get; set; }
         public int AdvertisingId { get; set; }
         public Advertising Advertising { get; set; } = null!;
-        public string AddressName { get; set; } = string.Empty;
-        public string AddressDetail { get; set; } = string.Empty;
-        public string AddressCoordinate { get; set; } = string.Empty;
+        public string AdvertisingAddressName { get; set; } = string.Empty;
+        public string AdvertisingAddressDetail { get; set; } = string.Empty;
+        public string AdvertisingAddressCoordinate { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
     }
 }

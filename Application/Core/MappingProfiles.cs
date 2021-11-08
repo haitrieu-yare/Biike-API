@@ -85,7 +85,8 @@ namespace Application.Core
             CreateMap<UserAddress, UserAddressDto>();
             // Create
             CreateMap<UserAddressCreationDto, UserAddress>()
-                .ForMember(u => u.IsDefault, o => o.Ignore());
+                .ForMember(u => u.IsDefault, o => o.Ignore())
+                .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Edit
             CreateMap<UserAddressDto, UserAddress>()
                 .ForMember(u => u.UserAddressId, o => o.Ignore())

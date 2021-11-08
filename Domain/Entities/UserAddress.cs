@@ -12,10 +12,10 @@ namespace Domain.Entities
         public int UserAddressId { get; set; }
         public int UserId { get; set; }
         public User User { get; set; } = null!;
-        public string AddressName { get; set; } = string.Empty;
-        public string AddressDetail { get; set; } = string.Empty;
-        public string AddressCoordinate { get; set; } = string.Empty;
-        public string Note { get; set; } = string.Empty;
+        public string UserAddressName { get; set; } = string.Empty;
+        public string UserAddressDetail { get; set; } = string.Empty;
+        public string UserAddressCoordinate { get; set; } = string.Empty;
+        public string UserAddressNote { get; set; } = string.Empty;
         public bool IsDefault { get; set; }
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
     }

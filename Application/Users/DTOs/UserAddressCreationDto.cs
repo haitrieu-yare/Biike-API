@@ -8,9 +8,9 @@ namespace Application.Users.DTOs
     public class UserAddressCreationDto
     {
         [Required] public int? UserId { get; set; }
-        [Required] public string? AddressName { get; set; }
-        [Required] public string? AddressDetail { get; set; }
-        [Required] public string? AddressCoordinate { get; set; }
-        public string Note{ get; set; } = string.Empty;
+        [Required] public string? UserAddressName { get; set; }
+        [Required] public string? UserAddressDetail { get; set; }
+        [Required] public string? UserAddressCoordinate { get; set; }
+        public string? UserAddressNote{ get; set; }
     }
 }

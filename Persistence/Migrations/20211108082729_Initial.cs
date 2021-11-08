@@ -150,10 +150,10 @@ namespace Persistence.Migrations
                     UserAddressId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    AddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserAddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserAddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserAddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserAddressNote = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsDefault = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -247,9 +247,9 @@ namespace Persistence.Migrations
                     AdvertisingAddressId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AdvertisingId = table.Column<int>(type: "int", nullable: false),
-                    AddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AdvertisingAddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AdvertisingAddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AdvertisingAddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -350,9 +350,9 @@ namespace Persistence.Migrations
                     VoucherAddressId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     VoucherId = table.Column<int>(type: "int", nullable: false),
-                    AddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VoucherAddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VoucherAddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VoucherAddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>

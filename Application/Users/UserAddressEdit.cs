@@ -53,8 +53,8 @@ namespace Application.Users
 
                     if (userAddress == null)
                     {
-                        _logger.LogInformation("UserAddress doesn't exist");
-                        return Result<Unit>.NotFound("UserAddress doesn't exist.");
+                        _logger.LogInformation("User address doesn't exist");
+                        return Result<Unit>.NotFound("User address doesn't exist.");
                     }
 
                     if (request.UserAddressDto.IsDefault != null)
@@ -74,10 +74,9 @@ namespace Application.Users
                         {
                             _logger.LogInformation(
                                 "UserAddress with UserAddressId {AddressId} is already a default for user " +
-                                "with UserId {UserId}", request.UserAddressId,
-                                request.UserAddressDto.UserId);
+                                "with UserId {UserId}", request.UserAddressId, request.UserAddressDto.UserId);
                             return Result<Unit>.NotFound(
-                                $"Address with AddressId {request.UserAddressId} is already a default " +
+                                $"UserAddress with UserAddressId {request.UserAddressId} is already a default " +
                                 $"for with UserId {request.UserAddressDto.UserId}.");
                         }
 
