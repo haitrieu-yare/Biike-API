@@ -80,6 +80,22 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(
                 new VoucherAddressCreation.Command(voucherId, voucherAddresses), ct));
         }
+        
+        // Admin
+        [HttpPost("{voucherId:int}/images")]
+        public async Task<IActionResult> CreateVoucherImage(int voucherId,[FromBody] List<string> 
+            voucherImages,CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Admin)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(
+                new VoucherImageCreation.Command(voucherId, voucherImages), ct));
+        }
 
         // Admin
         [HttpDelete("addresses")]

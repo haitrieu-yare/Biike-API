@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Vouchers.DTOs;
-using AutoMapper;
 using Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -14,17 +12,17 @@ using Persistence;
 namespace Application.Vouchers
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class VoucherAddressCreation
+    public class VoucherImageCreation
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public Command(int voucherId, List<VoucherAddressCreationDto> voucherAddressCreationDtos)
+            public Command(int voucherId, List<string> voucherImages)
             {
                 VoucherId = voucherId;
-                VoucherAddressCreationDtos = voucherAddressCreationDtos;
+                VoucherImages = voucherImages;
             }
 
-            public List<VoucherAddressCreationDto> VoucherAddressCreationDtos { get; }
+            public List<string> VoucherImages { get; }
             public int VoucherId { get; }
         }
 
@@ -33,12 +31,10 @@ namespace Application.Vouchers
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
-            private readonly IMapper _mapper;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            public Handler(DataContext context, ILogger<Handler> logger)
             {
                 _context = context;
-                _mapper = mapper;
                 _logger = logger;
             }
 
@@ -56,33 +52,28 @@ namespace Application.Vouchers
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (request.VoucherAddressCreationDtos.Count == 0)
+                    if (request.VoucherImages.Count == 0)
                     {
-                        _logger.LogInformation("Voucher address list must be provided");
-                        return Result<Unit>.Failure("Voucher address list must be provided.");
+                        _logger.LogInformation("Voucher image list must be provided");
+                        return Result<Unit>.Failure("Voucher image list must be provided.");
                     }
 
-                    List<VoucherAddress> newVoucherAddresses = new();
+                    List<VoucherImage> newVoucherImages = request.VoucherImages.Select(voucherImage =>
+                            new VoucherImage {VoucherId = voucher.VoucherId, VoucherImageUrl = voucherImage})
+                        .ToList();
 
-                    _mapper.Map(request.VoucherAddressCreationDtos, newVoucherAddresses);
-
-                    foreach (var voucherAddress in newVoucherAddresses)
-                    {
-                        voucherAddress.VoucherId = voucher.VoucherId;
-                    }
-
-                    await _context.VoucherAddress.AddRangeAsync(newVoucherAddresses, cancellationToken);
+                    await _context.VoucherImage.AddRangeAsync(newVoucherImages, cancellationToken);
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to create new voucher address");
-                        return Result<Unit>.Failure("Failed to create new voucher address.");
+                        _logger.LogInformation("Failed to create new voucher image");
+                        return Result<Unit>.Failure("Failed to create new voucher image.");
                     }
 
-                    _logger.LogInformation("Successfully created new voucher address");
-                    return Result<Unit>.Success(Unit.Value, "Successfully created new voucher address.",
-                        newVoucherAddresses.First().VoucherId.ToString());
+                    _logger.LogInformation("Successfully created new voucher image");
+                    return Result<Unit>.Success(Unit.Value, "Successfully created new voucher image.",
+                        newVoucherImages.First().VoucherId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
