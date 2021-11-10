@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -6,6 +8,7 @@ using Application.Vouchers.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -57,23 +60,41 @@ namespace Application.Vouchers
                         return Result<Unit>.Failure("EndDate must be set later than StartDate.");
                     }
                     
-                    if (request.NewVoucher.VoucherAddresses != null && request.NewVoucher.VoucherAddresses.Count > 0)
+                    if (request.NewVoucher.AddressIds != null)
                     {
-                        foreach (var voucherAddressDto in request.NewVoucher.VoucherAddresses)
-                        {
-                            VoucherAddress oldVoucherAddress =
-                                await _context.VoucherAddress.FindAsync(new object[] {voucherAddressDto.VoucherAddressId!},
-                                    cancellationToken);
+                        List<int> oldAddressIds = await _context.VoucherAddress
+                            .Where(v => v.VoucherId == request.VoucherId)
+                            .Select(v => v.AddressId)
+                            .ToListAsync(cancellationToken);
 
-                            if (oldVoucherAddress == null)
+                        List<VoucherAddress> voucherAddresses = new();
+                        foreach (var addressId in request.NewVoucher.AddressIds)
+                        {
+                            if (!oldAddressIds.Contains(addressId))
                             {
-                                _logger.LogInformation("Address with AddressId {AddressId} doesn't exist",
-                                    voucherAddressDto.VoucherAddressId);
-                                return Result<Unit>.NotFound(
-                                    $"Address with AddressId {voucherAddressDto.VoucherAddressId} doesn't exist.");
+                                voucherAddresses.Add(new VoucherAddress
+                                {
+                                    AddressId = addressId,
+                                    VoucherId = request.VoucherId
+                                });
                             }
+                        }
+
+                        await _context.VoucherAddress.AddRangeAsync(voucherAddresses, cancellationToken);
+
+                        foreach (var oldAddressId in oldAddressIds)
+                        {
+                            if (request.NewVoucher.AddressIds.Contains(oldAddressId)) continue;
                             
-                            _mapper.Map(voucherAddressDto, oldVoucherAddress);
+                            var voucherAddress = await _context.VoucherAddress
+                                .Where(v => v.VoucherId == request.VoucherId)
+                                .Where(v => v.AddressId == oldAddressId)
+                                .SingleOrDefaultAsync(cancellationToken);
+
+                            if (voucherAddress != null)
+                            {
+                                _context.VoucherAddress.Remove(voucherAddress);
+                            }
                         }
                     }
                     

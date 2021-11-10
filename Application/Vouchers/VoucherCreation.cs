@@ -24,7 +24,7 @@ namespace Application.Vouchers
                 VoucherCreationDto = voucherCreationDto;
             }
 
-            public VoucherCreationDto VoucherCreationDto { get; init; }
+            public VoucherCreationDto VoucherCreationDto { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -50,12 +50,6 @@ namespace Application.Vouchers
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (request.VoucherCreationDto.VoucherAddresses!.Count == 0)
-                    {
-                        _logger.LogInformation("Location list must be provided");
-                        return Result<Unit>.Failure("Location list must be provided.");
-                    }
-
                     Voucher newVoucher = new();
 
                     _mapper.Map(request.VoucherCreationDto, newVoucher);
@@ -77,17 +71,15 @@ namespace Application.Vouchers
                         return Result<Unit>.Failure("Failed to create new voucher.");
                     }
 
-                    if (request.VoucherCreationDto.VoucherAddresses.Count > 0)
+                    if (request.VoucherCreationDto.AddressIds!.Count > 0)
                     {
-                        List<VoucherAddress> voucherAddresses = new();
-
-                        _mapper.Map(request.VoucherCreationDto.VoucherAddresses, voucherAddresses);
-
-                        foreach (var voucherAddress in voucherAddresses)
-                        {
-                            voucherAddress.VoucherId = newVoucher.VoucherId;
-                        }
-
+                        List<VoucherAddress> voucherAddresses = request.VoucherCreationDto.AddressIds
+                            .Select(addressId => new VoucherAddress
+                            {
+                                AddressId = addressId, 
+                                VoucherId = newVoucher.VoucherId
+                            }).ToList();
+                        
                         await _context.VoucherAddress.AddRangeAsync(voucherAddresses, cancellationToken);
                         var voucherAddressResult = await _context.SaveChangesAsync(cancellationToken) > 0;
 

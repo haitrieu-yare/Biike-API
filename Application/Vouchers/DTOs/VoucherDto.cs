@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Application.Addresses.DTOs;
 
 // ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable UnusedMember.Global
@@ -20,7 +21,7 @@ namespace Application.Vouchers.DTOs
         public int? AmountOfPoint { get; set; }
         public string? Description { get; set; }
         public string? TermsAndConditions { get; set; }
-        public List<VoucherAddressDto>? VoucherAddresses { get; set; }
+        public List<AddressDto>? VoucherAddresses { get; set; }
         public List<VoucherImageDto>? VoucherImages { get; set; }
     }
 }

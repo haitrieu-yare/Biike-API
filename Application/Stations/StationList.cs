@@ -24,6 +24,7 @@ namespace Application.Stations
             public int Limit { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<List<StationDto>>>
         {
             private readonly DataContext _context;

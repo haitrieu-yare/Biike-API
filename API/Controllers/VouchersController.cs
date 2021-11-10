@@ -64,23 +64,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(
                 new VoucherEdit.Command {VoucherId = voucherId, NewVoucher = newVoucher}, ct));
         }
-        
-        // Admin
-        [HttpPost("{voucherId:int}/addresses")]
-        public async Task<IActionResult> CreateVoucherAddress(int voucherId,[FromBody] List<VoucherAddressCreationDto> 
-            voucherAddresses,CancellationToken ct)
-        {
-            var role = ControllerUtils.GetRole(HttpContext);
 
-            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
-
-            if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-
-            return HandleResult(await Mediator.Send(
-                new VoucherAddressCreation.Command(voucherId, voucherAddresses), ct));
-        }
-        
         // Admin
         [HttpPost("{voucherId:int}/images")]
         public async Task<IActionResult> CreateVoucherImage(int voucherId,[FromBody] List<string> 
@@ -97,22 +81,6 @@ namespace API.Controllers
                 new VoucherImageCreation.Command(voucherId, voucherImages), ct));
         }
 
-        // Admin
-        [HttpDelete("addresses")]
-        public async Task<IActionResult> DeleteVoucherAddress(VoucherAddressDeletionDto voucherAddressDeletionDto,
-            CancellationToken ct)
-        {
-            var role = ControllerUtils.GetRole(HttpContext);
-
-            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
-
-            if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
-
-            return HandleResult(await Mediator.Send(
-                new VoucherAddressDeletion.Command(voucherAddressDeletionDto), ct));
-        }
-        
         // Admin
         [HttpDelete("images")]
         public async Task<IActionResult> DeleteVoucherImage(VoucherImageDeletionDto voucherImageDeletionDto,

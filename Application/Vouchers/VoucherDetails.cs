@@ -42,6 +42,7 @@ namespace Application.Vouchers
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var voucher = await _context.Voucher
+                        .AsSingleQuery()
                         .Where(v => v.VoucherId == request.VoucherId)
                         .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
                         .SingleOrDefaultAsync(cancellationToken);

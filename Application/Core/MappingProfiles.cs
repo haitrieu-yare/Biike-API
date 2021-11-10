@@ -1,4 +1,5 @@
 using System;
+using Application.Addresses.DTOs;
 using Application.Bikes.DTOs;
 using Application.Feedbacks.DTOs;
 using Application.Intimacies.DTOs;
@@ -227,6 +228,19 @@ namespace Application.Core
 
             #endregion
 
+            #region Address
+            // List, Details
+            CreateMap<Address, AddressDto>();
+            // Create
+            CreateMap<AddressCreationDto, Address>();
+            // Edit
+            CreateMap<AddressDto, Address>()
+                .ForMember(a => a.AddressId, o => o.Ignore())
+                .ForMember(a => a.CreatedDate, o => o.Ignore())
+                .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
+
+            #endregion
+
             #region Voucher's Category
 
             // List, Detail
@@ -240,23 +254,19 @@ namespace Application.Core
 
             #endregion
 
-            #region Voucher Address
-            
-            // List, Details
-            CreateMap<VoucherAddress, VoucherAddressDto>();
-            // Create
-            CreateMap<VoucherAddressCreationDto, VoucherAddress>();
-            // Edit
-            CreateMap<VoucherAddressDto, VoucherAddress>()
-                .ForMember(v => v.VoucherAddressId, o => o.Ignore())
-                .ForMember(v => v.CreatedDate, o => o.Ignore())
-                .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
-            
-            #endregion
-            
             #region Voucher Image
 
             CreateMap<VoucherImage, VoucherImageDto>();
+
+            #endregion
+
+            #region Voucher Address
+
+            CreateMap<VoucherAddress, AddressDto>()
+                .ForMember(v => v.AddressName, o => o.MapFrom(v => v.Address.AddressName))
+                .ForMember(v => v.AddressDetail, o => o.MapFrom(v => v.Address.AddressDetail))
+                .ForMember(v => v.AddressCoordinate, o => o.MapFrom(v => v.Address.AddressCoordinate))
+                .ForMember(v => v.CreatedDate, o => o.MapFrom(v => v.Address.CreatedDate));
 
             #endregion
 

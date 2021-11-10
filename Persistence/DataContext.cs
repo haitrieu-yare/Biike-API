@@ -12,6 +12,7 @@ namespace Persistence
         public DbSet<Area> Area => Set<Area>();
         public DbSet<Station> Station => Set<Station>();
         public DbSet<Route> Route => Set<Route>();
+        public DbSet<Address> Address => Set<Address>();
         public DbSet<UserAddress> UserAddress => Set<UserAddress>();
         public DbSet<AdvertisingAddress> AdvertisingAddress => Set<AdvertisingAddress>();
         public DbSet<VoucherAddress> VoucherAddress => Set<VoucherAddress>();
@@ -107,6 +108,12 @@ namespace Persistence
                 .HasOne(a => a.Advertising)
                 .WithMany(a => a.AdvertisingAddresses)
                 .HasForeignKey(a => a.AdvertisingId)
+                .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<AdvertisingAddress>()
+                .HasOne(a => a.Address)
+                .WithMany(a => a.AdvertisingAddresses)
+                .HasForeignKey(a => a.AddressId)
                 .OnDelete(DeleteBehavior.NoAction);
             
             #endregion
@@ -232,6 +239,12 @@ namespace Persistence
                 .HasOne(a => a.Voucher)
                 .WithMany(a => a.VoucherAddresses)
                 .HasForeignKey(a => a.VoucherId)
+                .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<VoucherAddress>()
+                .HasOne(a => a.Address)
+                .WithMany(a => a.VoucherAddresses)
+                .HasForeignKey(a => a.AddressId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
