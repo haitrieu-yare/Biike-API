@@ -45,7 +45,8 @@ namespace API.Controllers
 
         // Keer, Biker, Admin
         [HttpGet("{redemptionId:int}/full")]
-        public async Task<IActionResult> GetRedemptionFullByRedemptionId(int redemptionId, CancellationToken ct)
+        public async Task<IActionResult> GetRedemptionFullByRedemptionId(int redemptionId,
+            CancellationToken ct)
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
@@ -76,7 +77,7 @@ namespace API.Controllers
 
         // Keer, Biker, Admin
         [HttpGet("users/{userId:int}/full")]
-        public async Task<IActionResult> GetAllRedemptionsAndVouchers(int userId, int page, int limit,
+        public async Task<IActionResult> GetAllRedemptionsAndVouchers(int userId, int page, int limit, bool isExpired,
             CancellationToken ct)
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
@@ -86,7 +87,10 @@ namespace API.Controllers
             if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
-                new RedemptionAndVoucherListByUserId.Query {Page = page, Limit = limit, UserId = userId}, ct));
+                new RedemptionAndVoucherListByUserId.Query
+                {
+                    Page = page, Limit = limit, UserId = userId, IsExpired = isExpired
+                }, ct));
         }
 
         // Keer, Biker

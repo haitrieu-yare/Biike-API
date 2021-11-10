@@ -7,6 +7,7 @@ using Application.Core;
 using Application.Redemptions.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
@@ -24,8 +25,10 @@ namespace Application.Redemptions
             public int UserId { get; init; }
             public int Page { get; init; }
             public int Limit { get; init; }
+            public bool IsExpired { get; set; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<List<RedemptionAndVoucherDto>>>
         {
             private readonly DataContext _context;
@@ -58,37 +61,90 @@ namespace Application.Redemptions
                         return Result<List<RedemptionAndVoucherDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    // Max number of active wallets is 2 for each user
-                    List<Wallet> wallets = await _context.Wallet.Where(w => w.UserId == request.UserId)
-                        .Where(w => w.Status != (int) WalletStatus.Expired)
-                        .ToListAsync(cancellationToken);
+                    Wallet currentWallet = await _context.Wallet.Where(w => w.UserId == request.UserId)
+                        .Where(w => w.Status == (int) WalletStatus.Current)
+                        .SingleOrDefaultAsync(cancellationToken);
 
-                    if (wallets.Count == 0)
+                    Wallet oldWallet = await _context.Wallet.Where(w => w.UserId == request.UserId)
+                        .Where(w => w.Status == (int) WalletStatus.Old)
+                        .SingleOrDefaultAsync(cancellationToken);
+
+                    if (currentWallet == null)
                     {
                         _logger.LogInformation("User doesn't have wallet");
                         return Result<List<RedemptionAndVoucherDto>>.Failure("User doesn't have wallet.");
                     }
 
-                    var totalRecord = await _context.Redemption
-                        .Where(r => r.WalletId == wallets[0].WalletId ||
-                                    r.WalletId == (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId))
-                        .CountAsync(cancellationToken);
+                    var isOldWalletExist = oldWallet != null;
+
+                    int totalRecord;
+                    if (request.IsExpired)
+                    {
+                        totalRecord = await _context.Redemption
+                            .Where(r => isOldWalletExist
+                                ? r.WalletId == currentWallet.WalletId || r.WalletId == oldWallet!.WalletId
+                                : r.WalletId == currentWallet.WalletId)
+                            .Where(r => r.IsUsed == true ||
+                                        r.Voucher.EndDate.CompareTo(CurrentTime.GetCurrentTime()) < 0)
+                            .CountAsync(cancellationToken);
+                    }
+                    else
+                    {
+                        totalRecord = await _context.Redemption
+                            .Where(r => isOldWalletExist
+                                ? r.WalletId == currentWallet.WalletId || r.WalletId == oldWallet!.WalletId
+                                : r.WalletId == currentWallet.WalletId)
+                            .Where(r => r.IsUsed == false &&
+                                        r.Voucher.EndDate.CompareTo(CurrentTime.GetCurrentTime()) > 0)
+                            .CountAsync(cancellationToken);
+                    }
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<RedemptionAndVoucherDto> redemptions = new();
 
                     if (request.Page <= lastPage)
-                        // Nếu user có 2 wallet thì query == wallets[0].Id || wallets[1].Id
-                        // Nếu user có 1 wallet thì query == wallets[0].Id || wallets[0].Id
-                        redemptions = await _context.Redemption
-                            .Where(r => r.WalletId == wallets[0].WalletId || r.WalletId ==
-                                (wallets.Count == 2 ? wallets[1].WalletId : wallets[0].WalletId))
-                            .OrderBy(r => r.RedemptionId)
-                            .Skip((request.Page - 1) * request.Limit)
-                            .Take(request.Limit)
-                            .ProjectTo<RedemptionAndVoucherDto>(_mapper.ConfigurationProvider)
-                            .ToListAsync(cancellationToken);
+                    {
+                        if (request.IsExpired)
+                        {
+                            redemptions = await _context.Redemption
+                                .Where(r => isOldWalletExist
+                                    ? r.WalletId == currentWallet.WalletId || r.WalletId == oldWallet!.WalletId
+                                    : r.WalletId == currentWallet.WalletId)
+                                .Where(r => r.IsUsed == true ||
+                                            r.Voucher.EndDate.CompareTo(CurrentTime.GetCurrentTime()) < 0)
+                                .OrderBy(r => r.RedemptionId)
+                                .Skip((request.Page - 1) * request.Limit)
+                                .Take(request.Limit)
+                                .ProjectTo<RedemptionAndVoucherDto>(_mapper.ConfigurationProvider)
+                                .ToListAsync(cancellationToken);
+                        }
+                        else
+                        {
+                            redemptions = await _context.Redemption
+                                .Where(r => isOldWalletExist
+                                    ? r.WalletId == currentWallet.WalletId || r.WalletId == oldWallet!.WalletId
+                                    : r.WalletId == currentWallet.WalletId)
+                                .Where(r => r.IsUsed == false &&
+                                            r.Voucher.EndDate.CompareTo(CurrentTime.GetCurrentTime()) > 0)
+                                .OrderBy(r => r.RedemptionId)
+                                .Skip((request.Page - 1) * request.Limit)
+                                .Take(request.Limit)
+                                .ProjectTo<RedemptionAndVoucherDto>(_mapper.ConfigurationProvider)
+                                .ToListAsync(cancellationToken);
+                        }
+                    }
+
+                    // Nếu user có 2 wallet thì query == wallets[0].Id || wallets[1].Id
+                    // Nếu user có 1 wallet thì query == wallets[0].Id || wallets[0].Id
+                    // redemptions = await _context.Redemption
+                    //     .Where(r => r.WalletId == wallets[0].WalletId || r.WalletId ==
+                    //         (isWalletCount2 ? wallets[1].WalletId : wallets[0].WalletId))
+                    //     .OrderBy(r => r.RedemptionId)
+                    //     .Skip((request.Page - 1) * request.Limit)
+                    //     .Take(request.Limit)
+                    //     .ProjectTo<RedemptionAndVoucherDto>(_mapper.ConfigurationProvider)
+                    //     .ToListAsync(cancellationToken);
 
                     PaginationDto paginationDto = new(
                         request.Page, request.Limit, redemptions.Count, lastPage, totalRecord);

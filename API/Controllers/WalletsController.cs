@@ -40,6 +40,19 @@ namespace API.Controllers
                 new WalletListByUserId.Query {Page = page, Limit = limit, UserId = userId}, ct));
         }
 
+        // Keer, Biker, Admin
+        [HttpGet("users/{userId:int}/expiration")]
+        public async Task<IActionResult> GetUpcomingExpiredWalletByUserId(int userId, CancellationToken ct)
+        {
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            if (!validationDto.IsAuthorized) return BadRequest(Constant.DidNotHavePermissionToAccess);
+
+            return HandleResult(await Mediator.Send(new UpcomingExpiredWallet.Query(userId), ct));
+        }
+
         // Admin
         [HttpGet("{walletId:int}")]
         public async Task<IActionResult> GetWalletByWalletId(int walletId, CancellationToken ct)
