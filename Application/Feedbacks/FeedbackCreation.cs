@@ -21,7 +21,11 @@ namespace Application.Feedbacks
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public FeedbackCreationDto FeedbackCreationDto { get; init; } = null!;
+            public Command(FeedbackCreationDto feedbackCreationDto)
+            {
+                FeedbackCreationDto = feedbackCreationDto;
+            }
+            public FeedbackCreationDto FeedbackCreationDto { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -54,7 +58,8 @@ namespace Application.Feedbacks
                     {
                         _logger.LogInformation("Trip with tripId {TripId} doesn't exist",
                             request.FeedbackCreationDto.TripId);
-                        return Result<Unit>.NotFound("Trip with tripId {TripId} doesn't exist.");
+                        return Result<Unit>.NotFound(
+                            $"Trip with tripId {request.FeedbackCreationDto.TripId} doesn't exist.");
                     }
 
                     if (request.FeedbackCreationDto.UserId != trip.KeerId &&
@@ -90,51 +95,6 @@ namespace Application.Feedbacks
                         return Result<Unit>.Failure("Trip's feedback is already existed.");
                     }
 
-                    var keer = await _context.User
-                        .Include(u => u.Wallets)
-                        .Where(u => u.UserId == trip.KeerId)
-                        .SingleOrDefaultAsync(cancellationToken);
-
-                    if (keer == null)
-                    {
-                        _logger.LogInformation("Keer with UserId {UserId} doesn't existed", trip.KeerId);
-                        return Result<Unit>.Failure($"Keer with UserId {trip.KeerId} doesn't existed.");
-                    }
-
-                    var tripTip = (int) request.FeedbackCreationDto.TripTip!;
-
-                    if (tripTip < 1 || tripTip > keer.TotalPoint)
-                    {
-                        _logger.LogInformation(
-                            "Tip point should be larger than 1 and smaller than total point of keer");
-                        return Result<Unit>.Failure(
-                            "Tip point should be larger than 1 and smaller than total point of keer.");
-                    }
-
-                    var oldWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Old);
-                    var currentWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Current);
-                    
-                    if (currentWallet == null)
-                    {
-                        _logger.LogInformation("Keer with UserId {UserId} doesn't have wallet", trip.KeerId);
-                        return Result<Unit>.Failure($"Keer with UserId {trip.KeerId} doesn't have wallet.");
-                    }
-
-                    keer.TotalPoint -= tripTip;
-                    if (oldWallet != null)
-                    {
-                        oldWallet.Point -= tripTip;
-                        
-                        if (oldWallet.Point < 0)
-                        {
-                            currentWallet.Point += oldWallet.Point;
-                        }
-                    }
-                    else
-                    {
-                        currentWallet.Point -= tripTip;
-                    }
-
                     Feedback newFeedback = new();
 
                     _mapper.Map(request.FeedbackCreationDto, newFeedback);
@@ -145,16 +105,66 @@ namespace Application.Feedbacks
                     {
                         // Create new transaction to add more point to Biker
                         if (request.FeedbackCreationDto.UserId == trip.KeerId)
+                        {
+                            var keer = await _context.User
+                                .Include(u => u.Wallets.Where(w =>
+                                    w.Status == (int) WalletStatus.Current || w.Status == (int) WalletStatus.Old))
+                                .Where(u => u.UserId == trip.KeerId)
+                                .SingleOrDefaultAsync(cancellationToken);
+
+                            if (keer == null)
+                            {
+                                _logger.LogInformation("Keer with UserId {UserId} doesn't existed", trip.KeerId);
+                                return Result<Unit>.Failure($"Keer with UserId {trip.KeerId} doesn't existed.");
+                            }
+                            
+                            var tripTip = (int) request.FeedbackCreationDto.TripTip!;
+                        
+                            if (tripTip < 1 || tripTip > keer.TotalPoint)
+                            {
+                                _logger.LogInformation(
+                                    "Tip point should be larger than 1 and smaller than total point of keer");
+                                return Result<Unit>.Failure(
+                                    "Tip point should be larger than 1 and smaller than total point of keer.");
+                            }
+
+                            var oldWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Old);
+                            var currentWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Current);
+                    
+                            if (currentWallet == null)
+                            {
+                                _logger.LogInformation("Keer with UserId {UserId} doesn't have wallet", trip.KeerId);
+                                return Result<Unit>.Failure($"Keer with UserId {trip.KeerId} doesn't have wallet.");
+                            }
+
+                            keer.TotalPoint -= tripTip;
+                            if (oldWallet != null)
+                            {
+                                oldWallet.Point -= tripTip;
+                        
+                                if (oldWallet.Point < 0)
+                                {
+                                    currentWallet.Point += oldWallet.Point;
+                                }
+                            }
+                            else
+                            {
+                                currentWallet.Point -= tripTip;
+                            }
+                            
                             switch (newFeedback.TripStar)
                             {
                                 case 4:
-                                    await _auto.Run(trip, 5 + tripTip, cancellationToken);
+                                    await _auto.Run(trip, 5, Constant.TripFeedbackPoint);
+                                    await _auto.Run(trip, tripTip, Constant.TripTipPoint);
                                     break;
                                 case 5:
-                                    await _auto.Run(trip, 10 + tripTip, cancellationToken);
+                                    await _auto.Run(trip, 10, Constant.TripFeedbackPoint);
+                                    await _auto.Run(trip, tripTip, Constant.TripTipPoint);
                                     break;
                             }
-
+                        }
+                        
                         _logger.LogInformation("Successfully created feedback");
                         return Result<Unit>.Success(Unit.Value, "Successfully created feedback.",
                             newFeedback.FeedbackId.ToString());

@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Domain;
 using Domain.Entities;
@@ -22,17 +21,15 @@ namespace Application.TripTransactions
             _logger = logger;
         }
 
-        public async Task Run(Trip trip, int newPoint, CancellationToken cancellationToken)
+        public async Task Run(Trip trip, int newPoint, string description)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             if (trip.BikerId == null)
             {
                 _logger.LogInformation("Trip with TripId {TripId} doesn't have Biker", trip.TripId);
                 throw new Exception($"Trip with TripId {trip.TripId} doesn't have Biker.");
             }
 
-            User user = await _context.User.FindAsync(new object[] {trip.BikerId}, cancellationToken);
+            User user = await _context.User.FindAsync(trip.BikerId);
 
             if (user == null)
             {
@@ -42,7 +39,7 @@ namespace Application.TripTransactions
 
             Wallet currentWallet = await _context.Wallet.Where(w => w.UserId == trip.BikerId)
                 .Where(w => w.Status == (int) WalletStatus.Current)
-                .SingleOrDefaultAsync(cancellationToken);
+                .SingleOrDefaultAsync();
 
             if (currentWallet == null)
             {
@@ -55,10 +52,11 @@ namespace Application.TripTransactions
                 TripId = trip.TripId,
                 TransactionDate = CurrentTime.GetCurrentTime(),
                 WalletId = currentWallet.WalletId,
-                AmountOfPoint = newPoint
+                AmountOfPoint = newPoint,
+                Description = description
             };
 
-            await _context.TripTransaction.AddAsync(tripTransaction, cancellationToken);
+            await _context.TripTransaction.AddAsync(tripTransaction);
 
             // Add point to current wallet
             currentWallet.Point += newPoint;
@@ -68,7 +66,7 @@ namespace Application.TripTransactions
             user.MaxTotalPoint += newPoint;
 
             // Save change to 4 tables: feedback, tripTransaction, wallet, user
-            var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+            var result = await _context.SaveChangesAsync() > 0;
 
             if (!result)
             {

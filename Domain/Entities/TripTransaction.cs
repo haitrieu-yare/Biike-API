@@ -10,6 +10,7 @@ namespace Domain.Entities
         public int WalletId { get; set; }
         public Wallet Wallet { get; set; } = null!;
         public int AmountOfPoint { get; set; }
+        public string Description { get; set; } = string.Empty;
         public DateTime TransactionDate { get; set; } = CurrentTime.GetCurrentTime();
     }
 }

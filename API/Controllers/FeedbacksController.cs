@@ -73,8 +73,7 @@ namespace API.Controllers
 
             if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
 
-            return HandleResult(await Mediator.Send(
-                new FeedbackCreation.Command {FeedbackCreationDto = feedbackCreationDto}, ct));
+            return HandleResult(await Mediator.Send(new FeedbackCreation.Command(feedbackCreationDto), ct));
         }
     }
 }

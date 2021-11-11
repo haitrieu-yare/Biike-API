@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -22,6 +23,7 @@ namespace Application.Trips
             public int BikerId { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly AutoTripTransactionCreation _auto;
@@ -41,7 +43,10 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip oldTrip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+                    Trip oldTrip = await _context.Trip
+                        .Where(t => t.TripId == request.TripId)
+                        .Include(t => t.Route)
+                        .SingleOrDefaultAsync(cancellationToken);
 
                     if (oldTrip == null)
                     {
@@ -89,7 +94,7 @@ namespace Application.Trips
                     {
                         if (oldTrip.Status == (int) TripStatus.Finished)
                         {
-                            await _auto.Run(oldTrip, 10, cancellationToken);
+                            await _auto.Run(oldTrip, oldTrip.Route.DefaultPoint, Constant.TripCompletionPoint);
                         }
                         else
                         {
