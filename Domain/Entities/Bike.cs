@@ -13,9 +13,11 @@ namespace Domain.Entities
         public string BikeLicensePicture { get; set; } = string.Empty;
         public string PlateNumberPicture { get; set; } = string.Empty;
         
-        [MinLength(4)] public string PlateNumber { get; set; } = "5X55";
+        [MinLength(4)] public string PlateNumber { get; set; } = string.Empty;
         public string Color { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
+        public string BikeType { get; set; } = string.Empty;
+        public string BikeVolume { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
     }
 }

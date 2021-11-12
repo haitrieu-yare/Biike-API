@@ -14,6 +14,8 @@ namespace Application.Bikes.DTOs
         public string? PlateNumberPicture { get; set; }
         public string? Color { get; set; }
         public string? Brand { get; set; }
+        public string? BikeType { get; set; }
+        public string? BikeVolume { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public DateTime? CreatedDate { get; set; }

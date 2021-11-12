@@ -14,6 +14,8 @@ namespace Application.Bikes.DTOs
         [Required] public string? PlateNumberPicture { get; set; }
         [Required] public string? Color { get; init; }
         [Required] public string? Brand { get; init; }
+        [Required] public string? BikeType { get; init; }
+        [Required] public string? BikeVolume { get; init; }
         [Required] [MinLength(4)] public string? PlateNumber { get; init; }
     }
 }
