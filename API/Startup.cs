@@ -46,7 +46,7 @@ namespace API
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "API", Version = "v1"});
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer 12345abcdef')",
+                    Description = "JWT Authorization header using the Bearer scheme (Example: '12345ABCDEF')",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.Http,

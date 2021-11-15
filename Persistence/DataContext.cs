@@ -27,6 +27,7 @@ namespace Persistence
         public DbSet<TripTransaction> TripTransaction => Set<TripTransaction>();
         public DbSet<VoucherCategory> VoucherCategory => Set<VoucherCategory>();
         public DbSet<Voucher> Voucher => Set<Voucher>();
+        public DbSet<VoucherCode> VoucherCode => Set<VoucherCode>();
         public DbSet<Redemption> Redemption => Set<Redemption>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -229,6 +230,16 @@ namespace Persistence
                 .HasOne(v => v.VoucherCategory)
                 .WithMany(vc => vc.Vouchers)
                 .HasForeignKey(v => v.VoucherCategoryId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+
+            #region Voucher Code
+
+            modelBuilder.Entity<VoucherCode>()
+                .HasOne(vc => vc.Voucher)
+                .WithMany(v => v.VoucherCodes)
+                .HasForeignKey(v => v.VoucherId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
