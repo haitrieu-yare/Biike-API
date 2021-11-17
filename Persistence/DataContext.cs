@@ -242,6 +242,8 @@ namespace Persistence
                 .HasForeignKey(v => v.VoucherId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<VoucherCode>().HasIndex(vc => vc.VoucherCodeName).IsUnique();
+
             #endregion
             
             #region VoucherAddress

@@ -9,6 +9,6 @@ namespace Domain.Entities
         public Voucher Voucher { get; set; } = null!;
         public string VoucherCodeName { get; set; } = string.Empty;
         public bool IsRedeemed { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
     }
 }

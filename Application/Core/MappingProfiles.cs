@@ -10,6 +10,7 @@ using Application.Trips.DTOs;
 using Application.TripTransactions.DTOs;
 using Application.Users.DTOs;
 using Application.VoucherCategories.DTOs;
+using Application.VoucherCodes.DTOs;
 using Application.Vouchers.DTOs;
 using Application.Wallets.DTOs;
 using AutoMapper;
@@ -285,6 +286,18 @@ namespace Application.Core
             CreateMap<VoucherCreationDto, Voucher>()
                 .ForMember(v => v.VoucherAddresses, opt => opt.Ignore())
                 .ForMember(v => v.VoucherImages, opt => opt.Ignore());
+
+            #endregion
+
+            #region Voucher Code
+
+            // List, Details
+            CreateMap<VoucherCode, VoucherCodeDto>();
+            // Edit
+            CreateMap<VoucherCodeDto, VoucherCode>()
+                .ForMember(vc => vc.VoucherCodeId, o => o.Ignore())
+                .ForMember(vc => vc.CreatedDate, o => o.Ignore())
+                .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
 
             #endregion
 
