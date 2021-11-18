@@ -46,11 +46,9 @@ namespace Application.Bikes
 
                     if (user == null || user.IsDeleted)
                     {
-                        _logger.LogInformation("User to create bike does not exist");
-                        return Result<Unit>.NotFound("User to create bike does not exist.");
+                        _logger.LogInformation("User with {UserId} does not exist", request.BikeCreationDto.UserId);
+                        return Result<Unit>.NotFound($"User with {request.BikeCreationDto.UserId} does not exist.");
                     }
-
-                    user.IsBikeVerified = true;
 
                     Bike oldBike = await _context.Bike
                         .Where(b => b.UserId == request.BikeCreationDto.UserId)

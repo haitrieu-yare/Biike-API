@@ -205,8 +205,9 @@ namespace Application.Core
 
             #region Bike
 
-            // List, Detail
-            CreateMap<Bike, BikeDto>();
+            // List, Details
+            CreateMap<Bike, BikeDto>()
+                .ForMember(b => b.BikeStatus, o => o.MapFrom(b => b.Status));
             // Create
             CreateMap<BikeCreationDto, Bike>();
 

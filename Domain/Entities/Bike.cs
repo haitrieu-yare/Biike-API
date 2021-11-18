@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -12,7 +13,9 @@ namespace Domain.Entities
         public string BikePicture { get; set; } = string.Empty;
         public string BikeLicensePicture { get; set; } = string.Empty;
         public string PlateNumberPicture { get; set; } = string.Empty;
-        
+
+        public int Status { get; set; } = (int) BikeStatus.Unverified;
+        public string? FailedVerificationReason { get; set; }
         [MinLength(4)] public string PlateNumber { get; set; } = string.Empty;
         public string Color { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;

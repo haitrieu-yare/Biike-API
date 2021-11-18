@@ -40,6 +40,23 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new BikeDetailsByBikeId.Query {BikeId = bikeId}, ct));
         }
 
+        // Admin
+        [HttpPut("{bikeId:int}")]
+        public async Task<IActionResult> EditBikeVerification(int bikeId, BikeVerificationDto bikeVerificationDto,
+            CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Admin)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(
+                new BikeVerification.Command(bikeId, bikeVerificationDto.VerificationResult!.Value,
+                    bikeVerificationDto.FailedVerificationReason), ct));
+        }
+
         // Keer, Biker, Admin
         [HttpGet("users/{userId:int}")]
         public async Task<IActionResult> GetBikeByUserId(int userId, CancellationToken ct)

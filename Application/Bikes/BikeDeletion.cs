@@ -22,6 +22,7 @@ namespace Application.Bikes
             public int UserId { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;

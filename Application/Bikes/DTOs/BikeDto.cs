@@ -12,6 +12,8 @@ namespace Application.Bikes.DTOs
         public string? BikePicture { get; set; }
         public string? BikeLicensePicture { get; set; }
         public string? PlateNumberPicture { get; set; }
+        public int? BikeStatus { get; set; }
+        public string? FailedVerificationReason { get; set; }
         public string? Color { get; set; }
         public string? Brand { get; set; }
         public string? BikeType { get; set; }
