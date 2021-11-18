@@ -46,8 +46,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(
-                new VoucherCreation.Command(voucherCreationDto), ct));
+            return HandleResult(await Mediator.Send(new VoucherCreation.Command(voucherCreationDto), ct));
         }
 
         // Admin
@@ -66,9 +65,13 @@ namespace API.Controllers
         }
 
         // Admin
+        // This endpoint purpose is creating new images for existing voucher
+        // in case admin want to add more images for this voucher
+        // This endpoint does not upload image to Firebase
+        // It only create image records for voucher
         [HttpPost("{voucherId:int}/images")]
-        public async Task<IActionResult> CreateVoucherImage(int voucherId,[FromBody] List<string> 
-            voucherImages,CancellationToken ct)
+        public async Task<IActionResult> CreateVoucherImage(int voucherId, [FromBody] List<string> voucherImages,
+            CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -77,11 +80,14 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(
-                new VoucherImageCreation.Command(voucherId, voucherImages), ct));
+            return HandleResult(await Mediator.Send(new VoucherImageCreation.Command(voucherId, voucherImages), ct));
         }
 
         // Admin
+        // This endpoint purpose is remove images for existing voucher
+        // in case admin want to remove images for this voucher
+        // This endpoint does not remove image from Firebase
+        // It only remove image records for voucher
         [HttpDelete("images")]
         public async Task<IActionResult> DeleteVoucherImage(VoucherImageDeletionDto voucherImageDeletionDto,
             CancellationToken ct)
@@ -93,8 +99,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(
-                new VoucherImageDeletion.Command(voucherImageDeletionDto), ct));
+            return HandleResult(await Mediator.Send(new VoucherImageDeletion.Command(voucherImageDeletionDto), ct));
         }
     }
 }
