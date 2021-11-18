@@ -95,8 +95,8 @@ namespace Application.Users
                         ExpiresIn = auth.ExpiresIn.ToString()
                     };
 
-                    _logger.LogInformation("Successfully retrieved list of all users");
-                    return Result<UserLoginResponse>.Success(response, "Successfully retrieved list of all users.");
+                    _logger.LogInformation("Successfully logged in");
+                    return Result<UserLoginResponse>.Success(response, "Successfully logged in.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

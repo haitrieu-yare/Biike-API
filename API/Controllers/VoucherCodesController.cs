@@ -87,8 +87,8 @@ namespace API.Controllers
         }
         
         // Admin
-        [HttpDelete("{voucherCodeId:int}")]
-        public async Task<IActionResult> DeleteVoucherCode(int voucherCodeId, CancellationToken ct)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteVoucherCode([FromBody] List<int> voucherCodeIds, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -97,7 +97,7 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new VoucherCodeDeletion.Command(voucherCodeId), ct));
+            return HandleResult(await Mediator.Send(new VoucherCodeDeletion.Command(voucherCodeIds), ct));
         }
     }
 }

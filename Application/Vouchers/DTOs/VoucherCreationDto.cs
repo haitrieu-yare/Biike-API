@@ -19,8 +19,6 @@ namespace Application.Vouchers.DTOs
 
         [Required] public DateTime? EndDate { get; set; }
 
-        [Required] public int? Quantity { get; set; }
-
         [Required] public int? AmountOfPoint { get; set; }
 
         [Required] public string? Description { get; set; }

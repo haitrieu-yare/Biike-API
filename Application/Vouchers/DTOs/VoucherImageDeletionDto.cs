@@ -5,7 +5,7 @@ namespace Application.Vouchers.DTOs
 {
     public class VoucherImageDeletionDto
     {
-        [Required] public int? VoucherId { get; init; }
-        [Required] public List<string>? VoucherImageIds { get; init; }
+        [Required] public int? VoucherId { get; set; }
+        [Required] public List<string>? VoucherImageIds { get; set; }
     }
 }

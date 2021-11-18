@@ -44,14 +44,26 @@ namespace Application.VoucherCodes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
+                    var voucher = await _context.Voucher.FindAsync(new object[] {request.VoucherId}, cancellationToken);
+
+                    if (voucher == null)
+                    {
+                        _logger.LogInformation("Voucher with {VoucherId} doesn't exist", request.VoucherId);
+                        return Result<Unit>.NotFound($"Voucher with {request.VoucherId} doesn't exist.");
+                    }
+
                     List<VoucherCode> newVoucherCodes = request.VoucherCodes.Select(voucherCode =>
-                            new VoucherCode {VoucherId = request.VoucherId, VoucherCodeName = voucherCode,})
+                            new VoucherCode {VoucherId = request.VoucherId, VoucherCodeName = voucherCode})
                         .ToList();
 
                     await _context.VoucherCode.AddRangeAsync(newVoucherCodes, cancellationToken);
-                    var voucherCodeResult = await _context.SaveChangesAsync(cancellationToken) > 0;
+                    
+                    voucher.Quantity += newVoucherCodes.Count;
+                    voucher.Remaining += newVoucherCodes.Count;
+                    
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
-                    if (!voucherCodeResult)
+                    if (!result)
                     {
                         _logger.LogInformation("Failed to create new voucher codes");
                         return Result<Unit>.Failure("Failed to create new voucher codes.");

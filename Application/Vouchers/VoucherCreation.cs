@@ -60,8 +60,6 @@ namespace Application.Vouchers
                         return Result<Unit>.Failure("EndDate must be set later than StartDate.");
                     }
 
-                    newVoucher.Remaining = newVoucher.Quantity;
-
                     await _context.Voucher.AddAsync(newVoucher, cancellationToken);
                     var voucherResult = await _context.SaveChangesAsync(cancellationToken) > 0;
 

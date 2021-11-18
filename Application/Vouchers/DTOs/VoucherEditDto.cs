@@ -12,7 +12,6 @@ namespace Application.Vouchers.DTOs
         public string? Brand { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public int? Quantity { get; set; }
         public int? AmountOfPoint { get; set; }
         public string? Description { get; set; }
         public string? TermsAndConditions { get; set; }

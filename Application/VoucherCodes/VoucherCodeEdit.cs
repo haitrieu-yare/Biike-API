@@ -51,11 +51,32 @@ namespace Application.VoucherCodes
 
                     if (oldVoucherCode == null)
                     {
-                        _logger.LogInformation("Voucher code doesn't exist");
-                        return Result<Unit>.NotFound("Voucher code doesn't exist.");
+                        _logger.LogInformation("Voucher code with {VoucherCodeId} doesn't exist", request.VoucherCodeId);
+                        return Result<Unit>.NotFound($"Voucher code with {request.VoucherCodeId} doesn't exist.");
+                    }
+
+                    var voucher =
+                        await _context.Voucher.FindAsync(new object[] {oldVoucherCode.VoucherId}, cancellationToken);
+                    
+                    if (voucher == null)
+                    {
+                        _logger.LogInformation("Voucher with {VoucherId} doesn't exist", oldVoucherCode.VoucherId);
+                        return Result<Unit>.NotFound($"Voucher with {oldVoucherCode.VoucherId} doesn't exist.");
                     }
 
                     _mapper.Map(request.VoucherCodeDto, oldVoucherCode);
+
+                    if (request.VoucherCodeDto.IsRedeemed != null)
+                    {
+                        if (request.VoucherCodeDto.IsRedeemed.Value)
+                        {
+                            voucher.Remaining--;
+                        }
+                        else if (!request.VoucherCodeDto.IsRedeemed.Value)
+                        {
+                            voucher.Remaining++;
+                        }
+                    }
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
