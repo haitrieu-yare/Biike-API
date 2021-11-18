@@ -1,5 +1,6 @@
 using System;
 using Application.Addresses.DTOs;
+using Application.Advertisements.DTOs;
 using Application.Bikes.DTOs;
 using Application.Feedbacks.DTOs;
 using Application.Intimacies.DTOs;
@@ -230,6 +231,39 @@ namespace Application.Core
 
             #endregion
 
+            #region Advertisement
+
+            // List, Detail
+            CreateMap<Advertisement, AdvertisementDto>();
+            // Edit
+            // CreateMap<AdvertisementEditDto, Advertisement>()
+            //     .ForMember(v => v.VoucherId, o => o.Ignore())
+            //     .ForMember(v => v.VoucherAddresses, o => o.Ignore())
+            //     .ForMember(v => v.VoucherImages, o => o.Ignore())
+            //     .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
+            // Create
+            CreateMap<AdvertisementCreationDto, Advertisement>()
+                .ForMember(a => a.AdvertisementAddresses, opt => opt.Ignore())
+                .ForMember(a => a.AdvertisementImages, opt => opt.Ignore());
+
+            #endregion
+
+            #region Advertisement Image
+
+            CreateMap<AdvertisementImage, AdvertisementImageDto>();
+
+            #endregion
+
+            #region Advertisement Address
+
+            CreateMap<AdvertisementAddress, AddressDto>()
+                .ForMember(a => a.AddressName, o => o.MapFrom(a => a.Address.AddressName))
+                .ForMember(a => a.AddressDetail, o => o.MapFrom(a => a.Address.AddressDetail))
+                .ForMember(a => a.AddressCoordinate, o => o.MapFrom(a => a.Address.AddressCoordinate))
+                .ForMember(a => a.CreatedDate, o => o.MapFrom(a => a.Address.CreatedDate));
+
+            #endregion
+            
             #region Address
             // List, Details
             CreateMap<Address, AddressDto>();

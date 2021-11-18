@@ -4,11 +4,11 @@
 
 namespace Domain.Entities
 {
-    public class AdvertisingAddress
+    public class AdvertisementAddress
     {
-        public int AdvertisingAddressId { get; set; }
-        public int AdvertisingId { get; set; }
-        public Advertising Advertising { get; set; } = null!;
+        public int AdvertisementAddressId { get; set; }
+        public int AdvertisementId { get; set; }
+        public Advertisement Advertisement { get; set; } = null!;
         public int AddressId { get; set; }
         public Address Address { get; set; } = null!;
     }

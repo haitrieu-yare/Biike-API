@@ -13,6 +13,6 @@ namespace Domain.Entities
         public string AddressCoordinate { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         public ICollection<VoucherAddress> VoucherAddresses { get; set; } = new List<VoucherAddress>();
-        public ICollection<AdvertisingAddress> AdvertisingAddresses { get; set; } = new List<AdvertisingAddress>();
+        public ICollection<AdvertisementAddress> AdvertisementAddresses { get; set; } = new List<AdvertisementAddress>();
     }
 }

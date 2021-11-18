@@ -6,12 +6,12 @@ using System;
 
 namespace Domain.Entities
 {
-    public class AdvertisingImage
+    public class AdvertisementImage
     {
-        public int AdvertisingImageId { get; set; }
-        public int AdvertisingId { get; set; }
-        public Advertising Advertising { get; set; } = null!;
-        public string AdvertisingImageUrl { get; set; } = string.Empty;
+        public int AdvertisementImageId { get; set; }
+        public int AdvertisementId { get; set; }
+        public Advertisement Advertisement { get; set; } = null!;
+        public string AdvertisementImageUrl { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
     }
 }

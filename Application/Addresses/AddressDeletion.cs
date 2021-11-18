@@ -52,11 +52,11 @@ namespace Application.Addresses
                     var voucherAddresses = await _context.VoucherAddress.Where(v => v.AddressId == request.AddressId)
                         .ToListAsync(cancellationToken);
 
-                    var advertisingAddresses = await _context.AdvertisingAddress
+                    var advertisementAddresses = await _context.AdvertisementAddress
                         .Where(v => v.AddressId == request.AddressId)
                         .ToListAsync(cancellationToken);
 
-                    _context.AdvertisingAddress.RemoveRange(advertisingAddresses);
+                    _context.AdvertisementAddress.RemoveRange(advertisementAddresses);
                     _context.VoucherAddress.RemoveRange(voucherAddresses);
                     _context.Address.Remove(address);
 

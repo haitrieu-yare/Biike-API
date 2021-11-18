@@ -46,14 +46,18 @@ namespace Persistence.Migrations
                     b.ToTable("Address");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Advertising", b =>
+            modelBuilder.Entity("Domain.Entities.Advertisement", b =>
                 {
-                    b.Property<int>("AdvertisingId")
+                    b.Property<int>("AdvertisementId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AdvertisingUrl")
+                    b.Property<string>("AdvertisementUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Brand")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -66,22 +70,29 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UserId")
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalClickCount")
                         .HasColumnType("int");
 
-                    b.HasKey("AdvertisingId");
+                    b.HasKey("AdvertisementId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CreatorId");
 
-                    b.ToTable("Advertising");
+                    b.ToTable("Advertisement");
                 });
 
-            modelBuilder.Entity("Domain.Entities.AdvertisingAddress", b =>
+            modelBuilder.Entity("Domain.Entities.AdvertisementAddress", b =>
                 {
-                    b.Property<int>("AdvertisingAddressId")
+                    b.Property<int>("AdvertisementAddressId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -89,40 +100,40 @@ namespace Persistence.Migrations
                     b.Property<int>("AddressId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AdvertisingId")
+                    b.Property<int>("AdvertisementId")
                         .HasColumnType("int");
 
-                    b.HasKey("AdvertisingAddressId");
+                    b.HasKey("AdvertisementAddressId");
 
                     b.HasIndex("AddressId");
 
-                    b.HasIndex("AdvertisingId");
+                    b.HasIndex("AdvertisementId");
 
-                    b.ToTable("AdvertisingAddress");
+                    b.ToTable("AdvertisementAddress");
                 });
 
-            modelBuilder.Entity("Domain.Entities.AdvertisingImage", b =>
+            modelBuilder.Entity("Domain.Entities.AdvertisementImage", b =>
                 {
-                    b.Property<int>("AdvertisingImageId")
+                    b.Property<int>("AdvertisementImageId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AdvertisingId")
+                    b.Property<int>("AdvertisementId")
                         .HasColumnType("int");
 
-                    b.Property<string>("AdvertisingImageUrl")
+                    b.Property<string>("AdvertisementImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("AdvertisingImageId");
+                    b.HasKey("AdvertisementImageId");
 
-                    b.HasIndex("AdvertisingId");
+                    b.HasIndex("AdvertisementId");
 
-                    b.ToTable("AdvertisingImage");
+                    b.ToTable("AdvertisementImage");
                 });
 
             modelBuilder.Entity("Domain.Entities.Area", b =>
@@ -771,43 +782,45 @@ namespace Persistence.Migrations
                     b.ToTable("Wallet");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Advertising", b =>
+            modelBuilder.Entity("Domain.Entities.Advertisement", b =>
                 {
-                    b.HasOne("Domain.Entities.User", "User")
+                    b.HasOne("Domain.Entities.User", "Creator")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Creator");
                 });
 
-            modelBuilder.Entity("Domain.Entities.AdvertisingAddress", b =>
+            modelBuilder.Entity("Domain.Entities.AdvertisementAddress", b =>
                 {
                     b.HasOne("Domain.Entities.Address", "Address")
-                        .WithMany("AdvertisingAddresses")
+                        .WithMany("AdvertisementAddresses")
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Advertising", "Advertising")
-                        .WithMany("AdvertisingAddresses")
-                        .HasForeignKey("AdvertisingId")
+                    b.HasOne("Domain.Entities.Advertisement", "Advertisement")
+                        .WithMany("AdvertisementAddresses")
+                        .HasForeignKey("AdvertisementId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Address");
 
-                    b.Navigation("Advertising");
+                    b.Navigation("Advertisement");
                 });
 
-            modelBuilder.Entity("Domain.Entities.AdvertisingImage", b =>
+            modelBuilder.Entity("Domain.Entities.AdvertisementImage", b =>
                 {
-                    b.HasOne("Domain.Entities.Advertising", "Advertising")
-                        .WithMany("AdvertisingImages")
-                        .HasForeignKey("AdvertisingId")
+                    b.HasOne("Domain.Entities.Advertisement", "Advertisement")
+                        .WithMany("AdvertisementImages")
+                        .HasForeignKey("AdvertisementId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Advertising");
+                    b.Navigation("Advertisement");
                 });
 
             modelBuilder.Entity("Domain.Entities.Bike", b =>
@@ -1037,16 +1050,16 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
-                    b.Navigation("AdvertisingAddresses");
+                    b.Navigation("AdvertisementAddresses");
 
                     b.Navigation("VoucherAddresses");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Advertising", b =>
+            modelBuilder.Entity("Domain.Entities.Advertisement", b =>
                 {
-                    b.Navigation("AdvertisingAddresses");
+                    b.Navigation("AdvertisementAddresses");
 
-                    b.Navigation("AdvertisingImages");
+                    b.Navigation("AdvertisementImages");
                 });
 
             modelBuilder.Entity("Domain.Entities.Area", b =>

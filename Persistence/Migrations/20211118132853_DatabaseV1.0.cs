@@ -3,10 +3,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Persistence.Migrations
 {
-    public partial class Initial : Migration
+    public partial class DatabaseV10 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Address",
+                columns: table => new
+                {
+                    AddressId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Address", x => x.AddressId);
+                });
+
             migrationBuilder.CreateTable(
                 name: "AppUser",
                 columns: table => new
@@ -68,27 +84,30 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Advertising",
+                name: "Advertisement",
                 columns: table => new
                 {
-                    AdvertisingId = table.Column<int>(type: "int", nullable: false)
+                    AdvertisementId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatorId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true),
-                    AdvertisingUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AdvertisementUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    TotalClickCount = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Advertising", x => x.AdvertisingId);
+                    table.PrimaryKey("PK_Advertisement", x => x.AdvertisementId);
                     table.ForeignKey(
-                        name: "FK_Advertising_AppUser_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Advertisement_AppUser_CreatorId",
+                        column: x => x.CreatorId,
                         principalTable: "AppUser",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,9 +121,13 @@ namespace Persistence.Migrations
                     BikePicture = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BikeLicensePicture = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PlateNumberPicture = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    FailedVerificationReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PlateNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BikeType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BikeVolume = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -241,45 +264,47 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AdvertisingAddress",
+                name: "AdvertisementAddress",
                 columns: table => new
                 {
-                    AdvertisingAddressId = table.Column<int>(type: "int", nullable: false)
+                    AdvertisementAddressId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AdvertisingId = table.Column<int>(type: "int", nullable: false),
-                    AdvertisingAddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AdvertisingAddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AdvertisingAddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    AdvertisementId = table.Column<int>(type: "int", nullable: false),
+                    AddressId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AdvertisingAddress", x => x.AdvertisingAddressId);
+                    table.PrimaryKey("PK_AdvertisementAddress", x => x.AdvertisementAddressId);
                     table.ForeignKey(
-                        name: "FK_AdvertisingAddress_Advertising_AdvertisingId",
-                        column: x => x.AdvertisingId,
-                        principalTable: "Advertising",
-                        principalColumn: "AdvertisingId");
+                        name: "FK_AdvertisementAddress_Address_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Address",
+                        principalColumn: "AddressId");
+                    table.ForeignKey(
+                        name: "FK_AdvertisementAddress_Advertisement_AdvertisementId",
+                        column: x => x.AdvertisementId,
+                        principalTable: "Advertisement",
+                        principalColumn: "AdvertisementId");
                 });
 
             migrationBuilder.CreateTable(
-                name: "AdvertisingImage",
+                name: "AdvertisementImage",
                 columns: table => new
                 {
-                    AdvertisingImageId = table.Column<int>(type: "int", nullable: false)
+                    AdvertisementImageId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AdvertisingId = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AdvertisementId = table.Column<int>(type: "int", nullable: false),
+                    AdvertisementImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AdvertisingImage", x => x.AdvertisingImageId);
+                    table.PrimaryKey("PK_AdvertisementImage", x => x.AdvertisementImageId);
                     table.ForeignKey(
-                        name: "FK_AdvertisingImage_Advertising_AdvertisingId",
-                        column: x => x.AdvertisingId,
-                        principalTable: "Advertising",
-                        principalColumn: "AdvertisingId");
+                        name: "FK_AdvertisementImage_Advertisement_AdvertisementId",
+                        column: x => x.AdvertisementId,
+                        principalTable: "Advertisement",
+                        principalColumn: "AdvertisementId");
                 });
 
             migrationBuilder.CreateTable(
@@ -350,16 +375,39 @@ namespace Persistence.Migrations
                     VoucherAddressId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     VoucherId = table.Column<int>(type: "int", nullable: false),
-                    VoucherAddressName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VoucherAddressDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VoucherAddressCoordinate = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    AddressId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VoucherAddress", x => x.VoucherAddressId);
                     table.ForeignKey(
+                        name: "FK_VoucherAddress_Address_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Address",
+                        principalColumn: "AddressId");
+                    table.ForeignKey(
                         name: "FK_VoucherAddress_Voucher_VoucherId",
+                        column: x => x.VoucherId,
+                        principalTable: "Voucher",
+                        principalColumn: "VoucherId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VoucherCode",
+                columns: table => new
+                {
+                    VoucherCodeId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    VoucherId = table.Column<int>(type: "int", nullable: false),
+                    VoucherCodeName = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IsRedeemed = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VoucherCode", x => x.VoucherCodeId);
+                    table.ForeignKey(
+                        name: "FK_VoucherCode_Voucher_VoucherId",
                         column: x => x.VoucherId,
                         principalTable: "Voucher",
                         principalColumn: "VoucherId");
@@ -463,6 +511,7 @@ namespace Persistence.Migrations
                     TripId = table.Column<int>(type: "int", nullable: false),
                     WalletId = table.Column<int>(type: "int", nullable: false),
                     AmountOfPoint = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -481,19 +530,24 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Advertising_UserId",
-                table: "Advertising",
-                column: "UserId");
+                name: "IX_Advertisement_CreatorId",
+                table: "Advertisement",
+                column: "CreatorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AdvertisingAddress_AdvertisingId",
-                table: "AdvertisingAddress",
-                column: "AdvertisingId");
+                name: "IX_AdvertisementAddress_AddressId",
+                table: "AdvertisementAddress",
+                column: "AddressId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AdvertisingImage_AdvertisingId",
-                table: "AdvertisingImage",
-                column: "AdvertisingId");
+                name: "IX_AdvertisementAddress_AdvertisementId",
+                table: "AdvertisementAddress",
+                column: "AdvertisementId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdvertisementImage_AdvertisementId",
+                table: "AdvertisementImage",
+                column: "AdvertisementId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppUser_Email",
@@ -601,6 +655,11 @@ namespace Persistence.Migrations
                 column: "VoucherCategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_VoucherAddress_AddressId",
+                table: "VoucherAddress",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_VoucherAddress_VoucherId",
                 table: "VoucherAddress",
                 column: "VoucherId");
@@ -610,6 +669,17 @@ namespace Persistence.Migrations
                 table: "VoucherCategory",
                 column: "CategoryName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherCode_VoucherCodeName",
+                table: "VoucherCode",
+                column: "VoucherCodeName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherCode_VoucherId",
+                table: "VoucherCode",
+                column: "VoucherId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VoucherImage_VoucherId",
@@ -625,10 +695,10 @@ namespace Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AdvertisingAddress");
+                name: "AdvertisementAddress");
 
             migrationBuilder.DropTable(
-                name: "AdvertisingImage");
+                name: "AdvertisementImage");
 
             migrationBuilder.DropTable(
                 name: "Bike");
@@ -652,16 +722,22 @@ namespace Persistence.Migrations
                 name: "VoucherAddress");
 
             migrationBuilder.DropTable(
+                name: "VoucherCode");
+
+            migrationBuilder.DropTable(
                 name: "VoucherImage");
 
             migrationBuilder.DropTable(
-                name: "Advertising");
+                name: "Advertisement");
 
             migrationBuilder.DropTable(
                 name: "Trip");
 
             migrationBuilder.DropTable(
                 name: "Wallet");
+
+            migrationBuilder.DropTable(
+                name: "Address");
 
             migrationBuilder.DropTable(
                 name: "Voucher");
