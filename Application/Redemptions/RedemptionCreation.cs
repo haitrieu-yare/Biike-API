@@ -101,8 +101,19 @@ namespace Application.Redemptions
                     // Set voucherPoint
                     newRedemption.VoucherPoint = voucher.AmountOfPoint;
 
-                    //TODO: Auto generate voucher code
-                    newRedemption.VoucherCode = "5XSG1205";
+                    var voucherCode = await _context.VoucherCode
+                        .Where(v => v.VoucherId == voucher.VoucherId)
+                        .Where(v => v.IsRedeemed == false)
+                        .FirstOrDefaultAsync(cancellationToken);
+                    
+                    if (voucherCode == null)
+                    {
+                        _logger.LogInformation("There is no available voucher code for this voucher");
+                        return Result<Unit>.NotFound("There is no available voucher code for this voucher.");
+                    }
+                    
+                    newRedemption.VoucherCode = voucherCode.VoucherCodeName;
+                    voucherCode.IsRedeemed = true;
 
                     // Change remaining of voucher
                     voucher.Remaining--;
