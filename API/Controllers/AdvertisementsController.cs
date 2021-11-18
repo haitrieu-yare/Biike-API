@@ -54,6 +54,22 @@ namespace API.Controllers
         }
 
         // Admin
+        [HttpPut("{advertisementId:int}")]
+        public async Task<IActionResult> EditAdvertisement(int advertisementId, AdvertisementEditDto newAdvertisement,
+            CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Admin)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(new AdvertisementEdit.Command(advertisementId, newAdvertisement),
+                ct));
+        }
+
+        // Admin
         // This endpoint purpose is add new images for existing advertisement
         // in case admin want to add more images for this advertisement
         // This endpoint does not upload image to Firebase

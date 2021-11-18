@@ -236,11 +236,11 @@ namespace Application.Core
             // List, Detail
             CreateMap<Advertisement, AdvertisementDto>();
             // Edit
-            // CreateMap<AdvertisementEditDto, Advertisement>()
-            //     .ForMember(v => v.VoucherId, o => o.Ignore())
-            //     .ForMember(v => v.VoucherAddresses, o => o.Ignore())
-            //     .ForMember(v => v.VoucherImages, o => o.Ignore())
-            //     .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
+            CreateMap<AdvertisementEditDto, Advertisement>()
+                .ForMember(a => a.AdvertisementId, o => o.Ignore())
+                .ForMember(a => a.AdvertisementAddresses, o => o.Ignore())
+                .ForMember(a => a.AdvertisementImages, o => o.Ignore())
+                .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
             CreateMap<AdvertisementCreationDto, Advertisement>()
                 .ForMember(a => a.AdvertisementAddresses, opt => opt.Ignore())
