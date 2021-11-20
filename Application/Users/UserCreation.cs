@@ -8,12 +8,12 @@ using Application.Users.DTOs;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
-using Firebase.Auth;
+// using Firebase.Auth;
 using FirebaseAdmin.Auth;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Configuration;
+// using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Persistence;
 using FirebaseAuth = FirebaseAdmin.Auth.FirebaseAuth;
@@ -39,15 +39,13 @@ namespace Application.Users
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
-            private readonly IConfiguration _config;
             private readonly ILogger<Handler> _logger;
             private readonly IMapper _mapper;
             private const string SavePoint = "beforeUserCreation";
 
-            public Handler(DataContext context, IConfiguration config, IMapper mapper, ILogger<Handler> logger)
+            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
             {
                 _context = context;
-                _config = config;
                 _mapper = mapper;
                 _logger = logger;
             }
@@ -84,7 +82,7 @@ namespace Application.Users
                     newUser.Avatar = $"https://ui-avatars.com/api/?name={fullNameAbbreviation}" +
                                      $"&background={backgroundColor}&color={Color.White}&rounded=true&size=128";
 
-                    string password = newUser.PasswordHash;
+                    // string password = newUser.PasswordHash;
                     // Hash password
                     newUser.PasswordHash = Hashing.HashPassword(newUser.PasswordHash);
 
@@ -159,13 +157,13 @@ namespace Application.Users
 
                         #endregion
 
-                        #region Send Email Verification
-
-                        var authProvider = new FirebaseAuthProvider(new FirebaseConfig(_config["Firebase:WebApiKey"]));
-                        var auth = await authProvider.SignInWithEmailAndPasswordAsync(newUser.Email, password);
-                        await authProvider.SendEmailVerificationAsync(auth);
-
-                        #endregion
+                        // #region Send Email Verification
+                        //
+                        // var authProvider = new FirebaseAuthProvider(new FirebaseConfig(_config["Firebase:WebApiKey"]));
+                        // var auth = await authProvider.SignInWithEmailAndPasswordAsync(newUser.Email, password);
+                        // await authProvider.SendEmailVerificationAsync(auth);
+                        //
+                        // #endregion
                     }
                     catch (FirebaseAuthException e)
                     {

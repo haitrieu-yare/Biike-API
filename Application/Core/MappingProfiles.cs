@@ -238,6 +238,7 @@ namespace Application.Core
             // Edit
             CreateMap<AdvertisementEditDto, Advertisement>()
                 .ForMember(a => a.AdvertisementId, o => o.Ignore())
+                .ForMember(a => a.TotalClickCount, o => o.Ignore())
                 .ForMember(a => a.AdvertisementAddresses, o => o.Ignore())
                 .ForMember(a => a.AdvertisementImages, o => o.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));

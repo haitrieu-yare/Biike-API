@@ -9,7 +9,6 @@ namespace Application.Advertisements.DTOs
         public string? Brand { get; set; } 
         public string? Title { get; set; } 
         public bool? IsActive { get; set; }
-        public int? TotalClickCount { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public List<int>? AddressIds { get; set; }

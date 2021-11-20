@@ -68,6 +68,35 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new AdvertisementEdit.Command(advertisementId, newAdvertisement),
                 ct));
         }
+        
+        // Keer, Biker
+        [HttpPut("{advertisementId:int}/clickCount")]
+        public async Task<IActionResult> EditClickCountAdvertisement(int advertisementId, CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Admin)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(new AdvertisementClickCountEdit.Command(advertisementId),
+                ct));
+        }
+        
+        // Admin
+        [HttpDelete("{advertisementId:int}")]
+        public async Task<IActionResult> DeleteAdvertisement(int advertisementId, CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Admin)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(new AdvertisementDeletion.Command(advertisementId), ct));
+        }
 
         // Admin
         // This endpoint purpose is add new images for existing advertisement
