@@ -156,6 +156,26 @@ namespace API.Controllers
         }
 
         // Admin
+        [HttpPut("{userId:int}/adminRole")]
+        public async Task<IActionResult> EditUserAdminRole(int userId, CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Admin)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+            
+            if (validationDto.UserRequestId == userId) return BadRequest(Constant.DidNotHavePermissionToMakeRequest);
+
+            return HandleResult(await Mediator.Send(new AdminRoleEdit.Command(userId), ct));
+        }
+
+        // Admin
         [HttpPut("{userId:int}")]
         public async Task<IActionResult> EditUserStatus(int userId, CancellationToken ct)
         {

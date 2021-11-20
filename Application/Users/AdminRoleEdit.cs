@@ -1,24 +1,28 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Domain.Entities;
 using Domain.Enums;
 using FirebaseAdmin.Auth;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Persistence;
+using User = Domain.Entities.User;
 
 namespace Application.Users
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class UserRoleEdit
+    public class AdminRoleEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int UserId { get; init; }
-            public int StartupRole { get; init; }
+            public Command(int userId)
+            {
+                UserId = userId;
+            }
+
+            public int UserId { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -38,7 +42,7 @@ namespace Application.Users
                 try
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-
+                    
                     User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null)
@@ -56,42 +60,13 @@ namespace Application.Users
                                                     "Please reactivate it if you want to edit it.");
                     }
 
-                    if (request.StartupRole <= 0)
+                    if (user.Role == (int) RoleStatus.Keer)
                     {
-                        if (user.Role == (int) RoleStatus.Keer && !user.IsBikeVerified)
-                        {
-                            _logger.LogInformation("User does not have bike");
-                            return Result<Unit>.Failure("User does not have bike.");
-                        }
-
-                        switch (user.Role)
-                        {
-                            case (int) RoleStatus.Keer:
-                                user.Role = (int) RoleStatus.Biker;
-                                break;
-                            case (int) RoleStatus.Biker:
-                                user.Role = (int) RoleStatus.Keer;
-                                break;
-                        }
+                        user.Role = (int) RoleStatus.Admin;
                     }
                     else
                     {
-                        if (request.StartupRole == (int) RoleStatus.Biker && 
-                            user.Role == (int) RoleStatus.Keer && !user.IsBikeVerified)
-                        {
-                            _logger.LogInformation("User does not have bike");
-                            return Result<Unit>.Failure("User does not have bike.");
-                        }
-
-                        if (user.Role == request.StartupRole)
-                        {
-                            _logger.LogInformation("Successfully chosen user's role by userId {request.UserId}",
-                                request.UserId);
-                            return Result<Unit>.Success(Unit.Value,
-                                $"Successfully chosen user's role by userId {request.UserId}.");
-                        }
-                        
-                        user.Role = request.StartupRole;
+                        user.Role = (int) RoleStatus.Keer;
                     }
 
                     try
@@ -119,7 +94,8 @@ namespace Application.Users
                     {
                         _logger.LogInformation("Failed to update user's role by userId {request.UserId} to {UserRole}",
                             request.UserId, user.Role);
-                        return Result<Unit>.Failure($"Failed to update user's role by userId {request.UserId} to {user.Role}.");
+                        return Result<Unit>.Failure(
+                            $"Failed to update user's role by userId {request.UserId} to {user.Role}.");
                     }
 
                     _logger.LogInformation("Successfully updated user's role by userId {request.UserId} to {UserRole}",
