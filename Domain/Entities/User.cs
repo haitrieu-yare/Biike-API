@@ -43,6 +43,12 @@ namespace Domain.Entities
 
         [InverseProperty("UserTwo")]
         public ICollection<Intimacy> UserTwoIntimacies { get; set; } = new List<Intimacy>();
+        
+        [InverseProperty("UserOne")]
+        public ICollection<Report> UserOneReports { get; set; } = new List<Report>();
+
+        [InverseProperty("UserTwo")]
+        public ICollection<Report> UserTwoReports { get; set; } = new List<Report>();
 
         public ICollection<Feedback> FeedBackList { get; set; } = new List<Feedback>();
         public ICollection<Bike> Bikes { get; set; } = new List<Bike>();

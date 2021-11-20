@@ -5,6 +5,7 @@ using Application.Bikes.DTOs;
 using Application.Feedbacks.DTOs;
 using Application.Intimacies.DTOs;
 using Application.Redemptions.DTOs;
+using Application.Reports.DTOs;
 using Application.Routes.DTOs;
 using Application.Stations.DTOs;
 using Application.Trips.DTOs;
@@ -228,6 +229,18 @@ namespace Application.Core
                 .ForMember(i => i.UserName, o => o.MapFrom(i => i.UserTwo.FullName));
             // Edit, Create
             CreateMap<IntimacyModificationDto, Intimacy>();
+
+            #endregion
+
+            #region Report
+
+            // List, Details
+            CreateMap<Report, ReportDto>()
+                .ForMember(r => r.UserOneName, o => o.MapFrom(r => r.UserOne.FullName))
+                .ForMember(r => r.UserTwoName, o => o.MapFrom(r => r.UserTwo.FullName))
+                .ForMember(r => r.ReportStatus, o => o.MapFrom(r => r.Status));
+            // Create
+            CreateMap<ReportCreationDto, Report>();
 
             #endregion
 

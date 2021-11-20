@@ -12,6 +12,7 @@ namespace Persistence
         public DbSet<Area> Area => Set<Area>();
         public DbSet<Station> Station => Set<Station>();
         public DbSet<Route> Route => Set<Route>();
+        public DbSet<Report> Report => Set<Report>();
         public DbSet<Address> Address => Set<Address>();
         public DbSet<Advertisement> Advertisement => Set<Advertisement>();
         public DbSet<UserAddress> UserAddress => Set<UserAddress>();
@@ -143,6 +144,22 @@ namespace Persistence
             modelBuilder.Entity<Intimacy>()
                 .HasOne(i => i.UserOne)
                 .WithMany(u => u.UserOneIntimacies)
+                .HasForeignKey(i => i.UserOneId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+            
+            #region Report
+
+            modelBuilder.Entity<Report>()
+                .HasOne(i => i.UserTwo)
+                .WithMany(u => u.UserTwoReports)
+                .HasForeignKey(i => i.UserTwoId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(i => i.UserOne)
+                .WithMany(u => u.UserOneReports)
                 .HasForeignKey(i => i.UserOneId)
                 .OnDelete(DeleteBehavior.NoAction);
 

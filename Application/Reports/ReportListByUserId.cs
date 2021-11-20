@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Intimacies.DTOs;
+using Application.Reports.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -12,20 +12,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Intimacies
+namespace Application.Reports
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class IntimacyListByUserId
+    public class ReportListByUserId
     {
-        public class Query : IRequest<Result<List<IntimacyDto>>>
+        public class Query : IRequest<Result<List<ReportDto>>>
         {
-            public int UserOneId { get; init; }
-            public int Page { get; init; }
-            public int Limit { get; init; }
+            public Query(int userOneId, int page, int limit)
+            {
+                UserOneId = userOneId;
+                Page = page;
+                Limit = limit;
+            }
+
+            public int UserOneId { get; }
+            public int Page { get; }
+            public int Limit { get; }
         }
 
         // ReSharper disable once UnusedType.Global
-        public class Handler : IRequestHandler<Query, Result<List<IntimacyDto>>>
+        public class Handler : IRequestHandler<Query, Result<List<ReportDto>>>
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
@@ -38,7 +45,7 @@ namespace Application.Intimacies
                 _logger = logger;
             }
 
-            public async Task<Result<List<IntimacyDto>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<List<ReportDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
                 try
                 {
@@ -47,45 +54,45 @@ namespace Application.Intimacies
                     if (request.Page <= 0)
                     {
                         _logger.LogInformation("Page must be larger than 0");
-                        return Result<List<IntimacyDto>>.Failure("Page must be larger than 0.");
+                        return Result<List<ReportDto>>.Failure("Page must be larger than 0.");
                     }
 
                     if (request.Limit <= 0)
                     {
                         _logger.LogInformation("Limit must be larger than 0");
-                        return Result<List<IntimacyDto>>.Failure("Limit must be larger than 0.");
+                        return Result<List<ReportDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    var totalRecord = await _context.Intimacy.Where(i => i.UserOneId == request.UserOneId)
+                    var totalRecord = await _context.Report
+                        .Where(i => i.UserOneId == request.UserOneId)
                         .CountAsync(cancellationToken);
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
-                    List<IntimacyDto> intimacies = new();
+                    List<ReportDto> reports = new();
 
                     if (request.Page <= lastPage)
-                        intimacies = await _context.Intimacy
+                        reports = await _context.Report
                             .Where(i => i.UserOneId == request.UserOneId)
                             .OrderBy(i => i.UserTwoId)
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
-                            .ProjectTo<IntimacyDto>(_mapper.ConfigurationProvider)
+                            .ProjectTo<ReportDto>(_mapper.ConfigurationProvider)
                             .ToListAsync(cancellationToken);
 
                     PaginationDto paginationDto = new(
-                        request.Page, request.Limit, intimacies.Count, lastPage, totalRecord);
+                        request.Page, request.Limit, reports.Count, lastPage, totalRecord);
 
-                    _logger.LogInformation(
-                        "Successfully retrieved list of user intimacies by UserId {request.UserOneId}",
+                    _logger.LogInformation("Successfully retrieved list of user reports by UserId {request.UserOneId}",
                         request.UserOneId);
-                    return Result<List<IntimacyDto>>.Success(intimacies,
-                        "Successfully retrieved list of " + $"user intimacies by UserId {request.UserOneId}.",
+                    return Result<List<ReportDto>>.Success(reports,
+                        "Successfully retrieved list of " + $"user reports by UserId {request.UserOneId}.",
                         paginationDto);
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
                     _logger.LogInformation("Request was cancelled");
-                    return Result<List<IntimacyDto>>.Failure("Request was cancelled.");
+                    return Result<List<ReportDto>>.Failure("Request was cancelled.");
                 }
             }
         }
