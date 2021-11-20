@@ -12,7 +12,7 @@ namespace Domain.Entities
     {
         public int UserId { get; set; }
 
-        [RegularExpression(@"^(\+84)([0-9]{9})$", ErrorMessage = "Invalid phone number.")]
+        [RegularExpression(@"^0([0-9]{9})$", ErrorMessage = "Invalid phone number.")]
         public string PhoneNumber { get; set; } = string.Empty;
 
         [EmailAddress] 

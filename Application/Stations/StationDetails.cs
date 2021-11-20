@@ -23,6 +23,7 @@ namespace Application.Stations
             public bool IsAdmin { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<StationDto>>
         {
             private readonly DataContext _context;

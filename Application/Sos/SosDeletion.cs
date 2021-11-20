@@ -1,23 +1,24 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Stations.DTOs;
-using AutoMapper;
-using Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Stations
+namespace Application.Sos
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class StationCreation
+    public class SosDeletion
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public StationCreationDto StationCreationDto { get; init; } = null!;
+            public Command(int sosId)
+            {
+                SosId = sosId;
+            }
+
+            public int SosId { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -25,12 +26,10 @@ namespace Application.Stations
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
-            private readonly IMapper _mapper;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            public Handler(DataContext context, ILogger<Handler> logger)
             {
                 _context = context;
-                _mapper = mapper;
                 _logger = logger;
             }
 
@@ -40,30 +39,34 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Station newStation = new();
+                    Domain.Entities.Sos sos =
+                        await _context.Sos.FindAsync(new object[] {request.SosId}, cancellationToken);
 
-                    _mapper.Map(request.StationCreationDto, newStation);
+                    if (sos == null)
+                    {
+                        _logger.LogInformation("Sos doesn't exist");
+                        return Result<Unit>.NotFound("Sos doesn't exist.");
+                    }
 
-                    await _context.Station.AddAsync(newStation, cancellationToken);
+                    _context.Sos.Remove(sos);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to create new station");
-                        return Result<Unit>.Failure("Failed to create new station.");
+                        _logger.LogInformation("Failed to delete sos by sosId {request.SosId}", request.SosId);
+                        return Result<Unit>.Failure($"Failed to delete sos by sosId {request.SosId}.");
                     }
 
-                    _logger.LogInformation("Successfully created new station");
-                    return Result<Unit>.Success(Unit.Value, "Successfully created new station.",
-                        newStation.StationId.ToString());
+                    _logger.LogInformation("Successfully deleted sos by sosId {request.SosId}", request.SosId);
+                    return Result<Unit>.Success(Unit.Value, $"Successfully deleted sos by sosId {request.SosId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex)
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

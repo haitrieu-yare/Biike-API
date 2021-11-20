@@ -31,6 +31,7 @@ namespace Persistence
         public DbSet<Voucher> Voucher => Set<Voucher>();
         public DbSet<VoucherCode> VoucherCode => Set<VoucherCode>();
         public DbSet<Redemption> Redemption => Set<Redemption>();
+        public DbSet<Sos> Sos => Set<Sos>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

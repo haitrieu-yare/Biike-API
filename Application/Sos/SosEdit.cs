@@ -1,23 +1,28 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Stations.DTOs;
+using Application.Sos.DTOs;
 using AutoMapper;
-using Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Stations
+namespace Application.Sos
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class StationEdit
+    public class SosEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int StationId { get; init; }
-            public StationDto NewStationDto { get; init; } = null!;
+            public Command(int sosId, SosDto newSosDto)
+            {
+                SosId = sosId;
+                NewSosDto = newSosDto;
+            }
+            
+            public int SosId { get; }
+            public SosDto NewSosDto { get; } 
         }
 
         // ReSharper disable once UnusedType.Global
@@ -40,45 +45,37 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Station oldStation = await _context.Station
-                        .FindAsync(new object[] {request.StationId}, cancellationToken);
+                    Domain.Entities.Sos oldSos = await _context.Sos
+                        .FindAsync(new object[] {request.SosId}, cancellationToken);
 
-                    if (oldStation == null)
+                    if (oldSos == null)
                     {
-                        _logger.LogInformation("Station doesn't exist");
-                        return Result<Unit>.NotFound("Station doesn't exist.");
+                        _logger.LogInformation("Sos doesn't exist");
+                        return Result<Unit>.NotFound("Sos doesn't exist.");
                     }
 
-                    if (oldStation.IsDeleted)
-                    {
-                        _logger.LogInformation("Station with StationId {request.StationId} has been deleted. " +
-                                               "Please reactivate it if you want to edit it", request.StationId);
-                        return Result<Unit>.Failure($"Station with StationId {request.StationId} has been deleted. " +
-                                                    "Please reactivate it if you want to edit it.");
-                    }
-
-                    _mapper.Map(request.NewStationDto, oldStation);
+                    _mapper.Map(request.NewSosDto, oldSos);
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to update station by stationId {request.StationId}",
-                            request.StationId);
-                        return Result<Unit>.Failure($"Failed to update station by stationId {request.StationId}.");
+                        _logger.LogInformation("Failed to update sos by sosId {request.SosId}",
+                            request.SosId);
+                        return Result<Unit>.Failure($"Failed to update sos by sosId {request.SosId}.");
                     }
 
-                    _logger.LogInformation("Successfully updated station by stationId {request.StationId}",
-                        request.StationId);
+                    _logger.LogInformation("Successfully updated sos by sosId {request.SosId}",
+                        request.SosId);
                     return Result<Unit>.Success(
-                        Unit.Value, $"Successfully updated station by stationId {request.StationId}.");
+                        Unit.Value, $"Successfully updated sos by sosId {request.SosId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex)
+                catch (Exception ex) 
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

@@ -7,6 +7,7 @@ using Application.Intimacies.DTOs;
 using Application.Redemptions.DTOs;
 using Application.Reports.DTOs;
 using Application.Routes.DTOs;
+using Application.Sos.DTOs;
 using Application.Stations.DTOs;
 using Application.Trips.DTOs;
 using Application.TripTransactions.DTOs;
@@ -378,6 +379,20 @@ namespace Application.Core
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
             CreateMap<WalletCreationDto, Wallet>();
+
+            #endregion
+
+            #region Sos
+            
+            // List, Details
+            CreateMap<Domain.Entities.Sos, SosDto>();
+            // Edit
+            CreateMap<SosDto, Domain.Entities.Sos>()
+                .ForMember(s => s.SosId, o => o.Ignore())
+                .ForMember(s => s.CreatedDate, o => o.Ignore())
+                .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
+            // Create
+            CreateMap<SosCreationDto, Domain.Entities.Sos>();
 
             #endregion
         }
