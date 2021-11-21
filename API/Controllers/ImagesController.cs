@@ -97,6 +97,9 @@ namespace API.Controllers
                     case (int) ImageType.Voucher:
                         folderName = "voucher";
                         break;
+                    case (int) ImageType.Advertisement:
+                        folderName = "advertisement";
+                        break;
                     default:
                         _logger.LogInformation("No image type found");
                         return HandleResult(Result<List<string>>.Failure("No image type found."));

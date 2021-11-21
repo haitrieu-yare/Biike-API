@@ -4,6 +4,7 @@
     {
         Bike = 1,
         User,
-        Voucher
+        Voucher,
+        Advertisement
     }
 }
