@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace API.Controllers
 {
@@ -147,11 +148,9 @@ namespace API.Controllers
     public class ImageUploadDto
     {
         [Required]
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
         public int? ImageType { get; init; }
 
         [Required]
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
         public List<IFormFile>? ImageList { get; init; }
     }
 }

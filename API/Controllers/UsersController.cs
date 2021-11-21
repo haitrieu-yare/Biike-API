@@ -308,6 +308,12 @@ namespace API.Controllers
 
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+            
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+            
+            if (validationDto.UserRequestId == userId) return BadRequest(Constant.DidNotHavePermissionToMakeRequest);
 
             return HandleResult(await Mediator.Send(new UserDeletion.Command {UserId = userId}, ct));
         }
