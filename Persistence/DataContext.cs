@@ -32,6 +32,7 @@ namespace Persistence
         public DbSet<VoucherCode> VoucherCode => Set<VoucherCode>();
         public DbSet<Redemption> Redemption => Set<Redemption>();
         public DbSet<Sos> Sos => Set<Sos>();
+        public DbSet<PointHistory> PointHistory => Set<PointHistory>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -303,6 +304,16 @@ namespace Persistence
                 .HasOne(r => r.Wallet)
                 .WithMany(w => w.Redemptions)
                 .HasForeignKey(r => r.WalletId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+
+            #region PointHistory
+
+            modelBuilder.Entity<PointHistory>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.PointHistories)
+                .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion

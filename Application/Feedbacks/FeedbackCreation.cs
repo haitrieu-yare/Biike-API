@@ -117,51 +117,70 @@ namespace Application.Feedbacks
                                 _logger.LogInformation("Keer with UserId {UserId} doesn't existed", trip.KeerId);
                                 return Result<Unit>.Failure($"Keer with UserId {trip.KeerId} doesn't existed.");
                             }
+
+                            var isTripHasTip = request.FeedbackCreationDto.TripTip != null;
                             
-                            var tripTip = (int) request.FeedbackCreationDto.TripTip!;
-                        
-                            if (tripTip < 1 || tripTip > keer.TotalPoint)
-                            {
-                                _logger.LogInformation(
-                                    "Tip point should be larger than 1 and smaller than total point of keer");
-                                return Result<Unit>.Failure(
-                                    "Tip point should be larger than 1 and smaller than total point of keer.");
-                            }
+                            var tripTip = request.FeedbackCreationDto.TripTip ?? 0;
 
-                            var oldWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Old);
-                            var currentWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Current);
-                    
-                            if (currentWallet == null)
+                            if (isTripHasTip)
                             {
-                                _logger.LogInformation("Keer with UserId {UserId} doesn't have wallet", trip.KeerId);
-                                return Result<Unit>.Failure($"Keer with UserId {trip.KeerId} doesn't have wallet.");
-                            }
-
-                            keer.TotalPoint -= tripTip;
-                            if (oldWallet != null)
-                            {
-                                oldWallet.Point -= tripTip;
-                        
-                                if (oldWallet.Point < 0)
+                                if (tripTip < 1 || tripTip > keer.TotalPoint)
                                 {
-                                    currentWallet.Point += oldWallet.Point;
+                                    _logger.LogInformation(
+                                        "Tip point should be larger than 1 and smaller than total point of keer");
+                                    return Result<Unit>.Failure(
+                                        "Tip point should be larger than 1 and smaller than total point of keer.");
                                 }
-                            }
-                            else
-                            {
-                                currentWallet.Point -= tripTip;
+
+                                var oldWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Old);
+                                var currentWallet = keer.Wallets.FirstOrDefault(w => w.Status == (int) WalletStatus.Current);
+                    
+                                if (currentWallet == null)
+                                {
+                                    _logger.LogInformation("Keer with UserId {UserId} doesn't have wallet", trip.KeerId);
+                                    return Result<Unit>.Failure($"Keer with UserId {trip.KeerId} doesn't have wallet.");
+                                }
+
+                                keer.TotalPoint -= tripTip;
+                                if (oldWallet != null)
+                                {
+                                    oldWallet.Point -= tripTip;
+                        
+                                    if (oldWallet.Point < 0)
+                                    {
+                                        currentWallet.Point += oldWallet.Point;
+                                    }
+                                }
+                                else
+                                {
+                                    currentWallet.Point -= tripTip;
+                                }
                             }
                             
                             switch (newFeedback.TripStar)
                             {
+                                // TODO: Thêm config cho điểm
                                 case 4:
                                     await _auto.Run(trip, 5, Constant.TripFeedbackPoint);
-                                    await _auto.Run(trip, tripTip, Constant.TripTipPoint);
+                                    if (isTripHasTip)
+                                        await _auto.Run(trip, tripTip, Constant.TripTipPoint);
                                     break;
                                 case 5:
                                     await _auto.Run(trip, 10, Constant.TripFeedbackPoint);
-                                    await _auto.Run(trip, tripTip, Constant.TripTipPoint);
+                                    if (isTripHasTip)
+                                        await _auto.Run(trip, tripTip, Constant.TripTipPoint);
                                     break;
+                            }
+                        }
+                        else
+                        {
+                            newFeedback.TripTip = 0;
+                            var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                            if (!result)
+                            {
+                                _logger.LogInformation("Failed to create new trip feedback");
+                                return Result<Unit>.Failure("Failed to create new trip feedback.");
                             }
                         }
                         
@@ -183,7 +202,7 @@ namespace Application.Feedbacks
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex) 
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

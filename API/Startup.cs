@@ -3,6 +3,7 @@ using System.IO;
 using API.SignalR;
 using Application;
 using Application.Core;
+using Application.PointHistory;
 using Application.Trips;
 using Application.TripTransactions;
 using Application.Users;
@@ -119,6 +120,7 @@ namespace API
                     // };
                 });
 
+            // Middleware này là để custom message trả về nếu như request không có thông tin authentication (lỗi 401)
             services.AddAuthorization()
                 .AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultTransformer>();
 
@@ -155,6 +157,7 @@ namespace API
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             services.AddScoped(typeof(Hashing));
             services.AddScoped(typeof(AutoTripTransactionCreation));
+            services.AddScoped(typeof(AutoPointHistoryCreation));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

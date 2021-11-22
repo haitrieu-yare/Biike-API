@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Trips.DTOs;
 using AutoMapper;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
@@ -45,6 +46,17 @@ namespace Application.Trips
                 try
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+
+                    var limitOneHourTime = CurrentTime.GetCurrentTime().AddHours(1);
+
+                    if (request.TripCreationDto.BookTime!.Value.CompareTo(limitOneHourTime) < 0)
+                    {
+                        _logger.LogInformation(
+                            "Failed to create new trip schedule because bookTime {BookTime} " +
+                            "is less than {LimitOneHourTime}", request.TripCreationDto.BookTime, limitOneHourTime);
+                        return Result<Unit>.Failure("Failed to create new trip schedule because bookTime " +
+                                                    $"{request.TripCreationDto.BookTime} is less than {limitOneHourTime}.");
+                    }
 
                     var route = await _context.Route.Where(r => r.DepartureId == request.TripCreationDto.DepartureId)
                         .Where(r => r.DestinationId == request.TripCreationDto.DestinationId)

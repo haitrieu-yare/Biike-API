@@ -54,5 +54,6 @@ namespace Domain.Entities
         public ICollection<Bike> Bikes { get; set; } = new List<Bike>();
         public ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
         public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
+        public ICollection<PointHistory> PointHistories { get; set; } = new List<PointHistory>();
     }
 }

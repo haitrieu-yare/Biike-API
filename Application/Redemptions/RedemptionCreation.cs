@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.PointHistory;
 using Application.Redemptions.DTOs;
 using AutoMapper;
 using Domain;
@@ -23,16 +24,20 @@ namespace Application.Redemptions
             public RedemptionCreationDto RedemptionCreationDto { get; init; } = null!;
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
             private readonly IMapper _mapper;
+            private readonly AutoPointHistoryCreation _pointHistoryCreation;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            public Handler(DataContext context, IMapper mapper, AutoPointHistoryCreation pointHistoryCreation,
+                ILogger<Handler> logger)
             {
                 _context = context;
                 _mapper = mapper;
+                _pointHistoryCreation = pointHistoryCreation;
                 _logger = logger;
             }
 
@@ -84,7 +89,8 @@ namespace Application.Redemptions
                         .Where(w => w.Status == (int) WalletStatus.Current)
                         .SingleOrDefaultAsync(cancellationToken);
                     // Old Wallet
-                    Wallet oldWallet = await _context.Wallet.Where(w => w.UserId == request.RedemptionCreationDto.UserId)
+                    Wallet oldWallet = await _context.Wallet
+                        .Where(w => w.UserId == request.RedemptionCreationDto.UserId)
                         .Where(w => w.Status == (int) WalletStatus.Old)
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -101,17 +107,16 @@ namespace Application.Redemptions
                     // Set voucherPoint
                     newRedemption.VoucherPoint = voucher.AmountOfPoint;
 
-                    var voucherCode = await _context.VoucherCode
-                        .Where(v => v.VoucherId == voucher.VoucherId)
+                    var voucherCode = await _context.VoucherCode.Where(v => v.VoucherId == voucher.VoucherId)
                         .Where(v => v.IsRedeemed == false)
                         .FirstOrDefaultAsync(cancellationToken);
-                    
+
                     if (voucherCode == null)
                     {
                         _logger.LogInformation("There is no available voucher code for this voucher");
                         return Result<Unit>.NotFound("There is no available voucher code for this voucher.");
                     }
-                    
+
                     newRedemption.VoucherCode = voucherCode.VoucherCodeName;
                     voucherCode.IsRedeemed = true;
 
@@ -181,6 +186,10 @@ namespace Application.Redemptions
                         _logger.LogInformation("Failed to create new redemption");
                         return Result<Unit>.Failure("Failed to create new redemption.");
                     }
+
+                    await _pointHistoryCreation.Run(user.UserId, (int) HistoryType.Redemption,
+                        newRedemption.RedemptionId, -newRedemption.VoucherPoint, user.TotalPoint,
+                        Constant.RedemptionUsage, newRedemption.RedemptionDate);
 
                     _logger.LogInformation("Successfully created redemption");
                     return Result<Unit>.Success(Unit.Value, "Successfully created redemption.",
