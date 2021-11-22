@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Application.Redemptions.DTOs;
+using Application.PointHistory.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -12,19 +12,24 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-namespace Application.Redemptions
+namespace Application.PointHistory
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
-    public class RedemptionList
+    public class PointHistoryList
     {
-        public class Query : IRequest<Result<List<RedemptionDto>>>
+        public class Query : IRequest<Result<List<PointHistoryDto>>>
         {
-            public int Page { get; init; }
-            public int Limit { get; init; }
+            public Query(int page, int limit)
+            {
+                Page = page;
+                Limit = limit;
+            }
+
+            public int Page { get; }
+            public int Limit { get; }
         }
 
         // ReSharper disable once UnusedType.Global
-        public class Handler : IRequestHandler<Query, Result<List<RedemptionDto>>>
+        public class Handler : IRequestHandler<Query, Result<List<PointHistoryDto>>>
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
@@ -37,7 +42,7 @@ namespace Application.Redemptions
                 _logger = logger;
             }
 
-            public async Task<Result<List<RedemptionDto>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<List<PointHistoryDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
                 try
                 {
@@ -46,39 +51,40 @@ namespace Application.Redemptions
                     if (request.Page <= 0)
                     {
                         _logger.LogInformation("Page must be larger than 0");
-                        return Result<List<RedemptionDto>>.Failure("Page must be larger than 0.");
+                        return Result<List<PointHistoryDto>>.Failure("Page must be larger than 0.");
                     }
 
                     if (request.Limit <= 0)
                     {
                         _logger.LogInformation("Limit must be larger than 0");
-                        return Result<List<RedemptionDto>>.Failure("Limit must be larger than 0.");
+                        return Result<List<PointHistoryDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    var totalRecord = await _context.Redemption.CountAsync(cancellationToken);
+                    var totalRecord = await _context.PointHistory.CountAsync(cancellationToken);
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
-                    List<RedemptionDto> redemptions = new();
+                    List<PointHistoryDto> pointHistoryList = new();
 
                     if (request.Page <= lastPage)
-                        redemptions = await _context.Redemption.OrderBy(r => r.RedemptionId)
+                        pointHistoryList = await _context.PointHistory
+                            .OrderByDescending(r => r.TimeStamp)
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
-                            .ProjectTo<RedemptionDto>(_mapper.ConfigurationProvider)
+                            .ProjectTo<PointHistoryDto>(_mapper.ConfigurationProvider)
                             .ToListAsync(cancellationToken);
 
-                    PaginationDto paginationDto = new(
-                        request.Page, request.Limit, redemptions.Count, lastPage, totalRecord);
+                    PaginationDto paginationDto = new(request.Page, request.Limit, pointHistoryList.Count, lastPage,
+                        totalRecord);
 
-                    _logger.LogInformation("Successfully retrieved list of all redemptions");
-                    return Result<List<RedemptionDto>>.Success(redemptions,
-                        "Successfully retrieved list of all redemptions.", paginationDto);
+                    _logger.LogInformation("Successfully retrieved list of all point history");
+                    return Result<List<PointHistoryDto>>.Success(pointHistoryList,
+                        "Successfully retrieved list of all point history.", paginationDto);
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
                     _logger.LogInformation("Request was cancelled");
-                    return Result<List<RedemptionDto>>.Failure("Request was cancelled.");
+                    return Result<List<PointHistoryDto>>.Failure("Request was cancelled.");
                 }
             }
         }

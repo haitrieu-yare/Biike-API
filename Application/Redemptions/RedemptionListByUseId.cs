@@ -26,6 +26,7 @@ namespace Application.Redemptions
             public int Limit { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<List<RedemptionDto>>>
         {
             private readonly DataContext _context;

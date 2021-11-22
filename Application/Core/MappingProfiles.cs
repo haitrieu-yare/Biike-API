@@ -4,6 +4,7 @@ using Application.Advertisements.DTOs;
 using Application.Bikes.DTOs;
 using Application.Feedbacks.DTOs;
 using Application.Intimacies.DTOs;
+using Application.PointHistory.DTOs;
 using Application.Redemptions.DTOs;
 using Application.Reports.DTOs;
 using Application.Routes.DTOs;
@@ -393,6 +394,13 @@ namespace Application.Core
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create
             CreateMap<SosCreationDto, Domain.Entities.Sos>();
+
+            #endregion
+
+            #region Point History
+
+            // List
+            CreateMap<Domain.Entities.PointHistory, PointHistoryDto>();
 
             #endregion
         }

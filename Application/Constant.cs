@@ -23,7 +23,7 @@ namespace Application
         public const string ReoccurredJob = "ReoccurredJob";
         public const string TripCompletionPoint = "Điểm thưởng chuyến đi";
         public const string TripFeedbackPoint = "Điểm thưởng đánh giá";
-        public const string TripTipPoint = "Điểm cho người chở";
+        public const string TripTipPoint = "Điểm tặng cho người chở";
         public const string RedemptionUsage = "Sử dụng điểm đổi voucher";
 
         public static string OnlyRole(string role)

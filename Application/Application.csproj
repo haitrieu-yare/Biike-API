@@ -40,10 +40,6 @@
       </Reference>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="PointHistory\DTOs" />
-    </ItemGroup>
-
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <Nullable>enable</Nullable>
