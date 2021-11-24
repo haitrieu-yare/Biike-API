@@ -317,6 +317,16 @@ namespace Persistence
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
+
+            #region Sos
+
+            modelBuilder.Entity<Sos>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.SosList)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
         }
     }
 }

@@ -15,18 +15,20 @@ using Persistence;
 namespace Application.Sos
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class SosList
+    public class SosListByUserId
     {
         public class Query : IRequest<Result<List<SosDto>>>
         {
-            public Query(int page, int limit)
+            public Query(int page, int limit, int userId)
             {
                 Page = page;
                 Limit = limit;
+                UserId = userId;
             }
 
             public int Page { get; }
             public int Limit { get; }
+            public int UserId { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -61,14 +63,16 @@ namespace Application.Sos
                         return Result<List<SosDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    var totalRecord = await _context.Sos.CountAsync(cancellationToken);
+                    var totalRecord = await _context.Sos.Where(s => s.UserId == request.UserId)
+                        .CountAsync(cancellationToken);
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
                     List<SosDto> sosList = new();
 
                     if (request.Page <= lastPage)
                     {
-                        sosList = await _context.Sos.OrderBy(s => s.SosId)
+                        sosList = await _context.Sos.Where(s => s.UserId == request.UserId)
+                            .OrderBy(s => s.SosId)
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
                             .ProjectTo<SosDto>(_mapper.ConfigurationProvider)

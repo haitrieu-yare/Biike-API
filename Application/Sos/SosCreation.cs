@@ -15,12 +15,14 @@ namespace Application.Sos
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public Command(SosCreationDto sosCreationDto)
+            public Command(SosCreationDto sosCreationDto, int userId)
             {
                 SosCreationDto = sosCreationDto;
+                UserId = userId;
             }
 
             public SosCreationDto SosCreationDto { get; }
+            public int UserId { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -46,6 +48,8 @@ namespace Application.Sos
                     Domain.Entities.Sos newSos = new();
 
                     _mapper.Map(request.SosCreationDto, newSos);
+
+                    newSos.UserId = request.UserId;
 
                     await _context.Sos.AddAsync(newSos, cancellationToken);
 

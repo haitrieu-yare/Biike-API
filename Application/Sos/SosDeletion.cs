@@ -13,12 +13,14 @@ namespace Application.Sos
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public Command(int sosId)
+            public Command(int sosId, int userId)
             {
                 SosId = sosId;
+                UserId = userId;
             }
 
             public int SosId { get; }
+            public int UserId { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -46,6 +48,12 @@ namespace Application.Sos
                     {
                         _logger.LogInformation("Sos doesn't exist");
                         return Result<Unit>.NotFound("Sos doesn't exist.");
+                    }
+                    
+                    if (sos.UserId != request.UserId)
+                    {
+                        _logger.LogInformation("This sos doesn't belong to this user");
+                        return Result<Unit>.Failure("This sos doesn't belong to this user.");
                     }
 
                     _context.Sos.Remove(sos);

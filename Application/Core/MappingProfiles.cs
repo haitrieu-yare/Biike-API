@@ -390,6 +390,7 @@ namespace Application.Core
             // Edit
             CreateMap<SosDto, Domain.Entities.Sos>()
                 .ForMember(s => s.SosId, o => o.Ignore())
+                .ForMember(s => s.UserId, o => o.Ignore())
                 .ForMember(s => s.CreatedDate, o => o.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create

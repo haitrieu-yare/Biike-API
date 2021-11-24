@@ -15,14 +15,16 @@ namespace Application.Sos
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public Command(int sosId, SosDto newSosDto)
+            public Command(int sosId, SosDto newSosDto, int userId)
             {
                 SosId = sosId;
                 NewSosDto = newSosDto;
+                UserId = userId;
             }
             
             public int SosId { get; }
-            public SosDto NewSosDto { get; } 
+            public SosDto NewSosDto { get; }
+            public int UserId { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -52,6 +54,12 @@ namespace Application.Sos
                     {
                         _logger.LogInformation("Sos doesn't exist");
                         return Result<Unit>.NotFound("Sos doesn't exist.");
+                    }
+
+                    if (oldSos.UserId != request.UserId)
+                    {
+                        _logger.LogInformation("This sos doesn't belong to this user");
+                        return Result<Unit>.Failure("This sos doesn't belong to this user.");
                     }
 
                     _mapper.Map(request.NewSosDto, oldSos);

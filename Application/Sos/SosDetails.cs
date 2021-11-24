@@ -15,14 +15,12 @@ namespace Application.Sos
     {
         public class Query : IRequest<Result<SosDto>>
         {
-            public Query(int sosId, bool isAdmin)
+            public Query(int sosId)
             {
                 SosId = sosId;
-                IsAdmin = isAdmin;
             }
 
             public int SosId { get; }
-            public bool IsAdmin { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -57,12 +55,6 @@ namespace Application.Sos
                     }
 
                     _mapper.Map(sosDb, sos);
-
-                    if (!request.IsAdmin)
-                    {
-                        // Set to null to make unnecessary fields excluded from the response body.
-                        sos.CreatedDate = null;
-                    }
 
                     _logger.LogInformation("Successfully retrieved sos by sosId {request.SosId}", request.SosId);
                     return Result<SosDto>.Success(sos, $"Successfully retrieved sos by sosId {request.SosId}.");
