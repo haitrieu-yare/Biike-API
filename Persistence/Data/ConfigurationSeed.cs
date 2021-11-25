@@ -19,7 +19,7 @@ namespace Persistence.Data
                 new()
                 {
                     ConfigurationName = "ConversionRate", 
-                    ConfigurationValue = "0,06",
+                    ConfigurationValue = "0.06",
                     UserId = 6, 
                     CreatedDate = createdDate
                 }

@@ -42,6 +42,20 @@ namespace API.Controllers
         }
 
         // Keer, Biker, Admin
+        [HttpGet("existence")]
+        public async Task<IActionResult> CheckIntimacyExistence(int userOneId, int userTwoId, CancellationToken ct)
+        {
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userOneId);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            if (!validationDto.IsAuthorized)
+                return new ObjectResult(Constant.DidNotHavePermissionToAccess) {StatusCode = 403};
+
+            return HandleResult(await Mediator.Send(new IntimacyExistence.Query(userOneId, userTwoId), ct));
+        }
+        
+        // Keer, Biker, Admin
         [HttpGet]
         public async Task<IActionResult> CheckIntimacy(int userOneId, int userTwoId, CancellationToken ct)
         {

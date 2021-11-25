@@ -11,7 +11,7 @@ using Persistence;
 namespace Application.Intimacies
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class IntimacyPair
+    public class IntimacyExistence
     {
         public class Query : IRequest<Result<bool>>
         {
@@ -47,17 +47,12 @@ namespace Application.Intimacies
                         .Where(i => i.UserTwoId == request.UserTwoId)
                         .SingleOrDefaultAsync(cancellationToken);
 
-                    if (intimacy == null)
-                    {
-                        _logger.LogInformation("Intimacy doesn't exist");
-                        return Result<bool>.NotFound("Intimacy doesn't exist.");
-                    }
-
                     _logger.LogInformation(
-                        "Successfully retrieved result of intimacy by UserOneId {UserOneId} and" +
+                        "Successfully retrieved result of intimacy's existence by UserOneId {UserOneId} and" +
                         " UserTwoId {UserTwoId}", request.UserOneId, request.UserTwoId);
-                    return Result<bool>.Success(intimacy.IsBlock,
-                        $"Successfully retrieved result of intimacy by UserOneId {request.UserOneId}" +
+
+                    return Result<bool>.Success(intimacy != null,
+                        $"Successfully retrieved result of intimacy's existence by UserOneId {request.UserOneId}" +
                         $" and UserTwoId {request.UserTwoId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
