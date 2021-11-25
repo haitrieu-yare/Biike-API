@@ -1,15 +1,20 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Notifications.DTOs;
 using Application.Trips.DTOs;
 using AutoMapper;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
+using Firebase.Database;
+using Firebase.Database.Query;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Persistence;
 using Quartz;
@@ -31,13 +36,15 @@ namespace Application.Trips
             private readonly ILogger<Handler> _logger;
             private readonly IMapper _mapper;
             private readonly ISchedulerFactory _schedulerFactory;
+            private readonly IConfiguration _configuration;
 
             public Handler(DataContext context, IMapper mapper, ISchedulerFactory schedulerFactory,
-                ILogger<Handler> logger)
+                IConfiguration configuration, ILogger<Handler> logger)
             {
                 _context = context;
                 _mapper = mapper;
                 _schedulerFactory = schedulerFactory;
+                _configuration = configuration;
                 _logger = logger;
             }
 
@@ -48,14 +55,27 @@ namespace Application.Trips
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var limitOneHourTime = CurrentTime.GetCurrentTime().AddHours(1);
+                    var limitFifteenMinutesTime = limitOneHourTime.AddMinutes(-45);
 
-                    if (request.TripCreationDto.BookTime!.Value.CompareTo(limitOneHourTime) < 0)
+                    if (request.TripCreationDto.IsScheduled!.Value &&
+                        request.TripCreationDto.BookTime!.Value.CompareTo(limitOneHourTime) < 0)
                     {
                         _logger.LogInformation(
                             "Failed to create new trip schedule because bookTime {BookTime} " +
                             "is less than {LimitOneHourTime}", request.TripCreationDto.BookTime, limitOneHourTime);
                         return Result<Unit>.Failure("Failed to create new trip schedule because bookTime " +
                                                     $"{request.TripCreationDto.BookTime} is less than {limitOneHourTime}.");
+                    }
+
+                    if (!request.TripCreationDto.IsScheduled!.Value &&
+                        request.TripCreationDto.BookTime!.Value.CompareTo(limitFifteenMinutesTime) > 0)
+                    {
+                        _logger.LogInformation(
+                            "Failed to create new trip now because bookTime {BookTime} " +
+                            "is larger than {LimitFifteenMinutesTime}", request.TripCreationDto.BookTime,
+                            limitFifteenMinutesTime);
+                        return Result<Unit>.Failure("Failed to create new trip now because bookTime " +
+                                                    $"{request.TripCreationDto.BookTime} is larger than {limitFifteenMinutesTime}.");
                     }
 
                     var route = await _context.Route.Where(r => r.DepartureId == request.TripCreationDto.DepartureId)
@@ -71,7 +91,7 @@ namespace Application.Trips
                             $"Route with DepartureId {request.TripCreationDto.DepartureId} and " +
                             $"DestinationId {request.TripCreationDto.DestinationId} doesn't exist.");
                     }
-                    
+
                     var tripWithBookTime = await _context.Trip
                         .Where(t => t.BookTime == request.TripCreationDto.BookTime)
                         .SingleOrDefaultAsync(cancellationToken);
@@ -79,9 +99,9 @@ namespace Application.Trips
                     if (tripWithBookTime != null)
                     {
                         _logger.LogInformation(
-                            "Failed to create new trip schedule because trip with bookTime {BookTime} " +
+                            "Failed to create new trip because trip with bookTime {BookTime} " +
                             "is already existed", request.TripCreationDto.BookTime);
-                        return Result<Unit>.Failure("Failed to create new trip schedule because trip with bookTime " +
+                        return Result<Unit>.Failure("Failed to create new trip because trip with bookTime " +
                                                     $"{request.TripCreationDto.BookTime} is already existed.");
                     }
 
@@ -113,7 +133,36 @@ namespace Application.Trips
                         return Result<Unit>.Failure("Failed to create new trip.");
                     }
 
-                    await AutoTripCancellationCreation.Run(_schedulerFactory, newTrip);
+                    if (request.TripCreationDto.IsScheduled.Value)
+                    {
+                        await AutoTripCancellationCreation.Run(_schedulerFactory, newTrip);
+                    }
+                    else
+                    {
+                        var firebaseClient = new FirebaseClient(
+                            _configuration["Firebase:RealtimeDatabase"],
+                            new FirebaseOptions
+                            {
+                                AuthTokenAsyncFactory = () => Task.FromResult(_configuration["Firebase:RealtimeDatabaseSecret"]) 
+                            });
+
+                        var notification = new NotificationDto
+                        {
+                            Title = "Ké now mới",
+                            Content = "Có một chuyến đi mới vừa được tạo, bạn có muốn chở chuyến đi này không?",
+                            ReceiverId = 3,
+                            IsRead = false,
+                            CreatedDate = newTrip.CreatedDate
+                        };
+                        
+                        var options = new JsonSerializerOptions {WriteIndented = true};
+                        string notificationJsonString = JsonSerializer.Serialize(notification, options);
+                        
+                        var notificationFirebase = await firebaseClient
+                            .Child("notification")
+                            .Child($"{notification.ReceiverId}")
+                            .PostAsync(notificationJsonString);
+                    }
 
                     _logger.LogInformation("Successfully created trip");
                     return Result<Unit>.Success(Unit.Value, "Successfully created trip.", newTrip.TripId.ToString());

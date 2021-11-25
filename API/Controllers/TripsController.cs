@@ -159,6 +159,7 @@ namespace API.Controllers
         
         // Keer
         [HttpPost("schedule")]
+        // TODO: TripScheduleCreationDto không cần field isScheduled
         public async Task<IActionResult> CreateTripSchedule(TripScheduleCreationDto tripScheduleCreationDto,
             CancellationToken ct)
         {
