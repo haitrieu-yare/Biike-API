@@ -33,6 +33,8 @@ namespace Persistence
         public DbSet<Redemption> Redemption => Set<Redemption>();
         public DbSet<Sos> Sos => Set<Sos>();
         public DbSet<PointHistory> PointHistory => Set<PointHistory>();
+        public DbSet<MomoTransaction> MomoTransaction => Set<MomoTransaction>();
+        public DbSet<Configuration> Configuration => Set<Configuration>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -325,6 +327,29 @@ namespace Persistence
                 .WithMany(u => u.SosList)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+
+            #region MomoTransaction
+
+            modelBuilder.Entity<MomoTransaction>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.MomoTransactions)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<MomoTransaction>()
+                .HasIndex(p => p.TransactionId).IsUnique();
+            
+            modelBuilder.Entity<MomoTransaction>()
+                .HasIndex(p => p.OrderId).IsUnique();
+
+            #endregion
+
+            #region Configuration
+
+            modelBuilder.Entity<Configuration>()
+                .HasIndex(p => p.ConfigurationName).IsUnique();
 
             #endregion
         }

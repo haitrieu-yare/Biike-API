@@ -73,7 +73,7 @@ namespace Application.Routes
                             "Departure station and destination station does not belong to the same area.");
                     }
 
-                    Task<Route> oldRoute = _context.Route
+                    Route oldRoute = await _context.Route
                         .Where(r => r.DepartureId == request.RouteCreationDto.DepartureId)
                         .Where(r => r.DestinationId == request.RouteCreationDto.DestinationId)
                         .SingleOrDefaultAsync(cancellationToken);

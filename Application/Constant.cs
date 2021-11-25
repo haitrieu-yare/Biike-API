@@ -25,6 +25,8 @@ namespace Application
         public const string TripFeedbackPoint = "Điểm thưởng đánh giá";
         public const string TripTipPoint = "Điểm tặng cho người chở";
         public const string RedemptionUsage = "Sử dụng điểm đổi voucher";
+        public const string MomoPoint = "Nạp tiền momo đổi điểm";
+        public const string TransactionStatus = "transactionStatus";
 
         public static string OnlyRole(string role)
         {

@@ -2,8 +2,10 @@ using System;
 using Application.Addresses.DTOs;
 using Application.Advertisements.DTOs;
 using Application.Bikes.DTOs;
+using Application.Configurations.DTOs;
 using Application.Feedbacks.DTOs;
 using Application.Intimacies.DTOs;
+using Application.MomoTransactions.DTOs;
 using Application.PointHistory.DTOs;
 using Application.Redemptions.DTOs;
 using Application.Reports.DTOs;
@@ -403,6 +405,31 @@ namespace Application.Core
             // List
             CreateMap<Domain.Entities.PointHistory, PointHistoryDto>();
 
+            #endregion
+
+            #region Momo Transaction
+
+            // Create
+            CreateMap<MomoTransactionCreationDto, MomoTransaction>();
+            // List
+            CreateMap<MomoTransaction, MomoTransactionDto>();
+
+            #endregion
+
+            #region Configuration
+
+            // Create
+            CreateMap<ConfigurationCreationDto, Configuration>();
+            // List
+            CreateMap<Configuration, ConfigurationDto>();
+            // Edit
+            CreateMap<ConfigurationDto, ConfigurationDto>()
+                .ForMember(s => s.ConfigurationId, o => o.Ignore())
+                .ForMember(s => s.UserId, o => o.Ignore())
+                .ForMember(s => s.LastUpdatedDate, o => o.Ignore())
+                .ForMember(s => s.CreatedDate, o => o.Ignore())
+                .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
+            
             #endregion
         }
     }

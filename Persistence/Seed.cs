@@ -24,6 +24,8 @@ namespace Persistence
             await VoucherSeed.SeedData(context);
             await RedemptionSeed.SeedData(context);
 
+            await ConfigurationSeed.SeedData(context);
+
             return result;
         }
     }

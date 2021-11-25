@@ -56,5 +56,6 @@ namespace Domain.Entities
         public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
         public ICollection<PointHistory> PointHistories { get; set; } = new List<PointHistory>();
         public ICollection<Sos> SosList { get; set; } = new List<Sos>();
+        public ICollection<MomoTransaction> MomoTransactions { get; set; } = new List<MomoTransaction>();
     }
 }

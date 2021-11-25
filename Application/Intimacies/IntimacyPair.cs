@@ -43,7 +43,8 @@ namespace Application.Intimacies
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var intimacies = await _context.Intimacy.Where(i => i.UserOneId == request.UserOneId)
+                    var intimacy = await _context.Intimacy
+                        .Where(i => i.UserOneId == request.UserOneId)
                         .Where(i => i.UserTwoId == request.UserTwoId)
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -51,7 +52,7 @@ namespace Application.Intimacies
                         "Successfully retrieved result of intimacy by UserOneId {UserOneId} and" +
                         " UserTwoId {UserTwoId}", request.UserOneId, request.UserTwoId);
 
-                    return Result<bool>.Success(intimacies != null,
+                    return Result<bool>.Success(intimacy != null,
                         $"Successfully retrieved result of intimacy by UserOneId {request.UserOneId}" +
                         $" and UserTwoId {request.UserTwoId}.");
                 }

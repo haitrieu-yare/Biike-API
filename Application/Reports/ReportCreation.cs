@@ -13,7 +13,7 @@ using Persistence;
 
 namespace Application.Reports
 {
-    // ReSharper disable once UnusedType.Global
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class ReportCreation
     {
         public class Command : IRequest<Result<Unit>>
