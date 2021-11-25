@@ -15,13 +15,13 @@ namespace API.Controllers
     {
         // Keer, Biker, Admin
         [HttpGet]
-        public async Task<IActionResult> GetVouchers(int page, int limit, CancellationToken ct)
+        public async Task<IActionResult> GetVouchers(int page, int limit, int voucherCategoryId, CancellationToken ct)
         {
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            return HandleResult(await Mediator.Send(new VoucherList.Query {Page = page, Limit = limit}, ct));
+            return HandleResult(await Mediator.Send(new VoucherList.Query(page, limit, voucherCategoryId), ct));
         }
 
         // Keer, Biker, Admin

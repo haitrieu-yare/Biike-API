@@ -19,8 +19,16 @@ namespace Application.Vouchers
     {
         public class Query : IRequest<Result<List<VoucherDto>>>
         {
-            public int Page { get; init; }
-            public int Limit { get; init; }
+            public Query(int page, int limit, int categoryId)
+            {
+                Page = page;
+                Limit = limit;
+                CategoryId = categoryId;
+            }
+
+            public int Page { get; }
+            public int Limit { get; }
+            public int CategoryId { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -55,28 +63,51 @@ namespace Application.Vouchers
                         return Result<List<VoucherDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    var totalRecord = await _context.Voucher.CountAsync(cancellationToken);
+                    if (request.CategoryId < 0)
+                    {
+                        _logger.LogInformation("CategoryId must be larger than 0");
+                        return Result<List<VoucherDto>>.Failure("CategoryId must be larger than 0.");
+                    }
 
-                    var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
-
+                    int totalRecord;
+                    int lastPage;
                     List<VoucherDto> vouchers = new();
 
-                    if (request.Page <= lastPage)
-                        vouchers = await _context.Voucher
-                            .AsSingleQuery()
-                            .OrderBy(v => v.VoucherId)
-                            .Skip((request.Page - 1) * request.Limit)
-                            .Take(request.Limit)
-                            .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
-                            .ToListAsync(cancellationToken);
+                    if (request.CategoryId == 0)
+                    {
+                        totalRecord = await _context.Voucher.CountAsync(cancellationToken);
+                        lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
+
+                        if (request.Page <= lastPage)
+                            vouchers = await _context.Voucher.AsSingleQuery()
+                                .OrderBy(v => v.VoucherCategoryId)
+                                .Skip((request.Page - 1) * request.Limit)
+                                .Take(request.Limit)
+                                .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
+                                .ToListAsync(cancellationToken);
+                    }
+                    else
+                    {
+                        totalRecord = await _context.Voucher.Where(v => v.VoucherCategoryId == request.CategoryId)
+                            .CountAsync(cancellationToken);
+                        lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
+
+                        if (request.Page <= lastPage)
+                            vouchers = await _context.Voucher.AsSingleQuery()
+                                .Where(v => v.VoucherCategoryId == request.CategoryId)
+                                .OrderBy(v => v.VoucherCategoryId)
+                                .Skip((request.Page - 1) * request.Limit)
+                                .Take(request.Limit)
+                                .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
+                                .ToListAsync(cancellationToken);
+                    }
 
                     PaginationDto paginationDto = new(
-                        request.Page, request.Limit, vouchers.Count, lastPage, totalRecord
-                    );
+                        request.Page, request.Limit, vouchers.Count, lastPage, totalRecord);
 
                     _logger.LogInformation("Successfully retrieved list of all vouchers");
-                    return Result<List<VoucherDto>>.Success(
-                        vouchers, "Successfully retrieved list of all vouchers.", paginationDto);
+                    return Result<List<VoucherDto>>.Success(vouchers, "Successfully retrieved list of all vouchers.",
+                        paginationDto);
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
