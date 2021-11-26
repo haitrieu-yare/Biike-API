@@ -165,7 +165,7 @@ namespace Application.Trips
                                 ReceiverId = biker.UserId,
                                 Url = $"{_configuration["ApiPath"]}/trips/{newTrip.TripId}/details",
                                 IsRead = false,
-                                CreatedDate = newTrip.CreatedDate
+                                CreatedDate = CurrentTime.GetCurrentTime()
                             };
 
                             string notificationJsonString = JsonSerializer.Serialize(notification, options);

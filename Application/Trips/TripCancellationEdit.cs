@@ -1,14 +1,20 @@
 using System;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Notifications.DTOs;
 using Application.Trips.DTOs;
 using AutoMapper;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
+using Firebase.Database;
+using Firebase.Database.Query;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -31,11 +37,13 @@ namespace Application.Trips
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
             private readonly IMapper _mapper;
+            private readonly IConfiguration _configuration;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            public Handler(DataContext context, IMapper mapper, IConfiguration configuration, ILogger<Handler> logger)
             {
                 _context = context;
                 _mapper = mapper;
+                _configuration = configuration;
                 _logger = logger;
             }
 
@@ -51,6 +59,16 @@ namespace Application.Trips
                     {
                         _logger.LogInformation("Trip doesn't exist");
                         return Result<Unit>.NotFound("Trip doesn't exist.");
+                    }
+
+                    User user = await _context.User.Where(u => u.UserId == request.UserId)
+                        .Where(u => u.IsDeleted == false)
+                        .SingleOrDefaultAsync(cancellationToken);
+
+                    if (user == null)
+                    {
+                        _logger.LogInformation("User with {UserId} doesn't exist", request.UserId);
+                        return Result<Unit>.NotFound($"User with {request.UserId} doesn't exist.");
                     }
 
                     if (!request.IsAdmin)
@@ -91,6 +109,75 @@ namespace Application.Trips
                         return Result<Unit>.Failure($"Failed to cancel trip with TripId {request.TripId}.");
                     }
 
+                    var firebaseClient = new FirebaseClient(_configuration["Firebase:RealtimeDatabase"],
+                        new FirebaseOptions
+                        {
+                            AuthTokenAsyncFactory = () =>
+                                Task.FromResult(_configuration["Firebase:RealtimeDatabaseSecret"])
+                        });
+
+                    var options = new JsonSerializerOptions {WriteIndented = true};
+
+                    var isKeer = request.UserId == oldTrip.KeerId;
+                    if (oldTrip.BikerId != null)
+                    {
+                        var notification = new NotificationDto
+                        {
+                            NotificationId = Guid.NewGuid(),
+                            Title = "Chuyến đi đã bị hủy",
+                            Content = $"Chuyến đi vào {oldTrip.BookTime} đã bị hủy bởi {user.FullName}",
+                            ReceiverId = isKeer ? oldTrip.BikerId : oldTrip.KeerId,
+                            Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
+                            IsRead = false,
+                            CreatedDate = CurrentTime.GetCurrentTime()
+                        };
+
+                        string notificationJsonString = JsonSerializer.Serialize(notification, options);
+
+                        await firebaseClient.Child("notification")
+                            .Child($"{notification.ReceiverId}")
+                            .PostAsync(notificationJsonString);
+                    }
+                    else if (request.IsAdmin)
+                    {
+                        var notification1 = new NotificationDto
+                        {
+                            NotificationId = Guid.NewGuid(),
+                            Title = "Chuyến đi đã bị hủy",
+                            Content = $"Chuyến đi vào {oldTrip.BookTime} đã bị hủy bởi Admin {user.FullName}",
+                            ReceiverId = oldTrip.KeerId,
+                            Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
+                            IsRead = false,
+                            CreatedDate = CurrentTime.GetCurrentTime()
+                        };
+
+                        string notificationJsonString1 = JsonSerializer.Serialize(notification1, options);
+
+                        await firebaseClient.Child("notification")
+                            .Child($"{notification1.ReceiverId}")
+                            .PostAsync(notificationJsonString1);
+
+                        if (oldTrip.BikerId != null)
+                        {
+                            var notification2 = new NotificationDto
+                            {
+                                NotificationId = Guid.NewGuid(),
+                                Title = "Chuyến đi đã bị hủy",
+                                Content = $"Chuyến đi vào {oldTrip.BookTime} đã bị hủy bởi Admin {user.FullName}",
+                                ReceiverId = oldTrip.BikerId,
+                                Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
+                                IsRead = false,
+                                CreatedDate = CurrentTime.GetCurrentTime()
+                            };
+
+                            string notificationJsonString2 = JsonSerializer.Serialize(notification2, options);
+
+                            await firebaseClient.Child("notification")
+                                .Child($"{notification2.ReceiverId}")
+                                .PostAsync(notificationJsonString2);
+                        }
+                    }
+
                     _logger.LogInformation("Successfully cancelled trip with TripId {request.TripId}", request.TripId);
                     return Result<Unit>.Success(Unit.Value,
                         $"Successfully cancelled trip with TripId {request.TripId}.");
@@ -100,7 +187,7 @@ namespace Application.Trips
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex)
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

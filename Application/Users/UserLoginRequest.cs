@@ -113,6 +113,8 @@ namespace Application.Users
                         ExpiresIn = auth.ExpiresIn.ToString(),
                         IsPhoneVerified = user.IsPhoneVerified
                     };
+                    
+                    authProvider.Dispose();
 
                     _logger.LogInformation("Successfully logged in");
                     return Result<UserLoginResponse>.Success(response, "Successfully logged in.");

@@ -1,12 +1,18 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Notifications.DTOs;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
+using Firebase.Database;
+using Firebase.Database.Query;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Persistence;
 using Quartz;
@@ -27,11 +33,14 @@ namespace Application.Trips
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
             private readonly ISchedulerFactory _schedulerFactory;
+            private readonly IConfiguration _configuration;
 
-            public Handler(DataContext context, ISchedulerFactory schedulerFactory, ILogger<Handler> logger)
+            public Handler(DataContext context, ISchedulerFactory schedulerFactory, IConfiguration configuration, 
+                ILogger<Handler> logger)
             {
                 _context = context;
                 _schedulerFactory = schedulerFactory;
+                _configuration = configuration;
                 _logger = logger;
             }
 
@@ -101,6 +110,33 @@ namespace Application.Trips
                     _logger.LogInformation("Successfully deleted cancellation job's trigger");
 
                     if (!jobTriggerDeletionResult) _logger.LogError("Fail to delete job's trigger with job name {JobName}", jobName);
+                    
+                    var firebaseClient = new FirebaseClient(
+                        _configuration["Firebase:RealtimeDatabase"],
+                        new FirebaseOptions
+                        {
+                            AuthTokenAsyncFactory = () => Task.FromResult(_configuration["Firebase:RealtimeDatabaseSecret"]) 
+                        });
+
+                    var options = new JsonSerializerOptions {WriteIndented = true};
+
+                    var notification = new NotificationDto
+                    {
+                        NotificationId = Guid.NewGuid(),
+                        Title = "Đã Có Biker chấp nhận chuyến đi",
+                        Content = $"Biker tên {biker.FullName} đã chấp nhận chuyến đi vào {oldTrip.BookTime} của bạn",
+                        ReceiverId = oldTrip.KeerId,
+                        Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
+                        IsRead = false,
+                        CreatedDate = CurrentTime.GetCurrentTime()
+                    };
+
+                    string notificationJsonString = JsonSerializer.Serialize(notification, options);
+                    
+                    await firebaseClient
+                        .Child("notification")
+                        .Child($"{notification.ReceiverId}")
+                        .PostAsync(notificationJsonString);
 
                     _logger.LogInformation("Successfully updated trip with TripId {request.TripId}", request.TripId);
                     return Result<Unit>.Success(Unit.Value, $"Successfully updated trip with TripId {request.TripId}.");
