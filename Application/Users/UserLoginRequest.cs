@@ -63,9 +63,17 @@ namespace Application.Users
 
                     if (!user.IsEmailVerified)
                     {
-                        _logger.LogInformation("User with userId {UserId} haven't verified email", auth.User.LocalId);
-                        return Result<UserLoginResponse>.Failure(
-                            $"User with userId {auth.User.LocalId} haven't verified email.");
+                        if (auth.User.IsEmailVerified)
+                        {
+                            user.IsEmailVerified = true;
+                        }
+                        else
+                        {
+                            _logger.LogInformation("User with userId {UserId} hasn't verified email",
+                                auth.User.LocalId);
+                            return Result<UserLoginResponse>.Failure(
+                                $"User with userId {auth.User.LocalId} hasn't verified email.");
+                        }
                     }
 
                     if (request.UserLoginDto.IsAdmin!.Value && user.Role != (int) RoleStatus.Admin)
@@ -94,6 +102,14 @@ namespace Application.Users
                         RefreshToken = auth.RefreshToken,
                         ExpiresIn = auth.ExpiresIn.ToString()
                     };
+
+                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    if (!result)
+                    {
+                        _logger.LogInformation("Failed to update email verification");
+                        return Result<UserLoginResponse>.Failure("Failed to update email verification.");
+                    }
 
                     _logger.LogInformation("Successfully logged in");
                     return Result<UserLoginResponse>.Success(response, "Successfully logged in.");

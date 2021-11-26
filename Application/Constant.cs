@@ -27,6 +27,8 @@ namespace Application
         public const string RedemptionUsage = "Sử dụng điểm đổi voucher";
         public const string MomoPoint = "Nạp tiền momo đổi điểm";
         public const string TransactionStatus = "transactionStatus";
+        public const string NotificationTitleKeNow = "Ké now mới";
+        public const string NotificationContentKeNow = "Có một chuyến đi mới vừa được tạo, bạn có muốn chở chuyến đi này không?";
 
         public static string OnlyRole(string role)
         {

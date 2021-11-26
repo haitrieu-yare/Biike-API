@@ -86,26 +86,6 @@ namespace Application.Users
 
                     if (user.IsEmailVerified && user.IsPhoneVerified) user.Status = (int) UserStatus.Active;
 
-                    // #region Update user on Firebase
-                    // var userToUpdate = new UserRecordArgs()
-                    // {
-                    // 	Uid = user.UserId.ToString(),
-                    // 	Disabled = user.Status != (int)UserStatus.Active,
-                    // };
-                    // #endregion
-
-                    // try
-                    // {
-                    // 	await FirebaseAuth.DefaultInstance.UpdateUserAsync(userToUpdate, cancellationToken);
-                    // }
-                    // catch (System.Exception ex)
-                    // {
-                    // 	_logger.LogInformation($"Failed to verify user with UserId {request.UserId} " +
-                    // 		$"on Firebase. {ex.InnerException?.Message ?? ex.Message}");
-                    // 	return Result<Unit>.Failure($"Failed to verify user with UserId {request.UserId} " +
-                    // 		$"on Firebase. {ex.InnerException?.Message ?? ex.Message}");
-                    // }
-
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)

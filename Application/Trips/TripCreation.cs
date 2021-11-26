@@ -148,9 +148,10 @@ namespace Application.Trips
 
                         var notification = new NotificationDto
                         {
-                            Title = "Ké now mới",
-                            Content = "Có một chuyến đi mới vừa được tạo, bạn có muốn chở chuyến đi này không?",
+                            Title = Constant.NotificationTitleKeNow,
+                            Content = Constant.NotificationContentKeNow,
                             ReceiverId = 3,
+                            Url = $"${_configuration["ApiPath"]}/trips/{newTrip.TripId}/details",
                             IsRead = false,
                             CreatedDate = newTrip.CreatedDate
                         };
@@ -172,7 +173,7 @@ namespace Application.Trips
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex)
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
