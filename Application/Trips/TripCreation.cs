@@ -148,10 +148,11 @@ namespace Application.Trips
 
                         var notification = new NotificationDto
                         {
+                            NotificationId = Guid.NewGuid(),
                             Title = Constant.NotificationTitleKeNow,
                             Content = Constant.NotificationContentKeNow,
                             ReceiverId = 3,
-                            Url = $"${_configuration["ApiPath"]}/trips/{newTrip.TripId}/details",
+                            Url = $"{_configuration["ApiPath"]}/trips/{newTrip.TripId}/details",
                             IsRead = false,
                             CreatedDate = newTrip.CreatedDate
                         };

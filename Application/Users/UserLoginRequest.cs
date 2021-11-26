@@ -109,6 +109,7 @@ namespace Application.Users
                         ProfilePicture = auth.User.PhotoUrl,
                         IdToken = auth.FirebaseToken,
                         RefreshToken = auth.RefreshToken,
+                        Phone = auth.User.PhoneNumber,
                         ExpiresIn = auth.ExpiresIn.ToString()
                     };
 

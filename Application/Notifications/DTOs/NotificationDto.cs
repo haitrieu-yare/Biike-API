@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Application.Notifications.DTOs
 {
     public class NotificationDto
     {
-        public int? NotificationId { get; set; }
-        public int? ReceiverId { get; set; }
-        public string? Title { get; set; }
-        public string? Content { get; set; }
-        public string? Url { get; set; }
-        public bool? IsRead { get; set; }
-        public DateTime? CreatedDate { get; set; }
+        [JsonPropertyName("notificationId")] public Guid? NotificationId { get; set; }
+        [JsonPropertyName("receiverId")] public int? ReceiverId { get; set; }
+        [JsonPropertyName("title")] public string? Title { get; set; }
+        [JsonPropertyName("content")] public string? Content { get; set; }
+        [JsonPropertyName("url")] public string? Url { get; set; }
+        [JsonPropertyName("isRead")] public bool? IsRead { get; set; }
+        [JsonPropertyName("createdDate")] public DateTime? CreatedDate { get; set; }
     }
 }

@@ -28,7 +28,7 @@ namespace API.Controllers
         
         // Keer, Biker, Admin
         [HttpGet]
-        public async Task<IActionResult> GetAllConfigurations(string configName, CancellationToken ct)
+        public async Task<IActionResult> GetConfigurationDetails(string configName, CancellationToken ct)
         {
             return HandleResult(await Mediator.Send(new ConfigurationDetails.Query(configName), ct));
         }
