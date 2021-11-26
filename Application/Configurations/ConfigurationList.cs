@@ -14,6 +14,7 @@ using Persistence;
 
 namespace Application.Configurations
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class ConfigurationList
     {
         public class Query : IRequest<Result<List<ConfigurationDto>>>
