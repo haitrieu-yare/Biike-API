@@ -110,7 +110,8 @@ namespace Application.Users
                         IdToken = auth.FirebaseToken,
                         RefreshToken = auth.RefreshToken,
                         Phone = auth.User.PhoneNumber,
-                        ExpiresIn = auth.ExpiresIn.ToString()
+                        ExpiresIn = auth.ExpiresIn.ToString(),
+                        IsPhoneVerified = user.IsPhoneVerified
                     };
 
                     _logger.LogInformation("Successfully logged in");

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -146,24 +147,34 @@ namespace Application.Trips
                                 AuthTokenAsyncFactory = () => Task.FromResult(_configuration["Firebase:RealtimeDatabaseSecret"]) 
                             });
 
-                        var notification = new NotificationDto
-                        {
-                            NotificationId = Guid.NewGuid(),
-                            Title = Constant.NotificationTitleKeNow,
-                            Content = Constant.NotificationContentKeNow,
-                            ReceiverId = 3,
-                            Url = $"{_configuration["ApiPath"]}/trips/{newTrip.TripId}/details",
-                            IsRead = false,
-                            CreatedDate = newTrip.CreatedDate
-                        };
+                        List<User> bikers = await _context.User
+                            .Where(u => u.IsBikeVerified == true)
+                            .OrderBy(u => u.UserId)
+                            .Take(3)
+                            .ToListAsync(cancellationToken);
                         
                         var options = new JsonSerializerOptions {WriteIndented = true};
-                        string notificationJsonString = JsonSerializer.Serialize(notification, options);
+
+                        foreach (var biker in bikers)
+                        {
+                            var notification = new NotificationDto
+                            {
+                                NotificationId = Guid.NewGuid(),
+                                Title = Constant.NotificationTitleKeNow,
+                                Content = Constant.NotificationContentKeNow,
+                                ReceiverId = biker.UserId,
+                                Url = $"{_configuration["ApiPath"]}/trips/{newTrip.TripId}/details",
+                                IsRead = false,
+                                CreatedDate = newTrip.CreatedDate
+                            };
+
+                            string notificationJsonString = JsonSerializer.Serialize(notification, options);
                         
-                        var notificationFirebase = await firebaseClient
-                            .Child("notification")
-                            .Child($"{notification.ReceiverId}")
-                            .PostAsync(notificationJsonString);
+                            await firebaseClient
+                                .Child("notification")
+                                .Child($"{notification.ReceiverId}")
+                                .PostAsync(notificationJsonString);
+                        }
                     }
 
                     _logger.LogInformation("Successfully created trip");
