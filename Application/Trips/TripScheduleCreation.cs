@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Trips.DTOs;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
@@ -30,8 +31,7 @@ namespace Application.Trips
             private readonly ILogger<Handler> _logger;
             private readonly ISchedulerFactory _schedulerFactory;
 
-            public Handler(DataContext context, ISchedulerFactory schedulerFactory,
-                ILogger<Handler> logger)
+            public Handler(DataContext context, ISchedulerFactory schedulerFactory, ILogger<Handler> logger)
             {
                 _context = context;
                 _schedulerFactory = schedulerFactory;
@@ -46,10 +46,21 @@ namespace Application.Trips
 
                     if (request.TripScheduleCreationDto.BookTime!.Count == 0)
                     {
-                        _logger.LogInformation(
-                            "Failed to create new trip schedule because list bookTime is empty");
+                        _logger.LogInformation("Failed to create new trip schedule because list bookTime is empty");
                         return Result<Unit>.Failure(
                             "Failed to create new trip schedule because list bookTime is empty.");
+                    }
+
+                    var limitOneHourTime = CurrentTime.GetCurrentTime().AddHours(1);
+
+                    foreach (var bookTime in request.TripScheduleCreationDto.BookTime
+                        .Where(bookTime => bookTime.CompareTo(limitOneHourTime) < 0))
+                    {
+                        _logger.LogInformation(
+                            "Failed to create new trip schedule because bookTime {BookTime} " +
+                            "is less than {LimitOneHourTime}", bookTime, limitOneHourTime);
+                        return Result<Unit>.Failure("Failed to create new trip schedule because bookTime " +
+                                                    $"{bookTime} is less than {limitOneHourTime}.");
                     }
 
                     var route = await _context.Route
@@ -84,7 +95,7 @@ namespace Application.Trips
                     var tripWithBookTime = await _context.Trip
                         .Where(t => t.BookTime == request.TripScheduleCreationDto.BookTime!.First())
                         .SingleOrDefaultAsync(cancellationToken);
-                    
+
                     if (tripWithBookTime != null)
                     {
                         _logger.LogInformation(

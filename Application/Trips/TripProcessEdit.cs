@@ -1,14 +1,19 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Notifications.DTOs;
 using Application.TripTransactions;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
+using Firebase.Database;
+using Firebase.Database.Query;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -29,12 +34,15 @@ namespace Application.Trips
             private readonly AutoTripTransactionCreation _auto;
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
+            private readonly IConfiguration _configuration;
 
-            public Handler(DataContext context, ILogger<Handler> logger, AutoTripTransactionCreation auto)
+            public Handler(DataContext context, ILogger<Handler> logger, IConfiguration configuration,
+                AutoTripTransactionCreation auto)
             {
                 _context = context;
                 _auto = auto;
                 _logger = logger;
+                _configuration = configuration;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -81,6 +89,33 @@ namespace Application.Trips
                         case (int) TripStatus.Started:
                             oldTrip.FinishedTime = CurrentTime.GetCurrentTime();
                             oldTrip.Status = (int) TripStatus.Finished;
+                            
+                            var firebaseClient = new FirebaseClient(
+                                _configuration["Firebase:RealtimeDatabase"],
+                                new FirebaseOptions
+                                {
+                                    AuthTokenAsyncFactory = () => Task.FromResult(_configuration["Firebase:RealtimeDatabaseSecret"]) 
+                                });
+
+                            var options = new JsonSerializerOptions {WriteIndented = true};
+
+                            var notification = new NotificationDto
+                            {
+                                NotificationId = Guid.NewGuid(),
+                                Title = "Feedback chuyến đi",
+                                Content = "Chuyến đi đã kết thúc, mời bạn feedback về chuyến đi",
+                                ReceiverId = oldTrip.KeerId,
+                                Url = $"{_configuration["ApiPath"]}/{oldTrip.TripId}/feedbacks",
+                                CreatedDate = CurrentTime.GetCurrentTime()
+                            };
+
+                            string notificationJsonString = JsonSerializer.Serialize(notification, options);
+                    
+                            await firebaseClient
+                                .Child("notification")
+                                .Child($"{notification.ReceiverId}")
+                                .PostAsync(notificationJsonString);
+                            
                             break;
                         case (int) TripStatus.Finished:
                             _logger.LogInformation("Trip has already finished");
@@ -125,7 +160,7 @@ namespace Application.Trips
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex)
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
