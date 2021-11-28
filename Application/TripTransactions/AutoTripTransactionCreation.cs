@@ -39,11 +39,12 @@ namespace Application.TripTransactions
 
             if (biker == null)
             {
-                _logger.LogInformation("User with UserId {UserId} doesn't exist", trip.BikerId);
-                throw new Exception($"User with UserId {trip.BikerId} doesn't exist.");
+                _logger.LogInformation("Biker with UserId {UserId} doesn't exist", trip.BikerId);
+                throw new Exception($"Biker with UserId {trip.BikerId} doesn't exist.");
             }
 
-            Wallet currentWallet = await _context.Wallet.Where(w => w.UserId == trip.BikerId)
+            Wallet currentWallet = await _context.Wallet
+                .Where(w => w.UserId == trip.BikerId)
                 .Where(w => w.Status == (int) WalletStatus.Current)
                 .SingleOrDefaultAsync();
 
@@ -119,7 +120,7 @@ namespace Application.TripTransactions
                 userGotPointUpdatedId = biker.UserId;
                 userTotalPoint = biker.TotalPoint;
                 
-                // create point history for biker only
+                // Create point history for biker only
                 await _pointHistoryCreation.Run(userGotPointUpdatedId, (int) HistoryType.TripTransaction,
                     tripTransaction.TripTransactionId, tripTransactionPoint, userTotalPoint, tripTransaction.Description,
                     tripTransaction.TransactionDate);

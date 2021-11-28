@@ -79,7 +79,8 @@ namespace Application.Trips
                                                     $"{request.TripCreationDto.BookTime} is larger than {limitFifteenMinutesTime}.");
                     }
 
-                    var route = await _context.Route.Where(r => r.DepartureId == request.TripCreationDto.DepartureId)
+                    var route = await _context.Route
+                        .Where(r => r.DepartureId == request.TripCreationDto.DepartureId)
                         .Where(r => r.DestinationId == request.TripCreationDto.DestinationId)
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -106,8 +107,12 @@ namespace Application.Trips
                                                     $"{request.TripCreationDto.BookTime} is already existed.");
                     }
 
-                    var existingTripsCount = await _context.Trip.Where(t => t.KeerId == request.TripCreationDto.KeerId)
-                        .Where(t => t.Status == (int) TripStatus.Finding || t.Status == (int) TripStatus.Waiting)
+                    var existingTripsCount = await _context.Trip
+                        .Where(t => t.KeerId == request.TripCreationDto.KeerId)
+                        .Where(t => t.Status == (int) TripStatus.Finding || 
+                                        t.Status == (int) TripStatus.Matching ||
+                                        t.Status == (int) TripStatus.Waiting ||
+                                        t.Status == (int) TripStatus.Started)
                         .CountAsync(cancellationToken);
 
                     if (existingTripsCount + 1 > Constant.MaxTripCount)

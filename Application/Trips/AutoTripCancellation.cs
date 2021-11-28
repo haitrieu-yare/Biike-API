@@ -17,7 +17,8 @@ namespace Application.Trips
         private readonly ISchedulerFactory _schedulerFactory;
         private readonly ILogger<AutoTripCancellation> _logger;
 
-        public AutoTripCancellation(DataContext context, ISchedulerFactory schedulerFactory, ILogger<AutoTripCancellation> logger)
+        public AutoTripCancellation(DataContext context, ISchedulerFactory schedulerFactory, 
+            ILogger<AutoTripCancellation> logger)
         {
             _context = context;
             _schedulerFactory = schedulerFactory;
@@ -62,7 +63,7 @@ namespace Application.Trips
                         trip.CancelTime = CurrentTime.GetCurrentTime();
                         await scheduler.DeleteJob(JobKey.Create(jobName, Constant.OneTimeJob), CancellationToken.None);
                         break;
-                    case (int) TripStatus.Waiting:
+                    default:
                         trip.CancelReason = "Tự động hủy vì đã quá ngày khởi hành.";
                         trip.Status = (int) TripStatus.Cancelled;
                         trip.CancelTime = CurrentTime.GetCurrentTime();
@@ -82,7 +83,7 @@ namespace Application.Trips
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogInformation("{Error}", e.InnerException?.Message ?? e.Message);
                 throw;
             }
         }

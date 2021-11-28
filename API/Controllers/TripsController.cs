@@ -36,8 +36,8 @@ namespace API.Controllers
 
             if (!validationDto.IsAuthorized) return BadRequest(Constant.DidNotHavePermissionToAccess);
 
-            return HandleResult(await Mediator.Send(
-                new HistoryList.Query {Page = page, Limit = limit, UserId = userId}, ct));
+            return HandleResult(await Mediator.Send(new HistoryList.Query {Page = page, Limit = limit, UserId = userId},
+                ct));
         }
 
         // Keer, Biker, Admin
@@ -133,8 +133,7 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new TripDetailsFull.Query {TripId = tripId, UserRequestId = validationDto.UserRequestId},
-                ct));
+                new TripDetailsFull.Query {TripId = tripId, UserRequestId = validationDto.UserRequestId}, ct));
         }
 
         // Keer
@@ -156,7 +155,7 @@ namespace API.Controllers
 
             return HandleResult(await Mediator.Send(new TripCreation.Command {TripCreationDto = tripCreationDto}, ct));
         }
-        
+
         // Keer
         [HttpPost("schedule")]
         // TODO: TripScheduleCreationDto không cần field isScheduled
@@ -182,7 +181,7 @@ namespace API.Controllers
 
         // Biker
         [HttpPut("{tripId:int}")]
-        public async Task<IActionResult> EditTripBiker(int tripId, int bikerId, CancellationToken ct)
+        public async Task<IActionResult> EditTripBiker(int tripId, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -191,19 +190,37 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Biker)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikerId);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
+            return HandleResult(await Mediator.Send(new TripBikerEdit.Command(tripId, validationDto.UserRequestId),
+                ct));
+        }
 
-            return HandleResult(await Mediator.Send(new TripBikerEdit.Command {TripId = tripId, BikerId = bikerId},
+        // Keer, Biker
+        [HttpPut("{tripId:int}/startTime")]
+        public async Task<IActionResult> EditTripStartTime(int tripId, CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+                                        Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
+
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            return HandleResult(await Mediator.Send(new TripStartEdit.Command(tripId, validationDto.UserRequestId),
                 ct));
         }
 
         // Biker
-        [HttpPut("{tripId:int}/progressTime")]
-        public async Task<IActionResult> EditTripProgressTime(int tripId, int bikerId, CancellationToken ct)
+        [HttpPut("{tripId:int}/finishTime")]
+        public async Task<IActionResult> EditTripFinishTime(int tripId, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -212,13 +229,11 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Biker)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
-            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, bikerId);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
-
-            return HandleResult(await Mediator.Send(new TripProcessEdit.Command {TripId = tripId, BikerId = bikerId},
+            return HandleResult(await Mediator.Send(new TripFinishEdit.Command(tripId, validationDto.UserRequestId),
                 ct));
         }
 

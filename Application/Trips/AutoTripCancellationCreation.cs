@@ -12,56 +12,54 @@ namespace Application.Trips
     {
         public static async Task Run(ISchedulerFactory? schedulerFactory, Trip? trip)
         {
-            try
+            if (trip == null || schedulerFactory == null) return;
+
+            IScheduler scheduler = await schedulerFactory.GetScheduler();
+
+            string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
+
+            IJobDetail job = JobBuilder.Create<AutoTripCancellation>()
+                .WithIdentity(jobName, Constant.OneTimeJob)
+                .UsingJobData("TripId", $"{trip.TripId}")
+                .Build();
+
+            string triggerNameFinding = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Finding");
+            string triggerNameMatching = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matching");
+
+            var bookTime = CurrentTime.ToLocalTime(trip.BookTime);
+            var bookTimeNextDay = bookTime.AddDays(1);
+            var bookTimeNextDayAt12Am = new DateTime(bookTimeNextDay.Year, bookTimeNextDay.Month, 
+                bookTimeNextDay.Day, 0, 0, 0);
+
+            var findingTrigger = TriggerBuilder.Create()
+                .WithIdentity(triggerNameFinding, Constant.OneTimeJob)
+                .StartAt(bookTime)
+                .Build();
+            var matchingTrigger = TriggerBuilder.Create()
+                .WithIdentity(triggerNameMatching, Constant.OneTimeJob)
+                .StartAt(bookTimeNextDayAt12Am)
+                .Build();
+
+            List<ITrigger> triggers = new();
+
+            switch (trip.Status)
             {
-                if (trip == null || schedulerFactory == null) return;
-
-                IScheduler scheduler = await schedulerFactory.GetScheduler();
-
-                string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
-
-                IJobDetail job = JobBuilder.Create<AutoTripCancellation>()
-                    .WithIdentity(jobName, Constant.OneTimeJob)
-                    .UsingJobData("TripId", $"{trip.TripId}")
-                    .Build();
-
-                string triggerNameFinding = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Finding");
-                string triggerNameWaiting = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Waiting");
-
-                var bookTime = CurrentTime.ToLocalTime(trip.BookTime);
-                var bookTimeNextDay = bookTime.AddDays(1);
-                var bookTimeNextDayAt12Am = new DateTime(bookTimeNextDay.Year, bookTimeNextDay.Month, 
-                    bookTimeNextDay.Day, 0, 0, 0);
-
-                var findingTrigger = TriggerBuilder.Create()
-                    .WithIdentity(triggerNameFinding, Constant.OneTimeJob)
-                    .StartAt(bookTime)
-                    .Build();
-                var waitingTrigger = TriggerBuilder.Create()
-                    .WithIdentity(triggerNameWaiting, Constant.OneTimeJob)
-                    .StartAt(bookTimeNextDayAt12Am)
-                    .Build();
-
-                List<ITrigger> triggers = new();
-
-                switch (trip.Status)
-                {
-                    case (int) TripStatus.Finding:
-                        triggers.Add(findingTrigger);
-                        triggers.Add(waitingTrigger);
-                        break;
-                    case (int) TripStatus.Waiting:
-                        triggers.Add(waitingTrigger);
-                        break;
-                }
-
-                await scheduler.ScheduleJob(job, triggers,true);
+                case (int) TripStatus.Finding:
+                    triggers.Add(findingTrigger);
+                    triggers.Add(matchingTrigger);
+                    break;
+                case (int) TripStatus.Matching:
+                    triggers.Add(matchingTrigger);
+                    break;
+                case (int) TripStatus.Waiting:
+                    triggers.Add(matchingTrigger);
+                    break;
+                case (int) TripStatus.Started:
+                    triggers.Add(matchingTrigger);
+                    break;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+
+            await scheduler.ScheduleJob(job, triggers,true);
         }
     }
 }

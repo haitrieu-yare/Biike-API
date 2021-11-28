@@ -24,10 +24,16 @@ namespace Application.Trips
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int TripId { get; init; }
-            public int BikerId { get; init; }
+            public Command(int tripId, int bikerId)
+            {
+                TripId = tripId;
+                BikerId = bikerId;
+            }
+            public int TripId { get; }
+            public int BikerId { get; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
@@ -50,26 +56,29 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip oldTrip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+                    Trip trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
 
-                    if (oldTrip == null)
+                    if (trip == null)
                     {
                         _logger.LogInformation("Trip doesn't exist");
-                        return Result<Unit>.NotFound("Trip doesn't exist.");
+                        return Result<Unit>.Failure("Trip doesn't exist.");
                     }
 
-                    if (oldTrip.KeerId == request.BikerId)
+                    if (trip.KeerId == request.BikerId)
                     {
                         _logger.LogInformation("Biker and Keer can't be the same person");
                         return Result<Unit>.Failure("Biker and Keer can't be the same person.");
                     }
 
-                    User biker = await _context.User.FindAsync(new object[] {request.BikerId}, cancellationToken);
+                    User biker = await _context.User
+                        .Where(u => u.UserId == request.BikerId)
+                        .Where(u => u.IsDeleted == false)
+                        .SingleOrDefaultAsync(cancellationToken);
 
                     if (biker == null)
                     {
                         _logger.LogInformation("Biker doesn't exist");
-                        return Result<Unit>.NotFound("Biker doesn't exist.");
+                        return Result<Unit>.Failure("Biker doesn't exist.");
                     }
 
                     if (!biker.IsBikeVerified)
@@ -78,39 +87,44 @@ namespace Application.Trips
                         return Result<Unit>.Failure("Biker doesn't have verified bike yet.");
                     }
 
-                    Bike bike = await _context.Bike.Where(b => b.UserId == biker.UserId)
+                    Bike bike = await _context.Bike
+                        .Where(b => b.UserId == biker.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (bike == null)
                     {
                         _logger.LogInformation("Bike doesn't exist");
-                        return Result<Unit>.NotFound("Bike doesn't exist.");
+                        return Result<Unit>.Failure("Bike doesn't exist.");
                     }
 
-                    oldTrip.BikerId = biker.UserId;
-                    oldTrip.PlateNumber = bike.PlateNumber;
-                    oldTrip.Status = (int) TripStatus.Waiting;
+                    trip.BikerId = biker.UserId;
+                    trip.PlateNumber = bike.PlateNumber;
+                    trip.Status = (int) TripStatus.Matching;
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to update trip with TripId {request.TripId}", request.TripId);
+                        _logger.LogInformation("Failed to update trip with TripId {TripId}", request.TripId);
                         return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
                     }
 
-                    IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
+                    if (trip.IsScheduled)
+                    {
+                        IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
 
-                    string jobName = Constant.GetJobNameAutoCancellation(oldTrip.TripId);
-                    string triggerName = Constant.GetTriggerNameAutoCancellation(oldTrip.TripId, "Finding");
-                    var triggerKey = new TriggerKey(triggerName, Constant.OneTimeJob);
+                        string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
+                        string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Finding");
+                        var triggerKey = new TriggerKey(triggerName, Constant.OneTimeJob);
                     
-                    var jobTriggerDeletionResult= await scheduler.UnscheduleJob(triggerKey, cancellationToken);
-                    
-                    _logger.LogInformation("Successfully deleted cancellation job's trigger");
+                        var jobTriggerDeletionResult= await scheduler.UnscheduleJob(triggerKey, cancellationToken);
 
-                    if (!jobTriggerDeletionResult) _logger.LogError("Fail to delete job's trigger with job name {JobName}", jobName);
+                        if (!jobTriggerDeletionResult) 
+                            _logger.LogError("Fail to delete job's trigger with job name {JobName}", jobName);
                     
+                        _logger.LogInformation("Successfully deleted cancellation job's trigger");
+                    }
+
                     var firebaseClient = new FirebaseClient(
                         _configuration["Firebase:RealtimeDatabase"],
                         new FirebaseOptions
@@ -124,9 +138,9 @@ namespace Application.Trips
                     {
                         NotificationId = Guid.NewGuid(),
                         Title = "Đã Có Biker chấp nhận chuyến đi",
-                        Content = $"Biker tên {biker.FullName} đã chấp nhận chuyến đi vào {oldTrip.BookTime} của bạn",
-                        ReceiverId = oldTrip.KeerId,
-                        Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
+                        Content = $"Biker tên {biker.FullName} đã chấp nhận chuyến đi vào {trip.BookTime} của bạn",
+                        ReceiverId = trip.KeerId,
+                        Url = $"{_configuration["ApiPath"]}/trips/{trip.TripId}/details",
                         IsRead = false,
                         CreatedDate = CurrentTime.GetCurrentTime()
                     };
@@ -138,7 +152,7 @@ namespace Application.Trips
                         .Child($"{notification.ReceiverId}")
                         .PostAsync(notificationJsonString);
 
-                    _logger.LogInformation("Successfully updated trip with TripId {request.TripId}", request.TripId);
+                    _logger.LogInformation("Successfully updated trip with TripId {TripId}", request.TripId);
                     return Result<Unit>.Success(Unit.Value, $"Successfully updated trip with TripId {request.TripId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
@@ -146,7 +160,7 @@ namespace Application.Trips
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex) 
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

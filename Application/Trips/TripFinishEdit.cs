@@ -16,16 +16,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Persistence;
+using Quartz;
 
 namespace Application.Trips
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class TripProcessEdit
+    public class TripFinishEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int TripId { get; init; }
-            public int BikerId { get; init; }
+            public Command(int tripId, int bikerId)
+            {
+                TripId = tripId;
+                BikerId = bikerId;
+            }
+            public int TripId { get; }
+            public int BikerId { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -34,14 +40,16 @@ namespace Application.Trips
             private readonly AutoTripTransactionCreation _auto;
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
+            private readonly ISchedulerFactory _schedulerFactory;
             private readonly IConfiguration _configuration;
 
-            public Handler(DataContext context, ILogger<Handler> logger, IConfiguration configuration,
-                AutoTripTransactionCreation auto)
+            public Handler(DataContext context, ILogger<Handler> logger, ISchedulerFactory schedulerFactory,
+                IConfiguration configuration, AutoTripTransactionCreation auto)
             {
                 _context = context;
                 _auto = auto;
                 _logger = logger;
+                _schedulerFactory = schedulerFactory;
                 _configuration = configuration;
             }
 
@@ -51,44 +59,40 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip oldTrip = await _context.Trip
+                    Trip trip = await _context.Trip
                         .Where(t => t.TripId == request.TripId)
                         .Include(t => t.Route)
                         .SingleOrDefaultAsync(cancellationToken);
 
-                    if (oldTrip == null)
+                    if (trip == null)
                     {
                         _logger.LogInformation("Trip doesn't exist");
                         return Result<Unit>.Failure("Trip doesn't exist.");
                     }
 
-                    if (oldTrip.BikerId == null)
+                    if (trip.BikerId == null)
                     {
-                        _logger.LogInformation("Trip must has Biker before starting");
-                        return Result<Unit>.Failure("Trip must has Biker before starting.");
+                        _logger.LogInformation("Trip must has Biker before finishing");
+                        return Result<Unit>.Failure("Trip must has Biker before finishing.");
                     }
 
-                    if (oldTrip.KeerId == request.BikerId)
+                    if (trip.BikerId != request.BikerId)
                     {
-                        _logger.LogInformation("Biker and Keer can't be the same person");
-                        return Result<Unit>.Failure("Biker and Keer can't be the same person.");
+                        _logger.LogInformation("Only Biker of this trip can send request to finish this trip");
+                        return Result<Unit>.Failure("Only Biker of this trip can send request to finish this trip.");
                     }
 
-                    if (oldTrip.BikerId != request.BikerId)
+                    switch (trip.Status)
                     {
-                        _logger.LogInformation("BikerId of trip doesn't match bikerId in request");
-                        return Result<Unit>.Failure("BikerId of trip doesn't match bikerId in request.");
-                    }
-
-                    switch (oldTrip.Status)
-                    {
+                        case (int) TripStatus.Matching:
+                            _logger.LogInformation("Trip has not started yet");
+                            return Result<Unit>.Failure("Trip has not started yet.");
                         case (int) TripStatus.Waiting:
-                            oldTrip.PickupTime = CurrentTime.GetCurrentTime();
-                            oldTrip.Status = (int) TripStatus.Started;
-                            break;
+                            _logger.LogInformation("Trip has not started yet");
+                            return Result<Unit>.Failure("Trip has not started yet.");
                         case (int) TripStatus.Started:
-                            oldTrip.FinishedTime = CurrentTime.GetCurrentTime();
-                            oldTrip.Status = (int) TripStatus.Finished;
+                            trip.FinishedTime = CurrentTime.GetCurrentTime();
+                            trip.Status = (int) TripStatus.Finished;
                             
                             var firebaseClient = new FirebaseClient(
                                 _configuration["Firebase:RealtimeDatabase"],
@@ -104,8 +108,8 @@ namespace Application.Trips
                                 NotificationId = Guid.NewGuid(),
                                 Title = "Feedback chuyến đi",
                                 Content = "Chuyến đi đã kết thúc, mời bạn feedback về chuyến đi",
-                                ReceiverId = oldTrip.KeerId,
-                                Url = $"{_configuration["ApiPath"]}/{oldTrip.TripId}/feedbacks",
+                                ReceiverId = trip.KeerId,
+                                Url = $"{_configuration["ApiPath"]}/{trip.TripId}/feedbacks",
                                 CreatedDate = CurrentTime.GetCurrentTime()
                             };
 
@@ -127,18 +131,24 @@ namespace Application.Trips
 
                     try
                     {
-                        if (oldTrip.Status == (int) TripStatus.Finished)
+                        if (trip.Status == (int) TripStatus.Finished)
                         {
-                            await _auto.Run(oldTrip, oldTrip.Route.DefaultPoint, Constant.TripCompletionPoint);
-                        }
-                        else
-                        {
-                            var result = await _context.SaveChangesAsync(cancellationToken) > 0;
-                            if (!result)
+                            await _auto.Run(trip, trip.Route.DefaultPoint, Constant.TripCompletionPoint);
+                            
+                            if (trip.IsScheduled)
                             {
-                                _logger.LogInformation("Failed to update trip with TripId {request.TripId}",
-                                    request.TripId);
-                                return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
+                                IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
+
+                                string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
+                                string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matching");
+                                var triggerKey = new TriggerKey(triggerName, Constant.OneTimeJob);
+                    
+                                var jobTriggerDeletionResult= await scheduler.UnscheduleJob(triggerKey, cancellationToken);
+
+                                if (!jobTriggerDeletionResult) 
+                                    _logger.LogError("Fail to delete job's trigger with job name {JobName}", jobName);
+                    
+                                _logger.LogInformation("Successfully deleted cancellation job's trigger");
                             }
                         }
 
