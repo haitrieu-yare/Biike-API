@@ -7,6 +7,7 @@ using Application.Core;
 using Application.Vouchers.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -19,16 +20,18 @@ namespace Application.Vouchers
     {
         public class Query : IRequest<Result<List<VoucherDto>>>
         {
-            public Query(int page, int limit, int categoryId)
+            public Query(int page, int limit, int categoryId, bool isAdmin)
             {
                 Page = page;
                 Limit = limit;
                 CategoryId = categoryId;
+                IsAdmin = isAdmin;
             }
 
             public int Page { get; }
             public int Limit { get; }
             public int CategoryId { get; }
+            public bool IsAdmin { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -72,34 +75,76 @@ namespace Application.Vouchers
                     int totalRecord;
                     int lastPage;
                     List<VoucherDto> vouchers = new();
+                    var currentTime = CurrentTime.GetCurrentTime();
 
                     if (request.CategoryId == 0)
                     {
-                        totalRecord = await _context.Voucher.CountAsync(cancellationToken);
-                        lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
+                        if (request.IsAdmin)
+                        {
+                            totalRecord = await _context.Voucher.CountAsync(cancellationToken);
+                            lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
-                        if (request.Page <= lastPage)
-                            vouchers = await _context.Voucher.AsSingleQuery()
-                                .OrderBy(v => v.VoucherCategoryId)
-                                .Skip((request.Page - 1) * request.Limit)
-                                .Take(request.Limit)
-                                .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
-                                .ToListAsync(cancellationToken);
+                            if (request.Page <= lastPage)
+                                vouchers = await _context.Voucher.AsSingleQuery()
+                                    .OrderBy(v => v.VoucherCategoryId)
+                                    .Skip((request.Page - 1) * request.Limit)
+                                    .Take(request.Limit)
+                                    .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
+                                    .ToListAsync(cancellationToken);
+                        }
+                        else
+                        {
+                            totalRecord = await _context.Voucher
+                                .Where(v => v.EndDate.CompareTo(currentTime) < 0)
+                                .CountAsync(cancellationToken);
+                            lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
+
+                            if (request.Page <= lastPage)
+                                vouchers = await _context.Voucher.AsSingleQuery()
+                                    .Where(v => v.EndDate.CompareTo(currentTime) < 0)
+                                    .OrderBy(v => v.VoucherCategoryId)
+                                    .Skip((request.Page - 1) * request.Limit)
+                                    .Take(request.Limit)
+                                    .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
+                                    .ToListAsync(cancellationToken);
+                        }
                     }
                     else
                     {
-                        totalRecord = await _context.Voucher.Where(v => v.VoucherCategoryId == request.CategoryId)
-                            .CountAsync(cancellationToken);
-                        lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
-
-                        if (request.Page <= lastPage)
-                            vouchers = await _context.Voucher.AsSingleQuery()
+                        if (request.IsAdmin)
+                        {
+                            totalRecord = await _context.Voucher
                                 .Where(v => v.VoucherCategoryId == request.CategoryId)
-                                .OrderBy(v => v.VoucherCategoryId)
-                                .Skip((request.Page - 1) * request.Limit)
-                                .Take(request.Limit)
-                                .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
-                                .ToListAsync(cancellationToken);
+                                .CountAsync(cancellationToken);
+                            lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
+
+                            if (request.Page <= lastPage)
+                                vouchers = await _context.Voucher.AsSingleQuery()
+                                    .Where(v => v.VoucherCategoryId == request.CategoryId)
+                                    .OrderBy(v => v.VoucherCategoryId)
+                                    .Skip((request.Page - 1) * request.Limit)
+                                    .Take(request.Limit)
+                                    .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
+                                    .ToListAsync(cancellationToken);
+                        }
+                        else
+                        {
+                            totalRecord = await _context.Voucher
+                                .Where(v => v.EndDate.CompareTo(currentTime) < 0)
+                                .Where(v => v.VoucherCategoryId == request.CategoryId)
+                                .CountAsync(cancellationToken);
+                            lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
+
+                            if (request.Page <= lastPage)
+                                vouchers = await _context.Voucher.AsSingleQuery()
+                                    .Where(v => v.EndDate.CompareTo(currentTime) < 0)
+                                    .Where(v => v.VoucherCategoryId == request.CategoryId)
+                                    .OrderBy(v => v.VoucherCategoryId)
+                                    .Skip((request.Page - 1) * request.Limit)
+                                    .Take(request.Limit)
+                                    .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
+                                    .ToListAsync(cancellationToken);
+                        }
                     }
 
                     PaginationDto paginationDto = new(

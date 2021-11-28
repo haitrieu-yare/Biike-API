@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -11,7 +10,6 @@ using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -54,19 +52,17 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip oldTrip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+                    Trip trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
 
-                    if (oldTrip == null)
+                    if (trip == null)
                     {
                         _logger.LogInformation("Trip doesn't exist");
                         return Result<Unit>.NotFound("Trip doesn't exist.");
                     }
 
-                    User user = await _context.User.Where(u => u.UserId == request.UserId)
-                        .Where(u => u.IsDeleted == false)
-                        .SingleOrDefaultAsync(cancellationToken);
+                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
-                    if (user == null)
+                    if (user == null || user.IsDeleted)
                     {
                         _logger.LogInformation("User with {UserId} doesn't exist", request.UserId);
                         return Result<Unit>.NotFound($"User with {request.UserId} doesn't exist.");
@@ -74,9 +70,9 @@ namespace Application.Trips
 
                     if (!request.IsAdmin)
                     {
-                        var isUserInTrip = !(oldTrip.BikerId == null && request.UserId != oldTrip.KeerId);
+                        var isUserInTrip = !(trip.BikerId == null && request.UserId != trip.KeerId);
 
-                        if (request.UserId != oldTrip.KeerId && request.UserId != oldTrip.BikerId) isUserInTrip = false;
+                        if (request.UserId != trip.KeerId && request.UserId != trip.BikerId) isUserInTrip = false;
 
                         if (!isUserInTrip)
                         {
@@ -86,7 +82,7 @@ namespace Application.Trips
                         }
                     }
 
-                    switch (oldTrip.Status)
+                    switch (trip.Status)
                     {
                         case (int) TripStatus.Finished:
                             _logger.LogInformation("Trip has already finished");
@@ -96,11 +92,11 @@ namespace Application.Trips
                             return Result<Unit>.Failure("Trip has already cancelled.");
                     }
 
-                    _mapper.Map(request.TripCancellationDto, oldTrip);
+                    _mapper.Map(request.TripCancellationDto, trip);
 
-                    oldTrip.CancelPersonId = request.UserId;
-                    oldTrip.Status = (int) TripStatus.Cancelled;
-                    oldTrip.CancelTime = CurrentTime.GetCurrentTime();
+                    trip.CancelPersonId = request.UserId;
+                    trip.Status = (int) TripStatus.Cancelled;
+                    trip.CancelTime = CurrentTime.GetCurrentTime();
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
@@ -110,47 +106,53 @@ namespace Application.Trips
                         return Result<Unit>.Failure($"Failed to cancel trip with TripId {request.TripId}.");
                     }
                     
-                    var isKeer = request.UserId == oldTrip.KeerId;
-                    if (oldTrip.BikerId != null)
+                    var isKeer = request.UserId == trip.KeerId;
+                    if (trip.BikerId != null)
                     {
+                        // ReSharper disable StringLiteralTypo
                         var notification = new NotificationDto
                         {
                             NotificationId = Guid.NewGuid(),
                             Title = "Chuyến đi đã bị hủy",
-                            Content = $"Chuyến đi vào {oldTrip.BookTime} đã bị hủy bởi {user.FullName}",
-                            ReceiverId = isKeer ? oldTrip.BikerId : oldTrip.KeerId,
-                            Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
+                            Content = $"Chuyến đi vào {trip.BookTime} đã bị hủy bởi {user.FullName}",
+                            ReceiverId = isKeer ? trip.BikerId : trip.KeerId,
+                            Url = $"{_configuration["ApiPath"]}/trips/{trip.TripId}/details",
                             IsRead = false,
                             CreatedDate = CurrentTime.GetCurrentTime()
                         };
+                        // ReSharper restore StringLiteralTypo
 
                         await _notiSender.Run(notification);
                     }
                     else if (request.IsAdmin)
                     {
+                        // ReSharper disable StringLiteralTypo
                         await _notiSender.Run(new NotificationDto
                         {
                             NotificationId = Guid.NewGuid(),
                             Title = "Chuyến đi đã bị hủy",
-                            Content = $"Chuyến đi vào {oldTrip.BookTime} đã bị hủy bởi Admin {user.FullName}",
-                            ReceiverId = oldTrip.KeerId,
-                            Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
+                            Content = $"Chuyến đi vào {trip.BookTime} đã bị hủy bởi Admin {user.FullName}",
+                            ReceiverId = trip.KeerId,
+                            Url = $"{_configuration["ApiPath"]}/trips/{trip.TripId}/details",
                             IsRead = false,
                             CreatedDate = CurrentTime.GetCurrentTime()
                         });
+                        // ReSharper restore StringLiteralTypo
 
-                        if (oldTrip.BikerId != null)
+                        if (trip.BikerId != null)
                         {
+                            // ReSharper disable StringLiteralTypo
                             await _notiSender.Run(new NotificationDto
                             {
                                 NotificationId = Guid.NewGuid(),
                                 Title = "Chuyến đi đã bị hủy",
-                                Content = $"Chuyến đi vào {oldTrip.BookTime} đã bị hủy bởi Admin {user.FullName}",
-                                ReceiverId = oldTrip.BikerId,
-                                Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
+                                Content = $"Chuyến đi vào {trip.BookTime} đã bị hủy bởi Admin {user.FullName}",
+                                ReceiverId = trip.BikerId,
+                                Url = $"{_configuration["ApiPath"]}/trips/{trip.TripId}/details",
                                 IsRead = false,
                                 CreatedDate = CurrentTime.GetCurrentTime()
                             });
+                            // ReSharper restore StringLiteralTypo
                         }
                     }
 

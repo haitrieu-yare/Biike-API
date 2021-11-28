@@ -164,7 +164,7 @@ namespace Application.MomoTransactions
 
                     var user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
-                    if (user == null)
+                    if (user == null || user.IsDeleted)
                     {
                         _logger.LogInformation("User with UserId {UserId} doesn't exist", request.UserId);
                         return Result<Unit>.NotFound($"User with UserId {request.UserId} doesn't exist.");

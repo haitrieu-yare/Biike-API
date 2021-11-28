@@ -42,10 +42,10 @@ namespace Application.Users
 
                     User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
-                    if (user == null)
+                    if (user == null || user.IsDeleted)
                     {
-                        _logger.LogInformation("User doesn't exist");
-                        return Result<Unit>.NotFound("User doesn't exist.");
+                        _logger.LogInformation("User with UserId {UserId} doesn't exist", request.UserId);
+                        return Result<Unit>.NotFound($"User with UserId {request.UserId} doesn't exist.");
                     }
 
                     if (user.IsDeleted)

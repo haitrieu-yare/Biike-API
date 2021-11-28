@@ -3,7 +3,7 @@ namespace Domain.Enums
     public enum TripStatus
     {
         Finding = 1,
-        Matching,
+        Matched,
         Waiting,
         Started,
         Finished,

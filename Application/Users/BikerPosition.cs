@@ -41,12 +41,9 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var user = await _context.User
-                        .Where(u => u.IsDeleted != true)
-                        .Where(u => u.UserId == request.UserId)
-                        .SingleOrDefaultAsync(cancellationToken);
+                    var user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
-                    if (user == null)
+                    if (user == null || user.IsDeleted)
                     {
                         _logger.LogInformation("User with UserId {UserId} doesn't exist", request.UserId);
                         return Result<BikerPositionDto>.NotFound($"User with UserId {request.UserId} doesn't exist.");

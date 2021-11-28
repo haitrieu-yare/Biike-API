@@ -21,7 +21,8 @@ namespace API.Controllers
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            return HandleResult(await Mediator.Send(new VoucherList.Query(page, limit, voucherCategoryId), ct));
+            return HandleResult(
+                await Mediator.Send(new VoucherList.Query(page, limit, voucherCategoryId, validationDto.IsAdmin), ct));
         }
 
         // Keer, Biker, Admin

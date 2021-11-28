@@ -99,7 +99,7 @@ namespace Application.Trips
 
                     trip.BikerId = biker.UserId;
                     trip.PlateNumber = bike.PlateNumber;
-                    trip.Status = (int) TripStatus.Matching;
+                    trip.Status = (int) TripStatus.Matched;
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
@@ -125,6 +125,7 @@ namespace Application.Trips
                         _logger.LogInformation("Successfully deleted cancellation job's trigger");
                     }
                     
+                    // ReSharper disable StringLiteralTypo
                     var notification = new NotificationDto
                     {
                         NotificationId = Guid.NewGuid(),
@@ -135,6 +136,7 @@ namespace Application.Trips
                         IsRead = false,
                         CreatedDate = CurrentTime.GetCurrentTime()
                     };
+                    // ReSharper restore StringLiteralTypo
 
                     await _notiSender.Run(notification);
 

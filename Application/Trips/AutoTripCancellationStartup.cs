@@ -32,7 +32,7 @@ namespace Application.Trips
             {
                 List<Trip> trips = await _context.Trip
                     .Where(t => t.Status == (int) TripStatus.Finding || 
-                                    t.Status == (int) TripStatus.Matching ||
+                                    t.Status == (int) TripStatus.Matched ||
                                     t.Status == (int) TripStatus.Waiting ||
                                     t.Status == (int) TripStatus.Started).ToListAsync();
 

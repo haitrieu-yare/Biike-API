@@ -50,7 +50,7 @@ namespace Application.Redemptions
                     User user = await _context.User.FindAsync(new object[] {request.RedemptionCreationDto.UserId!},
                         cancellationToken);
 
-                    if (user == null)
+                    if (user == null || user.IsDeleted)
                     {
                         _logger.LogInformation("User with UserId {UserId} doesn't exist",
                             request.RedemptionCreationDto.UserId);

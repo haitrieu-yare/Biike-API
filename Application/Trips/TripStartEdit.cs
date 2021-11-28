@@ -67,7 +67,7 @@ namespace Application.Trips
 
                     switch (trip.Status)
                     {
-                        case (int) TripStatus.Matching:
+                        case (int) TripStatus.Matched:
                             _logger.LogInformation("Can not start trip because no one is arrived at waiting point yet");
                             return Result<Unit>.Failure(
                                 "Can not start trip because no one is arrived at waiting point yet.");

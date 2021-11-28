@@ -24,7 +24,7 @@ namespace Application.Trips
                 .Build();
 
             string triggerNameFinding = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Finding");
-            string triggerNameMatching = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matching");
+            string triggerNameMatched = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matched");
 
             var bookTime = CurrentTime.ToLocalTime(trip.BookTime);
             var bookTimeNextDay = bookTime.AddDays(1);
@@ -35,8 +35,8 @@ namespace Application.Trips
                 .WithIdentity(triggerNameFinding, Constant.OneTimeJob)
                 .StartAt(bookTime)
                 .Build();
-            var matchingTrigger = TriggerBuilder.Create()
-                .WithIdentity(triggerNameMatching, Constant.OneTimeJob)
+            var matchedTrigger = TriggerBuilder.Create()
+                .WithIdentity(triggerNameMatched, Constant.OneTimeJob)
                 .StartAt(bookTimeNextDayAt12Am)
                 .Build();
 
@@ -46,16 +46,16 @@ namespace Application.Trips
             {
                 case (int) TripStatus.Finding:
                     triggers.Add(findingTrigger);
-                    triggers.Add(matchingTrigger);
+                    triggers.Add(matchedTrigger);
                     break;
-                case (int) TripStatus.Matching:
-                    triggers.Add(matchingTrigger);
+                case (int) TripStatus.Matched:
+                    triggers.Add(matchedTrigger);
                     break;
                 case (int) TripStatus.Waiting:
-                    triggers.Add(matchingTrigger);
+                    triggers.Add(matchedTrigger);
                     break;
                 case (int) TripStatus.Started:
-                    triggers.Add(matchingTrigger);
+                    triggers.Add(matchedTrigger);
                     break;
             }
 

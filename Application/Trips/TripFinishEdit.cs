@@ -84,7 +84,7 @@ namespace Application.Trips
 
                     switch (trip.Status)
                     {
-                        case (int) TripStatus.Matching:
+                        case (int) TripStatus.Matched:
                             _logger.LogInformation("Trip has not started yet");
                             return Result<Unit>.Failure("Trip has not started yet.");
                         case (int) TripStatus.Waiting:
@@ -94,6 +94,7 @@ namespace Application.Trips
                             trip.FinishedTime = CurrentTime.GetCurrentTime();
                             trip.Status = (int) TripStatus.Finished;
                             
+                            // ReSharper disable StringLiteralTypo
                             var notification = new NotificationDto
                             {
                                 NotificationId = Guid.NewGuid(),
@@ -101,8 +102,10 @@ namespace Application.Trips
                                 Content = "Chuyến đi đã kết thúc, mời bạn feedback về chuyến đi",
                                 ReceiverId = trip.KeerId,
                                 Url = $"{_configuration["ApiPath"]}/{trip.TripId}/feedbacks",
+                                IsRead = false,
                                 CreatedDate = CurrentTime.GetCurrentTime()
                             };
+                            // ReSharper restore StringLiteralTypo
 
                             await _notiSender.Run(notification);
                             break;
@@ -125,7 +128,7 @@ namespace Application.Trips
                                 IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
 
                                 string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
-                                string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matching");
+                                string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matched");
                                 var triggerKey = new TriggerKey(triggerName, Constant.OneTimeJob);
                     
                                 var jobTriggerDeletionResult= await scheduler.UnscheduleJob(triggerKey, cancellationToken);

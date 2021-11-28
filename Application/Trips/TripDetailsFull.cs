@@ -45,7 +45,7 @@ namespace Application.Trips
                     User user = await _context.User.FindAsync(new object[] {request.UserRequestId},
                         cancellationToken);
 
-                    if (user == null)
+                    if (user == null || user.IsDeleted)
                     {
                         _logger.LogInformation("User who sent request doesn't exist");
                         return Result<TripDetailsFullDto>.NotFound("User who sent request doesn't exist.");

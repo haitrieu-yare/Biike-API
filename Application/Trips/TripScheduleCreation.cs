@@ -113,7 +113,7 @@ namespace Application.Trips
                     var existingTripsCount = await _context.Trip
                         .Where(t => t.KeerId == request.TripScheduleCreationDto.KeerId)
                         .Where(t => t.Status == (int) TripStatus.Finding || 
-                                        t.Status == (int) TripStatus.Matching ||
+                                        t.Status == (int) TripStatus.Matched ||
                                         t.Status == (int) TripStatus.Waiting ||
                                         t.Status == (int) TripStatus.Started )
                         .CountAsync(cancellationToken);
