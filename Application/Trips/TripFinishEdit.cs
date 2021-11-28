@@ -1,16 +1,14 @@
 using System;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Notifications;
 using Application.Notifications.DTOs;
 using Application.TripTransactions;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
-using Firebase.Database;
-using Firebase.Database.Query;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -38,16 +36,18 @@ namespace Application.Trips
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly AutoTripTransactionCreation _auto;
+            private readonly NotificationSending _notiSender;
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
             private readonly ISchedulerFactory _schedulerFactory;
             private readonly IConfiguration _configuration;
 
             public Handler(DataContext context, ILogger<Handler> logger, ISchedulerFactory schedulerFactory,
-                IConfiguration configuration, AutoTripTransactionCreation auto)
+                IConfiguration configuration, AutoTripTransactionCreation auto, NotificationSending notiSender)
             {
                 _context = context;
                 _auto = auto;
+                _notiSender = notiSender;
                 _logger = logger;
                 _schedulerFactory = schedulerFactory;
                 _configuration = configuration;
@@ -94,15 +94,6 @@ namespace Application.Trips
                             trip.FinishedTime = CurrentTime.GetCurrentTime();
                             trip.Status = (int) TripStatus.Finished;
                             
-                            var firebaseClient = new FirebaseClient(
-                                _configuration["Firebase:RealtimeDatabase"],
-                                new FirebaseOptions
-                                {
-                                    AuthTokenAsyncFactory = () => Task.FromResult(_configuration["Firebase:RealtimeDatabaseSecret"]) 
-                                });
-
-                            var options = new JsonSerializerOptions {WriteIndented = true};
-
                             var notification = new NotificationDto
                             {
                                 NotificationId = Guid.NewGuid(),
@@ -113,13 +104,7 @@ namespace Application.Trips
                                 CreatedDate = CurrentTime.GetCurrentTime()
                             };
 
-                            string notificationJsonString = JsonSerializer.Serialize(notification, options);
-                    
-                            await firebaseClient
-                                .Child("notification")
-                                .Child($"{notification.ReceiverId}")
-                                .PostAsync(notificationJsonString);
-                            
+                            await _notiSender.Run(notification);
                             break;
                         case (int) TripStatus.Finished:
                             _logger.LogInformation("Trip has already finished");

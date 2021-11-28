@@ -1,17 +1,15 @@
 using System;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Notifications;
 using Application.Notifications.DTOs;
 using Application.Trips.DTOs;
 using AutoMapper;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
-using Firebase.Database;
-using Firebase.Database.Query;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,15 +34,18 @@ namespace Application.Trips
         {
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
+            private readonly NotificationSending _notiSender;
             private readonly IMapper _mapper;
             private readonly IConfiguration _configuration;
 
-            public Handler(DataContext context, IMapper mapper, IConfiguration configuration, ILogger<Handler> logger)
+            public Handler(DataContext context, IMapper mapper, IConfiguration configuration, 
+                ILogger<Handler> logger, NotificationSending notiSender)
             {
                 _context = context;
                 _mapper = mapper;
                 _configuration = configuration;
                 _logger = logger;
+                _notiSender = notiSender;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -108,16 +109,7 @@ namespace Application.Trips
                         _logger.LogInformation("Failed to cancel trip with TripId {request.TripId}", request.TripId);
                         return Result<Unit>.Failure($"Failed to cancel trip with TripId {request.TripId}.");
                     }
-
-                    var firebaseClient = new FirebaseClient(_configuration["Firebase:RealtimeDatabase"],
-                        new FirebaseOptions
-                        {
-                            AuthTokenAsyncFactory = () =>
-                                Task.FromResult(_configuration["Firebase:RealtimeDatabaseSecret"])
-                        });
-
-                    var options = new JsonSerializerOptions {WriteIndented = true};
-
+                    
                     var isKeer = request.UserId == oldTrip.KeerId;
                     if (oldTrip.BikerId != null)
                     {
@@ -132,15 +124,11 @@ namespace Application.Trips
                             CreatedDate = CurrentTime.GetCurrentTime()
                         };
 
-                        string notificationJsonString = JsonSerializer.Serialize(notification, options);
-
-                        await firebaseClient.Child("notification")
-                            .Child($"{notification.ReceiverId}")
-                            .PostAsync(notificationJsonString);
+                        await _notiSender.Run(notification);
                     }
                     else if (request.IsAdmin)
                     {
-                        var notification1 = new NotificationDto
+                        await _notiSender.Run(new NotificationDto
                         {
                             NotificationId = Guid.NewGuid(),
                             Title = "Chuyến đi đã bị hủy",
@@ -149,17 +137,11 @@ namespace Application.Trips
                             Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
                             IsRead = false,
                             CreatedDate = CurrentTime.GetCurrentTime()
-                        };
-
-                        string notificationJsonString1 = JsonSerializer.Serialize(notification1, options);
-
-                        await firebaseClient.Child("notification")
-                            .Child($"{notification1.ReceiverId}")
-                            .PostAsync(notificationJsonString1);
+                        });
 
                         if (oldTrip.BikerId != null)
                         {
-                            var notification2 = new NotificationDto
+                            await _notiSender.Run(new NotificationDto
                             {
                                 NotificationId = Guid.NewGuid(),
                                 Title = "Chuyến đi đã bị hủy",
@@ -168,13 +150,7 @@ namespace Application.Trips
                                 Url = $"{_configuration["ApiPath"]}/trips/{oldTrip.TripId}/details",
                                 IsRead = false,
                                 CreatedDate = CurrentTime.GetCurrentTime()
-                            };
-
-                            string notificationJsonString2 = JsonSerializer.Serialize(notification2, options);
-
-                            await firebaseClient.Child("notification")
-                                .Child($"{notification2.ReceiverId}")
-                                .PostAsync(notificationJsonString2);
+                            });
                         }
                     }
 

@@ -1,18 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Notifications;
 using Application.Notifications.DTOs;
 using Application.Trips.DTOs;
 using AutoMapper;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
-using Firebase.Database;
-using Firebase.Database.Query;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -42,14 +40,16 @@ namespace Application.Trips
             private readonly IMapper _mapper;
             private readonly ISchedulerFactory _schedulerFactory;
             private readonly IConfiguration _configuration;
+            private readonly NotificationSending _notiSender;
 
             public Handler(DataContext context, IMapper mapper, ISchedulerFactory schedulerFactory,
-                IConfiguration configuration, ILogger<Handler> logger)
+                IConfiguration configuration, NotificationSending notiSender, ILogger<Handler> logger)
             {
                 _context = context;
                 _mapper = mapper;
                 _schedulerFactory = schedulerFactory;
                 _configuration = configuration;
+                _notiSender = notiSender;
                 _logger = logger;
             }
 
@@ -152,20 +152,11 @@ namespace Application.Trips
                     }
                     else
                     {
-                        var firebaseClient = new FirebaseClient(
-                            _configuration["Firebase:RealtimeDatabase"],
-                            new FirebaseOptions
-                            {
-                                AuthTokenAsyncFactory = () => Task.FromResult(_configuration["Firebase:RealtimeDatabaseSecret"]) 
-                            });
-
                         List<User> bikers = await _context.User
                             .Where(u => u.IsBikeVerified == true)
                             .OrderBy(u => u.UserId)
                             .Take(3)
                             .ToListAsync(cancellationToken);
-                        
-                        var options = new JsonSerializerOptions {WriteIndented = true};
 
                         foreach (var biker in bikers)
                         {
@@ -180,12 +171,7 @@ namespace Application.Trips
                                 CreatedDate = CurrentTime.GetCurrentTime()
                             };
 
-                            string notificationJsonString = JsonSerializer.Serialize(notification, options);
-                        
-                            await firebaseClient
-                                .Child("notification")
-                                .Child($"{notification.ReceiverId}")
-                                .PostAsync(notificationJsonString);
+                            await _notiSender.Run(notification);
                         }
                     }
 

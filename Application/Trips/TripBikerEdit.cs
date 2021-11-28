@@ -1,15 +1,13 @@
 using System;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Notifications;
 using Application.Notifications.DTOs;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
-using Firebase.Database;
-using Firebase.Database.Query;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,13 +38,15 @@ namespace Application.Trips
             private readonly ILogger<Handler> _logger;
             private readonly ISchedulerFactory _schedulerFactory;
             private readonly IConfiguration _configuration;
+            private readonly NotificationSending _notiSender;
 
             public Handler(DataContext context, ISchedulerFactory schedulerFactory, IConfiguration configuration, 
-                ILogger<Handler> logger)
+                NotificationSending notiSender, ILogger<Handler> logger)
             {
                 _context = context;
                 _schedulerFactory = schedulerFactory;
                 _configuration = configuration;
+                _notiSender = notiSender;
                 _logger = logger;
             }
 
@@ -124,16 +124,7 @@ namespace Application.Trips
                     
                         _logger.LogInformation("Successfully deleted cancellation job's trigger");
                     }
-
-                    var firebaseClient = new FirebaseClient(
-                        _configuration["Firebase:RealtimeDatabase"],
-                        new FirebaseOptions
-                        {
-                            AuthTokenAsyncFactory = () => Task.FromResult(_configuration["Firebase:RealtimeDatabaseSecret"]) 
-                        });
-
-                    var options = new JsonSerializerOptions {WriteIndented = true};
-
+                    
                     var notification = new NotificationDto
                     {
                         NotificationId = Guid.NewGuid(),
@@ -145,12 +136,7 @@ namespace Application.Trips
                         CreatedDate = CurrentTime.GetCurrentTime()
                     };
 
-                    string notificationJsonString = JsonSerializer.Serialize(notification, options);
-                    
-                    await firebaseClient
-                        .Child("notification")
-                        .Child($"{notification.ReceiverId}")
-                        .PostAsync(notificationJsonString);
+                    await _notiSender.Run(notification);
 
                     _logger.LogInformation("Successfully updated trip with TripId {TripId}", request.TripId);
                     return Result<Unit>.Success(Unit.Value, $"Successfully updated trip with TripId {request.TripId}.");

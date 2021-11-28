@@ -3,6 +3,7 @@ using System.IO;
 using API.SignalR;
 using Application;
 using Application.Core;
+using Application.Notifications;
 using Application.PointHistory;
 using Application.Trips;
 using Application.TripTransactions;
@@ -158,6 +159,7 @@ namespace API
             services.AddScoped(typeof(Hashing));
             services.AddScoped(typeof(AutoTripTransactionCreation));
             services.AddScoped(typeof(AutoPointHistoryCreation));
+            services.AddScoped(typeof(NotificationSending));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
