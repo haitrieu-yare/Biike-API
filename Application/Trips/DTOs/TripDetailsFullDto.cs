@@ -15,9 +15,15 @@ namespace Application.Trips.DTOs
         public string? Avatar { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? BookTime{ get; set; }
+        public DateTime? FirstPersonArrivalTime { get; set; }
+        public int? FirstPersonArrivalId { get; set; }
+        public DateTime? SecondPersonArrivalTime { get; set; }
+        public int? SecondPersonArrivalId { get; set; }
         public DateTime? PickupTime { get; set; }
         public DateTime? FinishedTime { get; set; }
         public DateTime? CancelTime { get; set; }
+        public string? CancelPersonFullname { get; set; }
+        public string? CancelReason { get; set; }
         public int? TripStatus { get; set; }
         public string? DepartureName { get; set; }
         public string? DepartureCoordinate { get; set; }

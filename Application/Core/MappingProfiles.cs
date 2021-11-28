@@ -174,6 +174,11 @@ namespace Application.Core
                     o => o.MapFrom((src, _, _, context) => src.Biker == null ? null : (bool) context.Items["isKeer"] ? src.Biker.PhoneNumber : src.Keer.PhoneNumber))
                 .ForMember(t => t.UserStar,
                     o => o.MapFrom((src, _, _, context) => src.Biker == null ? new double?() : (bool) context.Items["isKeer"] ? src.Biker.Star : src.Keer.Star))
+                .ForMember(t => t.CancelPersonFullname,
+                    o => o.MapFrom(t =>
+                        t.CancelPersonId == null ? null :
+                        t.CancelPersonId == t.KeerId ? t.Keer.FullName :
+                        t.Biker == null ? null : t.Biker.FullName))
                 .ForMember(t => t.TripStatus, o => o.MapFrom(t => t.Status))
                 .ForMember(t => t.DepartureName, o => o.MapFrom(t => t.Route.Departure.Name))
                 .ForMember(t => t.DepartureCoordinate, o => o.MapFrom(t => t.Route.Departure.Coordinate))
