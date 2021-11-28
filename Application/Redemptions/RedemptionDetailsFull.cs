@@ -23,6 +23,7 @@ namespace Application.Redemptions
             public bool IsAdmin { get; init; }
         }
 
+        // ReSharper disable once UnusedType.Global
         public class Handler : IRequestHandler<Query, Result<RedemptionAndVoucherDto>>
         {
             private readonly DataContext _context;

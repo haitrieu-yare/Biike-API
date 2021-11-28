@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Application.Vouchers.DTOs;
 
 namespace Application.Redemptions.DTOs
 {
@@ -17,6 +19,7 @@ namespace Application.Redemptions.DTOs
         public string? VoucherCode { get; set; }
         public int? VoucherPoint { get; set; }
         public bool? IsUsed { get; set; }
+        public List<VoucherImageDto>? VoucherImages { get; set; }
         public DateTime? RedemptionDate { get; set; }
     }
 }

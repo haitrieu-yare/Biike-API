@@ -371,7 +371,8 @@ namespace Application.Core
                 .ForMember(r => r.StartDate, o => o.MapFrom(u => u.Voucher.StartDate))
                 .ForMember(r => r.EndDate, o => o.MapFrom(u => u.Voucher.EndDate))
                 .ForMember(r => r.Description, o => o.MapFrom(u => u.Voucher.Description))
-                .ForMember(r => r.TermsAndConditions, o => o.MapFrom(u => u.Voucher.TermsAndConditions));
+                .ForMember(r => r.TermsAndConditions, o => o.MapFrom(u => u.Voucher.TermsAndConditions))
+                .ForMember(r => r.VoucherImages, o => o.MapFrom(u => u.Voucher.VoucherImages));
             // Create
             CreateMap<RedemptionCreationDto, Redemption>();
 
