@@ -15,6 +15,10 @@ namespace Application.Trips.DTOs
         public DateTime? CreatedDate { get; set; }
         public DateTime BookTime { get; set; }
         public DateTime? PickupTime { get; set; }
+        public DateTime? FirstPersonArrivalTime { get; set; }
+        public int? FirstPersonArrivalId { get; set; }
+        public DateTime? SecondPersonArrivalTime { get; set; }
+        public int? SecondPersonArrivalId { get; set; }
         public DateTime? FinishedTime { get; set; }
         public DateTime? CancelTime { get; set; }
         public int? Status { get; set; }

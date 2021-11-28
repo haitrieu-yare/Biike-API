@@ -12,7 +12,7 @@ using Persistence;
 namespace Application.Trips
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class TripStartEdit
+    public class TripWaitingEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
@@ -55,37 +55,39 @@ namespace Application.Trips
 
                     if (trip.BikerId == null)
                     {
-                        _logger.LogInformation("Trip must has Biker before starting");
-                        return Result<Unit>.Failure("Trip must has Biker before starting.");
+                        _logger.LogInformation("Trip must has Biker before waiting");
+                        return Result<Unit>.Failure("Trip must has Biker before waiting.");
                     }
 
-                    if (request.UserId != trip.BikerId)
+                    if (request.UserId != trip.KeerId && request.UserId != trip.BikerId)
                     {
-                        _logger.LogInformation("Biker with UserId {UserId} doesn't belong to this trip", request.UserId);
-                        return Result<Unit>.Failure($"Biker with UserId {request.UserId} doesn't belong to this trip.");
+                        _logger.LogInformation("User with UserId {UserId} doesn't belong to this trip", request.UserId);
+                        return Result<Unit>.Failure($"User with UserId {request.UserId} doesn't belong to this trip.");
                     }
 
                     switch (trip.Status)
                     {
                         case (int) TripStatus.Matching:
-                            _logger.LogInformation("Can not start trip because no one is arrived at waiting point yet");
-                            return Result<Unit>.Failure(
-                                "Can not start trip because no one is arrived at waiting point yet.");
+                            trip.Status = (int) TripStatus.Waiting;
+                            trip.FirstPersonArrivalId = request.UserId;
+                            trip.FirstPersonArrivalTime = CurrentTime.GetCurrentTime();
+                            break;
                         case (int) TripStatus.Waiting:
-                            if (trip.SecondPersonArrivalId == null)
+                            // Check nếu người thứ nhất đã call api báo đến nơi
+                            // thì sẽ không call lại api này được nữa
+                            // Đồng thời check nếu người thứ hai đã call api báo đến nơi,
+                            // thì cũng sẽ không call lại api này được nữa luôn
+                            if (trip.FirstPersonArrivalId == request.UserId ||
+                                trip.SecondPersonArrivalId != null && trip.SecondPersonArrivalId == request.UserId)
                             {
-                                var isFirstPersonKeer = trip.FirstPersonArrivalId == trip.KeerId;
-                                var personRole = isFirstPersonKeer ? "Biker" : "Keer";
-                                    _logger.LogInformation("Can not start trip because {PersonRole} " +
-                                                           "has not arrived at waiting point yet", personRole);
+                                _logger.LogInformation("User with UserId {UserId} can only request this endpoint once",
+                                    request.UserId);
                                 return Result<Unit>.Failure(
-                                    $"Can not start trip because {personRole} has not arrived at waiting point yet.");
+                                    $"User with UserId {request.UserId} can only request this endpoint once.");
                             }
-                            else
-                            {
-                                trip.PickupTime = CurrentTime.GetCurrentTime();
-                                trip.Status = (int) TripStatus.Started;
-                            }
+
+                            trip.SecondPersonArrivalId = request.UserId;
+                            trip.SecondPersonArrivalTime = CurrentTime.GetCurrentTime();
                             break;
                         case (int) TripStatus.Started:
                             _logger.LogInformation("Trip has already started");

@@ -27,7 +27,11 @@ namespace Application.Trips
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public TripCreationDto TripCreationDto { get; init; } = null!;
+            public Command(TripCreationDto tripCreationDto)
+            {
+                TripCreationDto = tripCreationDto;
+            }
+            public TripCreationDto TripCreationDto { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -95,6 +99,7 @@ namespace Application.Trips
                     }
 
                     var tripWithBookTime = await _context.Trip
+                        .Where(t => t.KeerId == request.TripCreationDto.KeerId)
                         .Where(t => t.BookTime == request.TripCreationDto.BookTime)
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -102,9 +107,11 @@ namespace Application.Trips
                     {
                         _logger.LogInformation(
                             "Failed to create new trip because trip with bookTime {BookTime} " +
-                            "is already existed", request.TripCreationDto.BookTime);
+                            "is already existed for Keer with KeerId {KeerId}", 
+                            request.TripCreationDto.BookTime, request.TripCreationDto.KeerId);
                         return Result<Unit>.Failure("Failed to create new trip because trip with bookTime " +
-                                                    $"{request.TripCreationDto.BookTime} is already existed.");
+                                                    $"{request.TripCreationDto.BookTime} is already existed" +
+                                                    $"for Keer with KeerId {request.TripCreationDto.KeerId}.");
                     }
 
                     var existingTripsCount = await _context.Trip

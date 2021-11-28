@@ -153,7 +153,7 @@ namespace API.Controllers
 
             if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
 
-            return HandleResult(await Mediator.Send(new TripCreation.Command {TripCreationDto = tripCreationDto}, ct));
+            return HandleResult(await Mediator.Send(new TripCreation.Command(tripCreationDto), ct));
         }
 
         // Keer
@@ -176,7 +176,7 @@ namespace API.Controllers
             if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
 
             return HandleResult(await Mediator.Send(
-                new TripScheduleCreation.Command {TripScheduleCreationDto = tripScheduleCreationDto}, ct));
+                new TripScheduleCreation.Command(tripScheduleCreationDto), ct));
         }
 
         // Biker
@@ -197,10 +197,10 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new TripBikerEdit.Command(tripId, validationDto.UserRequestId),
                 ct));
         }
-
+        
         // Keer, Biker
-        [HttpPut("{tripId:int}/startTime")]
-        public async Task<IActionResult> EditTripStartTime(int tripId, CancellationToken ct)
+        [HttpPut("{tripId:int}/waitingTime")]
+        public async Task<IActionResult> EditTripWaitingTime(int tripId, CancellationToken ct)
         {
             var role = ControllerUtils.GetRole(HttpContext);
 
@@ -209,6 +209,25 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
                                         Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
+
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            return HandleResult(await Mediator.Send(new TripWaitingEdit.Command(tripId, validationDto.UserRequestId),
+                ct));
+        }
+
+        // Biker
+        [HttpPut("{tripId:int}/startTime")]
+        public async Task<IActionResult> EditTripStartTime(int tripId, CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Biker)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
 

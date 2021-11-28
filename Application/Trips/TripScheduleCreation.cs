@@ -21,7 +21,11 @@ namespace Application.Trips
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public TripScheduleCreationDto TripScheduleCreationDto { get; init; } = null!;
+            public Command(TripScheduleCreationDto tripScheduleCreationDto)
+            {
+                TripScheduleCreationDto = tripScheduleCreationDto;
+            }
+            public TripScheduleCreationDto TripScheduleCreationDto { get; } 
         }
 
         // ReSharper disable once UnusedType.Global
@@ -93,6 +97,7 @@ namespace Application.Trips
                     }
 
                     var tripWithBookTime = await _context.Trip
+                        .Where(t => t.KeerId == request.TripScheduleCreationDto.KeerId)
                         .Where(t => t.BookTime == request.TripScheduleCreationDto.BookTime!.First())
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -107,7 +112,10 @@ namespace Application.Trips
 
                     var existingTripsCount = await _context.Trip
                         .Where(t => t.KeerId == request.TripScheduleCreationDto.KeerId)
-                        .Where(t => t.Status == (int) TripStatus.Finding || t.Status == (int) TripStatus.Waiting)
+                        .Where(t => t.Status == (int) TripStatus.Finding || 
+                                        t.Status == (int) TripStatus.Matching ||
+                                        t.Status == (int) TripStatus.Waiting ||
+                                        t.Status == (int) TripStatus.Started )
                         .CountAsync(cancellationToken);
 
                     if (existingTripsCount + request.TripScheduleCreationDto.BookTime!.Count > Constant.MaxTripCount)
@@ -125,7 +133,7 @@ namespace Application.Trips
                                 RouteId = route.RouteId,
                                 KeerId = (int) request.TripScheduleCreationDto.KeerId!,
                                 BookTime = bookTime,
-                                IsScheduled = (bool) request.TripScheduleCreationDto.IsScheduled!
+                                IsScheduled = true
                             })
                         .ToList();
 
@@ -135,8 +143,8 @@ namespace Application.Trips
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to create new trip schedule");
-                        return Result<Unit>.Failure("Failed to create new trip schedule.");
+                        _logger.LogInformation("Failed to create multiple trips by schedule");
+                        return Result<Unit>.Failure("Failed to create multiple trips by schedule.");
                     }
 
                     foreach (var newTrip in newTrips)
@@ -144,8 +152,8 @@ namespace Application.Trips
                         await AutoTripCancellationCreation.Run(_schedulerFactory, newTrip);
                     }
 
-                    _logger.LogInformation("Successfully created multiple trips");
-                    return Result<Unit>.Success(Unit.Value, "Successfully created multiple trips.",
+                    _logger.LogInformation("Successfully created multiple trips by schedule");
+                    return Result<Unit>.Success(Unit.Value, "Successfully created multiple trips by schedule.",
                         newTrips.First().TripId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
@@ -153,7 +161,7 @@ namespace Application.Trips
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex)
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

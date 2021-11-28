@@ -13,6 +13,5 @@ namespace Application.Trips.DTOs
         [Required] public int? DepartureId { get; init; }
         [Required] public int? DestinationId { get; init; }
         [Required] public List<DateTime>? BookTime { get; init; }
-        [Required] public bool? IsScheduled { get; init; }
     }
 }
