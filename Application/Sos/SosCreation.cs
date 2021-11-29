@@ -50,7 +50,7 @@ namespace Application.Sos
                     var totalRecord = await _context.Sos.Where(s => s.UserId == request.UserId)
                         .CountAsync(cancellationToken);
 
-                    if (totalRecord > 3)
+                    if (totalRecord == 3)
                     {
                         _logger.LogInformation("This user has reach the maximum number of sos (3) can be created");
                         return Result<Unit>.Failure(

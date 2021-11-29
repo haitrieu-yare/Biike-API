@@ -95,13 +95,13 @@ namespace Application.Vouchers
                         else
                         {
                             totalRecord = await _context.Voucher
-                                .Where(v => v.EndDate.CompareTo(currentTime) < 0)
+                                .Where(v => v.EndDate.CompareTo(currentTime) > 0)
                                 .CountAsync(cancellationToken);
                             lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                             if (request.Page <= lastPage)
                                 vouchers = await _context.Voucher.AsSingleQuery()
-                                    .Where(v => v.EndDate.CompareTo(currentTime) < 0)
+                                    .Where(v => v.EndDate.CompareTo(currentTime) > 0)
                                     .OrderBy(v => v.VoucherCategoryId)
                                     .Skip((request.Page - 1) * request.Limit)
                                     .Take(request.Limit)
@@ -130,14 +130,14 @@ namespace Application.Vouchers
                         else
                         {
                             totalRecord = await _context.Voucher
-                                .Where(v => v.EndDate.CompareTo(currentTime) < 0)
+                                .Where(v => v.EndDate.CompareTo(currentTime) > 0)
                                 .Where(v => v.VoucherCategoryId == request.CategoryId)
                                 .CountAsync(cancellationToken);
                             lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                             if (request.Page <= lastPage)
                                 vouchers = await _context.Voucher.AsSingleQuery()
-                                    .Where(v => v.EndDate.CompareTo(currentTime) < 0)
+                                    .Where(v => v.EndDate.CompareTo(currentTime) > 0)
                                     .Where(v => v.VoucherCategoryId == request.CategoryId)
                                     .OrderBy(v => v.VoucherCategoryId)
                                     .Skip((request.Page - 1) * request.Limit)

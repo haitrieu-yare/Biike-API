@@ -85,6 +85,7 @@ namespace Application.Trips
                                 isKeer ? t.KeerId == request.UserId : t.BikerId == request.UserId)
                             .Where(t =>
                                 t.Status == (int) TripStatus.Finding ||
+                                t.Status == (int) TripStatus.Matched ||
                                 t.Status == (int) TripStatus.Waiting)
                             .OrderBy(t => t.BookTime)
                             .Skip((request.Page - 1) * request.Limit)
