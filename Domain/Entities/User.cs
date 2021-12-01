@@ -16,7 +16,7 @@ namespace Domain.Entities
         public string PhoneNumber { get; set; } = string.Empty;
 
         [EmailAddress] 
-        [RegularExpression(@".*@fpt\.edu\.vn$", ErrorMessage = "Must use fpt email.")]
+        [RegularExpression(@"^.*@((fpt\.edu\.vn)|(fe\.edu\.vn))$", ErrorMessage = "Must use fpt email.")]
         public string Email { get; set; } = "thisisadefaultmail@fpt.edu.vn";
         public string PasswordHash { get; set; } = "092021";
         public int Role { get; set; } = (int) RoleStatus.Keer;
@@ -32,6 +32,7 @@ namespace Domain.Entities
         public bool IsEmailVerified { get; set; }
         public bool IsPhoneVerified { get; set; }
         public bool IsBikeVerified { get; set; }
+        public bool IsKeNowAvailable { get; set; }
         public DateTime? BirthDate { get; set; }
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         public bool IsDeleted { get; set; }
@@ -57,5 +58,6 @@ namespace Domain.Entities
         public ICollection<PointHistory> PointHistories { get; set; } = new List<PointHistory>();
         public ICollection<Sos> SosList { get; set; } = new List<Sos>();
         public ICollection<MomoTransaction> MomoTransactions { get; set; } = new List<MomoTransaction>();
+        public ICollection<BikeAvailability> BikeAvailabilities { get; set; } = new List<BikeAvailability>();
     }
 }

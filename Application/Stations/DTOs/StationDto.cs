@@ -10,6 +10,7 @@ namespace Application.Stations.DTOs
         public string? Name { get; set; }
         public string? Address { get; set; }
         public string? Coordinate { get; set; }
+        public bool? IsCentralPoint { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public DateTime? CreatedDate { get; set; }

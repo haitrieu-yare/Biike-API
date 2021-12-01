@@ -12,8 +12,11 @@ namespace Domain.Entities
         public string Name { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string Coordinate { get; set; } = string.Empty;
+        public bool IsCentralPoint { get; set; }
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         public bool IsDeleted { get; set; } = false;
+
+        public ICollection<BikeAvailability> BikeAvailabilities { get; set; } = new List<BikeAvailability>();
 
         [InverseProperty("Departure")] public ICollection<Route> DepartureRoutes { get; set; } = new List<Route>();
 

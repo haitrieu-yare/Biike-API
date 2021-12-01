@@ -26,10 +26,10 @@ namespace Application.Trips
             string triggerNameFinding = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Finding");
             string triggerNameMatched = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matched");
 
-            var bookTime = CurrentTime.ToLocalTime(trip.BookTime);
+            var bookTime = CurrentTime.FromVietNamTimeToLocalTime(trip.BookTime);
             var bookTimeNextDay = bookTime.AddDays(1);
-            var bookTimeNextDayAt12Am = new DateTime(bookTimeNextDay.Year, bookTimeNextDay.Month, 
-                bookTimeNextDay.Day, 0, 0, 0);
+            var bookTimeNextDayAt12Am = CurrentTime.FromLocalTimeToVietNamTime(new DateTime(bookTimeNextDay.Year,
+                bookTimeNextDay.Month, bookTimeNextDay.Day, 0, 0, 0));
 
             var findingTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerNameFinding, Constant.OneTimeJob)

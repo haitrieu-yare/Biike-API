@@ -13,6 +13,8 @@ namespace Domain.Entities
         public string BikePicture { get; set; } = string.Empty;
         public string BikeLicensePicture { get; set; } = string.Empty;
         public string PlateNumberPicture { get; set; } = string.Empty;
+        public string DrivingLicenseFrontPicture { get; set; } = string.Empty;
+        public string DrivingLicenseBackPicture { get; set; } = string.Empty;
 
         public int Status { get; set; } = (int) BikeStatus.Unverified;
         public string? FailedVerificationReason { get; set; }

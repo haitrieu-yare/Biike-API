@@ -13,6 +13,7 @@ namespace Application.Routes.DTOs
         public string? DestinationName { get; set; }
         
         public int? DefaultPoint { get; set; }
+        public double? Distance { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public DateTime? CreatedDate { get; set; }

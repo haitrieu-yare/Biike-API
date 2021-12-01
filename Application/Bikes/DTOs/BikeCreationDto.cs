@@ -12,6 +12,8 @@ namespace Application.Bikes.DTOs
         [Required] public string? BikePicture { get; set; }
         [Required] public string? BikeLicensePicture { get; set; }
         [Required] public string? PlateNumberPicture { get; set; }
+        [Required] public string? DrivingLicenseFrontPicture { get; set; }
+        [Required] public string? DrivingLicenseBackPicture { get; set; }
         [Required] public string? Color { get; init; }
         [Required] public string? Brand { get; init; }
         [Required] public string? BikeType { get; init; }

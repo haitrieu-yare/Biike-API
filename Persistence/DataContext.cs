@@ -35,6 +35,9 @@ namespace Persistence
         public DbSet<PointHistory> PointHistory => Set<PointHistory>();
         public DbSet<MomoTransaction> MomoTransaction => Set<MomoTransaction>();
         public DbSet<Configuration> Configuration => Set<Configuration>();
+        public DbSet<BikeAvailability> BikeAvailability => Set<BikeAvailability>();
+        public DbSet<Notification> Notification => Set<Notification>();
+        public DbSet<Role> Role => Set<Role>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -105,6 +108,32 @@ namespace Persistence
                 .HasOne(b => b.User)
                 .WithMany(u => u.Bikes)
                 .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+
+            #region BikeAvailability
+
+            modelBuilder.Entity<BikeAvailability>()
+                .HasOne(b => b.User)
+                .WithMany(u => u.BikeAvailabilities)
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<BikeAvailability>()
+                .HasOne(b => b.Station)
+                .WithMany(s => s.BikeAvailabilities)
+                .HasForeignKey(b => b.StationId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+
+            #region Notification
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.Area)
+                .WithMany(a => a.Notifications)
+                .HasForeignKey(b => b.AreaId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             #endregion

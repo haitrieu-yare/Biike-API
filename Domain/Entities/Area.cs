@@ -17,5 +17,6 @@ namespace Domain.Entities
         public bool IsDeleted { get; set; }
         public ICollection<Station> Stations { get; set; } = new List<Station>();
         public ICollection<Route> Routes { get; set; } = new List<Route>();
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     }
 }

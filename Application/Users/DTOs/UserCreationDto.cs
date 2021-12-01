@@ -15,7 +15,7 @@ namespace Application.Users.DTOs
 
         [Required]
         [EmailAddress]
-        [RegularExpression(@".*@fpt\.edu\.vn$", ErrorMessage = "Must use fpt email.")]
+        [RegularExpression(@"^.*@((fpt\.edu\.vn)|(fe\.edu\.vn))$", ErrorMessage = "Must use fpt email.")]
         public string? Email
         {
             get => _email;
