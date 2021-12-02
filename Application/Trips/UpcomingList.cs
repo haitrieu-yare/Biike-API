@@ -64,7 +64,7 @@ namespace Application.Trips
                         return Result<List<TripDto>>.NotFound($"User with UserId {request.UserId} doesn't exist.");
                     }
 
-                    var isKeer = user.Role == (int) RoleStatus.Keer;
+                    var isKeer = user.RoleId == (int) RoleStatus.Keer;
 
                     var totalRecord = await _context.Trip
                         .Where(t =>

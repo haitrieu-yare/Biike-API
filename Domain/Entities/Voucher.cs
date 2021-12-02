@@ -20,6 +20,7 @@ namespace Domain.Entities
         public int AmountOfPoint { get; set; }
         public string Description { get; set; } = string.Empty;
         public string TermsAndConditions { get; set; } = string.Empty;
+        public bool IsDeleted { get; set; }
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         public ICollection<VoucherCode> VoucherCodes { get; set; } = new List<VoucherCode>();
         public ICollection<VoucherAddress> VoucherAddresses { get; set; } = new List<VoucherAddress>();

@@ -86,9 +86,15 @@ namespace Persistence
 
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.PhoneNumber).IsUnique();
+            
+            modelBuilder.Entity<User>()
+                .HasOne(a => a.Role)
+                .WithMany(a => a.Users)
+                .HasForeignKey(a => a.RoleId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
-            
+
             #region UserAddress
 
             modelBuilder.Entity<UserAddress>()

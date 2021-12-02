@@ -48,14 +48,14 @@ namespace Application.Bikes
                         return Result<Unit>.NotFound("User to delete bike does not exist.");
                     }
 
-                    if (user.Role != (int) RoleStatus.Biker)
+                    if (user.RoleId != (int) RoleStatus.Biker)
                     {
                         _logger.LogInformation("User to delete bike does not exist");
                         return Result<Unit>.Unauthorized(Constant.OnlyRole(RoleStatus.Biker.ToString()));
                     }
 
                     user.IsBikeVerified = false;
-                    user.Role = (int) RoleStatus.Keer;
+                    user.RoleId = (int) RoleStatus.Keer;
 
                     Bike bike = await _context.Bike.Where(b => b.UserId == request.UserId)
                         .SingleOrDefaultAsync(cancellationToken);

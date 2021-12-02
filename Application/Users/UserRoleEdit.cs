@@ -58,32 +58,32 @@ namespace Application.Users
 
                     if (request.StartupRole <= 0)
                     {
-                        if (user.Role == (int) RoleStatus.Keer && !user.IsBikeVerified)
+                        if (user.RoleId == (int) RoleStatus.Keer && !user.IsBikeVerified)
                         {
                             _logger.LogInformation("User does not have bike");
                             return Result<Unit>.Failure("User does not have bike.");
                         }
 
-                        switch (user.Role)
+                        switch (user.RoleId)
                         {
                             case (int) RoleStatus.Keer:
-                                user.Role = (int) RoleStatus.Biker;
+                                user.RoleId = (int) RoleStatus.Biker;
                                 break;
                             case (int) RoleStatus.Biker:
-                                user.Role = (int) RoleStatus.Keer;
+                                user.RoleId = (int) RoleStatus.Keer;
                                 break;
                         }
                     }
                     else
                     {
                         if (request.StartupRole == (int) RoleStatus.Biker && 
-                            user.Role == (int) RoleStatus.Keer && !user.IsBikeVerified)
+                            user.RoleId == (int) RoleStatus.Keer && !user.IsBikeVerified)
                         {
                             _logger.LogInformation("User does not have bike");
                             return Result<Unit>.Failure("User does not have bike.");
                         }
 
-                        if (user.Role == request.StartupRole)
+                        if (user.RoleId == request.StartupRole)
                         {
                             _logger.LogInformation("Successfully chosen user's role by userId {request.UserId}",
                                 request.UserId);
@@ -91,7 +91,7 @@ namespace Application.Users
                                 $"Successfully chosen user's role by userId {request.UserId}.");
                         }
                         
-                        user.Role = request.StartupRole;
+                        user.RoleId = request.StartupRole;
                     }
 
                     try

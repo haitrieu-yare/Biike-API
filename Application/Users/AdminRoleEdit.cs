@@ -60,13 +60,13 @@ namespace Application.Users
                                                     "Please reactivate it if you want to edit it.");
                     }
 
-                    if (user.Role == (int) RoleStatus.Keer)
+                    if (user.RoleId == (int) RoleStatus.Keer)
                     {
-                        user.Role = (int) RoleStatus.Admin;
+                        user.RoleId = (int) RoleStatus.Admin;
                     }
                     else
                     {
-                        user.Role = (int) RoleStatus.Keer;
+                        user.RoleId = (int) RoleStatus.Keer;
                     }
 
                     try

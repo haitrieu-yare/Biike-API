@@ -10,8 +10,8 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20211201061246_DatabaseV1.8")]
-    partial class DatabaseV18
+    [Migration("20211202050906_DatabaseV2.0")]
+    partial class DatabaseV20
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -843,7 +843,7 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Role")
+                    b.Property<int>("RoleId")
                         .HasColumnType("int");
 
                     b.Property<double>("Star")
@@ -862,6 +862,8 @@ namespace Persistence.Migrations
 
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("AppUser");
                 });
@@ -928,6 +930,9 @@ namespace Persistence.Migrations
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -1368,6 +1373,17 @@ namespace Persistence.Migrations
                     b.Navigation("Wallet");
                 });
 
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.HasOne("Domain.Entities.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Domain.Entities.UserAddress", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
@@ -1463,6 +1479,11 @@ namespace Persistence.Migrations
                     b.Navigation("Routes");
 
                     b.Navigation("Stations");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Domain.Entities.Route", b =>

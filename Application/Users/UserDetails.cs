@@ -73,7 +73,7 @@ namespace Application.Users
 
                         // Set to null to make unnecessary fields excluded from the response body.
                         userProfile.UserAddresses = null;
-                        userProfile.Role = null;
+                        userProfile.RoleId = null;
                         userProfile.TotalPoint = null;
                         userProfile.UserStatus = null;
                         userProfile.LastLoginDevice = null;

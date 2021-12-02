@@ -11,7 +11,7 @@ namespace Application.Users.DTOs
         public string? Email { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? Role { get; set; }
+        public int? RoleId { get; set; }
 
         public string? UserFullname { get; set; }
         public string? Avatar { get; set; }

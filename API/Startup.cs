@@ -106,19 +106,6 @@ namespace API
                         ValidIssuer = _config["Jwt:Firebase:ValidIssuer"],
                         ValidAudience = _config["Jwt:Firebase:ValidAudience"]
                     };
-                    // opt.Events = new JwtBearerEvents()
-                    // {
-                    //     OnMessageReceived = context =>
-                    //     {
-                    //         var idToken = context.Request.Query["idToken"];
-                    //         var path = context.HttpContext.Request.Path;
-                    //         if (!string.IsNullOrEmpty(idToken) && path.StartsWithSegments("/notification"))
-                    //         {
-                    //             context.Token = idToken;
-                    //         }
-                    //         return  Task.CompletedTask;
-                    //     }
-                    // };
                 });
 
             // Middleware này là để custom message trả về nếu như request không có thông tin authentication (lỗi 401)

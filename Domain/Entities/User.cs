@@ -19,7 +19,8 @@ namespace Domain.Entities
         [RegularExpression(@"^.*@((fpt\.edu\.vn)|(fe\.edu\.vn))$", ErrorMessage = "Must use fpt email.")]
         public string Email { get; set; } = "thisisadefaultmail@fpt.edu.vn";
         public string PasswordHash { get; set; } = "092021";
-        public int Role { get; set; } = (int) RoleStatus.Keer;
+        public int RoleId { get; set; } = (int) RoleStatus.Keer;
+        public Role Role { get; set; } = null!;
         public string FullName { get; set; } = string.Empty;
         public string Avatar { get; set; } = string.Empty;
         public int Gender { get; set; } = (int) GenderStatus.Other;
