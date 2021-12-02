@@ -10,7 +10,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20211202050906_DatabaseV2.0")]
+    [Migration("20211202055836_DatabaseV2.0")]
     partial class DatabaseV20
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1091,9 +1091,9 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.Advertisement", b =>
                 {
                     b.HasOne("Domain.Entities.User", "Creator")
-                        .WithMany()
+                        .WithMany("AdvertisementCreators")
                         .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Creator");
@@ -1162,9 +1162,9 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.Configuration", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Configurations")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -1509,11 +1509,15 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
+                    b.Navigation("AdvertisementCreators");
+
                     b.Navigation("BikeAvailabilities");
 
                     b.Navigation("BikerTrips");
 
                     b.Navigation("Bikes");
+
+                    b.Navigation("Configurations");
 
                     b.Navigation("FeedBackList");
 

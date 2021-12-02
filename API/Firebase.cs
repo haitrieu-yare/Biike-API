@@ -38,7 +38,7 @@ namespace API
                         DisplayName = user.FullName,
                         PhotoUrl = user.Avatar,
                         Disabled = false,
-                        CustomClaims = new Dictionary<string, object> {{"role", user.Role}},
+                        CustomClaims = new Dictionary<string, object> {{"role", user.RoleId}},
                         PasswordHash = Encoding.ASCII.GetBytes(user.PasswordHash)
                     }));
 

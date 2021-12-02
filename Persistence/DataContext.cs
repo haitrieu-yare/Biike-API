@@ -144,6 +144,16 @@ namespace Persistence
 
             #endregion
 
+            #region Advertisement
+
+            modelBuilder.Entity<Advertisement>()
+                .HasOne(a => a.Creator)
+                .WithMany(u => u.AdvertisementCreators)
+                .HasForeignKey(b => b.CreatorId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+
             #region AdvertisementAddress
 
             modelBuilder.Entity<AdvertisementAddress>()
@@ -291,7 +301,7 @@ namespace Persistence
 
             #endregion
 
-            #region Voucher Code
+            #region VoucherCode
 
             modelBuilder.Entity<VoucherCode>()
                 .HasOne(vc => vc.Voucher)
@@ -385,6 +395,12 @@ namespace Persistence
 
             modelBuilder.Entity<Configuration>()
                 .HasIndex(p => p.ConfigurationName).IsUnique();
+            
+            modelBuilder.Entity<Configuration>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Configurations)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             #endregion
         }

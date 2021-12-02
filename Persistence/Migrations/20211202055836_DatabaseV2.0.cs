@@ -237,8 +237,7 @@ namespace Persistence.Migrations
                         name: "FK_Advertisement_AppUser_CreatorId",
                         column: x => x.CreatorId,
                         principalTable: "AppUser",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -319,8 +318,7 @@ namespace Persistence.Migrations
                         name: "FK_Configuration_AppUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AppUser",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
