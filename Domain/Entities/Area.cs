@@ -13,6 +13,7 @@ namespace Domain.Entities
     {
         public int AreaId { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string EmailExtension { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         public bool IsDeleted { get; set; }
         public ICollection<Station> Stations { get; set; } = new List<Station>();

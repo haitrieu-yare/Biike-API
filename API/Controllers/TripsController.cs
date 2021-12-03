@@ -135,6 +135,26 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(
                 new TripDetailsFull.Query {TripId = tripId, UserRequestId = validationDto.UserRequestId}, ct));
         }
+        
+        // Keer, Biker
+        [HttpGet("{tripId:int}/waitingStatus")]
+        public async Task<IActionResult> GetTripWaitingStatus(int tripId, CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+                                        Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
+
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            return HandleResult(await Mediator.Send(new TripWaitingChecking.Query(tripId, validationDto.UserRequestId),
+                ct));
+        }
 
         // Keer
         [HttpPost]

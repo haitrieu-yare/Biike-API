@@ -15,8 +15,8 @@ namespace Domain.Entities
         public Area Area { get; set; } = null!;
         public int DefaultPoint { get; set; }
         public double Distance { get; set; }
-        public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         public bool IsDeleted { get; set; }
+        public DateTime CreatedDate { get; set; } = CurrentTime.GetCurrentTime();
         public ICollection<Trip> Trips { get; set; } = new List<Trip>();
     }
 }
