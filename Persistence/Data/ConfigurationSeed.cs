@@ -6,7 +6,7 @@ using Domain.Entities;
 
 namespace Persistence.Data
 {
-    public class ConfigurationSeed
+    public static class ConfigurationSeed
     {
         public static async Task SeedData(DataContext context)
         {
@@ -22,7 +22,14 @@ namespace Persistence.Data
                     ConfigurationValue = "0.06",
                     UserId = 6, 
                     CreatedDate = createdDate
-                }
+                },
+                new()
+                {
+                    ConfigurationName = "ActiveRadius", 
+                    ConfigurationValue = "10",
+                    UserId = 6, 
+                    CreatedDate = createdDate
+                },
             };
 
             // Save change for each item because EF doesn't insert like the order

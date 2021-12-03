@@ -21,8 +21,16 @@ namespace Persistence.Data
                     UserId = 3,
                     PlateNumber = "7000",
                     BikeOwner = "Phương Uyên",
-                    Color = "Gold",
+                    BikePicture = "randomimage",
+                    BikeLicensePicture = "randomimage",
+                    PlateNumberPicture = "randomimage",
+                    DrivingLicenseFrontPicture = "randomimage",
+                    DrivingLicenseBackPicture = "randomimage",
+                    Status = 2,
+                    Color = "Vàng",
                     Brand = "Honda",
+                    BikeType = "Xe số",
+                    BikeVolume = "100 - 175 cc",
                     CreatedDate = createdDate
                 },
                 new()
@@ -30,8 +38,16 @@ namespace Persistence.Data
                     UserId = 4,
                     PlateNumber = "7001",
                     BikeOwner = "Hữu Phát",
+                    BikePicture = "randomimage",
+                    BikeLicensePicture = "randomimage",
+                    PlateNumberPicture = "randomimage",
+                    DrivingLicenseFrontPicture = "randomimage",
+                    DrivingLicenseBackPicture = "randomimage",
+                    Status = 2,
                     Color = "Blue",
                     Brand = "Yamaha",
+                    BikeType = "Tay ga",
+                    BikeVolume = "100 - 175 cc",
                     CreatedDate = createdDate
                 },
                 new()
@@ -39,8 +55,16 @@ namespace Persistence.Data
                     UserId = 8,
                     PlateNumber = "7002",
                     BikeOwner = "Minh Tường",
+                    BikePicture = "randomimage",
+                    BikeLicensePicture = "randomimage",
+                    PlateNumberPicture = "randomimage",
+                    DrivingLicenseFrontPicture = "randomimage",
+                    DrivingLicenseBackPicture = "randomimage",
+                    Status = 2,
                     Color = "Black",
                     Brand = "Suzuki",
+                    BikeType = "Tay Côn/Moto",
+                    BikeVolume = "100 - 175 cc",
                     CreatedDate = createdDate
                 }
             };

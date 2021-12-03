@@ -59,6 +59,7 @@ namespace Persistence.Data
                     IsEmailVerified = true,
                     IsPhoneVerified = true,
                     IsBikeVerified = true,
+                    IsKeNowAvailable = true,
                     CreatedDate = createdDate
                 },
                 new()
@@ -75,6 +76,7 @@ namespace Persistence.Data
                     IsEmailVerified = true,
                     IsPhoneVerified = true,
                     IsBikeVerified = true,
+                    IsKeNowAvailable = true,
                     CreatedDate = createdDate
                 },
                 new()
@@ -133,6 +135,7 @@ namespace Persistence.Data
                     IsEmailVerified = true,
                     IsPhoneVerified = true,
                     IsBikeVerified = true,
+                    IsKeNowAvailable = true,
                     CreatedDate = createdDate
                 }
             };

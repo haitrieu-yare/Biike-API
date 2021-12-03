@@ -26,6 +26,10 @@ namespace Persistence.Data
                     BookTime = currentTime.AddDays(-9),
                     PickupTime = currentTime.AddDays(-9).AddSeconds(300),
                     FinishedTime = currentTime.AddDays(-9).AddSeconds(600),
+                    FirstPersonArrivalId = 1,
+                    FirstPersonArrivalTime = currentTime.AddDays(-9).AddSeconds(100),
+                    SecondPersonArrivalId = 3,
+                    SecondPersonArrivalTime = currentTime.AddDays(-9).AddSeconds(280),
                     Status = (int) TripStatus.Finished,
                     PlateNumber = "7000",
                     IsScheduled = true
@@ -37,7 +41,7 @@ namespace Persistence.Data
                     RouteId = 2,
                     CreatedDate = currentTime,
                     BookTime = currentTime.AddDays(2),
-                    Status = (int) TripStatus.Waiting,
+                    Status = (int) TripStatus.Matched,
                     PlateNumber = "7001",
                     IsScheduled = true
                 },
@@ -87,6 +91,10 @@ namespace Persistence.Data
                     BookTime = currentTime.AddDays(-2),
                     PickupTime = currentTime.AddDays(-2).AddSeconds(420),
                     FinishedTime = currentTime.AddDays(-2).AddSeconds(420 + 600),
+                    FirstPersonArrivalId = 2,
+                    FirstPersonArrivalTime = currentTime.AddDays(-2).AddSeconds(240),
+                    SecondPersonArrivalId = 3,
+                    SecondPersonArrivalTime = currentTime.AddDays(-2).AddSeconds(390),
                     Status = (int) TripStatus.Finished,
                     PlateNumber = "7000",
                     IsScheduled = false
@@ -98,7 +106,7 @@ namespace Persistence.Data
                     RouteId = 6,
                     CreatedDate = currentTime,
                     BookTime = currentTime.AddDays(3),
-                    Status = (int) TripStatus.Waiting,
+                    Status = (int) TripStatus.Matched,
                     PlateNumber = "7001",
                     IsScheduled = true
                 }

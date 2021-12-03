@@ -20,7 +20,8 @@ namespace Persistence.Data
                 {
                     DepartureId = 1,
                     DestinationId = 2,
-                    DefaultPoint = 10,
+                    DefaultPoint = 6,
+                    Distance = 3.1,
                     AreaId = 1,
                     CreatedDate = createdDate
                 },
@@ -28,7 +29,8 @@ namespace Persistence.Data
                 {
                     DepartureId = 2,
                     DestinationId = 1,
-                    DefaultPoint = 10,
+                    DefaultPoint = 6,
+                    Distance = 3.1,
                     AreaId = 1,
                     CreatedDate = createdDate
                 },
@@ -36,7 +38,8 @@ namespace Persistence.Data
                 {
                     DepartureId = 1,
                     DestinationId = 3,
-                    DefaultPoint = 15,
+                    DefaultPoint = 11,
+                    Distance = 5.4,
                     AreaId = 1,
                     CreatedDate = createdDate
                 },
@@ -44,7 +47,8 @@ namespace Persistence.Data
                 {
                     DepartureId = 3,
                     DestinationId = 1,
-                    DefaultPoint = 15,
+                    DefaultPoint = 11,
+                    Distance = 5.4,
                     AreaId = 1,
                     CreatedDate = createdDate
                 },
@@ -53,6 +57,7 @@ namespace Persistence.Data
                     DepartureId = 1,
                     DestinationId = 4,
                     DefaultPoint = 12,
+                    Distance = 5.8,
                     AreaId = 1,
                     CreatedDate = createdDate
                 },
@@ -61,6 +66,7 @@ namespace Persistence.Data
                     DepartureId = 4,
                     DestinationId = 1,
                     DefaultPoint = 12,
+                    Distance = 5.8,
                     AreaId = 1,
                     CreatedDate = createdDate
                 }

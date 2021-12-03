@@ -19,6 +19,7 @@ namespace Persistence.Data
                 new()
                 {
                     Name = "Đại Học FPT TP.HCM",
+                    EmailExtension = "fpt.edu.vn;fe.edu.vn",
                     CreatedDate = createdDate
                 }
             };

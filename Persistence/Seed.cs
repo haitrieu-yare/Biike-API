@@ -18,13 +18,13 @@ namespace Persistence
             await StationSeed.SeedData(context);
             await RouteSeed.SeedData(context);
 
-            await TripSeed.SeedData(context);
-            await FeedbackSeed.SeedData(context);
-            await TripTransactionSeed.SeedData(context);
+            // await TripSeed.SeedData(context);
+            // await FeedbackSeed.SeedData(context);
+            // await TripTransactionSeed.SeedData(context);
 
             await VoucherCategorySeed.SeedData(context);
             await VoucherSeed.SeedData(context);
-            await RedemptionSeed.SeedData(context);
+            // await RedemptionSeed.SeedData(context);
 
             await ConfigurationSeed.SeedData(context);
 
