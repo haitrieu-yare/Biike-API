@@ -59,7 +59,8 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var limitOneHourTime = CurrentTime.GetCurrentTime().AddHours(1);
+                    var currentTime = CurrentTime.GetCurrentTime();
+                    var limitOneHourTime = currentTime.AddHours(1);
                     var limitFifteenMinutesTime = limitOneHourTime.AddMinutes(-45);
 
                     if (request.TripCreationDto.IsScheduled!.Value &&
@@ -83,6 +84,17 @@ namespace Application.Trips
                                                     $"{request.TripCreationDto.BookTime} is larger than {limitFifteenMinutesTime}.");
                     }
 
+                    if (!request.TripCreationDto.IsScheduled!.Value &&
+                        request.TripCreationDto.BookTime!.Value.CompareTo(currentTime) < 0)
+                    {
+                        _logger.LogInformation(
+                            "Failed to create new trip now because bookTime {BookTime} " +
+                            "is earlier than current time {CurrentTime}", request.TripCreationDto.BookTime,
+                            currentTime);
+                        return Result<Unit>.Failure("Failed to create new trip now because bookTime " +
+                                                    $"{request.TripCreationDto.BookTime} is earlier than current time {currentTime}.");
+                    }
+
                     var route = await _context.Route
                         .Where(r => r.DepartureId == request.TripCreationDto.DepartureId)
                         .Where(r => r.DestinationId == request.TripCreationDto.DestinationId)
@@ -100,6 +112,8 @@ namespace Application.Trips
 
                     var tripWithBookTime = await _context.Trip
                         .Where(t => t.KeerId == request.TripCreationDto.KeerId)
+                        .Where(t => t.Status != (int) TripStatus.Finished &&
+                                    t.Status != (int) TripStatus.Cancelled)
                         .Where(t => t.BookTime == request.TripCreationDto.BookTime)
                         .SingleOrDefaultAsync(cancellationToken);
 

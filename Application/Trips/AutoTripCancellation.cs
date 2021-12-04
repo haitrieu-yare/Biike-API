@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain;
@@ -61,13 +63,18 @@ namespace Application.Trips
                         trip.CancelReason = "Tự động hủy vì đã quá giờ khởi hành.";
                         trip.Status = (int) TripStatus.Cancelled;
                         trip.CancelTime = CurrentTime.GetCurrentTime();
-                        await scheduler.DeleteJob(JobKey.Create(jobName, Constant.OneTimeJob), CancellationToken.None);
+                        var triggersOfJob =
+                            await scheduler.GetTriggersOfJob(JobKey.Create(jobName, Constant.OneTimeJob),
+                                CancellationToken.None);
+                        IReadOnlyCollection<TriggerKey> triggerKeys =
+                            triggersOfJob.Select(t => t.Key) as IReadOnlyCollection<TriggerKey> ??
+                            new List<TriggerKey>();
+                        await scheduler.UnscheduleJobs(triggerKeys, CancellationToken.None);
                         break;
                     default:
                         trip.CancelReason = "Tự động hủy vì đã quá ngày khởi hành.";
                         trip.Status = (int) TripStatus.Cancelled;
                         trip.CancelTime = CurrentTime.GetCurrentTime();
-                        await scheduler.DeleteJob(JobKey.Create(jobName, Constant.OneTimeJob), CancellationToken.None);
                         break;
                 }
 
