@@ -110,7 +110,7 @@ namespace Application.Trips
                             "is already existed for Keer with KeerId {KeerId}", 
                             request.TripCreationDto.BookTime, request.TripCreationDto.KeerId);
                         return Result<Unit>.Failure("Failed to create new trip because trip with bookTime " +
-                                                    $"{request.TripCreationDto.BookTime} is already existed" +
+                                                    $"{request.TripCreationDto.BookTime} is already existed " +
                                                     $"for Keer with KeerId {request.TripCreationDto.KeerId}.");
                     }
 
@@ -165,6 +165,17 @@ namespace Application.Trips
 
                         if (bikerIds.Count == 0)
                         {
+                            newTrip.CancelTime = CurrentTime.GetCurrentTime();
+                            newTrip.CancelReason = "Không có Biker phù hợp ở thời điểm hiện tại";
+                            newTrip.Status = (int) TripStatus.Cancelled;
+                            
+                            var cancellationResult = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                            if (!cancellationResult)
+                            {
+                                _logger.LogError("Failed to cancel trip because there are no Biker available now");
+                            }
+                            
                             _logger.LogInformation("There are no Biker available now");
                             return Result<Unit>.Failure("There are no Biker available now.");
                         }
