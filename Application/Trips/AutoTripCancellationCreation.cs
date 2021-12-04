@@ -22,6 +22,8 @@ namespace Application.Trips
                 .UsingJobData("TripId", $"{trip.TripId}")
                 .Build();
 
+            List<ITrigger> triggers = new();
+
             string triggerNameFinding = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Finding");
             string triggerNameMatched = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matched");
 
@@ -34,10 +36,10 @@ namespace Application.Trips
             // It will get the new time in UTC, so the result of bookTimeNextDayAt12AmInUtc
             // will be 2021-12-03 00:00:00 in UTC, but this is not what we want
             // we want the trigger to trigger at 12AM in VietName time
-            // Not at 12AM in UTC time, so we have to minus 7 hours, and the time will be 2021-12-02 17:00:00 in UTC
-            var bookTimeNextDayAt12AmInUtc = new DateTime(bookTimeNextDayInVietNam.Year,
-                bookTimeNextDayInVietNam.Month, bookTimeNextDayInVietNam.Day, 0, 0, 0);
-            var bookTimeNextDayAt12AmInVietNam = bookTimeNextDayAt12AmInUtc.AddHours(-7);
+            // Not at 12AM in UTC time, so we have to minus 7 hours at line 56,
+            // and the time will be 2021-12-02 17:00:00 in UTC
+            var bookTimeNextDayAt12AmInUtc = new DateTime(bookTimeNextDayInVietNam.Year, bookTimeNextDayInVietNam.Month,
+                bookTimeNextDayInVietNam.Day, 0, 0, 0);
 
             var findingTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerNameFinding, Constant.OneTimeJob)
@@ -45,14 +47,14 @@ namespace Application.Trips
                 // The code itself, if run on Azure server, which uses UTC time
                 // will think this time is in UTC, not in VietName time
                 // So we have to minus 7 hours to make it actually run in VietNam time
-                .StartAt(bookTimeInVietNam.AddHours(-7))
+                .StartAt(trip.IsScheduled
+                    ? bookTimeInVietNam.AddHours(-7)
+                    : bookTimeInVietNam.AddMinutes(-5).AddHours(-7))
                 .Build();
             var matchedTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerNameMatched, Constant.OneTimeJob)
-                .StartAt(bookTimeNextDayAt12AmInVietNam)
+                .StartAt(bookTimeNextDayAt12AmInUtc.AddHours(-7))
                 .Build();
-
-            List<ITrigger> triggers = new();
 
             switch (trip.Status)
             {
@@ -71,7 +73,7 @@ namespace Application.Trips
                     break;
             }
 
-            await scheduler.ScheduleJob(job, triggers,true);
+            await scheduler.ScheduleJob(job, triggers, true);
         }
     }
 }

@@ -145,12 +145,10 @@ namespace Application.Trips
                         _logger.LogInformation("Failed to create new trip");
                         return Result<Unit>.Failure("Failed to create new trip.");
                     }
-
-                    if (request.TripCreationDto.IsScheduled.Value)
-                    {
-                        await AutoTripCancellationCreation.Run(_schedulerFactory, newTrip);
-                    }
-                    else
+                    
+                    await AutoTripCancellationCreation.Run(_schedulerFactory, newTrip);
+                    
+                    if (!request.TripCreationDto.IsScheduled.Value)
                     {
                         // Mobile sẽ gửi time cộng thêm sẵn 15 phút, nên phải trừ 15 phút đi để gửi notification
                         var timeForKeNow = newTrip.BookTime.AddMinutes(-15);
