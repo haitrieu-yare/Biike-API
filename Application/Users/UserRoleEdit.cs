@@ -98,7 +98,7 @@ namespace Application.Users
                     {
                         #region Import user's role to Firebase
 
-                        var claims = new Dictionary<string, object> {{"role", user.Role}};
+                        var claims = new Dictionary<string, object> {{"role", user.RoleId}};
 
                         await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(user.UserId.ToString(), claims,
                             cancellationToken);
@@ -118,14 +118,14 @@ namespace Application.Users
                     if (!result)
                     {
                         _logger.LogInformation("Failed to update user's role by userId {request.UserId} to {UserRole}",
-                            request.UserId, user.Role);
-                        return Result<Unit>.Failure($"Failed to update user's role by userId {request.UserId} to {user.Role}.");
+                            request.UserId, user.RoleId);
+                        return Result<Unit>.Failure($"Failed to update user's role by userId {request.UserId} to {user.RoleId}.");
                     }
 
                     _logger.LogInformation("Successfully updated user's role by userId {request.UserId} to {UserRole}",
-                        request.UserId, user.Role);
+                        request.UserId, user.RoleId);
                     return Result<Unit>.Success(Unit.Value,
-                        $"Successfully updated user's role by userId {request.UserId} to {user.Role}.");
+                        $"Successfully updated user's role by userId {request.UserId} to {user.RoleId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

@@ -152,13 +152,28 @@ namespace Application.Trips
                     }
                     else
                     {
-                        List<User> bikers = await _context.User
-                            .Where(u => u.IsBikeVerified == true)
-                            .OrderBy(u => u.UserId)
-                            .Take(3)
+                        // Mobile sẽ gửi time cộng thêm sẵn 15 phút, nên phải trừ 15 phút đi để gửi notification
+                        var timeForKeNow = newTrip.BookTime.AddMinutes(-15);
+                        
+                        List<int> bikerIds = await _context.BikeAvailability
+                            .Where(b => b.StationId == request.TripCreationDto.DepartureId)
+                            .Where(b => b.FromTime.TimeOfDay.CompareTo(timeForKeNow.TimeOfDay) <= 0)
+                            .Where(b => b.ToTime.TimeOfDay.CompareTo(timeForKeNow.TimeOfDay) >= 0)
+                            .Include(b => b.User)
+                            .OrderBy(b => b.User.Star)
+                            .Select(b => b.UserId)
+                            .Distinct().Take(9)
                             .ToListAsync(cancellationToken);
 
-                        foreach (var biker in bikers)
+                        if (bikerIds.Count == 0)
+                        {
+                            _logger.LogInformation("There are no Biker available now");
+                            return Result<Unit>.Failure("There are no Biker available now.");
+                        }
+
+                        await AutoNotificationSendingCreation.Run(_schedulerFactory, newTrip, bikerIds.Skip(3).ToList());
+
+                        foreach (var bikerId in bikerIds.Take(3))
                         {
                             // ReSharper disable StringLiteralTypo
                             var notification = new NotificationDto
@@ -166,7 +181,7 @@ namespace Application.Trips
                                 NotificationId = Guid.NewGuid(),
                                 Title = Constant.NotificationTitleKeNow,
                                 Content = Constant.NotificationContentKeNow,
-                                ReceiverId = biker.UserId,
+                                ReceiverId = bikerId,
                                 Url = $"{_configuration["ApiPath"]}/trips/{newTrip.TripId}/details",
                                 IsRead = false,
                                 CreatedDate = CurrentTime.GetCurrentTime()

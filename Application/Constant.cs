@@ -45,6 +45,16 @@ namespace Application
         {
             return $"Trip {tripId} Auto Cancellation Trigger {triggerPurpose}";
         }
+        
+        public static string GetJobNameAutoNotificationSending(int tripId, string customData)
+        {
+            return $"Trip {tripId} Auto Notification Sending {customData}";
+        }
+        
+        public static string GetTriggerNameNotificationSending(int tripId, string triggerPurpose)
+        {
+            return $"Trip {tripId} Auto Notification Sending Trigger {triggerPurpose}";
+        }
     }
     public static class Color
     {
