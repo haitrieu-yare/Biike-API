@@ -1,6 +1,7 @@
 using System;
 using Application.Addresses.DTOs;
 using Application.Advertisements.DTOs;
+using Application.BikeAvailabilities.DTOs;
 using Application.Bikes.DTOs;
 using Application.Configurations.DTOs;
 using Application.Feedbacks.DTOs;
@@ -221,6 +222,15 @@ namespace Application.Core
                 .ForMember(b => b.BikeStatus, o => o.MapFrom(b => b.Status));
             // Create
             CreateMap<BikeCreationDto, Bike>();
+
+            #endregion
+
+            #region BikeAvailability
+
+            // List, Details
+            CreateMap<BikeAvailability, BikeAvailabilityDto>();
+            // Create, Edit
+            CreateMap<BikeAvailabilityModificationDto, BikeAvailability>();
 
             #endregion
 
