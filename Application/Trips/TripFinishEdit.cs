@@ -123,21 +123,18 @@ namespace Application.Trips
                         {
                             await _auto.Run(trip, trip.Route.DefaultPoint, Constant.TripCompletionPoint);
                             
-                            if (trip.IsScheduled)
-                            {
-                                IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
+                            IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
 
-                                string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
-                                string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matched");
-                                var triggerKey = new TriggerKey(triggerName, Constant.OneTimeJob);
-                    
-                                var jobTriggerDeletionResult= await scheduler.UnscheduleJob(triggerKey, cancellationToken);
+                            string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
+                            string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matched");
+                            var triggerKey = new TriggerKey(triggerName, Constant.OneTimeJob);
+                
+                            var jobTriggerDeletionResult= await scheduler.UnscheduleJob(triggerKey, cancellationToken);
 
-                                if (!jobTriggerDeletionResult) 
-                                    _logger.LogError("Fail to delete job's trigger with job name {JobName}", jobName);
-                    
-                                _logger.LogInformation("Successfully deleted cancellation job's trigger");
-                            }
+                            if (!jobTriggerDeletionResult) 
+                                _logger.LogError("Fail to delete job's trigger with job name {JobName}", jobName);
+                
+                            _logger.LogInformation("Successfully deleted cancellation job's trigger");
                         }
 
                         _logger.LogInformation("Successfully updated trip with TripId {request.TripId}",

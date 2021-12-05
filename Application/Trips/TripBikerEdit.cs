@@ -108,22 +108,19 @@ namespace Application.Trips
                         _logger.LogInformation("Failed to update trip with TripId {TripId}", request.TripId);
                         return Result<Unit>.Failure($"Failed to update trip with TripId {request.TripId}.");
                     }
-
-                    if (trip.IsScheduled)
-                    {
-                        IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
-
-                        string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
-                        string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Finding");
-                        var triggerKey = new TriggerKey(triggerName, Constant.OneTimeJob);
                     
-                        var jobTriggerDeletionResult= await scheduler.UnscheduleJob(triggerKey, cancellationToken);
+                    IScheduler scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
 
-                        if (!jobTriggerDeletionResult) 
-                            _logger.LogError("Fail to delete job's trigger with job name {JobName}", jobName);
-                    
-                        _logger.LogInformation("Successfully deleted cancellation job's trigger");
-                    }
+                    string jobName = Constant.GetJobNameAutoCancellation(trip.TripId);
+                    string triggerName = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Finding");
+                    var triggerKey = new TriggerKey(triggerName, Constant.OneTimeJob);
+                
+                    var jobTriggerDeletionResult= await scheduler.UnscheduleJob(triggerKey, cancellationToken);
+
+                    if (!jobTriggerDeletionResult) 
+                        _logger.LogError("Fail to delete job's trigger with job name {JobName}", jobName);
+                
+                    _logger.LogInformation("Successfully deleted cancellation job's trigger");
                     
                     // ReSharper disable StringLiteralTypo
                     var notification = new NotificationDto
