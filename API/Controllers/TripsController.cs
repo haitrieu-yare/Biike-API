@@ -135,7 +135,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(
                 new TripDetailsFull.Query {TripId = tripId, UserRequestId = validationDto.UserRequestId}, ct));
         }
-        
+
         // Keer, Biker
         [HttpGet("{tripId:int}/waitingStatus")]
         public async Task<IActionResult> GetTripWaitingStatus(int tripId, CancellationToken ct)
@@ -195,8 +195,7 @@ namespace API.Controllers
 
             if (!validationDto.IsAuthorized) return BadRequest(Constant.NotSameUserId);
 
-            return HandleResult(await Mediator.Send(
-                new TripScheduleCreation.Command(tripScheduleCreationDto), ct));
+            return HandleResult(await Mediator.Send(new TripScheduleCreation.Command(tripScheduleCreationDto), ct));
         }
 
         // Biker
@@ -217,7 +216,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new TripBikerEdit.Command(tripId, validationDto.UserRequestId),
                 ct));
         }
-        
+
         // Keer, Biker
         [HttpPut("{tripId:int}/waitingTime")]
         public async Task<IActionResult> EditTripWaitingTime(int tripId, CancellationToken ct)
@@ -272,8 +271,8 @@ namespace API.Controllers
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            return HandleResult(await Mediator.Send(new TripFinishEdit.Command(tripId, validationDto.UserRequestId),
-                ct));
+            return HandleResult(
+                await Mediator.Send(new TripFinishEdit.Command(tripId, validationDto.UserRequestId), ct));
         }
 
         // Keer, Biker, Admin
@@ -286,13 +285,8 @@ namespace API.Controllers
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new TripCancellationEdit.Command
-                {
-                    TripId = tripId,
-                    UserId = validationDto.UserRequestId,
-                    IsAdmin = validationDto.IsAdmin,
-                    TripCancellationDto = tripCancellationDto
-                }, ct));
+                new TripCancellationEdit.Command(tripId, validationDto.UserRequestId, validationDto.IsAdmin,
+                    tripCancellationDto), ct));
         }
     }
 }

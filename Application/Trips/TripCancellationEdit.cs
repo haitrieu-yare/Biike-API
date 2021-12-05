@@ -21,10 +21,18 @@ namespace Application.Trips
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public int TripId { get; init; }
-            public int UserId { get; init; }
-            public bool IsAdmin { get; init; }
-            public TripCancellationDto TripCancellationDto { get; init; } = null!;
+            public Command(int tripId, int userId, bool isAdmin, TripCancellationDto tripCancellationDto)
+            {
+                TripId = tripId;
+                UserId = userId;
+                IsAdmin = isAdmin;
+                TripCancellationDto = tripCancellationDto;
+            }
+            
+            public int TripId { get; }
+            public int UserId { get; }
+            public bool IsAdmin { get; }
+            public TripCancellationDto TripCancellationDto { get; }
         }
 
         // ReSharper disable once UnusedType.Global

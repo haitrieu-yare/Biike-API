@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
+using Domain;
 using Domain.Enums;
 using Firebase.Auth;
 using MediatR;
@@ -99,6 +100,16 @@ namespace Application.Users
                             auth.User.LocalId);
                         return Result<UserLoginResponse>.Failure(
                             $"User with userId {auth.User.LocalId} is an admin but isAdmin in request body is set to false.");
+                    }
+
+                    user.LastTimeLogin = CurrentTime.GetCurrentTime();
+
+                    var loginTimeResult = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                    if (!loginTimeResult)
+                    {
+                        _logger.LogInformation("Failed to save last login time");
+                        return Result<UserLoginResponse>.Failure("Failed to save last login time.");
                     }
 
                     var response = new UserLoginResponse
