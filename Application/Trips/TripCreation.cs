@@ -164,14 +164,17 @@ namespace Application.Trips
                     
                     if (!request.TripCreationDto.IsScheduled.Value)
                     {
+                        // ReSharper disable CommentTypo
                         // Mobile sẽ gửi time cộng thêm sẵn 15 phút, nên phải trừ 15 phút đi để gửi notification
+                        // ReSharper restore CommentTypo
                         var timeForKeNow = newTrip.BookTime.AddMinutes(-15);
                         
                         List<int> bikerIds = await _context.BikeAvailability
+                            .Include(b => b.User)
+                            .Where(b => b.User.IsKeNowAvailable)
                             .Where(b => b.StationId == request.TripCreationDto.DepartureId)
                             .Where(b => b.FromTime.TimeOfDay.CompareTo(timeForKeNow.TimeOfDay) <= 0)
                             .Where(b => b.ToTime.TimeOfDay.CompareTo(timeForKeNow.TimeOfDay) >= 0)
-                            .Include(b => b.User)
                             .OrderBy(b => b.User.Star)
                             .Select(b => b.UserId)
                             .Distinct().Take(9)
@@ -180,18 +183,20 @@ namespace Application.Trips
                         if (bikerIds.Count == 0)
                         {
                             newTrip.CancelTime = CurrentTime.GetCurrentTime();
+                            // ReSharper disable StringLiteralTypo
                             newTrip.CancelReason = "Không có Biker phù hợp ở thời điểm hiện tại";
+                            // ReSharper restore StringLiteralTypo
                             newTrip.Status = (int) TripStatus.Cancelled;
                             
                             var cancellationResult = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                             if (!cancellationResult)
                             {
-                                _logger.LogError("Failed to cancel trip because there are no Biker available now");
+                                _logger.LogError("There are no bikers available now but the trip is failed to cancel");
                             }
                             
-                            _logger.LogInformation("There are no Biker available now");
-                            return Result<Unit>.Failure("There are no Biker available now.");
+                            _logger.LogInformation("There are no bikers available now");
+                            return Result<Unit>.Failure("There are no bikers available now.");
                         }
 
                         await AutoNotificationSendingCreation.Run(_schedulerFactory, newTrip, bikerIds.Skip(3).ToList());

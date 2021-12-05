@@ -45,7 +45,7 @@ namespace Application.Users
                     
                     User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
-                    if (user == null || user.IsDeleted)
+                    if (user == null)
                     {
                         _logger.LogInformation("User doesn't exist");
                         return Result<Unit>.NotFound("User doesn't exist.");
@@ -53,14 +53,13 @@ namespace Application.Users
 
                     if (user.IsDeleted)
                     {
-                        _logger.LogInformation(
-                            "User with UserId {request.UserId} has been deleted. " +
-                            "Please reactivate it if you want to edit it", request.UserId);
-                        return Result<Unit>.Failure($"User with UserId {request.UserId} has been deleted. " +
-                                                    "Please reactivate it if you want to edit it.");
+                        _logger.LogInformation("User with userId {request.UserId} has been deleted. " +
+                                                    "Please reactivate it to edit it this user", request.UserId);
+                        return Result<Unit>.Failure($"User with userId {request.UserId} has been deleted. " +
+                                                    "Please reactivate it to edit it this user.");
                     }
 
-                    if (user.RoleId == (int) RoleStatus.Keer)
+                    if (user.RoleId != (int) RoleStatus.Admin)
                     {
                         user.RoleId = (int) RoleStatus.Admin;
                     }
@@ -82,9 +81,9 @@ namespace Application.Users
                     }
                     catch (FirebaseAuthException e)
                     {
-                        _logger.LogError("Error create user on Firebase. {Error}",
+                        _logger.LogError("Error edit user's role on Firebase. {Error}",
                             e.InnerException?.Message ?? e.Message);
-                        return Result<Unit>.Failure("Error create user on Firebase. " +
+                        return Result<Unit>.Failure("Error edit user's role on Firebase. " +
                                                     $"{e.InnerException?.Message ?? e.Message}");
                     }
 

@@ -186,7 +186,25 @@ namespace API.Controllers
             if (role != (int) RoleStatus.Admin)
                 return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
 
-            return HandleResult(await Mediator.Send(new UserStatusEdit.Command {UserId = userId}, ct));
+            return HandleResult(await Mediator.Send(new UserStatusEdit.Command(userId), ct));
+        }
+        
+        // Biker
+        [HttpPut("tripNowAvailability")]
+        public async Task<IActionResult> EditUserTripNowAvailability(CancellationToken ct)
+        {
+            var role = ControllerUtils.GetRole(HttpContext);
+
+            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
+
+            if (role != (int) RoleStatus.Biker)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
+            
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            return HandleResult(await Mediator.Send(new UserKeNowEdit.Command(validationDto.UserRequestId), ct));
         }
         
         // Keer, Biker

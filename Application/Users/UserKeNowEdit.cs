@@ -1,8 +1,7 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
-using Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -10,7 +9,7 @@ using Persistence;
 namespace Application.Users
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class UserStatusEdit
+    public class UserKeNowEdit
     {
         public class Command : IRequest<Result<Unit>>
         {
@@ -44,41 +43,26 @@ namespace Application.Users
 
                     if (user == null || user.IsDeleted)
                     {
-                        _logger.LogInformation("User doesn't exist");
-                        return Result<Unit>.NotFound("User doesn't exist.");
+                        _logger.LogInformation("User with userId {UserId} does not exist", request.UserId);
+                        return Result<Unit>.NotFound($"User with userId {request.UserId} does not exist.");
                     }
 
-                    if (user.IsDeleted)
-                    {
-                        _logger.LogInformation(
-                            "User with UserId {request.UserId} has been deleted. " +
-                            "Please reactivate it if you want to edit it", request.UserId);
-                        return Result<Unit>.Failure($"User with UserId {request.UserId} has been deleted. " +
-                                                    "Please reactivate it if you want to edit it.");
-                    }
-
-                    if (user.Status == (int) UserStatus.Active)
-                    {
-                        user.Status = (int) UserStatus.Deactive;
-                    }
-                    else
-                    {
-                        user.Status = (int) UserStatus.Active;
-                    }
+                    user.IsKeNowAvailable = !user.IsKeNowAvailable;
 
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to update user's status by userId {request.UserId}",
+                        _logger.LogInformation("Failed to update user's trip now availability by userId {UserId}",
                             request.UserId);
-                        return Result<Unit>.Failure($"Failed to update user's status by userId {request.UserId}.");
+                        return Result<Unit>.Failure(
+                            $"Failed to update user's trip now availability by userId {request.UserId}.");
                     }
 
-                    _logger.LogInformation("Successfully updated user's status by userId {request.UserId}",
-                        request.UserId);
+                    _logger.LogInformation(
+                        "Successfully updated user's trip now availability by userId {request.UserId}", request.UserId);
                     return Result<Unit>.Success(Unit.Value,
-                        $"Successfully updated user's status by userId {request.UserId}.");
+                        $"Successfully updated user's trip now availability by userId {request.UserId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
