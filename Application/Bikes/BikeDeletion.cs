@@ -80,7 +80,7 @@ namespace Application.Bikes
                     {
                         #region Import user's role to Firebase
 
-                        var claims = new Dictionary<string, object> {{"role", user.Role}};
+                        var claims = new Dictionary<string, object> {{"role", user.RoleId}};
 
                         await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(user.UserId.ToString(), claims,
                             cancellationToken);

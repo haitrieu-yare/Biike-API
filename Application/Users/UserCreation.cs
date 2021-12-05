@@ -7,15 +7,12 @@ using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Enums;
 using Firebase.Auth;
-// using Firebase.Auth;
 using FirebaseAdmin.Auth;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
-// using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Persistence;
 using FirebaseAuth = FirebaseAdmin.Auth.FirebaseAuth;
@@ -154,7 +151,7 @@ namespace Application.Users
 
                         #region Import user's role to Firebase
 
-                        var claims = new Dictionary<string, object> {{"role", (int) RoleStatus.Keer}};
+                        var claims = new Dictionary<string, object> {{"role", newUser.RoleId}};
 
                         await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(userToCreate.Uid, claims,
                             CancellationToken.None);
