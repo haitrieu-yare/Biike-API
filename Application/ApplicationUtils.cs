@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using Domain.Entities;
 
 namespace Application
 {
@@ -46,6 +49,62 @@ namespace Application
             byte[] bytes = cryptographer.ComputeHash(messageBytes);
 
             return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+        }
+
+        public static double Haversine(double lat1, double lon1, double lat2, double lon2)
+        {
+            // distance between latitudes and longitudes
+            double dLat = (Math.PI / 180) * (lat2 - lat1);
+            double dLon = (Math.PI / 180) * (lon2 - lon1);
+
+            // convert to radians
+            lat1 = (Math.PI / 180) * (lat1);
+            lat2 = (Math.PI / 180) * (lat2);
+
+            // apply formulae
+            double a = Math.Pow(Math.Sin(dLat / 2), 2) +
+                       Math.Pow(Math.Sin(dLon / 2), 2) * Math.Cos(lat1) * Math.Cos(lat2);
+            double rad = 6371;
+            double c = 2 * Math.Asin(Math.Sqrt(a));
+            return rad * c;
+        }
+        
+        public class AddressComparer : IComparer<Address>
+        {
+            private readonly double _userLatitude;
+            private readonly double _userLongitude;
+
+            public AddressComparer(double userLatitude, double userLongitude)
+            {
+                _userLatitude = userLatitude;
+                _userLongitude = userLongitude;
+            }
+
+            private readonly CultureInfo _culture = new ("en-US");
+            public int Compare(Address? x, Address? y)
+            {
+                if (ReferenceEquals(x, y)) return 0;
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (ReferenceEquals(null, y)) return 1;
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (ReferenceEquals(null, x)) return -1;
+            
+                var xCoordinate = x.AddressCoordinate.Split(",");
+                double xLatitude = Convert.ToDouble(xCoordinate[0], _culture);
+                double xLongitude = Convert.ToDouble(xCoordinate[1],_culture);
+                
+                var yCoordinate = y.AddressCoordinate.Split(",");
+                double yLatitude = Convert.ToDouble(yCoordinate[0], _culture);
+                double yLongitude = Convert.ToDouble(yCoordinate[1], _culture);
+            
+                var distanceFromX = Haversine(_userLatitude, _userLongitude, 
+                    xLatitude, xLongitude);
+                
+                var distanceFromY = Haversine(_userLatitude, _userLongitude, 
+                    yLatitude, yLongitude);
+
+                return distanceFromX.CompareTo(distanceFromY);
+            }
         }
     }
 }
