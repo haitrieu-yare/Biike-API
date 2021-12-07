@@ -96,6 +96,23 @@ namespace Application.Trips
                         feedback.CreatedDate = null;
                     });
 
+                    if (tripDb.BikerId != null)
+                    {
+                        var bike = await _context.Bike
+                            .Where(b => b.UserId == tripDb.BikerId)
+                            .FirstOrDefaultAsync(cancellationToken);
+
+                        if (bike == null)
+                        {
+                            _logger.LogInformation("Biker does not have bike");
+                            return Result<TripDetailsFullDto>.Failure($"Biker does not have bike.");
+                        }
+
+                        trip.Brand = bike.Brand;
+                        trip.Color = bike.Color;
+                        trip.NumberPlate = bike.PlateNumber;
+                    }
+                    
                     _logger.LogInformation("Successfully retrieved trip by TripId {request.TripId}", request.TripId);
                     return Result<TripDetailsFullDto>.Success(trip,
                         $"Successfully retrieved trip by TripId {request.TripId}.");

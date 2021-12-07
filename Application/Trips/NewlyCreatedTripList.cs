@@ -107,7 +107,9 @@ namespace Application.Trips
                     if (isDateProvided && isTimeProvided)
                         dateTime = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second);
 
-                    var totalRecord = await _context.Trip.Where(t => t.KeerId != request.UserId)
+                    var totalRecord = await _context.Trip
+                        .Where(t => t.KeerId != request.UserId)
+                        .Where(t => t.IsScheduled == true)
                         .Where(t => t.Status == (int) TripStatus.Finding)
                         .Where(t => (isDateProvided && isTimeProvided)
                             ?
@@ -132,7 +134,9 @@ namespace Application.Trips
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     if (request.Page <= lastPage)
-                        trips = await _context.Trip.Where(t => t.KeerId != request.UserId)
+                        trips = await _context.Trip
+                            .Where(t => t.KeerId != request.UserId)
+                            .Where(t => t.IsScheduled == true)
                             .Where(t => t.Status == (int) TripStatus.Finding)
                             .Where(t => (isDateProvided && isTimeProvided)
                                 ?

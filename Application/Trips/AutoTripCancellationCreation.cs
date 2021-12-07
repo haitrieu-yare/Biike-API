@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using Quartz;
@@ -48,12 +49,12 @@ namespace Application.Trips
                 // will think this time is in UTC, not in VietName time
                 // So we have to minus 7 hours to make it actually run in VietNam time
                 .StartAt(trip.IsScheduled
-                    ? bookTimeInVietNam.AddHours(-7)
-                    : bookTimeInVietNam.AddMinutes(-5).AddHours(-7))
+                    ? CurrentTime.ToLocalTime(bookTimeInVietNam)
+                    : CurrentTime.ToLocalTime(bookTimeInVietNam.AddMinutes(-5)))
                 .Build();
             var matchedTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerNameMatched, Constant.OneTimeJob)
-                .StartAt(bookTimeNextDayAt12AmInUtc.AddHours(-7))
+                .StartAt(CurrentTime.ToLocalTime(bookTimeNextDayAt12AmInUtc))
                 .Build();
 
             switch (trip.Status)

@@ -12,5 +12,11 @@ namespace Domain
             var timeUtc = DateTime.UtcNow;
             return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, SeAsiaTimeZone);
         }
+        
+        public static DateTime ToLocalTime(DateTime timeToConverted)
+        {
+            var timeUtc = TimeZoneInfo.ConvertTimeToUtc(timeToConverted, TimeZoneInfo.Local);
+            return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, TimeZoneInfo.Local);
+        }
     }
 }

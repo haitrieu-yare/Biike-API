@@ -228,7 +228,8 @@ namespace Application.Core
             #region BikeAvailability
 
             // List, Details
-            CreateMap<BikeAvailability, BikeAvailabilityDto>();
+            CreateMap<BikeAvailability, BikeAvailabilityDto>()
+                .ForMember(b => b.StationName, o => o.MapFrom(b => b.Station.Name));
             // Create, Edit
             CreateMap<BikeAvailabilityModificationDto, BikeAvailability>();
 

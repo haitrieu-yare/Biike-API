@@ -13,6 +13,9 @@ namespace Application.Trips.DTOs
         public string? UserFullname { get; set; }
         public double? UserStar { get; set; }
         public string? Avatar { get; set; }
+        public string? Brand { get; set; }
+        public string? Color { get; set; }
+        public string? NumberPlate { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? BookTime{ get; set; }
         public DateTime? FirstPersonArrivalTime { get; set; }
