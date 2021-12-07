@@ -30,6 +30,13 @@ namespace Persistence.Data
                     UserId = 6, 
                     CreatedDate = createdDate
                 },
+                new()
+                {
+                    ConfigurationName = "FuelConversion", 
+                    ConfigurationValue = "0.025",
+                    UserId = 6, 
+                    CreatedDate = createdDate
+                },
             };
 
             // Save change for each item because EF doesn't insert like the order

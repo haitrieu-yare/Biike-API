@@ -79,6 +79,20 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(
                 new UserDetails.Query {IsAdmin = validationDto.IsAdmin, UserId = userId}, ct));
         }
+        
+        // Keer, Biker
+        [HttpGet("{userId:int}/achievement")]
+        public async Task<IActionResult> GetUserAchievement(int userId, CancellationToken ct)
+        {
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            if (!validationDto.IsAuthorized) return BadRequest(Constant.DidNotHavePermissionToMakeRequest);
+
+            return HandleResult(await Mediator.Send(
+                new UserAchievement.Query (validationDto.UserRequestId), ct));
+        }
 
         [AllowAnonymous]
         [HttpPost("checkExist")]

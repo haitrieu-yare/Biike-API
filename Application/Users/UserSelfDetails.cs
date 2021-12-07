@@ -58,7 +58,6 @@ namespace Application.Users
                     userProfile.UserStatus = null;
                     userProfile.LastLoginDevice = null;
                     userProfile.LastTimeLogin = null;
-                    userProfile.IsBikeVerified = null;
                     userProfile.CreatedDate = null;
                     userProfile.IsDeleted = null;
 

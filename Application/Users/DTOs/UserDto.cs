@@ -39,6 +39,12 @@ namespace Application.Users.DTOs
         public bool? IsBikeVerified { get; set; }
         
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? IsEmailVerified { get; set; }
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? IsPhoneVerified { get; set; }
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 
         public DateTime? BirthDate { get; set; }
         
