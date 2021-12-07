@@ -119,12 +119,6 @@ namespace Application.Vouchers
                                 voucherSet.Add(voucherAddress.VoucherId);
                             }
 
-                            // List<Voucher> vouchersDb = voucherSet
-                            //     .Skip((request.Page - 1) * request.Limit)
-                            //     .Take(request.Limit).ToList();
-                            //
-                            // _mapper.Map(vouchersDb, vouchers);
-
                             voucherQueryable = voucherQueryable
                                 .Where(v => voucherSet.Contains(v.VoucherId));
                         }

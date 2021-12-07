@@ -43,7 +43,8 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var userAddress = await _context.UserAddress.Where(u => u.UserAddressId == request.UserAddressId)
+                    var userAddress = await _context.UserAddress
+                        .Where(u => u.UserAddressId == request.UserAddressId)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (userAddress == null)
@@ -59,6 +60,12 @@ namespace Application.Users
                             request.UserAddressId, request.UserId);
                         return Result<Unit>.NotFound(
                             $"UserAddress with UserAddressId {request.UserAddressId} doesn't belong to user with UserId {request.UserId}");
+                    }
+                    
+                    if (userAddress.IsDefault)
+                    {
+                        _logger.LogInformation("Can not delete default address");
+                        return Result<Unit>.Failure("Can not delete default address.");
                     }
 
                     _context.UserAddress.Remove(userAddress);
