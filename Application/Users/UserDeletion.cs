@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Domain.Entities;
+using Domain.Enums;
 using FirebaseAdmin.Auth;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -39,21 +41,44 @@ namespace Application.Users
 
                     User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
-                    if (user == null || user.IsDeleted)
+                    if (user == null)
                     {
                         _logger.LogInformation("User doesn't exist");
                         return Result<Unit>.NotFound("User doesn't exist.");
                     }
-
-                    UserRecordArgs userRecordArgs = new()
+                    
+                    if (user.IsDeleted)
                     {
-                        Uid = request.UserId.ToString(), Disabled = !user.IsDeleted
-                    };
+                        _logger.LogInformation("User with userId {request.UserId} has been deleted. " +
+                                               "Please reactivate it to edit it this user", request.UserId);
+                        return Result<Unit>.Failure($"User with userId {request.UserId} has been deleted. " +
+                                                    "Please reactivate it to edit it this user.");
+                    }
 
+                    if (user.RoleId == (int) RoleStatus.Admin)
+                    {
+                        var adminCount = await _context.User
+                            .Where(u => u.RoleId == (int) RoleStatus.Admin)
+                            .CountAsync(cancellationToken);
+
+                        if (adminCount == 2)
+                        {
+                            _logger.LogInformation("Can not delete this user because there are only 2 admin left");
+                            return Result<Unit>.Failure("Can not delete this user because there are only 2 admin left.");
+                        }
+                    }
+                    
+                    user.IsDeleted = !user.IsDeleted;
+                    
                     #region Delete on Firebase
 
                     try
                     {
+                        UserRecordArgs userRecordArgs = new()
+                        {
+                            Uid = request.UserId.ToString(), Disabled = user.IsDeleted
+                        };
+                        
                         await FirebaseAuth.DefaultInstance.UpdateUserAsync(userRecordArgs, cancellationToken);
                     }
                     catch (FirebaseAuthException e)
@@ -65,9 +90,7 @@ namespace Application.Users
                     }
 
                     #endregion
-
-                    user.IsDeleted = !user.IsDeleted;
-
+                    
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!result)

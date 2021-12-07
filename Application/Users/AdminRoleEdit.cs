@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Domain.Enums;
 using FirebaseAdmin.Auth;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 using User = Domain.Entities.User;
@@ -57,6 +59,16 @@ namespace Application.Users
                                                     "Please reactivate it to edit it this user", request.UserId);
                         return Result<Unit>.Failure($"User with userId {request.UserId} has been deleted. " +
                                                     "Please reactivate it to edit it this user.");
+                    }
+
+                    var adminCount = await _context.User
+                        .Where(u => u.RoleId == (int) RoleStatus.Admin)
+                        .CountAsync(cancellationToken);
+
+                    if (adminCount == 2)
+                    {
+                        _logger.LogInformation("Can not change role because there are only 2 admin left");
+                        return Result<Unit>.Failure("Can not change role because there are only 2 admin left.");
                     }
 
                     if (user.RoleId != (int) RoleStatus.Admin)

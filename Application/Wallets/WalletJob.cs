@@ -29,7 +29,8 @@ namespace Application.Wallets
             _logger.LogInformation("[Start] Wallet Job at time: {Time}",
                 CurrentTime.GetCurrentTime().ToString("MM/dd/yyyy hh:mm:ss.fff"));
 
-            List<Wallet> wallets = await _context.Wallet.Include(w => w.User)
+            List<Wallet> wallets = await _context.Wallet
+                .Include(w => w.User)
                 .Where(w => w.Status != (int) WalletStatus.Expired)
                 .ToListAsync();
 
@@ -51,21 +52,25 @@ namespace Application.Wallets
 
                 var currentTime = CurrentTime.GetCurrentTime();
                 var toDate = currentTime;
+                var fromDate = toDate;
 
                 switch (currentTime.Month)
                 {
                     case >= 1 and <= 4:
-                        toDate = DateTime.Parse($"{currentTime.Year}/04/30 23:59:59.9999999");
-                        break;
-                    case >= 5 and <= 8:
+                        fromDate = DateTime.Parse($"{currentTime.Year}/01/01 00:00:00");
                         toDate = DateTime.Parse($"{currentTime.Year}/08/31 23:59:59.9999999");
                         break;
-                    case >= 9 and <= 12:
+                    case >= 5 and <= 8:
+                        fromDate = DateTime.Parse($"{currentTime.Year}/05/01 00:00:00");
                         toDate = DateTime.Parse($"{currentTime.Year}/12/31 23:59:59.9999999");
+                        break;
+                    case >= 9 and <= 12:
+                        fromDate = DateTime.Parse($"{currentTime.Year}/09/01 00:00:00");
+                        toDate = DateTime.Parse($"{currentTime.Year + 1}/04/30 23:59:59.9999999");
                         break;
                 }
 
-                newWallets.Add(new Wallet {User = w.User, ToDate = toDate});
+                newWallets.Add(new Wallet {User = w.User, FromDate = fromDate, ToDate = toDate});
             });
 
             await _context.Wallet.AddRangeAsync(newWallets);
