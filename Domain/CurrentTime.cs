@@ -13,10 +13,14 @@ namespace Domain
             return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, SeAsiaTimeZone);
         }
         
-        public static DateTime ToLocalTime(DateTime timeToConverted)
+        public static DateTime ToUtcTime(DateTime vnTimeToConverted)
         {
-            var timeUtc = TimeZoneInfo.ConvertTimeToUtc(timeToConverted, TimeZoneInfo.Local);
-            return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, TimeZoneInfo.Local);
+            return TimeZoneInfo.ConvertTimeToUtc(vnTimeToConverted, SeAsiaTimeZone);
+        }
+        
+        public static DateTime ToLocalTime(DateTime utcTime)
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(utcTime, TimeZoneInfo.Local);
         }
     }
 }

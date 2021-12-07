@@ -29,32 +29,19 @@ namespace Application.Trips
             string triggerNameMatched = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matched");
 
             var bookTimeInVietNam = trip.BookTime;
-            var bookTimeNextDayInVietNam = bookTimeInVietNam.AddDays(1);
-            // For example bookTimeInVietNam is 2021-12-02 15:00:00 in VietName Time
-            // bookTimeNextDayInVietNam will be 2021-12-03 15:00:00 in VietName Time
-            // New DateTime will get the time of the local time
-            // If this code run on Azure server which uses UTC
-            // It will get the new time in UTC, so the result of bookTimeNextDayAt12AmInUtc
-            // will be 2021-12-03 00:00:00 in UTC, but this is not what we want
-            // we want the trigger to trigger at 12AM in VietName time
-            // Not at 12AM in UTC time, so we have to minus 7 hours at line 56,
-            // and the time will be 2021-12-02 17:00:00 in UTC
-            var bookTimeNextDayAt12AmInUtc = new DateTime(bookTimeNextDayInVietNam.Year, bookTimeNextDayInVietNam.Month,
-                bookTimeNextDayInVietNam.Day, 0, 0, 0);
+            var midnightInVietNam = CurrentTime.ToLocalTime(new DateTime(bookTimeInVietNam.Year,
+                bookTimeInVietNam.Month, bookTimeInVietNam.Day, 17, 0, 0, DateTimeKind.Utc));
 
             var findingTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerNameFinding, Constant.OneTimeJob)
-                // Although bookTimeInVietNam is in VietNam time
-                // The code itself, if run on Azure server, which uses UTC time
-                // will think this time is in UTC, not in VietName time
-                // So we have to minus 7 hours to make it actually run in VietNam time
+                // ToCorrespondingUtcTime() will change VietNam time to corresponding time in UTC
                 .StartAt(trip.IsScheduled
-                    ? CurrentTime.ToLocalTime(bookTimeInVietNam)
-                    : CurrentTime.ToLocalTime(bookTimeInVietNam.AddMinutes(-5)))
+                    ? CurrentTime.ToUtcTime(bookTimeInVietNam)
+                    : CurrentTime.ToUtcTime(bookTimeInVietNam.AddMinutes(-5)))
                 .Build();
             var matchedTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerNameMatched, Constant.OneTimeJob)
-                .StartAt(CurrentTime.ToLocalTime(bookTimeNextDayAt12AmInUtc))
+                .StartAt(midnightInVietNam)
                 .Build();
 
             switch (trip.Status)

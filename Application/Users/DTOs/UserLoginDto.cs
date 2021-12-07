@@ -15,6 +15,8 @@ namespace Application.Users.DTOs
         [MinLength(6)]
         [MaxLength(32)]
         public string? Password { get; init; }
+        
+        public string? FcmToken { get; init; }
 
         [Required] public bool? IsAdmin { get; set; }
     }

@@ -103,13 +103,14 @@ namespace Application.Users
                     }
 
                     user.LastTimeLogin = CurrentTime.GetCurrentTime();
+                    user.LastLoginDevice = request.UserLoginDto.FcmToken;
 
                     var loginTimeResult = await _context.SaveChangesAsync(cancellationToken) > 0;
 
                     if (!loginTimeResult)
                     {
-                        _logger.LogInformation("Failed to save last login time");
-                        return Result<UserLoginResponse>.Failure("Failed to save last login time.");
+                        _logger.LogInformation("Failed to save login information");
+                        return Result<UserLoginResponse>.Failure("Failed to save login information.");
                     }
 
                     var response = new UserLoginResponse
