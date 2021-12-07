@@ -221,6 +221,17 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new UserKeNowEdit.Command(validationDto.UserRequestId), ct));
         }
         
+        [HttpGet("{userId:int}/tripNowAvailability")]
+        public async Task<IActionResult> GetUserTripNowAvailability(int userId, CancellationToken ct)
+        {
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+
+            return HandleResult(await Mediator.Send(
+                new UserKeNowCheck.Query (userId), ct));
+        }
+        
         // Keer, Biker
         [HttpPost("addresses")]
         public async Task<IActionResult> CreateUserAddress(UserAddressCreationDto userAddressCreationDto,
