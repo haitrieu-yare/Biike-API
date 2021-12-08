@@ -60,8 +60,8 @@ namespace Application.Users
                     {
                         if (user.RoleId == (int) RoleStatus.Keer && !user.IsBikeVerified)
                         {
-                            _logger.LogInformation("User does not have bike");
-                            return Result<Unit>.Failure("User does not have bike.");
+                            _logger.LogInformation("User's bike has not been verified");
+                            return Result<Unit>.Failure("User's bike has not been verified.");
                         }
 
                         switch (user.RoleId)
@@ -79,8 +79,8 @@ namespace Application.Users
                         if (request.StartupRole == (int) RoleStatus.Biker && 
                             user.RoleId == (int) RoleStatus.Keer && !user.IsBikeVerified)
                         {
-                            _logger.LogInformation("User does not have bike");
-                            return Result<Unit>.Failure("User does not have bike.");
+                            _logger.LogInformation("User's bike has not been verified");
+                            return Result<Unit>.Failure("User's bike has not been verified.");
                         }
 
                         if (user.RoleId == request.StartupRole)

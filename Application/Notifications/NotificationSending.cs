@@ -65,6 +65,7 @@ namespace Application.Notifications
                     {
                         Sound = "default",
                         Body = notification.Content,
+                        // ReSharper disable once RedundantAnonymousTypePropertyName
                         Title = notification.Title,
                         ContentAvailable = true,
                         Priority = "high",
