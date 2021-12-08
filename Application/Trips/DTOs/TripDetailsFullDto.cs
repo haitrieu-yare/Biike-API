@@ -15,7 +15,7 @@ namespace Application.Trips.DTOs
         public string? Avatar { get; set; }
         public string? Brand { get; set; }
         public string? Color { get; set; }
-        public string? NumberPlate { get; set; }
+        public string? PlateNumber { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? BookTime{ get; set; }
         public DateTime? FirstPersonArrivalTime { get; set; }

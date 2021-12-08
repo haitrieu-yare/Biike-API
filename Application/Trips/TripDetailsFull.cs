@@ -110,7 +110,7 @@ namespace Application.Trips
 
                         trip.Brand = bike.Brand;
                         trip.Color = bike.Color;
-                        trip.NumberPlate = bike.PlateNumber;
+                        trip.PlateNumber = bike.PlateNumber;
                     }
                     
                     _logger.LogInformation("Successfully retrieved trip by TripId {request.TripId}", request.TripId);
