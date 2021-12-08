@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -7,6 +8,7 @@ using Domain.Entities;
 using Domain.Enums;
 using FirebaseAdmin.Auth;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -47,19 +49,20 @@ namespace Application.Users
                         return Result<Unit>.NotFound("User doesn't exist.");
                     }
 
-                    if (user.IsDeleted)
-                    {
-                        _logger.LogInformation(
-                            "User with UserId {request.UserId} has been deleted. " +
-                            "Please reactivate it if you want to edit it", request.UserId);
-                        return Result<Unit>.Failure($"User with UserId {request.UserId} has been deleted. " +
-                                                    "Please reactivate it if you want to edit it.");
-                    }
-
                     if (request.StartupRole <= 0)
                     {
                         if (user.RoleId == (int) RoleStatus.Keer && !user.IsBikeVerified)
                         {
+                            var bike = await _context.Bike
+                                .Where(b => b.UserId == user.UserId)
+                                .SingleOrDefaultAsync(cancellationToken);
+                            
+                            if (bike == null)
+                            {
+                                _logger.LogInformation("User does not have bike");
+                                return Result<Unit>.Failure("User does not have bike.");
+                            }
+                            
                             _logger.LogInformation("User's bike has not been verified");
                             return Result<Unit>.Failure("User's bike has not been verified.");
                         }
@@ -79,18 +82,20 @@ namespace Application.Users
                         if (request.StartupRole == (int) RoleStatus.Biker && 
                             user.RoleId == (int) RoleStatus.Keer && !user.IsBikeVerified)
                         {
+                            var bike = await _context.Bike
+                                .Where(b => b.UserId == user.UserId)
+                                .SingleOrDefaultAsync(cancellationToken);
+                            
+                            if (bike == null)
+                            {
+                                _logger.LogInformation("User does not have bike");
+                                return Result<Unit>.Failure("User does not have bike.");
+                            }
+                            
                             _logger.LogInformation("User's bike has not been verified");
                             return Result<Unit>.Failure("User's bike has not been verified.");
                         }
 
-                        if (user.RoleId == request.StartupRole)
-                        {
-                            _logger.LogInformation("Successfully chosen user's role by userId {request.UserId}",
-                                request.UserId);
-                            return Result<Unit>.Success(Unit.Value,
-                                $"Successfully chosen user's role by userId {request.UserId}.");
-                        }
-                        
                         user.RoleId = request.StartupRole;
                     }
 
@@ -117,12 +122,12 @@ namespace Application.Users
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to update user's role by userId {request.UserId} to {UserRole}",
+                        _logger.LogInformation("Failed to update user's role by userId {UserId} to {UserRole}",
                             request.UserId, user.RoleId);
                         return Result<Unit>.Failure($"Failed to update user's role by userId {request.UserId} to {user.RoleId}.");
                     }
 
-                    _logger.LogInformation("Successfully updated user's role by userId {request.UserId} to {UserRole}",
+                    _logger.LogInformation("Successfully updated user's role by userId {UserId} to {UserRole}",
                         request.UserId, user.RoleId);
                     return Result<Unit>.Success(Unit.Value,
                         $"Successfully updated user's role by userId {request.UserId} to {user.RoleId}.");
