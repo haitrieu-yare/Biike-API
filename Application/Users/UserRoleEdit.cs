@@ -49,6 +49,8 @@ namespace Application.Users
                         return Result<Unit>.NotFound("User doesn't exist.");
                     }
 
+                    bool isRoleIdEqualStartupRole = false;
+
                     if (request.StartupRole <= 0)
                     {
                         if (user.RoleId == (int) RoleStatus.Keer && !user.IsBikeVerified)
@@ -96,7 +98,14 @@ namespace Application.Users
                             return Result<Unit>.Failure("User's bike has not been verified.");
                         }
 
-                        user.RoleId = request.StartupRole;
+                        if (user.RoleId == request.StartupRole)
+                        {
+                            isRoleIdEqualStartupRole = true;
+                        }
+                        else
+                        {
+                            user.RoleId = request.StartupRole;
+                        }
                     }
 
                     try
@@ -118,13 +127,16 @@ namespace Application.Users
                                                     $"{e.InnerException?.Message ?? e.Message}");
                     }
 
-                    var result = await _context.SaveChangesAsync(cancellationToken) > 0;
-
-                    if (!result)
+                    if (request.StartupRole <= 0 || request.StartupRole > 0 && !isRoleIdEqualStartupRole)
                     {
-                        _logger.LogInformation("Failed to update user's role by userId {UserId} to {UserRole}",
-                            request.UserId, user.RoleId);
-                        return Result<Unit>.Failure($"Failed to update user's role by userId {request.UserId} to {user.RoleId}.");
+                        var result = await _context.SaveChangesAsync(cancellationToken) > 0;
+
+                        if (!result)
+                        {
+                            _logger.LogInformation("Failed to update user's role by userId {UserId} to {UserRole}",
+                                request.UserId, user.RoleId);
+                            return Result<Unit>.Failure($"Failed to update user's role by userId {request.UserId} to {user.RoleId}.");
+                        }
                     }
 
                     _logger.LogInformation("Successfully updated user's role by userId {UserId} to {UserRole}",
