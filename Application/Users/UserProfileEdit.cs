@@ -52,8 +52,9 @@ namespace Application.Users
                         _logger.LogInformation("User doesn't exist");
                         return Result<Unit>.NotFound("User doesn't exist.");
                     }
-
+                    
                     if (!string.IsNullOrEmpty(request.UserProfileEditDto.UserFullname) &&
+                        string.IsNullOrEmpty(request.UserProfileEditDto.Avatar) &&
                         user.Avatar.Contains("ui-avatars.com"))
                     {
                         string fullNameAbbreviation =

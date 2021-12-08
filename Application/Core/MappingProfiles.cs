@@ -63,6 +63,7 @@ namespace Application.Core
             CreateMap<StationDto, Station>()
                 .ForMember(s => s.StationId, opt => opt.Ignore())
                 .ForMember(s => s.CreatedDate, opt => opt.Ignore())
+                .ForMember(s => s.IsCentralPoint, opt => opt.Ignore())
                 .ForMember(s => s.IsDeleted, opt => opt.Ignore())
                 .ForAllMembers(o => o.Condition((_, _, srcMember) => srcMember != null));
             // Create

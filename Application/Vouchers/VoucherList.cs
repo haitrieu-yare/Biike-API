@@ -157,11 +157,6 @@ namespace Application.Vouchers
                     _logger.LogInformation("Latitude or longitude value is too big or too small");
                     return Result<List<VoucherDto>>.Failure("Latitude or longitude value is too big or too small.");
                 }
-                // catch (Exception ex)
-                // {
-                //     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
-                //     return Result<List<VoucherDto>>.Failure(ex.InnerException?.Message ?? ex.Message);
-                // }
             }
         }
     }
