@@ -14,6 +14,7 @@ using Persistence;
 
 namespace Application.Dashboard
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class DashboardInformation
     {
         public class Query : IRequest<Result<DashboardDto>>
@@ -80,7 +81,7 @@ namespace Application.Dashboard
                     int waitingTrip = 0;
                     int startedTrip = 0;
                     int finishedTrip = 0;
-                    int cancelledTrip = 0;
+                    // int cancelledTrip = 0;
 
                     if (totalTrip != 0)
                     {
@@ -104,9 +105,9 @@ namespace Application.Dashboard
                             .Where(t => t.Status == (int) TripStatus.Finished)
                             .CountAsync(cancellationToken);
                     
-                        cancelledTrip = await _context.Trip
-                            .Where(t => t.Status == (int) TripStatus.Cancelled)
-                            .CountAsync(cancellationToken);
+                        // cancelledTrip = await _context.Trip
+                        //     .Where(t => t.Status == (int) TripStatus.Cancelled)
+                        //     .CountAsync(cancellationToken);
                     }
 
                     tripStatusPercentage.Add(new TripStatusPercentageDto()
@@ -144,11 +145,13 @@ namespace Application.Dashboard
                             ApplicationUtils.ToPercentage(finishedTrip / Convert.ToDouble(totalTrip))
                     });
                     
+                    var percentage = tripStatusPercentage.Select(t => t.Percentage).Sum();
+                    
                     tripStatusPercentage.Add(new TripStatusPercentageDto()
                     {
                         TripStatus = (int) TripStatus.Cancelled,
-                        Percentage = totalTrip == 0 ? 0 :
-                            ApplicationUtils.ToPercentage(cancelledTrip / Convert.ToDouble(totalTrip))
+                        Percentage = totalTrip == 0 ? 0 : 100 - percentage
+                            // ApplicationUtils.ToPercentage(cancelledTrip / Convert.ToDouble(totalTrip))
                     });
                     
                     List<StationPercentageDto> stationPercentage = new();

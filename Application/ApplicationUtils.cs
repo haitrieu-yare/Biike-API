@@ -33,7 +33,7 @@ namespace Application
         
         public static double ToPercentage(double number)
         {
-            return Math.Round(number, 2, MidpointRounding.AwayFromZero) * 100;
+            return Math.Round(number, 4, MidpointRounding.AwayFromZero) * 100;
         }
         
         private static readonly Random Random = new();

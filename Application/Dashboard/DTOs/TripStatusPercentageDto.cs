@@ -2,7 +2,7 @@
 {
     public class TripStatusPercentageDto
     {
-        public int? TripStatus { get; set; }
-        public double? Percentage { get; set; }
+        public int TripStatus { get; set; }
+        public double Percentage { get; set; }
     }
 }
