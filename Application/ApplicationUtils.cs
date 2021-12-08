@@ -31,6 +31,11 @@ namespace Application
             return Color.ColorList[new Random().Next(Color.ColorList.Count)];
         }
         
+        public static double ToPercentage(double number)
+        {
+            return Math.Round(number, 2, MidpointRounding.AwayFromZero) * 100;
+        }
+        
         private static readonly Random Random = new();
         public static string RandomString(int length)
         {
