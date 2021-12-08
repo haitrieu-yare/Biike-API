@@ -41,6 +41,14 @@ namespace Application.Routes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
+                    if (request.RouteCreationDto.DepartureId == request.RouteCreationDto.DestinationId)
+                    {
+                        _logger.LogInformation("Could not create route because departure station " +
+                                               "can not be the same as destination station");
+                        return Result<Unit>.Failure("Could not create route because departure station " +
+                                                "can not be the same as destination station.");
+                    }
+
                     var departure =
                         await _context.Station.FindAsync(new object[] {request.RouteCreationDto.DepartureId!},
                             cancellationToken);
@@ -51,6 +59,16 @@ namespace Application.Routes
                             request.RouteCreationDto.DepartureId);
                         return Result<Unit>.Failure(
                             $"Could not find departure station with StationId {request.RouteCreationDto.DepartureId}.");
+                    }
+                    
+                    if (departure.IsDeleted)
+                    {
+                        _logger.LogInformation(
+                            "Could not create route because station with stationId {StationId}" + 
+                                    "has been deleted", request.RouteCreationDto.DepartureId);
+                        return Result<Unit>.Failure(
+                            $"Could not create route because station with " +
+                            $"StationId {request.RouteCreationDto.DepartureId} has been deleted.");
                     }
 
                     var destination =
@@ -64,6 +82,16 @@ namespace Application.Routes
                         return Result<Unit>.Failure(
                             $"Could not find destination station with StationId {request.RouteCreationDto.DestinationId}.");
                     }
+                    
+                    if (destination.IsDeleted)
+                    {
+                        _logger.LogInformation(
+                            "Could not create route because station with stationId {StationId}" + 
+                            "has been deleted", request.RouteCreationDto.DestinationId);
+                        return Result<Unit>.Failure(
+                            $"Could not create route because station with " +
+                            $"StationId {request.RouteCreationDto.DestinationId} has been deleted.");
+                    }
 
                     if (departure.AreaId != destination.AreaId)
                     {
@@ -73,9 +101,15 @@ namespace Application.Routes
                             "Departure station and destination station does not belong to the same area.");
                     }
 
+                    if (!departure.IsCentralPoint && !destination.IsCentralPoint)
+                    {
+                        _logger.LogInformation("Could not create route because none of the station is a central point");
+                        return Result<Unit>.Failure("Could not create route because none of the station is a central point.");
+                    }
+
                     Route oldRoute = await _context.Route
-                        .Where(r => r.DepartureId == request.RouteCreationDto.DepartureId)
-                        .Where(r => r.DestinationId == request.RouteCreationDto.DestinationId)
+                        .Where(r => r.DepartureId == departure.StationId)
+                        .Where(r => r.DestinationId == destination.StationId)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (oldRoute != null)
@@ -84,7 +118,8 @@ namespace Application.Routes
                             "Route with departureId {DepartureId} and destinationId {DestinationId} is already existed",
                             request.RouteCreationDto.DepartureId, request.RouteCreationDto.DestinationId);
                         return Result<Unit>.Failure(
-                            $"Route with departureId {request.RouteCreationDto.DepartureId} and destinationId {request.RouteCreationDto.DestinationId} is already existed.");
+                            $"Route with departureId {request.RouteCreationDto.DepartureId} and destinationId " +
+                            $"{request.RouteCreationDto.DestinationId} is already existed.");
                     }
 
                     var newRoute = new Route();
@@ -98,15 +133,16 @@ namespace Application.Routes
                         return Result<Unit>.Failure("Failed to create new route.");
                     }
 
-                    _logger.LogInformation("Successfully created route");
-                    return Result<Unit>.Success(Unit.Value, "Successfully created route.", newRoute.RouteId.ToString());
+                    _logger.LogInformation("Successfully created new route");
+                    return Result<Unit>.Success(
+                        Unit.Value, "Successfully created new route.", newRoute.RouteId.ToString());
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex)
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

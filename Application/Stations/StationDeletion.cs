@@ -35,13 +35,21 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Station station = await _context.Station
-                        .FindAsync(new object[] {request.StationId}, cancellationToken);
+                    Station station =
+                        await _context.Station.FindAsync(new object[] {request.StationId}, cancellationToken);
 
                     if (station == null)
                     {
                         _logger.LogInformation("Station doesn't exist");
                         return Result<Unit>.NotFound("Station doesn't exist.");
+                    }
+
+                    if (station.IsCentralPoint)
+                    {
+                        _logger.LogInformation(
+                            "Can not delete this station because it is central point of the area");
+                        return Result<Unit>.Failure(
+                            "Can not delete this station because it is central point of the area.");
                     }
 
                     station.IsDeleted = !station.IsDeleted;
@@ -57,8 +65,8 @@ namespace Application.Stations
 
                     _logger.LogInformation("Successfully deleted station by stationId {request.StationId}",
                         request.StationId);
-                    return Result<Unit>.Success(
-                        Unit.Value, $"Successfully deleted station by stationId {request.StationId}.");
+                    return Result<Unit>.Success(Unit.Value,
+                        $"Successfully deleted station by stationId {request.StationId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

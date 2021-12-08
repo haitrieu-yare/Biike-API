@@ -53,16 +53,8 @@ namespace Application.Users
                         return Result<Unit>.NotFound("User doesn't exist.");
                     }
 
-                    if (user.IsDeleted)
-                    {
-                        _logger.LogInformation(
-                            "User with UserId {request.UserId} has been deleted. " +
-                            "Please reactivate it if you want to edit it", request.UserId);
-                        return Result<Unit>.Failure($"User with UserId {request.UserId} has been deleted. " +
-                                                    "Please reactivate it if you want to edit it.");
-                    }
-
-                    if (!string.IsNullOrEmpty(request.UserProfileEditDto.UserFullname))
+                    if (!string.IsNullOrEmpty(request.UserProfileEditDto.UserFullname) &&
+                        user.Avatar.Contains("ui-avatars.com"))
                     {
                         string fullNameAbbreviation =
                             ApplicationUtils.GetFullNameAbbreviation(request.UserProfileEditDto.UserFullname);

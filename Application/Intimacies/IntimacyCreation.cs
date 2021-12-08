@@ -91,7 +91,7 @@ namespace Application.Intimacies
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex) 
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);

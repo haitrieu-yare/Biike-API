@@ -189,14 +189,7 @@ namespace Application.Users
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
-                {
-                    await transaction.RollbackToSavepointAsync(SavePoint, CancellationToken.None);
-
-                    _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
-                    return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
-                }
-                catch (Exception ex)
+                catch (Exception ex) 
                 {
                     await transaction.RollbackToSavepointAsync(SavePoint, CancellationToken.None);
 

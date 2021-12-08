@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Application.Core;
 using Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -63,7 +62,7 @@ namespace Application.Routes
                     _logger.LogInformation("Request was cancelled");
                     return Result<Unit>.Failure("Request was cancelled.");
                 }
-                catch (Exception ex) when (ex is DbUpdateException)
+                catch (Exception ex) 
                 {
                     _logger.LogInformation("{Error}", ex.InnerException?.Message ?? ex.Message);
                     return Result<Unit>.Failure(ex.InnerException?.Message ?? ex.Message);
