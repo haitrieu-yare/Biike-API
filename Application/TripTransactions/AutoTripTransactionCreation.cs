@@ -33,11 +33,9 @@ namespace Application.TripTransactions
                 throw new Exception($"Trip with TripId {trip.TripId} doesn't have Biker.");
             }
 
-            User biker = await _context.User.Where(u => u.UserId == trip.BikerId)
-                .Where(u => u.IsDeleted == false)
-                .SingleOrDefaultAsync();
+            User biker = await _context.User.FindAsync(trip.BikerId);
 
-            if (biker == null)
+            if (biker == null || biker.IsDeleted)
             {
                 _logger.LogInformation("Biker with UserId {UserId} doesn't exist", trip.BikerId);
                 throw new Exception($"Biker with UserId {trip.BikerId} doesn't exist.");
@@ -103,16 +101,23 @@ namespace Application.TripTransactions
                 userGotPointUpdatedId = biker.UserId;
                 userTotalPoint = biker.TotalPoint;
                 
-                await _pointHistoryCreation.Run(userGotPointUpdatedId, (int) HistoryType.TripTransaction,
-                    tripTransaction.TripTransactionId, tripTransactionPoint, userTotalPoint, tripTransaction.Description,
+                await _pointHistoryCreation.Run(userGotPointUpdatedId, 
+                    (int) HistoryType.TripTransaction,
+                    tripTransaction.TripTransactionId, 
+                    tripTransactionPoint, userTotalPoint, 
+                    tripTransaction.Description,
                     tripTransaction.TransactionDate);
                 
                 userGotPointUpdatedId = keer.UserId;
                 userTotalPoint = keer.TotalPoint;
                 // For Keer, point must be subtracted, so tripTransactionPoint must be negative number
                 tripTransactionPoint *= -1;
-                await _pointHistoryCreation.Run(userGotPointUpdatedId, (int) HistoryType.TripTransaction,
-                    tripTransaction.TripTransactionId, tripTransactionPoint, userTotalPoint, tripTransaction.Description,
+                
+                await _pointHistoryCreation.Run(userGotPointUpdatedId, 
+                    (int) HistoryType.TripTransaction,
+                    tripTransaction.TripTransactionId, 
+                    tripTransactionPoint, userTotalPoint, 
+                    tripTransaction.Description,
                     tripTransaction.TransactionDate);
             }
             else
@@ -121,8 +126,11 @@ namespace Application.TripTransactions
                 userTotalPoint = biker.TotalPoint;
                 
                 // Create point history for biker only
-                await _pointHistoryCreation.Run(userGotPointUpdatedId, (int) HistoryType.TripTransaction,
-                    tripTransaction.TripTransactionId, tripTransactionPoint, userTotalPoint, tripTransaction.Description,
+                await _pointHistoryCreation.Run(userGotPointUpdatedId, 
+                    (int) HistoryType.TripTransaction,
+                    tripTransaction.TripTransactionId, 
+                    tripTransactionPoint, userTotalPoint, 
+                    tripTransaction.Description,
                     tripTransaction.TransactionDate);
             }
         }

@@ -210,7 +210,7 @@ namespace Application.Trips
                                 Title = Constant.NotificationTitleKeNow,
                                 Content = Constant.NotificationContentKeNow,
                                 ReceiverId = bikerId,
-                                Url = $"{_configuration["ApiPath"]}/trips/{newTrip.TripId}/details",
+                                Url = $"{_configuration["ApiPath"]}/trips/{newTrip.TripId}/now",
                                 IsRead = false,
                                 CreatedDate = CurrentTime.GetCurrentTime()
                             };

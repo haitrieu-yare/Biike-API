@@ -11,7 +11,7 @@ namespace Application.Notifications.DTOs
         [JsonPropertyName("title")] public string? Title { get; set; }
         [JsonPropertyName("content")] public string? Content { get; set; }
         [JsonPropertyName("url")] public string? Url { get; set; }
-        [JsonPropertyName("isRead")] public bool? IsRead { get; set; }
+        [JsonPropertyName("isRead")] public bool? IsRead { get; set; } = false;
         [JsonPropertyName("createdDate")] public DateTime? CreatedDate { get; set; }
     }
 }
