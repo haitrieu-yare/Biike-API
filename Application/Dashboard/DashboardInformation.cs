@@ -150,7 +150,7 @@ namespace Application.Dashboard
                     tripStatusPercentage.Add(new TripStatusPercentageDto()
                     {
                         TripStatus = (int) TripStatus.Cancelled,
-                        Percentage = totalTrip == 0 ? 0 : 100 - percentage
+                        Percentage = totalTrip == 0 ? 0 : Math.Round(100 - percentage, 2, MidpointRounding.AwayFromZero)
                             // ApplicationUtils.ToPercentage(cancelledTrip / Convert.ToDouble(totalTrip))
                     });
                     

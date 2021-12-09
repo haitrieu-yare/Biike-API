@@ -35,7 +35,7 @@ namespace Application
         {
             return Math.Round(number, 4, MidpointRounding.AwayFromZero) * 100;
         }
-        
+
         private static readonly Random Random = new();
         public static string RandomString(int length)
         {

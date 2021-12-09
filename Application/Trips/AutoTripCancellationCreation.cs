@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain;
 using Domain.Entities;
@@ -29,8 +28,8 @@ namespace Application.Trips
             string triggerNameMatched = Constant.GetTriggerNameAutoCancellation(trip.TripId, "Matched");
 
             var bookTimeInVietNam = trip.BookTime;
-            var midnightInVietNam = CurrentTime.ToLocalTime(new DateTime(bookTimeInVietNam.Year,
-                bookTimeInVietNam.Month, bookTimeInVietNam.Day, 17, 0, 0, DateTimeKind.Utc));
+            // var midnightInVietNam = CurrentTime.ToLocalTime(new DateTime(bookTimeInVietNam.Year,
+            //     bookTimeInVietNam.Month, bookTimeInVietNam.Day, 17, 0, 0, DateTimeKind.Utc));
 
             var findingTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerNameFinding, Constant.OneTimeJob)
@@ -41,7 +40,8 @@ namespace Application.Trips
                 .Build();
             var matchedTrigger = TriggerBuilder.Create()
                 .WithIdentity(triggerNameMatched, Constant.OneTimeJob)
-                .StartAt(midnightInVietNam)
+                // .StartAt(midnightInVietNam)
+                .StartAt(CurrentTime.ToUtcTime(bookTimeInVietNam.AddHours(3)))
                 .Build();
 
             switch (trip.Status)
