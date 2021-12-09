@@ -72,7 +72,7 @@ namespace Application.Trips
                         await scheduler.UnscheduleJobs(triggerKeys, CancellationToken.None);
                         break;
                     default:
-                        trip.CancelReason = "Tự động hủy vì đã quá ngày khởi hành.";
+                        trip.CancelReason = "Tự động hủy vì đã quá thời gian khởi hành 3 tiếng.";
                         trip.Status = (int) TripStatus.Cancelled;
                         trip.CancelTime = CurrentTime.GetCurrentTime();
                         break;

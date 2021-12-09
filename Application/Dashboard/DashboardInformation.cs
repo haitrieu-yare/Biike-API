@@ -226,8 +226,8 @@ namespace Application.Dashboard
                         TotalRedemption = totalRedemption,
                         TotalPointUsedForVoucher = totalPointUsedForVoucher,
                         TotalAdsClickCount = totalAdsClickCount,
-                        TotalKmSaved = totalKmSaved,
-                        TotalFuelSaved = totalFuelSaved,
+                        TotalKmSaved = Math.Round(totalKmSaved, 2, MidpointRounding.AwayFromZero),
+                        TotalFuelSaved = Math.Round(totalFuelSaved, 2, MidpointRounding.AwayFromZero),
                         StationPercentage = stationPercentage,
                         TripStatusPercentage = tripStatusPercentage
                     };
