@@ -37,6 +37,20 @@ namespace Persistence.Data
                     UserId = 6, 
                     CreatedDate = createdDate
                 },
+                new()
+                {
+                    ConfigurationName = "IsCancellationLimitOn", 
+                    ConfigurationValue = "true",
+                    UserId = 6, 
+                    CreatedDate = createdDate
+                },
+                new()
+                {
+                    ConfigurationName = "CancellationLimit", 
+                    ConfigurationValue = "5",
+                    UserId = 6, 
+                    CreatedDate = createdDate
+                },
             };
 
             // Save change for each item because EF doesn't insert like the order

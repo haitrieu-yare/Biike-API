@@ -41,15 +41,18 @@ namespace Application.Trips
             private readonly ISchedulerFactory _schedulerFactory;
             private readonly IConfiguration _configuration;
             private readonly NotificationSending _notiSender;
+            private readonly TripCancellationCheck _tripCancellationCheck;
 
             public Handler(DataContext context, IMapper mapper, ISchedulerFactory schedulerFactory,
-                IConfiguration configuration, NotificationSending notiSender, ILogger<Handler> logger)
+                IConfiguration configuration, NotificationSending notiSender, 
+                TripCancellationCheck tripCancellationCheck,ILogger<Handler> logger)
             {
                 _context = context;
                 _mapper = mapper;
                 _schedulerFactory = schedulerFactory;
                 _configuration = configuration;
                 _notiSender = notiSender;
+                _tripCancellationCheck = tripCancellationCheck;
                 _logger = logger;
             }
 
@@ -58,6 +61,14 @@ namespace Application.Trips
                 try
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+                    
+                    if (await _tripCancellationCheck.IsLimitExceeded(request.TripCreationDto.KeerId!.Value))
+                    {
+                        _logger.LogInformation("You can not create new trip because " +
+                                               "you have exceeded the maximum number of cancellation in one day");
+                        return Result<Unit>.Failure("You can not create new trip because " +
+                                                "you have exceeded the maximum number of cancellation in one day.");
+                    }
 
                     var currentTime = CurrentTime.GetCurrentTime();
                     var limitOneHourTime = currentTime.AddHours(1);

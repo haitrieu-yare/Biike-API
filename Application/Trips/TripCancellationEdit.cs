@@ -41,17 +41,19 @@ namespace Application.Trips
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
             private readonly NotificationSending _notiSender;
+            private readonly TripCancellationCheck _tripCancellationCheck;
             private readonly IMapper _mapper;
             private readonly IConfiguration _configuration;
 
             public Handler(DataContext context, IMapper mapper, IConfiguration configuration, 
-                ILogger<Handler> logger, NotificationSending notiSender)
+                ILogger<Handler> logger, NotificationSending notiSender, TripCancellationCheck tripCancellationCheck)
             {
                 _context = context;
                 _mapper = mapper;
                 _configuration = configuration;
                 _logger = logger;
                 _notiSender = notiSender;
+                _tripCancellationCheck = tripCancellationCheck;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -60,20 +62,26 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
-
-                    if (trip == null)
-                    {
-                        _logger.LogInformation("Trip doesn't exist");
-                        return Result<Unit>.NotFound("Trip doesn't exist.");
-                    }
-
                     User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null || user.IsDeleted)
                     {
                         _logger.LogInformation("User with {UserId} doesn't exist", request.UserId);
                         return Result<Unit>.NotFound($"User with {request.UserId} doesn't exist.");
+                    }
+                    
+                    if (await _tripCancellationCheck.IsLimitExceeded(user.UserId))
+                    {
+                        _logger.LogInformation("You have exceeded the maximum number of cancellation in one day");
+                        return Result<Unit>.Failure("You have exceeded the maximum number of cancellation in one day.");
+                    }
+                    
+                    Trip trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+
+                    if (trip == null)
+                    {
+                        _logger.LogInformation("Trip doesn't exist");
+                        return Result<Unit>.NotFound("Trip doesn't exist.");
                     }
 
                     if (!request.IsAdmin)

@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using API.SignalR;
 using Application;
 using Application.Core;
 using Application.Notifications;
@@ -48,7 +47,7 @@ namespace API
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "API", Version = "v1"});
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "JWT Authorization header using the Bearer scheme (Example: '12345ABCDEF')",
+                    Description = "JWT Authorization header using the Bearer scheme (Example: '12345ABC')",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.Http,
@@ -91,8 +90,6 @@ namespace API
             var options = new AppOptions {Credential = GoogleCredential.FromFile(pathToKey)};
             FirebaseApp.Create(options);
 
-            services.AddSignalR();
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
                 {
@@ -108,7 +105,9 @@ namespace API
                     };
                 });
 
+            // ReSharper disable CommentTypo
             // Middleware này là để custom message trả về nếu như request không có thông tin authentication (lỗi 401)
+            // ReSharper restore CommentTypo
             services.AddAuthorization()
                 .AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultTransformer>();
 
@@ -147,6 +146,7 @@ namespace API
             services.AddScoped(typeof(AutoTripTransactionCreation));
             services.AddScoped(typeof(AutoPointHistoryCreation));
             services.AddScoped(typeof(NotificationSending));
+            services.AddScoped(typeof(TripCancellationCheck));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -174,7 +174,6 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<LocationHub>("/location");
             });
 
             logger.LogInformation("App start at {Time}", DateTime.UtcNow.AddHours(7));
