@@ -57,7 +57,8 @@ namespace Application.Bikes
                     user.IsBikeVerified = false;
                     user.RoleId = (int) RoleStatus.Keer;
 
-                    Bike bike = await _context.Bike.Where(b => b.UserId == request.UserId)
+                    Bike bike = await _context.Bike
+                        .Where(b => b.UserId == request.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 
                     if (bike == null)

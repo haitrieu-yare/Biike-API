@@ -32,6 +32,7 @@ namespace Application.Trips.DTOs
         public string? DepartureCoordinate { get; set; }
         public string? DestinationName { get; set; }
         public string? DestinationCoordinate { get; set; }
+        public bool? IsCancellationLimitExceeded { get; set; }
         public List<FeedbackDto> Feedbacks { get; set; } = new();
     }
 }

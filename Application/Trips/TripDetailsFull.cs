@@ -28,11 +28,14 @@ namespace Application.Trips
             private readonly DataContext _context;
             private readonly ILogger<Handler> _logger;
             private readonly IMapper _mapper;
+            private readonly TripCancellationCheck _tripCancellationCheck;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
+            public Handler(DataContext context, IMapper mapper, 
+                TripCancellationCheck tripCancellationCheck,ILogger<Handler> logger)
             {
                 _context = context;
                 _mapper = mapper;
+                _tripCancellationCheck = tripCancellationCheck;
                 _logger = logger;
             }
 
@@ -112,6 +115,8 @@ namespace Application.Trips
                         trip.Color = bike.Color;
                         trip.PlateNumber = bike.PlateNumber;
                     }
+
+                    trip.IsCancellationLimitExceeded = await _tripCancellationCheck.IsLimitExceeded(user.UserId);
                     
                     _logger.LogInformation("Successfully retrieved trip by TripId {request.TripId}", request.TripId);
                     return Result<TripDetailsFullDto>.Success(trip,
