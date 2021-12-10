@@ -21,8 +21,6 @@ namespace Application.Trips
 
         public async Task<bool> IsLimitExceeded(int userId)
         {
-            var currentDate = CurrentTime.GetCurrentTime();
-
             var isCancellationLimitOn = await _context.Configuration
                 .Where(configuration => configuration.ConfigurationName.Equals("IsCancellationLimitOn"))
                 .Select(configuration => configuration.ConfigurationValue)
@@ -34,7 +32,7 @@ namespace Application.Trips
                 return false;
             }
 
-            if (isCancellationLimitOn.Equals("false"))
+            if (!isCancellationLimitOn.Equals("true"))
             {
                 return false;
             }
@@ -61,10 +59,12 @@ namespace Application.Trips
                 _logger.LogError("CancellationLimit configuration's value is error");
                 return false;
             }
+            
+            var currentDate = CurrentTime.GetCurrentTime();
 
             var cancelledTripInDay = await _context.Trip
                 .Where(trip => trip.KeerId == userId)
-                .Where(trip => trip.CreatedDate.Day == currentDate.Day)
+                .Where(trip => trip.CancelTime.HasValue && trip.CancelTime.Value.Day == currentDate.Day)
                 .Where(trip => trip.Status == (int) TripStatus.Cancelled)
                 .CountAsync();
 
