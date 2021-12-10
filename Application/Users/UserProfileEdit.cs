@@ -55,7 +55,8 @@ namespace Application.Users
                     
                     if (!string.IsNullOrEmpty(request.UserProfileEditDto.UserFullname) &&
                         string.IsNullOrEmpty(request.UserProfileEditDto.Avatar) &&
-                        user.Avatar.Contains("ui-avatars.com"))
+                        user.Avatar.Contains("ui-avatars.com") &&
+                        !request.UserProfileEditDto.UserFullname.Equals(user.Avatar))
                     {
                         string fullNameAbbreviation =
                             ApplicationUtils.GetFullNameAbbreviation(request.UserProfileEditDto.UserFullname);
