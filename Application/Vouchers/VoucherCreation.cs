@@ -69,7 +69,7 @@ namespace Application.Vouchers
                         return Result<Unit>.Failure("Failed to create new voucher.");
                     }
 
-                    if (request.VoucherCreationDto.AddressIds!.Count > 0)
+                    if (request.VoucherCreationDto.AddressIds.Count > 0)
                     {
                         List<VoucherAddress> voucherAddresses = request.VoucherCreationDto.AddressIds
                             .Select(addressId => new VoucherAddress
@@ -88,7 +88,7 @@ namespace Application.Vouchers
                         }
                     }
 
-                    if (request.VoucherCreationDto.VoucherImages!.Count > 0)
+                    if (request.VoucherCreationDto.VoucherImages.Count > 0)
                     {
                         List<VoucherImage> voucherImages = request.VoucherCreationDto.VoucherImages
                             .Select(voucherImage => new VoucherImage

@@ -82,7 +82,9 @@ namespace Application.Vouchers
 
                     if (!request.IsAdmin)
                     {
-                        voucherQueryable = voucherQueryable.Where(v => v.EndDate.CompareTo(currentTime) > 0);
+                        voucherQueryable = voucherQueryable
+                            .Where(v => v.StartDate.CompareTo(currentTime) <= 0)
+                            .Where(v => v.EndDate.CompareTo(currentTime) > 0);
                     }
 
                     if (request.CategoryId != 0)
@@ -122,12 +124,10 @@ namespace Application.Vouchers
                             voucherQueryable = voucherQueryable
                                 .Where(v => voucherSet.Contains(v.VoucherId));
                         }
-                        else
-                        {
-                            voucherQueryable = voucherQueryable.OrderBy(v => v.VoucherCategoryId);
-                        }
                         
                         vouchers = await voucherQueryable
+                            .Where(v => v.Remaining > 0)
+                            .OrderBy(v => v.EndDate)
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
                             .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
