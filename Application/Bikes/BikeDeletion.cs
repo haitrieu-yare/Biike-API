@@ -48,12 +48,6 @@ namespace Application.Bikes
                         return Result<Unit>.NotFound("User to delete bike does not exist.");
                     }
 
-                    if (user.RoleId != (int) RoleStatus.Biker)
-                    {
-                        _logger.LogInformation("User to delete bike does not exist");
-                        return Result<Unit>.Unauthorized(Constant.OnlyRole(RoleStatus.Biker.ToString()));
-                    }
-
                     user.IsBikeVerified = false;
                     user.RoleId = (int) RoleStatus.Keer;
 
@@ -73,7 +67,7 @@ namespace Application.Bikes
 
                     if (!result)
                     {
-                        _logger.LogInformation("Failed to delete bike by userId {request.UserId}", request.UserId);
+                        _logger.LogInformation("Failed to delete bike by userId {UserId}", request.UserId);
                         return Result<Unit>.Failure($"Failed to delete bike by userId {request.UserId}.");
                     }
 
@@ -96,8 +90,9 @@ namespace Application.Bikes
                                                     $"{e.InnerException?.Message ?? e.Message}");
                     }
 
-                    _logger.LogInformation("Successfully deleted bike by userId {request.UserId}", request.UserId);
-                    return Result<Unit>.Success(Unit.Value, $"Successfully deleted bike by userId {request.UserId}.");
+                    _logger.LogInformation("Successfully deleted bike by userId {UserId}", request.UserId);
+                    return Result<Unit>.Success(Unit.Value, 
+                        $"Successfully deleted bike by userId {request.UserId}.");
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

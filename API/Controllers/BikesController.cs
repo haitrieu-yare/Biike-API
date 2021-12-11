@@ -113,17 +113,10 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new BikeReplacement.Command {BikeCreationDto = bikeCreationDto}, ct));
         }
 
-        // Biker
+        // Keer, Biker, Admin
         [HttpDelete("{userId:int}")]
         public async Task<IActionResult> DeleteBike(int userId, CancellationToken ct)
         {
-            var role = ControllerUtils.GetRole(HttpContext);
-
-            if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
-
-            if (role != (int) RoleStatus.Biker)
-                return new ObjectResult(Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
-
             ValidationDto validationDto = ControllerUtils.Validate(HttpContext, userId);
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
