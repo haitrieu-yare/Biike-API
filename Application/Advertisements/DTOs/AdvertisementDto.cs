@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Application.Addresses.DTOs;
 
 namespace Application.Advertisements.DTOs
 {
@@ -14,5 +16,7 @@ namespace Application.Advertisements.DTOs
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? CreatedDate { get; set; }
+        public List<AddressDto>? AdvertisementAddresses { get; set; }
+        public List<AdvertisementImageDto>? AdvertisementImages { get; set; }
     }
 }
