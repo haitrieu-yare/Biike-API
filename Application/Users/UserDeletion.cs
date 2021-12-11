@@ -46,14 +46,6 @@ namespace Application.Users
                         _logger.LogInformation("User doesn't exist");
                         return Result<Unit>.NotFound("User doesn't exist.");
                     }
-                    
-                    if (user.IsDeleted)
-                    {
-                        _logger.LogInformation("User with userId {request.UserId} has been deleted. " +
-                                               "Please reactivate it to edit it this user", request.UserId);
-                        return Result<Unit>.Failure($"User with userId {request.UserId} has been deleted. " +
-                                                    "Please reactivate it to edit it this user.");
-                    }
 
                     if (user.RoleId == (int) RoleStatus.Admin)
                     {
