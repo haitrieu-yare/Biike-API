@@ -48,7 +48,7 @@ namespace Application.Trips
                 return false;
             }
             
-            if (int.TryParse(cancellationLimitConfig, out var cancellationLimit))
+            if (!int.TryParse(cancellationLimitConfig, out var cancellationLimit))
             {
                 _logger.LogError("CancellationLimit configuration's value is error");
                 return false;
@@ -63,7 +63,7 @@ namespace Application.Trips
             var currentDate = CurrentTime.GetCurrentTime();
 
             var cancelledTripInDay = await _context.Trip
-                .Where(trip => trip.KeerId == userId)
+                .Where(trip => trip.KeerId == userId || trip.BikerId == userId)
                 .Where(trip => trip.CancelTime.HasValue && trip.CancelTime.Value.Day == currentDate.Day)
                 .Where(trip => trip.Status == (int) TripStatus.Cancelled)
                 .CountAsync();
