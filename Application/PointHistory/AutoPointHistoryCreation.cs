@@ -39,15 +39,21 @@ namespace Application.PointHistory
                 TimeStamp = timeStamp
             };
 
+            // ReSharper disable StringLiteralTypo
+            var title = point < 0 ?
+                $"Biiké: Bạn đã dùng {point * -1} điểm" :
+                $"Biiké: Bạn nhận được {point} điểm";
+
             var message = point < 0 ? 
                     $"Bạn đã sử dụng {point * -1} điểm, số điểm mới của bạn là {totalPoint}" :
                     $"Bạn đã được cộng thêm {point} điểm, số điểm mới của bạn là {totalPoint}";
+            // ReSharper restore StringLiteralTypo
             
             // ReSharper disable StringLiteralTypo
             var notification = new NotificationDto
             {
                 NotificationId = Guid.NewGuid(),
-                Title = "Điểm của bạn đã được thay đổi",
+                Title = title,
                 Content = message,
                 ReceiverId = userId,
                 Url = $"{_configuration["ApiPath"]}/points",
