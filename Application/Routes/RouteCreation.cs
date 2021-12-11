@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -121,9 +122,28 @@ namespace Application.Routes
                             $"Route with departureId {request.RouteCreationDto.DepartureId} and destinationId " +
                             $"{request.RouteCreationDto.DestinationId} is already existed.");
                     }
-
+                    
                     var newRoute = new Route();
                     _mapper.Map(request.RouteCreationDto, newRoute);
+
+                    if (request.RouteCreationDto.DefaultPoint == 0 ||
+                        request.RouteCreationDto.Distance == 0)
+                    {
+                        CultureInfo culture = new ("en-US");
+                        var departureCoordinate = departure.Coordinate.Split(",");
+                        double departureLatitude = Convert.ToDouble(departureCoordinate[0], culture);
+                        double departureLongitude = Convert.ToDouble(departureCoordinate[1],culture);
+                        
+                        var destinationCoordinate = destination.Coordinate.Split(",");
+                        double destinationLatitude = Convert.ToDouble(destinationCoordinate[0], culture);
+                        double destinationLongitude = Convert.ToDouble(destinationCoordinate[1],culture);
+                        
+                        newRoute.Distance = ApplicationUtils.Haversine(departureLatitude, departureLongitude,
+                            destinationLatitude, destinationLongitude);
+
+                        newRoute.DefaultPoint = (int) Math.Round(newRoute.Distance * 2, MidpointRounding.AwayFromZero);
+                    }
+                    
                     await _context.Route.AddAsync(newRoute, cancellationToken);
                     var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 

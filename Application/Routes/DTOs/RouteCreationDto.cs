@@ -10,7 +10,7 @@ namespace Application.Routes.DTOs
 
         [Required] public int? DestinationId { get; init; }
 
-        [Required] public int? DefaultPoint { get; init; }
-        [Required] public double? Distance { get; init; }
+        public int DefaultPoint { get; init; }
+        public double Distance { get; init; }
     }
 }
