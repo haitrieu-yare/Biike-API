@@ -43,6 +43,7 @@ namespace Application.Dashboard
                     
                     var totalKmSaved = await _context.Trip
                         .Include(t => t.Route)
+                        .Where(t => t.Status == (int) TripStatus.Finished)
                         .Select(t => t.Route.Distance)
                         .SumAsync(cancellationToken);
 

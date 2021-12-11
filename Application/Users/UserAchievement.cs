@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -44,15 +45,18 @@ namespace Application.Users
 
                     var totalKeerTrip = await _context.Trip
                         .Where(t => t.KeerId == request.UserId)
+                        .Where(t => t.Status == (int) TripStatus.Finished)
                         .CountAsync(cancellationToken);
                     
                     var totalBikerTrip = await _context.Trip
                         .Where(t => t.BikerId == request.UserId)
+                        .Where(t => t.Status == (int) TripStatus.Finished)
                         .CountAsync(cancellationToken);
 
                     var totalKmSaved = await _context.Trip
                         .Include(t => t.Route)
                         .Where(t => t.KeerId == request.UserId || t.BikerId == request.UserId)
+                        .Where(t => t.Status == (int) TripStatus.Finished)
                         .Select(t => t.Route.Distance)
                         .SumAsync(cancellationToken);
 
