@@ -77,8 +77,9 @@ namespace API.Controllers
 
             if (role == 0) return Unauthorized(Constant.CouldNotGetUserRole);
 
-            if (role != (int) RoleStatus.Admin)
-                return new ObjectResult(Constant.OnlyRole(RoleStatus.Admin.ToString())) {StatusCode = 403};
+            if (role != (int) RoleStatus.Keer && role != (int) RoleStatus.Biker)
+                return new ObjectResult(Constant.OnlyRole(RoleStatus.Keer.ToString()) + " " +
+                                        Constant.OnlyRole(RoleStatus.Biker.ToString())) {StatusCode = 403};
 
             return HandleResult(await Mediator.Send(new AdvertisementClickCountEdit.Command(advertisementId),
                 ct));

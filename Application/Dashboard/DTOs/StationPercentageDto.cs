@@ -4,6 +4,6 @@
     {
         public int? StationId { get; set; }
         public string? StationName { get; set; }
-        public double? Percentage { get; set; }
+        public decimal? Percentage { get; set; }
     }
 }
