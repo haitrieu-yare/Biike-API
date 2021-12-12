@@ -72,7 +72,7 @@ namespace Application.Advertisements
                         return Result<Unit>.Failure("Failed to create new advertisement.");
                     }
 
-                    if (request.AdvertisementCreationDto.AddressIds!.Count > 0)
+                    if (request.AdvertisementCreationDto.AddressIds.Count > 0)
                     {
                         List<AdvertisementAddress> advertisementAddresses = request.AdvertisementCreationDto.AddressIds
                             .Select(addressId => new AdvertisementAddress
@@ -91,7 +91,7 @@ namespace Application.Advertisements
                         }
                     }
 
-                    if (request.AdvertisementCreationDto.AdvertisementImages!.Count > 0)
+                    if (request.AdvertisementCreationDto.AdvertisementImages.Count > 0)
                     {
                         List<AdvertisementImage> advertisementImages = request.AdvertisementCreationDto
                             .AdvertisementImages.Select(advertisementImage => new AdvertisementImage

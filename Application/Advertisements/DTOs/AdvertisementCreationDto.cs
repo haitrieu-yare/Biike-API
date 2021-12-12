@@ -12,7 +12,7 @@ namespace Application.Advertisements.DTOs
         [Required] public bool? IsActive { get; set; }
         [Required] public DateTime? StartDate { get; set; }
         [Required] public DateTime? EndDate { get; set; }
-        [Required] public List<int>? AddressIds { get; set; }
-        [Required] public List<string>? AdvertisementImages { get; set; }
+        public List<int> AddressIds { get; set; } = new();
+        public List<string> AdvertisementImages { get; set; } = new();
     }
 }
