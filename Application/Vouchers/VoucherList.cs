@@ -83,6 +83,7 @@ namespace Application.Vouchers
                     if (!request.IsAdmin)
                     {
                         voucherQueryable = voucherQueryable
+                            .Where(v => v.Remaining > 0)
                             .Where(v => v.StartDate.CompareTo(currentTime) <= 0)
                             .Where(v => v.EndDate.CompareTo(currentTime) > 0);
                     }
@@ -126,7 +127,6 @@ namespace Application.Vouchers
                         }
                         
                         vouchers = await voucherQueryable
-                            .Where(v => v.Remaining > 0)
                             .OrderBy(v => v.EndDate)
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
