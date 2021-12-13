@@ -17,6 +17,7 @@ namespace Application.Feedbacks.DTOs
         public string? FeedbackContent { get; set; }
 
         public string? Criteria { get; set; }
+        public int? TripTip { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public DateTime? CreatedDate { get; set; }

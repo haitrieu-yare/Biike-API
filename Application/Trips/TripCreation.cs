@@ -175,6 +175,12 @@ namespace Application.Trips
                     
                     if (!request.TripCreationDto.IsScheduled.Value)
                     {
+                        var blockedBikerIds = await _context.Intimacy
+                            .Where(i => i.UserOneId == newTrip.KeerId)
+                            .Where(i => i.IsBlock)
+                            .Select(i => i.UserTwoId)
+                            .ToListAsync(cancellationToken);
+                        
                         // ReSharper disable CommentTypo
                         // Mobile sẽ gửi time cộng thêm sẵn 15 phút, nên phải trừ 15 phút đi để gửi notification
                         // ReSharper restore CommentTypo
@@ -182,6 +188,7 @@ namespace Application.Trips
                         
                         List<int> bikerIds = await _context.BikeAvailability
                             .Include(b => b.User)
+                            .Where(b => !blockedBikerIds.Contains(b.UserId))
                             .Where(b => b.User.IsKeNowAvailable)
                             .Where(b => b.StationId == request.TripCreationDto.DepartureId)
                             .Where(b => b.FromTime.TimeOfDay.CompareTo(timeForKeNow.TimeOfDay) <= 0)

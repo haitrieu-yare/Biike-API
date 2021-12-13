@@ -96,6 +96,20 @@ namespace Application.Trips
                         _logger.LogInformation("Bike doesn't exist");
                         return Result<Unit>.Failure("Bike doesn't exist.");
                     }
+                    
+                    var isKeerBlocked = await _context.Intimacy
+                        .Where(i => i.UserOneId == request.BikerId)
+                        .Where(i => i.UserTwoId == trip.KeerId)
+                        .Where(i => i.IsBlock)
+                        .AnyAsync(cancellationToken);
+
+                    if (isKeerBlocked)
+                    {
+                        _logger.LogInformation("Biker can not accept this trip with TripId {TripId}" +
+                                               "because Keer is blocked by biker", request.TripId);
+                        return Result<Unit>.Failure($"Biker can not accept this trip with TripId {request.TripId}" + 
+                                                    "because Keer is blocked by biker.");
+                    }
 
                     trip.BikerId = biker.UserId;
                     trip.PlateNumber = bike.PlateNumber;

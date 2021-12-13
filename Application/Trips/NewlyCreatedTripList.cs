@@ -101,6 +101,12 @@ namespace Application.Trips
                             "Time parameter value must be later than 5AM and before 21PM.");
                     }
 
+                    var blockedKeerIds = await _context.Intimacy
+                        .Where(i => i.UserOneId == request.UserId)
+                        .Where(i => i.IsBlock)
+                        .Select(i => i.UserTwoId)
+                        .ToListAsync(cancellationToken);
+
                     var dateTime = date;
                     List<TripDto> trips = new();
 
@@ -109,6 +115,7 @@ namespace Application.Trips
 
                     var totalRecord = await _context.Trip
                         .Where(t => t.KeerId != request.UserId)
+                        .Where(t => !blockedKeerIds.Contains(t.KeerId))
                         .Where(t => t.IsScheduled == true)
                         .Where(t => t.Status == (int) TripStatus.Finding)
                         .Where(t => (isDateProvided && isTimeProvided)
@@ -136,6 +143,7 @@ namespace Application.Trips
                     if (request.Page <= lastPage)
                         trips = await _context.Trip
                             .Where(t => t.KeerId != request.UserId)
+                            .Where(t => !blockedKeerIds.Contains(t.KeerId))
                             .Where(t => t.IsScheduled == true)
                             .Where(t => t.Status == (int) TripStatus.Finding)
                             .Where(t => (isDateProvided && isTimeProvided)
