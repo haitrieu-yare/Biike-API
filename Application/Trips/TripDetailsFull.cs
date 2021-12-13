@@ -69,22 +69,22 @@ namespace Application.Trips
                         return Result<TripDetailsFullDto>.NotFound($"Trip with {request.TripId} doesn't exist.");
                     }
 
-                    var isRequestUserInTrip = true;
-
-                    if (tripDb.BikerId == null && request.UserRequestId != tripDb.KeerId)
-                        isRequestUserInTrip = false;
-                    else if (request.UserRequestId != tripDb.KeerId && request.UserRequestId != tripDb.BikerId)
-                        isRequestUserInTrip = false;
-
-                    if (!isRequestUserInTrip)
-                    {
-                        _logger.LogInformation(
-                            "User with UserId {request.UserRequestId} " +
-                            "request an unauthorized content of trip with TripId {request.TripId}",
-                            request.UserRequestId, request.TripId);
-                        return Result<TripDetailsFullDto>.Failure($"User with UserId {request.UserRequestId} " +
-                                                                 $"request an unauthorized content of trip with TripId {request.TripId}");
-                    }
+                    // var isRequestUserInTrip = true;
+                    //
+                    // if (tripDb.BikerId == null && request.UserRequestId != tripDb.KeerId)
+                    //     isRequestUserInTrip = false;
+                    // else if (request.UserRequestId != tripDb.KeerId && request.UserRequestId != tripDb.BikerId)
+                    //     isRequestUserInTrip = false;
+                    //
+                    // if (!isRequestUserInTrip)
+                    // {
+                    //     _logger.LogInformation(
+                    //         "User with UserId {request.UserRequestId} " +
+                    //         "request an unauthorized content of trip with TripId {request.TripId}",
+                    //         request.UserRequestId, request.TripId);
+                    //     return Result<TripDetailsFullDto>.Failure($"User with UserId {request.UserRequestId} " +
+                    //                                              $"request an unauthorized content of trip with TripId {request.TripId}");
+                    // }
 
                     TripDetailsFullDto trip = new();
 
