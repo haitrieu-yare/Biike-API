@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
@@ -83,6 +84,17 @@ namespace Application.Trips
                             }
                             else
                             {
+                                var existStartedTrip = _context.Trip
+                                    .Any(t => t.Status == (int) TripStatus.Started);
+
+                                if (existStartedTrip)
+                                {
+                                    _logger.LogInformation(
+                                        "Can not start trip because there is another trip has been started");
+                                    return Result<Unit>.Failure(
+                                        "Can not start trip because there is another trip has been started.");
+                                }
+                                
                                 trip.PickupTime = CurrentTime.GetCurrentTime();
                                 trip.Status = (int) TripStatus.Started;
                             }
