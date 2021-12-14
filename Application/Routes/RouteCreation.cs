@@ -138,8 +138,10 @@ namespace Application.Routes
                         double destinationLatitude = Convert.ToDouble(destinationCoordinate[0], culture);
                         double destinationLongitude = Convert.ToDouble(destinationCoordinate[1],culture);
                         
-                        newRoute.Distance = ApplicationUtils.Haversine(departureLatitude, departureLongitude,
+                        var distance= ApplicationUtils.Haversine(departureLatitude, departureLongitude,
                             destinationLatitude, destinationLongitude);
+                        
+                        newRoute.Distance =  Math.Round(distance, 2, MidpointRounding.AwayFromZero);
 
                         newRoute.DefaultPoint = (int) Math.Round(newRoute.Distance * 2, MidpointRounding.AwayFromZero);
                     }
