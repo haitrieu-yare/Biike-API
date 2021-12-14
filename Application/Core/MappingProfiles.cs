@@ -168,6 +168,7 @@ namespace Application.Core
                 //(src, dest, destMember, resContext) => dest.UserId = resContext.Items["isKeer"] ? src.BikerId : src.KeerId)
                 .ForMember(t => t.UserId, o => o.MapFrom((src, _, _, context) => (bool) context.Items["isKeer"] ? src.BikerId : src.KeerId))
                 .ForMember(t => t.KeerId, o => o.MapFrom(t => t.KeerId))
+                .ForMember(t => t.BikerId, o => o.MapFrom(t => t.BikerId))
                 .ForMember(t => t.Avatar,
                     o => o.MapFrom((src, _, _, context) => src.Biker == null ? null : (bool) context.Items["isKeer"] ? src.Biker.Avatar : src.Keer.Avatar))
                 .ForMember(t => t.UserFullname,
