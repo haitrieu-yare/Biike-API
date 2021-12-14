@@ -188,6 +188,7 @@ namespace Application.Trips
                         
                         List<int> bikerIds = await _context.BikeAvailability
                             .Include(b => b.User)
+                            .Where(b => b.UserId != newTrip.KeerId)
                             .Where(b => !blockedBikerIds.Contains(b.UserId))
                             .Where(b => b.User.IsKeNowAvailable)
                             .Where(b => b.StationId == request.TripCreationDto.DepartureId)

@@ -19,14 +19,16 @@ namespace Application.Advertisements
     {
         public class Query : IRequest<Result<List<AdvertisementDto>>>
         {
-            public Query(int page, int limit)
+            public Query(int page, int limit, bool isAdmin)
             {
                 Page = page;
                 Limit = limit;
+                IsAdmin = isAdmin;
             }
 
             public int Page { get; }
             public int Limit { get; }
+            public bool IsAdmin { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -61,14 +63,21 @@ namespace Application.Advertisements
                         return Result<List<AdvertisementDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    var totalRecord = await _context.Advertisement.CountAsync(cancellationToken);
+                    var query = _context.Advertisement.AsQueryable();
+
+                    if (!request.IsAdmin)
+                    {
+                        query = query.Where(a => a.IsActive == true);
+                    }
+
+                    var totalRecord = await query.CountAsync(cancellationToken);
 
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
 
                     List<AdvertisementDto> advertisements = new();
 
                     if (request.Page <= lastPage)
-                        advertisements = await _context.Advertisement.AsSingleQuery()
+                        advertisements = await query.AsSingleQuery()
                             .OrderBy(v => v.AdvertisementId)
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)

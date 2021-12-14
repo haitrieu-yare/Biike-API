@@ -19,7 +19,7 @@ namespace API.Controllers
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            return HandleResult(await Mediator.Send(new AdvertisementList.Query(page, limit), ct));
+            return HandleResult(await Mediator.Send(new AdvertisementList.Query(page, limit, validationDto.IsAdmin), ct));
         }
 
         // Keer, Biker, Admin
@@ -30,7 +30,7 @@ namespace API.Controllers
 
             if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
-            return HandleResult(await Mediator.Send(new AdvertisementDetails.Query(advertisementId), ct));
+            return HandleResult(await Mediator.Send(new AdvertisementDetails.Query(advertisementId, validationDto.IsAdmin), ct));
         }
 
         // Admin

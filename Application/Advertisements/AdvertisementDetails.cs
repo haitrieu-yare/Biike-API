@@ -18,12 +18,14 @@ namespace Application.Advertisements
     {
         public class Query : IRequest<Result<AdvertisementDto>>
         {
-            public Query(int advertisementId)
+            public Query(int advertisementId, bool isAdmin)
             {
                 AdvertisementId = advertisementId;
+                IsAdmin = isAdmin;
             }
 
             public int AdvertisementId { get; }
+            public bool IsAdmin { get; }
         }
 
         // ReSharper disable once UnusedType.Global
@@ -46,7 +48,14 @@ namespace Application.Advertisements
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var advertisement = await _context.Advertisement.AsSingleQuery()
+                    var query = _context.Advertisement.AsQueryable();
+
+                    if (!request.IsAdmin)
+                    {
+                        query = query.Where(a => a.IsActive == true);
+                    }
+
+                    var advertisement = await query.AsSingleQuery()
                         .Where(v => v.AdvertisementId == request.AdvertisementId)
                         .ProjectTo<AdvertisementDto>(_mapper.ConfigurationProvider)
                         .SingleOrDefaultAsync(cancellationToken);
