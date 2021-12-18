@@ -33,7 +33,7 @@ namespace Application.TripTransactions
                 throw new Exception($"Trip with TripId {trip.TripId} doesn't have Biker.");
             }
 
-            User biker = await _context.User.FindAsync(trip.BikerId);
+            User? biker = await _context.User.FindAsync(trip.BikerId);
 
             if (biker == null || biker.IsDeleted)
             {
@@ -41,7 +41,7 @@ namespace Application.TripTransactions
                 throw new Exception($"Biker with UserId {trip.BikerId} doesn't exist.");
             }
 
-            Wallet currentWallet = await _context.Wallet
+            Wallet? currentWallet = await _context.Wallet
                 .Where(w => w.UserId == trip.BikerId)
                 .Where(w => w.Status == (int) WalletStatus.Current)
                 .SingleOrDefaultAsync();

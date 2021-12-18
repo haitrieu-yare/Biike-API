@@ -38,7 +38,7 @@ namespace Application.VoucherCategories
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    VoucherCategory voucherCategoryDb = await _context.VoucherCategory
+                    VoucherCategory? voucherCategoryDb = await _context.VoucherCategory
                         .FindAsync(new object[] {request.VoucherCategoryId}, cancellationToken);
 
                     if (voucherCategoryDb == null)

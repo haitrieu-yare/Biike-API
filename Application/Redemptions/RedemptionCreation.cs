@@ -47,7 +47,7 @@ namespace Application.Redemptions
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User.FindAsync(new object[] {request.RedemptionCreationDto.UserId!},
+                    User? user = await _context.User.FindAsync(new object[] {request.RedemptionCreationDto.UserId!},
                         cancellationToken);
 
                     if (user == null || user.IsDeleted)
@@ -58,7 +58,7 @@ namespace Application.Redemptions
                             $"User with UserId {request.RedemptionCreationDto.UserId} doesn't exist.");
                     }
 
-                    Voucher voucher =
+                    Voucher? voucher =
                         await _context.Voucher.FindAsync(new object[] {request.RedemptionCreationDto.VoucherId!},
                             cancellationToken);
 
@@ -84,12 +84,12 @@ namespace Application.Redemptions
 
                     // Max number of active wallets is 2 for each user
                     // Current Wallet
-                    Wallet currentWallet = await _context.Wallet
+                    Wallet? currentWallet = await _context.Wallet
                         .Where(w => w.UserId == request.RedemptionCreationDto.UserId)
                         .Where(w => w.Status == (int) WalletStatus.Current)
                         .SingleOrDefaultAsync(cancellationToken);
                     // Old Wallet
-                    Wallet oldWallet = await _context.Wallet
+                    Wallet? oldWallet = await _context.Wallet
                         .Where(w => w.UserId == request.RedemptionCreationDto.UserId)
                         .Where(w => w.Status == (int) WalletStatus.Old)
                         .SingleOrDefaultAsync(cancellationToken);

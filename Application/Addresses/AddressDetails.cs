@@ -13,6 +13,7 @@ using Persistence;
 
 namespace Application.Addresses
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class AddressDetails
     {
         public class Query : IRequest<Result<AddressDto>>

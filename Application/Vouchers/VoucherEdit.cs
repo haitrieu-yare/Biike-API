@@ -43,7 +43,7 @@ namespace Application.Vouchers
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Voucher oldVoucher =
+                    Voucher? oldVoucher =
                         await _context.Voucher.FindAsync(new object[] {request.VoucherId}, cancellationToken);
 
                     if (oldVoucher == null)
@@ -102,7 +102,7 @@ namespace Application.Vouchers
                     {
                         foreach (var voucherImageDto in request.NewVoucher.VoucherImages)
                         {
-                            VoucherImage oldVoucherImage =
+                            VoucherImage? oldVoucherImage =
                                 await _context.VoucherImage.FindAsync(new object[] {voucherImageDto.VoucherImageId!},
                                     cancellationToken);
                             

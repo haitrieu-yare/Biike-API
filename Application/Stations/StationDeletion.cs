@@ -35,7 +35,7 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Station station =
+                    Station? station =
                         await _context.Station.FindAsync(new object[] {request.StationId}, cancellationToken);
 
                     if (station == null)

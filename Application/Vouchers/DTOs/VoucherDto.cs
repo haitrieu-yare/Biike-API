@@ -9,7 +9,7 @@ namespace Application.Vouchers.DTOs
 {
     public class VoucherDto
     {
-        public int? VoucherId { get; set; }
+        public int VoucherId { get; set; }
         public int? VoucherCategoryId { get; set; }
         public string? VoucherCategoryName { get; set; }
         public string? VoucherName { get; set; }

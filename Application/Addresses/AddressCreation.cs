@@ -11,6 +11,7 @@ using Persistence;
 
 namespace Application.Addresses
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class AddressCreation
     {
         public class Command : IRequest<Result<Unit>>
@@ -27,8 +28,8 @@ namespace Application.Addresses
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
-            private readonly ILogger<Handler> _logger;
             private readonly IMapper _mapper;
+            private readonly ILogger<Handler> _logger;
 
             public Handler(DataContext context, IMapper mapper, ILogger<Handler> logger)
             {

@@ -41,7 +41,7 @@ namespace Application.Feedbacks
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    FeedbackDto feedback = await _context.Feedback.Where(f => f.FeedbackId == request.FeedbackId)
+                    FeedbackDto? feedback = await _context.Feedback.Where(f => f.FeedbackId == request.FeedbackId)
                         .ProjectTo<FeedbackDto>(_mapper.ConfigurationProvider)
                         .SingleOrDefaultAsync(cancellationToken);
 

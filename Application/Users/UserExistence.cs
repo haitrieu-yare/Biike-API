@@ -37,7 +37,7 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User
+                    User? user = await _context.User
                         .Where(u => u.Email == request.UserExistenceDto.Email ||
                                     u.PhoneNumber == request.UserExistenceDto.PhoneNumber)
                         .SingleOrDefaultAsync(cancellationToken);

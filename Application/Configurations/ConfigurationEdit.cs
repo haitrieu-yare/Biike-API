@@ -65,6 +65,12 @@ namespace Application.Configurations
                         .SingleOrDefaultAsync(cancellationToken);
 
                     _mapper.Map(request.ConfigurationDto, configuration);
+                    
+                    if (configuration == null)
+                    {
+                        _logger.LogInformation("Configuration doesn't exist");
+                        return Result<Unit>.NotFound("Configuration doesn't exist.");
+                    }
 
                     configuration.UserId = request.UserId;
                     configuration.LastUpdatedDate = CurrentTime.GetCurrentTime();

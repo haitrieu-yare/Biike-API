@@ -89,9 +89,7 @@ namespace Application
             public int Compare(Address? x, Address? y)
             {
                 if (ReferenceEquals(x, y)) return 0;
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (ReferenceEquals(null, y)) return 1;
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (ReferenceEquals(null, x)) return -1;
             
                 var xCoordinate = x.AddressCoordinate.Split(",");
@@ -107,7 +105,7 @@ namespace Application
                 
                 var distanceFromY = Haversine(_userLatitude, _userLongitude, 
                     yLatitude, yLongitude);
-
+            
                 return distanceFromX.CompareTo(distanceFromY);
             }
         }

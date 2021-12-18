@@ -43,7 +43,7 @@ namespace Application.Vouchers
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Voucher voucher =
+                    Voucher? voucher =
                         await _context.Voucher.FindAsync(new object[] {request.VoucherImageDeletionDto.VoucherId!},
                             cancellationToken);
 

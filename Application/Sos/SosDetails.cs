@@ -45,7 +45,7 @@ namespace Application.Sos
 
                     SosDto sos = new();
 
-                    Domain.Entities.Sos sosDb =
+                    Domain.Entities.Sos? sosDb =
                         await _context.Sos.FindAsync(new object[] {request.SosId}, cancellationToken);
 
                     if (sosDb == null)

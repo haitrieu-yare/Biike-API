@@ -61,11 +61,11 @@ namespace Application.Redemptions
                         return Result<List<RedemptionAndVoucherDto>>.Failure("Limit must be larger than 0.");
                     }
 
-                    Wallet currentWallet = await _context.Wallet.Where(w => w.UserId == request.UserId)
+                    Wallet? currentWallet = await _context.Wallet.Where(w => w.UserId == request.UserId)
                         .Where(w => w.Status == (int) WalletStatus.Current)
                         .SingleOrDefaultAsync(cancellationToken);
 
-                    Wallet oldWallet = await _context.Wallet.Where(w => w.UserId == request.UserId)
+                    Wallet? oldWallet = await _context.Wallet.Where(w => w.UserId == request.UserId)
                         .Where(w => w.Status == (int) WalletStatus.Old)
                         .SingleOrDefaultAsync(cancellationToken);
 

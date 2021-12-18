@@ -41,7 +41,7 @@ namespace Application.Bikes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User
+                    User? user = await _context.User
                         .FindAsync(new object[] {request.BikeCreationDto.UserId!}, cancellationToken);
 
                     if (user == null || user.IsDeleted)
@@ -50,7 +50,7 @@ namespace Application.Bikes
                         return Result<Unit>.NotFound($"User with {request.BikeCreationDto.UserId} does not exist.");
                     }
 
-                    Bike oldBike = await _context.Bike
+                    Bike? oldBike = await _context.Bike
                         .Where(b => b.UserId == request.BikeCreationDto.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 

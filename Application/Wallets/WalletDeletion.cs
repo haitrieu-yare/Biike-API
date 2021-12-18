@@ -34,7 +34,7 @@ namespace Application.Wallets
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Wallet wallet =
+                    Wallet? wallet =
                         await _context.Wallet.FindAsync(new object[] {request.WalletId}, cancellationToken);
 
                     if (wallet == null)

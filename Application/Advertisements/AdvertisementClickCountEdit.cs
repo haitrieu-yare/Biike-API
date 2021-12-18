@@ -40,7 +40,7 @@ namespace Application.Advertisements
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Advertisement advertisement =
+                    Advertisement? advertisement =
                         await _context.Advertisement.FindAsync(new object[] {request.AdvertisementId},
                             cancellationToken);
 

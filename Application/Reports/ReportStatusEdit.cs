@@ -42,7 +42,7 @@ namespace Application.Reports
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Report oldReport = await _context.Report.FindAsync(
+                    Report? oldReport = await _context.Report.FindAsync(
                         new object[] {request.ReportId}, cancellationToken);
 
                     if (oldReport == null)

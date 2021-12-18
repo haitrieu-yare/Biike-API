@@ -46,7 +46,7 @@ namespace Application.Reports
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User userOne = await _context.User.Where(u => u.UserId == request.ReportCreationDto.UserOneId)
+                    User? userOne = await _context.User.Where(u => u.UserId == request.ReportCreationDto.UserOneId)
                         .Where(u => u.IsDeleted != true)
                         .SingleOrDefaultAsync(cancellationToken);
 
@@ -58,7 +58,7 @@ namespace Application.Reports
                             $"User one with UserId {request.ReportCreationDto.UserTwoId} doesn't exist.");
                     }
 
-                    User userTwo = await _context.User.Where(u => u.UserId == request.ReportCreationDto.UserTwoId)
+                    User? userTwo = await _context.User.Where(u => u.UserId == request.ReportCreationDto.UserTwoId)
                         .Where(u => u.IsDeleted != true)
                         .SingleOrDefaultAsync(cancellationToken);
 

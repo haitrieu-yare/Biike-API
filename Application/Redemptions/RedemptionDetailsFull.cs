@@ -44,7 +44,7 @@ namespace Application.Redemptions
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Redemption redemptionDb = await _context.Redemption
+                    Redemption? redemptionDb = await _context.Redemption
                         .Include(r => r.Voucher)
                         .ThenInclude(v => v.VoucherImages)
                         .Include(r => r.Wallet.User)

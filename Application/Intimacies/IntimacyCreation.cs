@@ -41,7 +41,7 @@ namespace Application.Intimacies
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
+                    Intimacy? oldIntimacy = await _context.Intimacy.FindAsync(
                         new object[]
                         {
                             request.IntimacyModificationDto.UserOneId!, request.IntimacyModificationDto.UserTwoId!
@@ -53,7 +53,7 @@ namespace Application.Intimacies
                         return Result<Unit>.Failure("Intimacy has already existed.");
                     }
 
-                    User userTwo = await _context.User
+                    User? userTwo = await _context.User
                         .Where(u => u.UserId == request.IntimacyModificationDto.UserTwoId)
                         .Where(u => u.IsDeleted != true)
                         .SingleOrDefaultAsync(cancellationToken);

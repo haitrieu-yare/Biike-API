@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
-// ReSharper disable UnusedAutoPropertyAccessor.Global
-
 namespace Application.Addresses
 {
     // ReSharper disable once ClassNeverInstantiated.Global

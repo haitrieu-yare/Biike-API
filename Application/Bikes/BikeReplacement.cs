@@ -40,7 +40,7 @@ namespace Application.Bikes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Bike oldBike = await _context.Bike
+                    Bike? oldBike = await _context.Bike
                         .Where(b => b.UserId == request.BikeCreationDto.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 

@@ -49,7 +49,7 @@ namespace Application.Advertisements
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Advertisement oldAdvertisement =
+                    Advertisement? oldAdvertisement =
                         await _context.Advertisement.FindAsync(new object[] {request.AdvertisementId},
                             cancellationToken);
 
@@ -109,7 +109,7 @@ namespace Application.Advertisements
                     {
                         foreach (var advertisementImageDto in request.NewAdvertisement.AdvertisementImages)
                         {
-                            AdvertisementImage oldAdvertisementImage =
+                            AdvertisementImage? oldAdvertisementImage =
                                 await _context.AdvertisementImage.FindAsync(
                                     new object[] {advertisementImageDto.AdvertisementImageId!}, cancellationToken);
 

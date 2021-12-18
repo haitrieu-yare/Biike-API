@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Application.Core;
 using Application.Users.DTOs;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -65,10 +66,16 @@ namespace Application.Users
                             return Result<Unit>.NotFound("IsDefault doesn't accept false value.");
                         }
 
-                        var defaultUserAddress = await _context.UserAddress
+                        UserAddress? defaultUserAddress = await _context.UserAddress
                             .Where(u => u.UserId == request.UserAddressDto.UserId)
                             .Where(u => u.IsDefault == true)
                             .SingleOrDefaultAsync(cancellationToken);
+                        
+                        if (defaultUserAddress == null)
+                        {
+                            _logger.LogInformation("Default user address doesn't exist");
+                            return Result<Unit>.NotFound("Default user address doesn't exist.");
+                        }
 
                         if (defaultUserAddress.UserAddressId == request.UserAddressId)
                         {

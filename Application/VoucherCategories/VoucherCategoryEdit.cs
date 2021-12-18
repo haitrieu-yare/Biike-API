@@ -39,7 +39,7 @@ namespace Application.VoucherCategories
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    VoucherCategory oldVoucherCategory =
+                    VoucherCategory? oldVoucherCategory =
                         await _context.VoucherCategory.FindAsync(new object[] {request.VoucherCategoryId},
                             cancellationToken);
 

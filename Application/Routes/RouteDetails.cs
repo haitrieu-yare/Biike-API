@@ -42,7 +42,7 @@ namespace Application.Routes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    RouteDto route;
+                    RouteDto? route;
 
                     if (request.IsAdmin)
                     {
@@ -50,6 +50,12 @@ namespace Application.Routes
                             .Where(r => r.RouteId == request.RouteId)
                             .ProjectTo<RouteDto>(_mapper.ConfigurationProvider)
                             .SingleOrDefaultAsync(cancellationToken);
+                        
+                        if (route == null)
+                        {
+                            _logger.LogInformation("Route doesn't exist");
+                            return Result<RouteDto>.NotFound("Route doesn't exist.");
+                        }
                     }
                     else
                     {
@@ -58,7 +64,7 @@ namespace Application.Routes
                             .Where(r => r.IsDeleted != true)
                             .ProjectTo<RouteDto>(_mapper.ConfigurationProvider)
                             .SingleOrDefaultAsync(cancellationToken);
-
+                        
                         if (route == null)
                         {
                             _logger.LogInformation("Route doesn't exist");

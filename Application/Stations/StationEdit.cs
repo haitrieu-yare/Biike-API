@@ -40,7 +40,7 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Station oldStation = await _context.Station
+                    Station? oldStation = await _context.Station
                         .FindAsync(new object[] {request.StationId}, cancellationToken);
 
                     if (oldStation == null)

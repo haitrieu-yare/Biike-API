@@ -45,7 +45,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip trip = await _context.Trip
+                    Trip? trip = await _context.Trip
                         .FindAsync(new object[] {request.TripId}, cancellationToken);
 
                     if (trip == null)

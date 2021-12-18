@@ -43,11 +43,11 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    UserDto userProfile = new();
+                    UserDto? userProfile = new();
 
                     if (request.IsAdmin)
                     {
-                        User userProfileDb =
+                        User? userProfileDb =
                             await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                         if (userProfileDb == null)

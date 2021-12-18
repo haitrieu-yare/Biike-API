@@ -41,7 +41,7 @@ namespace Application.Sos
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Domain.Entities.Sos sos =
+                    Domain.Entities.Sos? sos =
                         await _context.Sos.FindAsync(new object[] {request.SosId}, cancellationToken);
 
                     if (sos == null)

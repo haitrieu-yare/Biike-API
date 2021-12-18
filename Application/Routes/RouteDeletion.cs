@@ -34,7 +34,7 @@ namespace Application.Routes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Route route = await _context.Route
+                    Route? route = await _context.Route
                         .FindAsync(new object[] {request.RouteId}, cancellationToken);
 
                     if (route == null)

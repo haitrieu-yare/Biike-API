@@ -42,7 +42,7 @@ namespace Application.Advertisements
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Advertisement advertisement = await _context.Advertisement
+                    Advertisement? advertisement = await _context.Advertisement
                         .AsSingleQuery()
                         .Where(a => a.AdvertisementId == request.AdvertisementId)
                         .Include(a => a.AdvertisementAddresses)

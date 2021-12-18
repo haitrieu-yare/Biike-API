@@ -38,7 +38,7 @@ namespace Application.TripTransactions
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    TripTransaction tripTransactionDb =
+                    TripTransaction? tripTransactionDb =
                         await _context.TripTransaction.FindAsync(new object[] {request.TripTransactionId},
                             cancellationToken);
 

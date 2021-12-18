@@ -36,7 +36,7 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    User? user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null || user.IsDeleted)
                     {

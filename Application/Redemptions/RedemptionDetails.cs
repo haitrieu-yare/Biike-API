@@ -42,7 +42,7 @@ namespace Application.Redemptions
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Redemption redemptionDb = await _context.Redemption.Include(r => r.Wallet.User)
+                    Redemption? redemptionDb = await _context.Redemption.Include(r => r.Wallet.User)
                         .Where(r => r.RedemptionId == request.RedemptionId)
                         .SingleOrDefaultAsync(cancellationToken);
 

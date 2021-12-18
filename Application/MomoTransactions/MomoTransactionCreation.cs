@@ -121,7 +121,7 @@ namespace Application.MomoTransactions
                         return Result<Unit>.Failure("TransactionId value doesn't match with Momo server.");
                     }
 
-                    MomoTransaction momoTransaction = await _context.MomoTransaction
+                    MomoTransaction? momoTransaction = await _context.MomoTransaction
                         .Where(m => m.TransactionId == momoTransactionCheckResultDto.TransId ||
                                     m.OrderId == momoTransactionCheckResultDto.OrderId)
                         .SingleOrDefaultAsync(cancellationToken);

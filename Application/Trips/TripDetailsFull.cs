@@ -45,7 +45,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User.FindAsync(new object[] {request.UserRequestId},
+                    User? user = await _context.User.FindAsync(new object[] {request.UserRequestId},
                         cancellationToken);
 
                     if (user == null || user.IsDeleted)
@@ -54,7 +54,7 @@ namespace Application.Trips
                         return Result<TripDetailsFullDto>.NotFound("User who sent request doesn't exist.");
                     }
 
-                    Trip tripDb = await _context.Trip
+                    Trip? tripDb = await _context.Trip
                         .Where(t => t.TripId == request.TripId)
                         .Include(t => t.Keer)
                         .Include(t => t.Biker)

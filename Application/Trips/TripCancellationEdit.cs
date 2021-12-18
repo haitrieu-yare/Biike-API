@@ -62,7 +62,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    User? user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null || user.IsDeleted)
                     {
@@ -76,7 +76,7 @@ namespace Application.Trips
                         return Result<Unit>.Failure("You have exceeded the maximum number of cancellation in one day.");
                     }
                     
-                    Trip trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+                    Trip? trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
 
                     if (trip == null)
                     {

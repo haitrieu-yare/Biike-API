@@ -59,7 +59,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip trip = await _context.Trip
+                    Trip? trip = await _context.Trip
                         .Where(t => t.TripId == request.TripId)
                         .Include(t => t.Route)
                         .SingleOrDefaultAsync(cancellationToken);

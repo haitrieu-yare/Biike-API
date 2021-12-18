@@ -43,7 +43,7 @@ namespace Application.Advertisements
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Advertisement advertisement = await _context.Advertisement.FindAsync(
+                    Advertisement? advertisement = await _context.Advertisement.FindAsync(
                         new object[] {request.AdvertisementImageDeletionDto.AdvertisementId!}, cancellationToken);
 
                     if (advertisement == null)

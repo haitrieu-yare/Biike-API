@@ -51,7 +51,7 @@ namespace Application.Feedbacks
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip trip = await _context.Trip.FindAsync(new object[] {request.FeedbackCreationDto.TripId!},
+                    Trip? trip = await _context.Trip.FindAsync(new object[] {request.FeedbackCreationDto.TripId!},
                         cancellationToken);
 
                     if (trip == null)

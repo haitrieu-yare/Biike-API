@@ -56,7 +56,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
+                    Trip? trip = await _context.Trip.FindAsync(new object[] {request.TripId}, cancellationToken);
 
                     if (trip == null)
                     {
@@ -70,7 +70,7 @@ namespace Application.Trips
                         return Result<Unit>.Failure("Biker and Keer can't be the same person.");
                     }
 
-                    User biker = await _context.User
+                    User? biker = await _context.User
                         .Where(u => u.UserId == request.BikerId)
                         .Where(u => u.IsDeleted == false)
                         .SingleOrDefaultAsync(cancellationToken);
@@ -87,7 +87,7 @@ namespace Application.Trips
                         return Result<Unit>.Failure("Biker doesn't have verified bike yet.");
                     }
 
-                    Bike bike = await _context.Bike
+                    Bike? bike = await _context.Bike
                         .Where(b => b.UserId == biker.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 

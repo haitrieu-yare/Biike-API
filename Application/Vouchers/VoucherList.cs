@@ -92,54 +92,73 @@ namespace Application.Vouchers
                     {
                         voucherQueryable = voucherQueryable.Where(v => v.VoucherCategoryId == request.CategoryId);
                     }
+                    
+                    List<VoucherDto> vouchers = new();
+                    List<int> voucherIds = new();
+                    var isNearUser = !string.IsNullOrEmpty(request.UserCoordinate);
+                    
+                    if (isNearUser)
+                    {
+                        CultureInfo culture = new ("en-US");
+                        var userCoordinate = request.UserCoordinate!.Split(",");
+                        var userLatitude = Convert.ToDouble(userCoordinate[0], culture);
+                        var userLongitude = Convert.ToDouble(userCoordinate[1], culture);
+
+                        var voucherAddresses = await _context.VoucherAddress
+                            .ToListAsync(cancellationToken);
+                            
+                        var addresses = await _context.Address
+                            .Where(a => voucherAddresses
+                                .Select(va => va.AddressId)
+                                .Distinct().Contains(a.AddressId))
+                            .Include(a => a.VoucherAddresses)
+                            .ToListAsync(cancellationToken);
+
+                        // var addressComparer = new ApplicationUtils.AddressComparer(userLatitude, userLongitude);
+                        // addresses.Sort(addressComparer);
+                            
+                        addresses.Sort(new ApplicationUtils.AddressComparer(userLatitude, userLongitude));
+
+                        var sortedVoucherAddresses = voucherAddresses
+                            .OrderBy(va => addresses.IndexOf(va.Address)).ToList();
+
+                        voucherIds = sortedVoucherAddresses.Select(va => va.VoucherId).Distinct().ToList();
+
+                        voucherQueryable = voucherQueryable
+                            .Where(v => voucherIds.Contains(v.VoucherId))
+                            .OrderBy(v => v.VoucherId);
+                    }
 
                     var totalRecord = await voucherQueryable.CountAsync(cancellationToken);
                     var lastPage = ApplicationUtils.CalculateLastPage(totalRecord, request.Limit);
-
-                    List<VoucherDto> vouchers = new();
-
+                    
                     if (request.Page <= lastPage)
                     {
-                        voucherQueryable = voucherQueryable.AsSingleQuery();
-                        
-                        if (!string.IsNullOrEmpty(request.UserCoordinate))
+                        if (!isNearUser)
                         {
-                            CultureInfo culture = new ("en-US");
-                            var userCoordinate = request.UserCoordinate.Split(",");
-                            double userLatitude = Convert.ToDouble(userCoordinate[0], culture);
-                            double userLongitude = Convert.ToDouble(userCoordinate[1], culture);
-
-                            var addresses = await _context.Address
-                                .Include(a => a.VoucherAddresses)
-                                .ToListAsync(cancellationToken);
-                            
-                            addresses.Sort(new ApplicationUtils.AddressComparer(userLatitude, userLongitude));
-                        
-                            HashSet<int> voucherSet = new();
-
-                            foreach (var voucherAddress in addresses.SelectMany(address => address.VoucherAddresses))
-                            {
-                                voucherSet.Add(voucherAddress.VoucherId);
-                            }
-
-                            voucherQueryable = voucherQueryable
-                                .Where(v => voucherSet.Contains(v.VoucherId));
+                            voucherQueryable = voucherQueryable.OrderBy(v => v.EndDate);
                         }
                         
                         vouchers = await voucherQueryable
-                            .OrderBy(v => v.EndDate)
+                            .AsSingleQuery()
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
                             .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
                             .ToListAsync(cancellationToken);
+
+                        if (isNearUser)
+                        {
+                            vouchers = new List<VoucherDto>(
+                                vouchers.OrderBy(v => voucherIds.IndexOf(v.VoucherId)));
+                        }
                     }
 
                     PaginationDto paginationDto = new(
                         request.Page, request.Limit, vouchers.Count, lastPage, totalRecord);
 
                     _logger.LogInformation("Successfully retrieved list of all vouchers");
-                    return Result<List<VoucherDto>>.Success(vouchers, "Successfully retrieved list of all vouchers.",
-                        paginationDto);
+                    return Result<List<VoucherDto>>.Success(vouchers, 
+                        "Successfully retrieved list of all vouchers.", paginationDto);
                 }
                 catch (Exception ex) when (ex is TaskCanceledException)
                 {

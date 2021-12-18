@@ -38,7 +38,7 @@ namespace Application.Bikes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Bike bikeDb = await _context.Bike
+                    Bike? bikeDb = await _context.Bike
                         .FindAsync(new object[] {request.BikeId}, cancellationToken);
 
                     if (bikeDb == null)

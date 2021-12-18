@@ -41,7 +41,7 @@ namespace Application.Users
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    UserDto userProfile = await _context.User
+                    UserDto? userProfile = await _context.User
                         .Where(u => u.UserId == request.UserId)
                         .Where(u => u.IsDeleted != true)
                         .ProjectTo<UserDto>(_mapper.ConfigurationProvider)

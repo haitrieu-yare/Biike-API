@@ -46,7 +46,7 @@ namespace Application.VoucherCodes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    VoucherCode oldVoucherCode =
+                    VoucherCode? oldVoucherCode =
                         await _context.VoucherCode.FindAsync(new object[] {request.VoucherCodeId}, cancellationToken);
 
                     if (oldVoucherCode == null)

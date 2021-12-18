@@ -108,7 +108,7 @@ namespace Application.Routes
                         return Result<Unit>.Failure("Could not create route because none of the station is a central point.");
                     }
 
-                    Route oldRoute = await _context.Route
+                    Route? oldRoute = await _context.Route
                         .Where(r => r.DepartureId == departure.StationId)
                         .Where(r => r.DestinationId == destination.StationId)
                         .SingleOrDefaultAsync(cancellationToken);

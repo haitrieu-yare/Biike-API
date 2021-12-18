@@ -40,7 +40,7 @@ namespace Application.Trips
                     return;
                 }
 
-                Trip trip = await _context.Trip.FindAsync(tripId);
+                Trip? trip = await _context.Trip.FindAsync(tripId);
 
                 if (trip == null)
                 {

@@ -41,7 +41,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    TripDetailsDto trip = await _context.Trip.Where(t => t.TripId == request.TripId)
+                    TripDetailsDto? trip = await _context.Trip.Where(t => t.TripId == request.TripId)
                         .ProjectTo<TripDetailsDto>(_mapper.ConfigurationProvider)
                         .SingleOrDefaultAsync(cancellationToken);
 

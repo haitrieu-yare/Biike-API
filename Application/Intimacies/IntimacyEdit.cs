@@ -37,7 +37,7 @@ namespace Application.Intimacies
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Intimacy oldIntimacy = await _context.Intimacy.FindAsync(
+                    Intimacy? oldIntimacy = await _context.Intimacy.FindAsync(
                         new object[]
                         {
                             request.IntimacyModificationDto.UserOneId!, request.IntimacyModificationDto.UserTwoId!

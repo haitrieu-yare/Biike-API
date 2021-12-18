@@ -43,11 +43,11 @@ namespace Application.Stations
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    StationDto station = new();
+                    StationDto? station = new();
 
                     if (request.IsAdmin)
                     {
-                        Station stationDb = await _context.Station
+                        Station? stationDb = await _context.Station
                             .FindAsync(new object[] {request.StationId}, cancellationToken);
 
                         if (stationDb == null)

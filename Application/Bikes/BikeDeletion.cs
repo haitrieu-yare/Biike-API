@@ -40,7 +40,7 @@ namespace Application.Bikes
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    User? user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
 
                     if (user == null || user.IsDeleted)
                     {
@@ -51,7 +51,7 @@ namespace Application.Bikes
                     user.IsBikeVerified = false;
                     user.RoleId = (int) RoleStatus.Keer;
 
-                    Bike bike = await _context.Bike
+                    Bike? bike = await _context.Bike
                         .Where(b => b.UserId == request.UserId)
                         .SingleOrDefaultAsync(cancellationToken);
 

@@ -59,7 +59,7 @@ namespace Application.Users
 
                 try
                 {
-                    User userDb = await _context.User
+                    User? userDb = await _context.User
                         .Where(u => u.Email == request.UserCreationDto.Email ||
                                     u.PhoneNumber == request.UserCreationDto.PhoneNumber)
                         .SingleOrDefaultAsync(CancellationToken.None);

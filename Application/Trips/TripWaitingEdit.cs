@@ -52,7 +52,7 @@ namespace Application.Trips
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Trip trip = await _context.Trip
+                    Trip? trip = await _context.Trip
                         .FindAsync(new object[] {request.TripId}, cancellationToken);
 
                     if (trip == null)
@@ -61,7 +61,7 @@ namespace Application.Trips
                         return Result<Unit>.Failure("Trip doesn't exist.");
                     }
                     
-                    User user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
+                    User? user = await _context.User.FindAsync(new object[] {request.UserId}, cancellationToken);
                     
                     if (user == null || user.IsDeleted)
                     {
