@@ -62,7 +62,6 @@ namespace Application.Users
                             $"User with userId {auth.User.LocalId} doesn't exist.");
                     }
 
-                    // TODO: Verify phone bằng cách lưu thông tin verified trên firebase
                     if (!user.IsEmailVerified)
                     {
                         if (auth.User.IsEmailVerified)

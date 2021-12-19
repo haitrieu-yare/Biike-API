@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Domain.Entities;
 using FirebaseAdmin.Auth;
 using FirebaseAdmin.Auth.Hash;
+using Google.Apis.Auth.OAuth2.Responses;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Persistence;
@@ -53,6 +54,10 @@ namespace API
             {
                 _logger.LogError("Error importing users: {e.Message}", e.Message);
             }
-        }
+            catch (TokenResponseException e)
+            {
+                _logger.LogError("Firebase service is down or configured wrong. {Error}", e.Message);
+            }       
+        }       
     }
 }

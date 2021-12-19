@@ -159,7 +159,6 @@ namespace Application.Feedbacks
                             
                             switch (newFeedback.TripStar)
                             {
-                                // TODO: Thêm config cho điểm
                                 case 4:
                                     await _auto.Run(trip, 5, Constant.TripFeedbackPoint);
                                     if (isTripHasTip)

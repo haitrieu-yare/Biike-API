@@ -5,11 +5,12 @@ using Application;
 using Application.Vouchers;
 using Application.Vouchers.DTOs;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    // [Authorize]
+    [Authorize]
     public class VouchersController : BaseApiController
     {
         // Keer, Biker, Admin
@@ -17,12 +18,12 @@ namespace API.Controllers
         public async Task<IActionResult> GetVouchers(int page, int limit, int voucherCategoryId, string? userCoordinate,
             CancellationToken ct)
         {
-            // ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
-            //
-            // if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
+            ValidationDto validationDto = ControllerUtils.Validate(HttpContext);
+            
+            if (!validationDto.IsUserFound) return BadRequest(Constant.CouldNotGetIdOfUserSentRequest);
 
             return HandleResult(await Mediator.Send(
-                new VoucherList.Query(page, limit, voucherCategoryId, userCoordinate, /*validationDto.IsAdmin*/ false), ct));
+                new VoucherList.Query(page, limit, voucherCategoryId, userCoordinate, validationDto.IsAdmin), ct));
         }
 
         // Keer, Biker, Admin

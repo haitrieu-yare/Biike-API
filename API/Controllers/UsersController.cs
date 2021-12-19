@@ -109,7 +109,6 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new UserCreation.Command(userCreationDto), ct));
         }
 
-        // TODO: When a user can modify account activation?
         [AllowAnonymous]
         [HttpPut("{userId:int}/activation")]
         public async Task<IActionResult> ModifyAccountActivation(

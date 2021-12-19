@@ -84,8 +84,6 @@ namespace API.Controllers
                 }, ct));
         }
 
-        // TODO: Search Ke Now Trip
-
         // Keer, Biker, Admin
         [HttpGet("historyPair")]
         public async Task<IActionResult> GetHistoryPairTrips(int userOneId, int userTwoId, int page, int limit,
@@ -178,7 +176,6 @@ namespace API.Controllers
 
         // Keer
         [HttpPost("schedule")]
-        // TODO: TripScheduleCreationDto không cần field isScheduled
         public async Task<IActionResult> CreateTripSchedule(TripScheduleCreationDto tripScheduleCreationDto,
             CancellationToken ct)
         {
