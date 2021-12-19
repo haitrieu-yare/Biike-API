@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Domain.Entities;
+using Application.Addresses.DTOs;
 
 namespace Application
 {
@@ -74,7 +74,7 @@ namespace Application
             return rad * c;
         }
         
-        public class AddressComparer : IComparer<Address>
+        public class AddressComparer : IComparer<AddressCoordinateDto>
         {
             private readonly double _userLatitude;
             private readonly double _userLongitude;
@@ -86,19 +86,19 @@ namespace Application
             }
 
             private readonly CultureInfo _culture = new ("en-US");
-            public int Compare(Address? x, Address? y)
+            public int Compare(AddressCoordinateDto? x, AddressCoordinateDto? y)
             {
                 if (ReferenceEquals(x, y)) return 0;
                 if (ReferenceEquals(null, y)) return 1;
                 if (ReferenceEquals(null, x)) return -1;
             
                 var xCoordinate = x.AddressCoordinate.Split(",");
-                double xLatitude = Convert.ToDouble(xCoordinate[0], _culture);
-                double xLongitude = Convert.ToDouble(xCoordinate[1],_culture);
+                var xLatitude = Convert.ToDouble(xCoordinate[0], _culture);
+                var xLongitude = Convert.ToDouble(xCoordinate[1],_culture);
                 
                 var yCoordinate = y.AddressCoordinate.Split(",");
-                double yLatitude = Convert.ToDouble(yCoordinate[0], _culture);
-                double yLongitude = Convert.ToDouble(yCoordinate[1], _culture);
+                var yLatitude = Convert.ToDouble(yCoordinate[0], _culture);
+                var yLongitude = Convert.ToDouble(yCoordinate[1], _culture);
             
                 var distanceFromX = Haversine(_userLatitude, _userLongitude, 
                     xLatitude, xLongitude);

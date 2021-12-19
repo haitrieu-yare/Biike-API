@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Addresses.DTOs;
 using Application.Core;
 using Application.Vouchers.DTOs;
 using AutoMapper;
@@ -78,7 +79,7 @@ namespace Application.Vouchers
 
                     var currentTime = CurrentTime.GetCurrentTime();
 
-                    IQueryable<Voucher> voucherQueryable = _context.Voucher;
+                    IQueryable<Voucher> voucherQueryable = _context.Voucher.AsQueryable();
 
                     if (!request.IsAdmin)
                     {
@@ -90,7 +91,8 @@ namespace Application.Vouchers
 
                     if (request.CategoryId != 0)
                     {
-                        voucherQueryable = voucherQueryable.Where(v => v.VoucherCategoryId == request.CategoryId);
+                        voucherQueryable = voucherQueryable
+                            .Where(v => v.VoucherCategoryId == request.CategoryId);
                     }
                     
                     List<VoucherDto> vouchers = new();
@@ -106,27 +108,36 @@ namespace Application.Vouchers
 
                         var voucherAddresses = await _context.VoucherAddress
                             .ToListAsync(cancellationToken);
-                            
+                        
                         var addresses = await _context.Address
+                            .AsQueryable()
                             .Where(a => voucherAddresses
                                 .Select(va => va.AddressId)
                                 .Distinct().Contains(a.AddressId))
-                            .Include(a => a.VoucherAddresses)
+                            .Select(a => new AddressCoordinateDto
+                            {
+                                AddressId = a.AddressId,
+                                AddressCoordinate = a.AddressCoordinate
+                            })
+                            .AsAsyncEnumerable()
+                            .OrderBy(a => a,
+                                new ApplicationUtils.AddressComparer(userLatitude, userLongitude))
                             .ToListAsync(cancellationToken);
 
                         // var addressComparer = new ApplicationUtils.AddressComparer(userLatitude, userLongitude);
                         // addresses.Sort(addressComparer);
-                            
-                        addresses.Sort(new ApplicationUtils.AddressComparer(userLatitude, userLongitude));
+                        
+                        // addresses.Sort(new ApplicationUtils.AddressComparer(userLatitude, userLongitude));
 
                         var sortedVoucherAddresses = voucherAddresses
-                            .OrderBy(va => addresses.IndexOf(va.Address)).ToList();
+                            .OrderBy(va => addresses
+                                .Select(a => a.AddressId).ToList()
+                                .IndexOf(va.AddressId)).ToList();
 
                         voucherIds = sortedVoucherAddresses.Select(va => va.VoucherId).Distinct().ToList();
 
                         voucherQueryable = voucherQueryable
-                            .Where(v => voucherIds.Contains(v.VoucherId))
-                            .OrderBy(v => v.VoucherId);
+                            .Where(v => voucherIds.Contains(v.VoucherId));
                     }
 
                     var totalRecord = await voucherQueryable.CountAsync(cancellationToken);
@@ -141,16 +152,12 @@ namespace Application.Vouchers
                         
                         vouchers = await voucherQueryable
                             .AsSingleQuery()
+                            .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
+                            .AsAsyncEnumerable()
+                            .OrderBy(v => voucherIds.IndexOf(v.VoucherId))
                             .Skip((request.Page - 1) * request.Limit)
                             .Take(request.Limit)
-                            .ProjectTo<VoucherDto>(_mapper.ConfigurationProvider)
                             .ToListAsync(cancellationToken);
-
-                        if (isNearUser)
-                        {
-                            vouchers = new List<VoucherDto>(
-                                vouchers.OrderBy(v => voucherIds.IndexOf(v.VoucherId)));
-                        }
                     }
 
                     PaginationDto paginationDto = new(
